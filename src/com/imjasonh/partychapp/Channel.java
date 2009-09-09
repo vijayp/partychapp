@@ -1,7 +1,8 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.cache.Cache;
@@ -17,8 +18,9 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Maps;
+import com.google.appengine.repackaged.com.google.common.collect.Sets;
+import com.imjasonh.partychapp.Member.SnoozeStatus;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
@@ -47,58 +49,74 @@ public class Channel implements Serializable {
   @Persistent
   private String name;
 
-  @Persistent
-  private List<String> memberJIDs;
+  @Persistent(serialized = "true")
+  private Set<Member> members;
 
   public Channel(String name) {
     this.name = name;
-    memberJIDs = Lists.newArrayList();
+    members = Sets.newHashSet();
   }
 
-  public void addMember(JID jid) {
-    String jidString = jid.getId();
-    if (!memberJIDs.contains(jidString)) {
-      memberJIDs.add(jidString);
+  public Member addMember(JID jid) {
+    if (getMemberByJID(jid) == null) {
+      Member member = new Member(jid);
+      members.add(member);
+      return member;
     }
+    return null;
   }
 
-  public void removeMember(JID jid) {
-    memberJIDs.remove(jid.getId());
-    if (memberJIDs.isEmpty()) {
-      memberJIDs = Lists.newArrayList();
+  public Member removeMember(JID jid) {
+    Member member = getMemberByJID(jid);
+    if (member != null) {
+      members.remove(member);
     }
+    if (members.isEmpty()) {
+      // App Engine seems to make empty sets null instead of empty sets.
+      members = Sets.newHashSet();
+    }
+    return member;
   }
 
   public boolean isMember(JID jid) {
-    if (memberJIDs == null) {
-      memberJIDs = Lists.newArrayList();
-    }
-    return memberJIDs.contains(jid.getId());
+    return getMemberByJID(jid) != null;
   }
 
   public boolean isEmpty() {
-    return memberJIDs.isEmpty();
+    return members.isEmpty();
   }
 
-  public JID[] getAllMemberJIDsArray() {
-    JID[] jids = new JID[memberJIDs.size()];
+  /**
+   * @param exclude
+   *          a JID to exclude (for example the person sending the broadcast message)
+   * @return an array of JIDs to send a message to, excluding snoozing members.
+   */
+  public JID[] getMembersJIDsToSendTo(JID exclude) {
+    String excludeJID = exclude.getId().split("/")[0];
+    JID[] jids = new JID[members.size()];
     int i = 0;
-    for (String jid : memberJIDs) {
-      jids[i] = new JID(jid);
-      i++;
+    boolean needToPut = false; // whether or not the channel needs to update
+    for (Member member : members) {
+      if (member.getJID().equals(excludeJID)) {
+        continue;
+      }
+      SnoozeStatus snoozeStatus = member.getSnoozeStatus();
+      switch (snoozeStatus) {
+        case SNOOZING:
+          continue; // skip this one
+        case NOT_SNOOZING:
+          break; // add this one
+        case SHOULD_WAKE:
+          member.setSnoozeUntil(null);
+          needToPut = true;
+          break;
+        default:
+          LOG.log(Level.WARNING, "Invalid SnoozeStatus " + snoozeStatus);
+      }
+      jids[i++] = new JID(member.getJID());
     }
-    return jids;
-  }
-
-  public JID[] getAllMemberJIDsArrayExcept(JID except, JID... excepts) {
-    List<String> copy = Lists.newArrayList(memberJIDs);
-    copy.remove(except.getId());
-    for (JID jid : excepts) {
-      copy.remove(jid.getId());
-    }
-    JID[] jids = new JID[copy.size()];
-    for (int i = 0; i < copy.size(); i++) {
-      jids[i] = new JID(copy.get(i));
+    if (needToPut) {
+      put();
     }
     return jids;
   }
@@ -119,6 +137,24 @@ public class Channel implements Serializable {
     } catch (JDOObjectNotFoundException notFound) {
       return null;
     }
+  }
+
+  public Set<Member> getMembers() {
+    return members;
+  }
+
+  public Member getMemberByJID(JID jid) {
+    String shortJID = jid.getId().split("/")[0];
+    if (members == null) {
+      members = Sets.newHashSet();
+      return null;
+    }
+    for (Member member : members) {
+      if (member.getJID().equals(shortJID)) {
+        return member;
+      }
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")

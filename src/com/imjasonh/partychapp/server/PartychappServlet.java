@@ -14,6 +14,7 @@ import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Member;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
@@ -58,9 +59,8 @@ public class PartychappServlet extends HttpServlet {
     if (channel == null) {
       // channel doesn't exist yet
       channel = handleCreateChannel();
-    }
-    if (!channel.isMember(userJID)) {
-      // user isn't in room yet
+    } else if (!channel.isMember(userJID)) {
+      // room exists, user isn't in room yet
       handleJoinChannel();
     }
 
@@ -79,9 +79,9 @@ public class PartychappServlet extends HttpServlet {
   }
 
   private void handleMessage(String body) {
-    JID[] recipients = channel.getAllMemberJIDsArrayExcept(userJID);
+    JID[] recipients = channel.getMembersJIDsToSendTo(userJID);
     if (recipients.length > 0) {
-      sendMessage("['" + alias + "'] " + body, serverJID, recipients);
+      sendMessage("['" + alias + "'] " + body, recipients);
     }
   }
 
@@ -92,35 +92,43 @@ public class PartychappServlet extends HttpServlet {
         .append("* /leave unsubscribes you from this channel\n")
         .append("* Send a message to echo@... to hear yourself talk")
         .toString();
-    sendMessage(msg, serverJID, userJID);
+    sendMessage(msg, userJID);
   }
 
   private void handleList() {
     StringBuilder sb = new StringBuilder()
         .append("List of members of '" + channelName + "':").append('\n');
-    for (JID member : channel.getAllMemberJIDsArray()) {
-      sb.append("* ").append(member.getId()).append('\n');
+    for (Member member : channel.getMembers()) {
+      sb.append("* ").append(member.getJID()).append('\n'); // TODO decorate with alias and snooze
+      // status
     }
-    sendMessage(sb.toString(), serverJID, userJID);
+    sendMessage(sb.toString(), userJID);
   }
 
   private void handleLeave() {
-    channel.removeMember(userJID);
+    Member member = channel.removeMember(userJID);
     channel.put();
-    sendMessage("You have left '" + channelName + "'", serverJID, userJID);
+    sendMessage("You have left '" + channelName + "'", userJID);
 
     if (!channel.isEmpty()) {
-      // tell everyone else (if they exist)
-      String msg = alias + " has left the room (" + userJID.getId() + ")";
-      sendMessage(msg, serverJID, channel.getAllMemberJIDsArray());
+      // tell everyone else
+      String msg = member.getAlias() + " has left the room (" + member.getJID() + ")";
+      sendMessage(msg, channel.getMembersJIDsToSendTo(userJID));
     }
   }
 
   private void handleJoinChannel() {
-    channel.addMember(userJID);
+    Member member = channel.addMember(userJID);
     channel.put();
-    String msg = "You have joined '" + channelName + "' with the alias '" + alias + "'";
-    sendMessage(msg, serverJID, userJID);
+    String youMsg = "You have joined '" + channelName + "' with the alias '" + alias + "'";
+    sendMessage(youMsg, userJID);
+
+    if (channel.getMembers().size() > 1) {
+      JID[] otherMembers = channel.getMembersJIDsToSendTo(userJID);
+      String broadcastMsg = member.getJID() + "has joined the channel with the alias '"
+          + member.getAlias() + "'";
+      sendMessage(broadcastMsg, otherMembers);
+    }
   }
 
   private Channel handleCreateChannel() {
@@ -130,19 +138,19 @@ public class PartychappServlet extends HttpServlet {
     channel.put();
     String msg = "The channel '" + channelName + "' has been created, " +
         "and you have joined with the alias '" + alias + "'";
-    sendMessage(msg, serverJID, userJID);
+    sendMessage(msg, userJID);
     return channel;
   }
 
   private void handleEcho(String body) {
     // if the user is talking to echo@, just echo back
-    sendMessage("ECHO: " + body, serverJID, userJID);
+    sendMessage("ECHO: " + body, userJID);
   }
 
-  private void sendMessage(String body, JID fromJID, JID... toJID) {
+  private void sendMessage(String body, JID... toJID) {
     XMPP.sendMessage(new MessageBuilder()
         .withRecipientJids(toJID)
-        .withFromJid(fromJID)
+        .withFromJid(serverJID)
         .withBody(body)
         .build());
   }
