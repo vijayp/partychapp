@@ -2,8 +2,6 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -30,7 +28,7 @@ public class Channel implements Serializable {
    */
   private static final long serialVersionUID = 3860339764413214817L;
 
-  private static final Logger LOG = Logger.getLogger(Channel.class.getName());
+  // private static final Logger LOG = Logger.getLogger(Channel.class.getName());
 
   private static final PersistenceManager PERSISTENCE_MANAGER =
       JDOHelper.getPersistenceManagerFactory("transactions-optional").getPersistenceManager();
@@ -57,33 +55,40 @@ public class Channel implements Serializable {
     members = Sets.newHashSet();
   }
 
-  public Member addMember(JID jid) {
-    if (getMemberByJID(jid) == null) {
-      Member member = new Member(jid);
-      members.add(member);
-      return member;
+  /**
+   * Adds a member to the channel. This may alter the member's alias by prepending a _ if the
+   * channel already has a member with that alias.
+   * 
+   * @param member
+   */
+  public void addMember(Member member) {
+    for (Member m : members) {
+      if (m.getAlias().equals(member.getAlias())) {
+        member.setAlias("_" + member.getAlias());
+        addMember(member);
+        return;
+      }
     }
-    return null;
+    members.add(member);
   }
 
-  public Member removeMember(JID jid) {
-    Member member = getMemberByJID(jid);
-    if (member != null) {
-      members.remove(member);
-    }
+  public void removeMember(Member member) {
+    members.remove(member);
     if (members.isEmpty()) {
-      // App Engine seems to make empty sets null instead of empty sets.
+      // App Engine seems to make empty sets null instead of empty sets?
       members = Sets.newHashSet();
     }
-    return member;
   }
 
-  public boolean isMember(JID jid) {
-    return getMemberByJID(jid) != null;
-  }
-
-  public boolean isEmpty() {
-    return members.isEmpty();
+  public Set<Member> awakenSnoozers() {
+    Set<Member> awoken = Sets.newHashSet();
+    for (Member member : members) {
+      if (member.getSnoozeStatus() == SnoozeStatus.SHOULD_WAKE) {
+        member.setSnoozeUntil(null);
+        awoken.add(member);
+      }
+    }
+    return awoken;
   }
 
   /**
@@ -95,28 +100,11 @@ public class Channel implements Serializable {
     String excludeJID = exclude.getId().split("/")[0];
     JID[] jids = new JID[members.size()];
     int i = 0;
-    boolean needToPut = false; // whether or not the channel needs to update
     for (Member member : members) {
-      if (member.getJID().equals(excludeJID)) {
-        continue;
+      if (!member.getJID().equals(excludeJID)
+          && member.getSnoozeStatus() != SnoozeStatus.SNOOZING) {
+        jids[i++] = new JID(member.getJID());
       }
-      SnoozeStatus snoozeStatus = member.getSnoozeStatus();
-      switch (snoozeStatus) {
-        case SNOOZING:
-          continue; // skip this one
-        case NOT_SNOOZING:
-          break; // add this one
-        case SHOULD_WAKE:
-          member.setSnoozeUntil(null);
-          needToPut = true;
-          break;
-        default:
-          LOG.log(Level.WARNING, "Invalid SnoozeStatus " + snoozeStatus);
-      }
-      jids[i++] = new JID(member.getJID());
-    }
-    if (needToPut) {
-      put();
     }
     return jids;
   }

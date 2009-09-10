@@ -2,7 +2,6 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.logging.Logger;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -20,12 +19,13 @@ public class Member implements Serializable {
    */
   private static final long serialVersionUID = 8243978327905416562L;
 
-  private static final Logger LOG = Logger.getLogger(Member.class.getName());
+  // private static final Logger LOG = Logger.getLogger(Member.class.getName());
 
+  @SuppressWarnings("unused")
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   @PrimaryKey
   private Key key;
-  
+
   @Persistent
   private String jid;
 
