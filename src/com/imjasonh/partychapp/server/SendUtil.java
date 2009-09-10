@@ -9,11 +9,11 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 
-public abstract class CommandHandler {
+public abstract class SendUtil {
 
-  static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
+  private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
 
-  static void sendDirect(String msg, JID userJID, JID serverJID) {
+  public static void sendDirect(String msg, JID userJID, JID serverJID) {
     XMPP.sendMessage(new MessageBuilder()
         .withBody(msg)
         .withFromJid(serverJID)
@@ -21,7 +21,7 @@ public abstract class CommandHandler {
         .build());
   }
 
-  static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
+  public static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
     if (channel.getMembers().size() > 1) {
 
       // awaken snoozers and broadcast them awawking.
@@ -44,5 +44,4 @@ public abstract class CommandHandler {
     }
   }
 
-  abstract void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel);
 }

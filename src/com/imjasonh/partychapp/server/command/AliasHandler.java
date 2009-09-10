@@ -1,8 +1,9 @@
-package com.imjasonh.partychapp.server;
+package com.imjasonh.partychapp.server.command;
 
 import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.server.SendUtil;
 
 public class AliasHandler extends CommandHandler {
 
@@ -14,7 +15,7 @@ public class AliasHandler extends CommandHandler {
     for (Member m : channel.getMembers()) {
       if (m.getAlias().equals(alias)) {
         String msg = "That alias is already taken";
-        broadcast(msg, channel, userJID, serverJID);
+        SendUtil.broadcast(msg, channel, userJID, serverJID);
         return;
       }
     }
@@ -23,10 +24,10 @@ public class AliasHandler extends CommandHandler {
     channel.put();
 
     String youMsg = "You are now known as '" + alias + "'";
-    sendDirect(youMsg, userJID, serverJID);
+    SendUtil.sendDirect(youMsg, userJID, serverJID);
 
     String msg = "'" + oldAlias + "' is now known as '" + alias + "'";
-    broadcast(msg, channel, userJID, serverJID);
+    SendUtil.broadcast(msg, channel, userJID, serverJID);
   }
 
 }

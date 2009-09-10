@@ -1,9 +1,10 @@
-package com.imjasonh.partychapp.server;
+package com.imjasonh.partychapp.server.command;
 
 import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
+import com.imjasonh.partychapp.server.SendUtil;
 
 public class ListHandler extends CommandHandler {
 
@@ -25,6 +26,6 @@ public class ListHandler extends CommandHandler {
       }
     }
 
-    sendDirect(sb.toString(), userJID, serverJID);
+    SendUtil.sendDirect(sb.toString(), userJID, serverJID);
   }
 }

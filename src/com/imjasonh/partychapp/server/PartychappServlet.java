@@ -14,6 +14,7 @@ import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
@@ -75,7 +76,7 @@ public class PartychappServlet extends HttpServlet {
 
   private void handleMessage(String body) {
     String msg = "['" + member.getAlias() + "'] " + body;
-    CommandHandler.broadcast(msg, channel, userJID, serverJID);
+    SendUtil.broadcast(msg, channel, userJID, serverJID);
   }
 
   private void handleJoinChannel() {
@@ -85,11 +86,11 @@ public class PartychappServlet extends HttpServlet {
 
     String youMsg = "You have joined '" + channel.getName() + "' with the alias '"
         + member.getAlias() + "'";
-    CommandHandler.sendDirect(youMsg, userJID, serverJID);
+    SendUtil.sendDirect(youMsg, userJID, serverJID);
 
     String msg = member.getJID() + "has joined the channel with the alias '"
         + member.getAlias() + "'";
-    CommandHandler.broadcast(msg, channel, userJID, serverJID);
+    SendUtil.broadcast(msg, channel, userJID, serverJID);
   }
 
   private void handleCreateChannel(String channelName) {
@@ -99,7 +100,7 @@ public class PartychappServlet extends HttpServlet {
     channel.put();
     String msg = "The channel '" + channel.getName() + "' has been created, " +
         "and you have joined with the alias '" + member.getAlias() + "'";
-    CommandHandler.sendDirect(msg, userJID, serverJID);
+    SendUtil.sendDirect(msg, userJID, serverJID);
   }
 
   private void handleEcho(String body) {

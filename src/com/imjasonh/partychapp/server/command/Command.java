@@ -1,4 +1,4 @@
-package com.imjasonh.partychapp.server;
+package com.imjasonh.partychapp.server.command;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -1,8 +1,9 @@
-package com.imjasonh.partychapp.server;
+package com.imjasonh.partychapp.server.command;
 
 import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.server.SendUtil;
 
 public class LeaveHandler extends CommandHandler {
 
@@ -11,9 +12,9 @@ public class LeaveHandler extends CommandHandler {
     channel.removeMember(member);
     channel.put();
     String youMsg = "You have left the room '" + channel.getName() + "'";
-    sendDirect(youMsg, userJID, serverJID);
+    SendUtil.sendDirect(youMsg, userJID, serverJID);
 
     String msg = member.getAlias() + " has left the room (" + member.getJID() + ")";
-    broadcast(msg, channel, userJID, serverJID);
+    SendUtil.broadcast(msg, channel, userJID, serverJID);
   }
 }
