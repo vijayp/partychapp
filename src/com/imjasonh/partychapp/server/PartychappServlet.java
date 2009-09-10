@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,7 +18,7 @@ import com.imjasonh.partychapp.Member;
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
 
-  private static final Logger LOG = Logger.getLogger(PartychappServlet.class.getName());
+  // private static final Logger LOG = Logger.getLogger(PartychappServlet.class.getName());
 
   private XMPPService XMPP;
 
@@ -27,13 +26,9 @@ public class PartychappServlet extends HttpServlet {
 
   private JID serverJID;
 
-  private String alias;
-
   private Channel channel;
 
   private Member member;
-
-  private String channelName;
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -45,14 +40,13 @@ public class PartychappServlet extends HttpServlet {
     Message message = XMPP.parseMessage(req);
 
     userJID = message.getFromJid();
-    alias = userJID.getId().split("@")[0]; // TODO don't automatically assume alias from JID
 
     serverJID = message.getRecipientJids()[0]; // should only be "to" one jid, right?
-    channelName = serverJID.getId().split("@")[0];
+    String channelName = serverJID.getId().split("@")[0];
 
     String body = message.getBody().trim();
 
-    if (channelName.equals("echo")) {
+    if (channelName.equalsIgnoreCase("echo")) {
       handleEcho(body);
       return;
     }
@@ -60,7 +54,7 @@ public class PartychappServlet extends HttpServlet {
     channel = Channel.getByName(channelName);
     if (channel == null) {
       // channel doesn't exist yet
-      channel = handleCreateChannel();
+      handleCreateChannel(channelName);
     }
 
     member = channel.getMemberByJID(userJID);
@@ -69,123 +63,51 @@ public class PartychappServlet extends HttpServlet {
       handleJoinChannel();
     }
 
-    if (body.equals("/leave")) {
-      handleLeave();
-    } else if (body.equals("/list")) {
-      handleList();
-    } else if (body.matches("/alias .*")) { // TODO better regex
-      handleAlias(body.replace("/alias ", ""));
-    } else if (body.equals("/commands") || body.equals("/help")) {
-      handleHelp();
-    } else {
-      // just a normal message to broadcast
-      handleMessage(body);
-    }
-  }
-
-  private void handleMessage(String body) {
-    JID[] recipients = channel.getMembersJIDsToSendTo(userJID);
-    if (recipients.length > 0) {
-      sendMessage("['" + alias + "'] " + body, recipients);
-    }
-  }
-
-  private void handleHelp() {
-    String msg = new StringBuilder()
-        .append("List of available commands:\n")
-        .append("* /list prints a list of all members subscribed to this channel\n")
-        .append("* /leave unsubscribes you from this channel\n")
-        .append("* /alias <name> sets your alias to <name>\n")
-        .append("* Send a message to echo@... to hear yourself talk")
-        .toString();
-    sendMessage(msg, userJID);
-  }
-
-  private void handleAlias(String alias) {
-    for (Member member : channel.getMembers()) {
-      if (member.getAlias().equals(alias)) {
-        String errorMsg = "That alias is taken";
-        sendMessage(errorMsg, userJID);
+    for (Command command : Command.values()) {
+      if (command.matches(body)) {
+        command.run(body, userJID, serverJID, member, channel);
         return;
       }
     }
 
-    String oldAlias = member.getAlias();
-    member.setAlias(alias);
-    channel.put();
-    String youMsg = "Your alias is now '" + member.getAlias() + "'";
-    sendMessage(youMsg, userJID);
-
-    // tell everyone else about the alias change
-    if (channel.getMembers().size() > 1) {
-      String msg = "'" + oldAlias + "' is now known as '" + alias + "'";
-      sendMessage(msg, channel.getMembersJIDsToSendTo(userJID));
-    }
+    handleMessage(body);
   }
 
-  private void handleList() {
-    StringBuilder sb = new StringBuilder()
-        .append("List of members of '" + channelName + "':").append('\n');
-    for (Member member : channel.getMembers()) {
-      sb.append("* ")
-          .append(member.getAlias())
-          .append(" (")
-          .append(member.getJID())
-          .append(")")
-          .append('\n'); // TODO decorate with snooze status
-    }
-    sendMessage(sb.toString(), userJID);
+  private void handleMessage(String body) {
+    String msg = "['" + member.getAlias() + "'] " + body;
+    CommandHandler.broadcast(msg, channel, userJID, serverJID);
   }
 
-  private void handleLeave() {
-    member = channel.removeMember(userJID);
-    channel.put();
-    String youMsg = "You have left '" + channelName + "'";
-    sendMessage(youMsg, userJID);
-
-    if (!channel.isEmpty()) {
-      // tell everyone else
-      String msg = member.getAlias() + " has left the room (" + member.getJID() + ")";
-      sendMessage(msg, channel.getMembersJIDsToSendTo(userJID));
-    }
-  }
-
-  // TODO BUG: aliases are autogenerated, if x@foo.com and x@bar.com join, there will be two x's.
   private void handleJoinChannel() {
-    member = channel.addMember(userJID);
+    member = new Member(userJID);
+    channel.addMember(member);
     channel.put();
-    String youMsg = "You have joined '" + channelName + "' with the alias '" + alias + "'";
-    sendMessage(youMsg, userJID);
 
-    if (channel.getMembers().size() > 1) {
-      JID[] otherMembers = channel.getMembersJIDsToSendTo(userJID);
-      String msg = member.getJID() + "has joined the channel with the alias '"
-          + member.getAlias() + "'";
-      sendMessage(msg, otherMembers);
-    }
+    String youMsg = "You have joined '" + channel.getName() + "' with the alias '"
+        + member.getAlias() + "'";
+    CommandHandler.sendDirect(youMsg, userJID, serverJID);
+
+    String msg = member.getJID() + "has joined the channel with the alias '"
+        + member.getAlias() + "'";
+    CommandHandler.broadcast(msg, channel, userJID, serverJID);
   }
 
-  private Channel handleCreateChannel() {
-    Channel channel;
+  private void handleCreateChannel(String channelName) {
     channel = new Channel(channelName);
-    channel.addMember(userJID);
+    member = new Member(userJID);
+    channel.addMember(member);
     channel.put();
-    String msg = "The channel '" + channelName + "' has been created, " +
-        "and you have joined with the alias '" + alias + "'";
-    sendMessage(msg, userJID);
-    return channel;
+    String msg = "The channel '" + channel.getName() + "' has been created, " +
+        "and you have joined with the alias '" + member.getAlias() + "'";
+    CommandHandler.sendDirect(msg, userJID, serverJID);
   }
 
   private void handleEcho(String body) {
-    // if the user is talking to echo@, just echo back
-    sendMessage("ECHO: " + body, userJID);
-  }
-
-  private void sendMessage(String body, JID... toJID) {
+    // if the user is talking to echo@, just echo back as simply as possible.
     XMPP.sendMessage(new MessageBuilder()
-        .withRecipientJids(toJID)
+        .withRecipientJids(userJID)
         .withFromJid(serverJID)
-        .withBody(body)
+        .withBody("echo: " + body)
         .build());
   }
 }
