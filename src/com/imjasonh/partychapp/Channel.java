@@ -157,7 +157,7 @@ public class Channel implements Serializable {
   }
 
   public void delete() {
-    // CACHE.remove(this.name);
+    CACHE.remove(this.name);
     PERSISTENCE_MANAGER.deletePersistent(this);
   }
 }
