@@ -1,19 +1,22 @@
 package com.imjasonh.partychapp.server.command;
 
-import com.google.appengine.api.xmpp.JID;
-import com.imjasonh.partychapp.Channel;
+import java.util.regex.Pattern;
+
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.SendUtil;
 
 public class ListHandler implements CommandHandler {
-
-  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
+	public static final Pattern pattern = Pattern.compile("^/(list|names)");
+	
+	
+  public void doCommand(Message msg) {
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
-        .append(channel.getName())
+        .append(msg.channel.getName())
         .append("'");
-    for (Member m : channel.getMembers()) {
+    for (Member m : msg.channel.getMembers()) {
       sb.append('\n')
           .append("* ")
           .append(m.getAlias())
@@ -25,6 +28,14 @@ public class ListHandler implements CommandHandler {
       }
     }
 
-    SendUtil.sendDirect(sb.toString(), userJID, serverJID);
+    SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
+  }
+  
+  public boolean matches(Message msg) {
+	  return pattern.matcher(msg.content.trim()).matches();
+  }
+  
+  public String documentation() {
+	  return "/list - show members of room";
   }
 }

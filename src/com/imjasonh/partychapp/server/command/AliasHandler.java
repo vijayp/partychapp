@@ -1,32 +1,41 @@
 package com.imjasonh.partychapp.server.command;
 
-import com.google.appengine.api.xmpp.JID;
-import com.imjasonh.partychapp.Channel;
+import java.util.regex.Pattern;
+
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
 public class AliasHandler implements CommandHandler {
+  public static Pattern pattern = Pattern.compile("^/(alias|rename) [a-zA-Z0-9\\-_'\\*]+");
+	
+  public void doCommand(Message msg) {
+    String oldAlias = msg.member.getAlias();
+    String alias = msg.content.replace("/alias ", ""); // TODO do this with matcher
 
-  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
-    String oldAlias = member.getAlias();
-    String alias = content.replace("/alias ", ""); // TODO do this with matcher
-
-    for (Member m : channel.getMembers()) {
+    for (Member m : msg.channel.getMembers()) {
       if (m.getAlias().equals(alias)) {
-        String msg = "That alias is already taken";
-        SendUtil.broadcast(msg, channel, userJID, serverJID);
+        String reply = "That alias is already taken";
+        SendUtil.broadcast(reply, msg.channel, msg.userJID, msg.serverJID);
         return;
       }
     }
 
-    member.setAlias(alias);
-    channel.put();
+    msg.member.setAlias(alias);
+    msg.channel.put();
 
     String youMsg = "You are now known as '" + alias + "'";
-    SendUtil.sendDirect(youMsg, userJID, serverJID);
+    SendUtil.sendDirect(youMsg, msg.userJID, msg.serverJID);
 
-    String msg = "'" + oldAlias + "' is now known as '" + alias + "'";
-    SendUtil.broadcast(msg, channel, userJID, serverJID);
+    String reply = "'" + oldAlias + "' is now known as '" + alias + "'";
+    SendUtil.broadcast(reply, msg.channel, msg.userJID, msg.serverJID);
   }
 
+  public boolean matches(Message msg) {
+	  return pattern.matcher(msg.content.trim()).matches();
+  }
+  
+  public String documentation() {
+	  return "/alias - rename yourself";
+  }
 }

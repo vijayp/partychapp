@@ -2,9 +2,8 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 import java.util.Set;
-
+ 
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
@@ -15,7 +14,6 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
 
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.google.appengine.api.xmpp.JID;

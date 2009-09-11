@@ -15,6 +15,7 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.server.command.Command;
+import com.imjasonh.partychapp.server.command.CommandHandler;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
@@ -63,15 +64,16 @@ public class PartychappServlet extends HttpServlet {
       // room exists, user isn't in room yet
       handleJoinChannel();
     }
+    
+    com.imjasonh.partychapp.Message msg = new com.imjasonh.partychapp.Message(body, userJID, serverJID, member, channel);
 
-    for (Command command : Command.values()) {
-      if (command.matches(body)) {
-        command.run(body, userJID, serverJID, member, channel);
-        return;
-      }
+    CommandHandler handler = Command.getCommandHandler(msg);
+    
+    if (handler != null) {
+    	handler.doCommand(msg);
+    } else {
+    	handleMessage(body);
     }
-
-    handleMessage(body);
   }
 
   private void handleMessage(String body) {

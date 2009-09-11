@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
@@ -13,6 +14,9 @@ public abstract class SendUtil {
 
   private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
 
+  private static final Logger LOG = Logger.getLogger(Channel.class.getName());
+
+  
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
     XMPP.sendMessage(new MessageBuilder()
         .withBody(msg)
@@ -36,6 +40,11 @@ public abstract class SendUtil {
       }
 
       JID[] recipients = channel.getMembersJIDsToSendTo(userJID);
+      
+      LOG.severe("msg: " + msg +
+    		     ", fromjid: " + serverJID +
+    		     ", tojid: " + recipients);
+      
       XMPP.sendMessage(new MessageBuilder()
           .withBody(msg)
           .withFromJid(serverJID)
