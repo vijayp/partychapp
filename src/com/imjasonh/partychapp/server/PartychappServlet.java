@@ -13,9 +13,10 @@ import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.server.command.Command;
 import com.imjasonh.partychapp.server.command.CommandHandler;
+import com.imjasonh.partychapp.server.command.CreateAndJoinCommand;
+import com.imjasonh.partychapp.server.command.JoinCommand;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
@@ -24,13 +25,7 @@ public class PartychappServlet extends HttpServlet {
 
   private XMPPService XMPP;
 
-  private JID userJID;
-
-  private JID serverJID;
-
-  private Channel channel;
-
-  private Member member;
+  com.imjasonh.partychapp.Message message;
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -39,77 +34,53 @@ public class PartychappServlet extends HttpServlet {
 
     XMPP = XMPPServiceFactory.getXMPPService();
 
-    Message message = XMPP.parseMessage(req);
+    Message xmppMessage = XMPP.parseMessage(req);
 
-    userJID = message.getFromJid();
+    JID userJID = xmppMessage.getFromJid();
 
-    serverJID = message.getRecipientJids()[0]; // should only be "to" one jid, right?
+    JID serverJID = xmppMessage.getRecipientJids()[0]; // should only be "to" one jid, right?
     String channelName = serverJID.getId().split("@")[0];
 
-    String body = message.getBody().trim();
+    String body = xmppMessage.getBody().trim();
 
     if (channelName.equalsIgnoreCase("echo")) {
       handleEcho(body);
       return;
     }
 
-    channel = Channel.getByName(channelName);
-    if (channel == null) {
+    message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
+
+    message.channel = Channel.getByName(channelName);
+    if (message.channel == null) {
       // channel doesn't exist yet
-      handleCreateChannel(channelName);
+      new CreateAndJoinCommand().doCommand(message);
     }
 
-    member = channel.getMemberByJID(userJID);
-    if (member == null) {
+    message.member = message.channel.getMemberByJID(userJID);
+    if (message.member == null) {
       // room exists, user isn't in room yet
-      handleJoinChannel();
+      new JoinCommand().doCommand(message);
     }
-    
-    com.imjasonh.partychapp.Message msg = new com.imjasonh.partychapp.Message(body, userJID, serverJID, member, channel);
 
-    CommandHandler handler = Command.getCommandHandler(msg);
-    
+    CommandHandler handler = Command.getCommandHandler(message);
+
     if (handler != null) {
-    	handler.doCommand(msg);
+      handler.doCommand(message);
     } else {
-    	handleMessage(body);
+      handleMessage(body);
     }
   }
 
   private void handleMessage(String body) {
-    String msg = "['" + member.getAlias() + "'] " + body;
-    SendUtil.broadcast(msg, channel, userJID, serverJID);
-  }
-
-  private void handleJoinChannel() {
-    member = new Member(userJID);
-    channel.addMember(member);
-    channel.put();
-
-    String youMsg = "You have joined '" + channel.getName() + "' with the alias '"
-        + member.getAlias() + "'";
-    SendUtil.sendDirect(youMsg, userJID, serverJID);
-
-    String msg = member.getJID() + "has joined the channel with the alias '"
-        + member.getAlias() + "'";
-    SendUtil.broadcast(msg, channel, userJID, serverJID);
-  }
-
-  private void handleCreateChannel(String channelName) {
-    channel = new Channel(channelName);
-    member = new Member(userJID);
-    channel.addMember(member);
-    channel.put();
-    String msg = "The channel '" + channel.getName() + "' has been created, " +
-        "and you have joined with the alias '" + member.getAlias() + "'";
-    SendUtil.sendDirect(msg, userJID, serverJID);
+    String msg = "['" + message.member.getAlias() + "'] " + body;
+    SendUtil.broadcast(msg, message.channel, message.userJID, message.serverJID);
   }
 
   private void handleEcho(String body) {
     // if the user is talking to echo@, just echo back as simply as possible.
     XMPP.sendMessage(new MessageBuilder()
-        .withRecipientJids(userJID)
-        .withFromJid(serverJID)
+        .withRecipientJids(message.userJID)
+        .withFromJid(message.serverJID)
         .withBody("echo: " + body)
         .build());
   }

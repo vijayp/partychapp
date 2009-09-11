@@ -23,6 +23,6 @@ public class Message {
 	public final String content;
 	public final JID userJID;
 	public final JID serverJID;
-	public final Member member;
-	public final Channel channel;
+	public Member member;
+	public Channel channel;
 }

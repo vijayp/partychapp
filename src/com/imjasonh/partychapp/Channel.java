@@ -3,7 +3,7 @@ package com.imjasonh.partychapp;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Set;
- 
+
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
@@ -51,8 +51,8 @@ public class Channel implements Serializable {
   @Persistent(serialized = "true")
   private Set<Member> members;
 
-  public Channel(String name) {
-    this.name = name;
+  public Channel(JID serverJID) {
+    this.name = serverJID.getId().split("@")[0];
     members = Sets.newHashSet();
   }
 
@@ -106,7 +106,7 @@ public class Channel implements Serializable {
         jids.add(new JID(member.getJID()));
       }
     }
-    
+
     JID returnJids[] = new JID[jids.size()];
     jids.toArray(returnJids);
     return returnJids;

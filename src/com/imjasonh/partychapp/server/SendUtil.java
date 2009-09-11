@@ -16,7 +16,6 @@ public abstract class SendUtil {
 
   private static final Logger LOG = Logger.getLogger(Channel.class.getName());
 
-  
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
     XMPP.sendMessage(new MessageBuilder()
         .withBody(msg)
@@ -26,25 +25,24 @@ public abstract class SendUtil {
   }
 
   public static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
-    if (channel.getMembers().size() > 1) {
-
-      // awaken snoozers and broadcast them awawking.
-      Set<Member> awoken = channel.awakenSnoozers();
-      if (!awoken.isEmpty()) {
-        channel.put();
-        StringBuilder sb = new StringBuilder().append("Members awoken:").append('\n');
-        for (Member m : awoken) {
-          sb.append('\n').append(m.getAlias());
-        }
-        broadcast(sb.toString(), channel, userJID, serverJID);
+    // awaken snoozers and broadcast them awawking.
+    Set<Member> awoken = channel.awakenSnoozers();
+    if (!awoken.isEmpty()) {
+      channel.put();
+      StringBuilder sb = new StringBuilder().append("Members unsnoozed:");
+      for (Member m : awoken) {
+        sb.append('\n').append(m.getAlias());
       }
+      broadcast(sb.toString(), channel, userJID, serverJID);
+    }
 
-      JID[] recipients = channel.getMembersJIDsToSendTo(userJID);
-      
-      LOG.severe("msg: " + msg +
-    		     ", fromjid: " + serverJID +
-    		     ", tojid: " + recipients);
-      
+    JID[] recipients = channel.getMembersJIDsToSendTo(userJID);
+
+    LOG.severe("message: " + msg +
+        ", fromjid: " + serverJID +
+        ", tojid: " + recipients);
+
+    if (recipients.length > 0) {
       XMPP.sendMessage(new MessageBuilder()
           .withBody(msg)
           .withFromJid(serverJID)
