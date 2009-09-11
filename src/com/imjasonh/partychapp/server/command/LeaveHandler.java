@@ -7,7 +7,6 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 public class LeaveHandler implements CommandHandler {
 
-  @Override
   public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
     channel.removeMember(member);
     channel.put();

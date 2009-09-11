@@ -6,5 +6,5 @@ import com.imjasonh.partychapp.Member;
 
 public interface CommandHandler {
 
-  void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel);
+  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel);
 }

@@ -8,7 +8,6 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 public class ListHandler implements CommandHandler {
 
-  @Override
   public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
