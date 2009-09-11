@@ -1,6 +1,8 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.Set;
 
 import javax.cache.Cache;
@@ -13,6 +15,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
 
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.google.appengine.api.xmpp.JID;
@@ -98,15 +101,17 @@ public class Channel implements Serializable {
    */
   public JID[] getMembersJIDsToSendTo(JID exclude) {
     String excludeJID = exclude.getId().split("/")[0];
-    JID[] jids = new JID[members.size()];
-    int i = 0;
+    ArrayList<JID> jids = new ArrayList<JID>();
     for (Member member : members) {
       if (!member.getJID().equals(excludeJID)
           && member.getSnoozeStatus() != SnoozeStatus.SNOOZING) {
-        jids[i++] = new JID(member.getJID());
+        jids.add(new JID(member.getJID()));
       }
     }
-    return jids;
+    
+    JID returnJids[] = new JID[jids.size()];
+    jids.toArray(returnJids);
+    return returnJids;
   }
 
   public String getName() {
