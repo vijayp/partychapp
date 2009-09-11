@@ -6,10 +6,10 @@ import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class ListHandler extends CommandHandler {
+public class ListHandler implements CommandHandler {
 
   @Override
-  void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
+  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
         .append(channel.getName())

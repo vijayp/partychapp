@@ -5,10 +5,10 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class AliasHandler extends CommandHandler {
+public class AliasHandler implements CommandHandler {
 
   @Override
-  void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
+  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
     String oldAlias = member.getAlias();
     String alias = content.replace("/alias ", ""); // TODO do this with matcher
 

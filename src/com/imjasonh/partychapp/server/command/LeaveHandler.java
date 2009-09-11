@@ -5,10 +5,10 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class LeaveHandler extends CommandHandler {
+public class LeaveHandler implements CommandHandler {
 
   @Override
-  void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
+  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
     channel.removeMember(member);
     channel.put();
     String youMsg = "You have left the room '" + channel.getName() + "'";

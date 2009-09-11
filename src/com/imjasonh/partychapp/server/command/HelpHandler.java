@@ -5,10 +5,10 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class HelpHandler extends CommandHandler {
+public class HelpHandler implements CommandHandler {
 
   @Override
-  void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
+  public void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel) {
     StringBuilder sb = new StringBuilder().append("List of commands:").append('\n');
     for (Command command : Command.values()) {
       sb.append("* ")

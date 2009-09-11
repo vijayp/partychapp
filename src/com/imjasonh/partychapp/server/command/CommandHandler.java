@@ -4,7 +4,7 @@ import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 
-public abstract class CommandHandler {
+public interface CommandHandler {
 
-  abstract void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel);
+  void doCommand(String content, JID userJID, JID serverJID, Member member, Channel channel);
 }
