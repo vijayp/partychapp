@@ -4,20 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Set;
 
-import javax.cache.Cache;
-import javax.cache.CacheException;
-import javax.cache.CacheManager;
-import javax.jdo.JDOHelper;
-import javax.jdo.JDOObjectNotFoundException;
-import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 
@@ -30,19 +22,6 @@ public class Channel implements Serializable {
   private static final long serialVersionUID = 3860339764413214817L;
 
   // private static final Logger LOG = Logger.getLogger(Channel.class.getName());
-
-  private static final PersistenceManager PERSISTENCE_MANAGER =
-      JDOHelper.getPersistenceManagerFactory("transactions-optional").getPersistenceManager();
-
-  private static Cache CACHE;
-  static {
-    try {
-      CACHE = CacheManager.getInstance().getCacheFactory().createCache(
-          Maps.immutableMap(GCacheFactory.EXPIRATION_DELTA, 600)); // expire after an ten mins
-    } catch (CacheException ex) {
-      // TODO what should happen here?
-    }
-  }
 
   @PrimaryKey
   @Persistent
@@ -116,20 +95,6 @@ public class Channel implements Serializable {
     return name;
   }
 
-  @SuppressWarnings("unchecked")
-  public static Channel getByName(String name) {
-    if (CACHE.containsKey(name)) {
-      return (Channel) CACHE.get(name);
-    }
-    try {
-      Channel channel = PERSISTENCE_MANAGER.getObjectById(Channel.class, name);
-      CACHE.put(name, channel);
-      return channel;
-    } catch (JDOObjectNotFoundException notFound) {
-      return null;
-    }
-  }
-
   public Set<Member> getMembers() {
     return members;
   }
@@ -147,15 +112,12 @@ public class Channel implements Serializable {
     }
     return null;
   }
-
-  @SuppressWarnings("unchecked")
+  
   public void put() {
-    PERSISTENCE_MANAGER.makePersistent(this);
-    CACHE.put(this.name, this);
+    Datastore.get().put(this, this.name);
   }
-
+  
   public void delete() {
-    CACHE.remove(this.name);
-    PERSISTENCE_MANAGER.deletePersistent(this);
+    Datastore.get().delete(this, this.name);
   }
 }

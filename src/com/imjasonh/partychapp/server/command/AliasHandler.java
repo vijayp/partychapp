@@ -23,7 +23,7 @@ public class AliasHandler implements CommandHandler {
 
     msg.member.setAlias(alias);
     msg.channel.put();
-
+    
     String youMsg = "You are now known as '" + alias + "'";
     SendUtil.sendDirect(youMsg, msg.userJID, msg.serverJID);
 

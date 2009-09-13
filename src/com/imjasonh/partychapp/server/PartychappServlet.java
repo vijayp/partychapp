@@ -12,7 +12,7 @@ import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
-import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.server.command.Command;
 import com.imjasonh.partychapp.server.command.CommandHandler;
 import com.imjasonh.partychapp.server.command.CreateAndJoinCommand;
@@ -50,7 +50,7 @@ public class PartychappServlet extends HttpServlet {
 
     message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
 
-    message.channel = Channel.getByName(channelName);
+    message.channel = Datastore.get().getByName(channelName);
     if (message.channel == null) {
       // channel doesn't exist yet
       new CreateAndJoinCommand().doCommand(message);
