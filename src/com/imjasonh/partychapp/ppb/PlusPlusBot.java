@@ -20,9 +20,9 @@ public class PlusPlusBot {
     PLUSPLUS, MINUSMINUS
   };
 
-  public static final String targetPattern = "[\\w-\\.]+";
+  public static final String targetPattern = "[\\w-\\.\\+]+";
   private static final Pattern pattern =
-    Pattern.compile("(" + targetPattern + ")(\\+\\+|--)");
+    Pattern.compile("(" + targetPattern + ")(\\+\\+|--)($|\\s+)");
 
   static {
     // c++

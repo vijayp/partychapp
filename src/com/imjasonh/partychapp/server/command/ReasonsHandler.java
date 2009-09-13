@@ -15,7 +15,6 @@ public class ReasonsHandler implements CommandHandler {
   private static Pattern pattern =
     Pattern.compile("/reasons\\s+(" + PlusPlusBot.targetPattern + ")");
   
-  @Override
   public void doCommand(Message msg) {
     Matcher m = pattern.matcher(msg.content.trim());
     m.find();
@@ -32,12 +31,10 @@ public class ReasonsHandler implements CommandHandler {
     SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
   }
 
-  @Override
   public String documentation() {
     return "/reasons - see why someone's score was changed";
   }
 
-  @Override
   public boolean matches(Message msg) {
     return pattern.matcher(msg.content).matches();
   }

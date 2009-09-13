@@ -16,37 +16,31 @@ public class MockXMPPService implements XMPPService {
   public List<Message> messages = new ArrayList<Message>();
   
   
-  @Override
   public Presence getPresence(JID jabberId) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Presence getPresence(JID jabberId, JID fromJid) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Message parseMessage(HttpServletRequest arg0) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public void sendInvitation(JID jabberId) {
     // TODO Auto-generated method stub
 
   }
 
-  @Override
   public void sendInvitation(JID jabberId, JID fromJid) {
     // TODO Auto-generated method stub
 
   }
 
-  @Override
   public SendResponse sendMessage(Message message) {
     messages.add(message);
     return null;

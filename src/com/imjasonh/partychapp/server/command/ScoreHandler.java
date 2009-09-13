@@ -13,7 +13,6 @@ public class ScoreHandler implements CommandHandler {
   private static Pattern pattern =
     Pattern.compile("/score\\s+(" + PlusPlusBot.targetPattern + ")");
   
-  @Override
   public void doCommand(Message msg) {
   String content = msg.content.trim();
     Matcher m = pattern.matcher(content);
@@ -29,12 +28,10 @@ public class ScoreHandler implements CommandHandler {
     SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
   }
 
-  @Override
   public String documentation() {
     return "/score - see scores in plusplusbot";
   }
 
-  @Override
   public boolean matches(Message msg) {
     return pattern.matcher(msg.content.trim()).matches();
   }

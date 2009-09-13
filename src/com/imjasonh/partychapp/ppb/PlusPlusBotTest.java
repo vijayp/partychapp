@@ -102,21 +102,24 @@ public class PlusPlusBotTest extends TestCase {
     assertReasonEquals(content, "java", 1, Action.PLUSPLUS, r);
   }
 
-  public void testWithUnderscore() {
-    String content = "hello_world++";
+  public void testWithPunctuation() {
+    String content = "_hello-world.foo+++";
     Reason r = runAndGetOneReason(content);
-    assertReasonEquals(content, "hello_world", 1, Action.PLUSPLUS, r);
+    assertReasonEquals(content, "_hello-world.foo+", 1, Action.PLUSPLUS, r);
   }
   
-  public void testWithDot() {
-    String content = "hello.world++";
-    Reason r = runAndGetOneReason(content);
-    assertReasonEquals(content, "hello.world", 1, Action.PLUSPLUS, r);
+  public void testCPP() {
+    String content1 = "c++++";
+    Reason r1 = runAndGetOneReason(content1);
+    assertReasonEquals(content1, "c++", 1, Action.PLUSPLUS, r1);
+ 
+    String content2 = "c++--";
+    Reason r2 = runAndGetOneReason(content2);
+    assertReasonEquals(content2, "c++", 0, Action.MINUSMINUS, r2);
+
   }
   
-  public void testWithDash() {
-    String content = "hello-world++";
-    Reason r = runAndGetOneReason(content);
-    assertReasonEquals(content, "hello-world", 1, Action.PLUSPLUS, r);
+  public void testNoMatch() {
+    assertFalse(ppb.matches("x++y"));
   }
 }
