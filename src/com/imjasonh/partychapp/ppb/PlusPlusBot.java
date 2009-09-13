@@ -25,9 +25,10 @@ public class PlusPlusBot {
     Pattern.compile("(" + targetPattern + ")(\\+\\+|--)");
 
   static {
+    // c++
     blacklist.add("c");
   }
-  
+
   public boolean matches(String content) {
     // use find() instead of matches() because matches() looks for the whole
     // string to match and we're okay with substring matches.
@@ -59,6 +60,7 @@ public class PlusPlusBot {
       }
       reasons.add(t.takeAction(msg.member, a, msg.content));
     }
+    // Do a batch-save at the end.
     List<Serializable> toSave = new ArrayList<Serializable>(targets);
     toSave.addAll(reasons);
     Datastore.instance().putAll(toSave);

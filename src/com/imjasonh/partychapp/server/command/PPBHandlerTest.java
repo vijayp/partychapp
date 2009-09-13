@@ -24,7 +24,6 @@ public class PPBHandlerTest extends TestCase {
   public boolean hasJID(String jid) {
     List<JID> recipients = Arrays.asList(xmpp.messages.get(0).getRecipientJids());
     for (JID j : recipients) {
-      System.out.println(j + ", " + j.getId());
       if (j.getId().equals(jid)) {
         return true;
       }
