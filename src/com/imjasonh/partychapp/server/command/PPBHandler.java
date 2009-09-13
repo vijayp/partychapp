@@ -15,6 +15,11 @@ public class PPBHandler implements CommandHandler {
     List<Reason> reasons = ppb.extractReasons(msg);
     StringBuilder sb = new StringBuilder();
     sb.append(msg.member.getAliasPrefix());
+    if (reasons.isEmpty()) {
+      sb.append(msg.content);
+      SendUtil.broadcast(sb.toString(), msg.channel, msg.userJID, msg.serverJID);     
+      return;
+    };
     int pos = 0;
     // for "whee x++ and y-- yay" we want to change it into
     // "whee x++ [woot! now at 1] and y-- [ouch! now at -1] yay"
