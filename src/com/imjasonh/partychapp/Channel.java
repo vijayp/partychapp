@@ -77,7 +77,7 @@ public class Channel implements Serializable {
    * @return an array of JIDs to send a message to, excluding snoozing members.
    */
   public JID[] getMembersJIDsToSendTo(JID exclude) {
-    String excludeJID = exclude.getId().split("/")[0];
+    String excludeJID = (exclude != null) ? exclude.getId().split("/")[0] : null;
     ArrayList<JID> jids = new ArrayList<JID>();
     for (Member member : members) {
       if (!member.getJID().equals(excludeJID)
@@ -114,10 +114,10 @@ public class Channel implements Serializable {
   }
   
   public void put() {
-    Datastore.get().put(this, this.name);
+    Datastore.instance().put(this, this.name);
   }
   
   public void delete() {
-    Datastore.get().delete(this, this.name);
+    Datastore.instance().delete(this, this.name);
   }
 }

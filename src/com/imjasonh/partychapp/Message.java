@@ -19,10 +19,10 @@ public class Message {
   // for tests only. TODO(nsanch): this blows.
   private Message(String content) {
     this.content = content;
-    this.userJID = null;
-    this.serverJID = null;
-    this.member = null;
-    this.channel = null;
+    this.userJID = new JID("neil@gmail.com");
+    this.serverJID = new JID("pancake@partychat.appspotchat.com");
+    this.channel = Datastore.instance().getChannelByName("pancake");
+    this.member = this.channel.getMemberByJID(userJID);
   }
 
   public final String content;

@@ -50,7 +50,7 @@ public class PartychappServlet extends HttpServlet {
 
     message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
 
-    message.channel = Datastore.get().getByName(channelName);
+    message.channel = Datastore.instance().getChannelByName(channelName);
     if (message.channel == null) {
       // channel doesn't exist yet
       new CreateAndJoinCommand().doCommand(message);
@@ -72,7 +72,7 @@ public class PartychappServlet extends HttpServlet {
   }
 
   private void handleMessage(String body) {
-    String msg = "['" + message.member.getAlias() + "'] " + body;
+    String msg = message.member.getAliasPrefix() + body;
     SendUtil.broadcast(msg, message.channel, message.userJID, message.serverJID);
   }
 

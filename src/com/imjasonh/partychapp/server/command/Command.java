@@ -7,6 +7,9 @@ public enum Command {
 	LIST(new ListHandler()),
 	HELP(new HelpHandler()),
 	ALIAS(new AliasHandler()),
+        SCORE(new ScoreHandler()),
+        REASONS(new ReasonsHandler()),
+	PLUSPLUSBOT(new PPBHandler()),
   ;
 
   public final CommandHandler commandHandler;

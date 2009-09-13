@@ -8,12 +8,15 @@ import java.util.Date;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -26,9 +29,16 @@ public class Reason implements Serializable {
   @PrimaryKey
   private Key key;
   
-  // TODO(nsanch): what do I do for this?
+  @NotPersistent
   private Target target;
+  @Persistent
+  private String targetId;
 
+  @NotPersistent
+  private Member sender;
+  @Persistent
+  private String senderJID;
+  
   @Persistent
   private String reason;
 
@@ -41,8 +51,11 @@ public class Reason implements Serializable {
   @Persistent
   private int scoreAfter;
 
-  public Reason(Target t, Action act, String reason, int scoreAfter) {
+  public Reason(Target t, Member sender, Action act, String reason, int scoreAfter) {
     this.target = t;
+    this.targetId = t.key();
+    this.sender = sender;
+    this.senderJID = sender.getJID();
     this.action = act.name();
     this.reason = reason;
     this.timestamp = new Date();
@@ -58,7 +71,10 @@ public class Reason implements Serializable {
   }
 
   public Target target() {
-    return this.target;
+    if (target == null) {
+      target = Datastore.instance().getTargetByID(targetId);
+    }
+    return target;
   }
 
   public String reason() {
@@ -67,6 +83,13 @@ public class Reason implements Serializable {
   
   public int scoreAfter() {
     return scoreAfter;
+  }
+  
+  public Member sender() {
+    if (sender == null) {
+      sender = target().channel().getMemberByJID(new JID(senderJID));
+    }
+    return sender;
   }
   
   public String toString() {
@@ -79,6 +102,6 @@ public class Reason implements Serializable {
   }
   
   public void put() {
-    Datastore.get().put(this);
+    Datastore.instance().put(this);
   }
 }

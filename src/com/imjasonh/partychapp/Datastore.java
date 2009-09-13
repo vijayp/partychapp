@@ -1,26 +1,37 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
+import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
 public abstract class Datastore {
   private static Datastore instance;
 
-  public static Datastore get() {
+  public static Datastore instance() {
     if (instance == null) {
+      // We have to do this lazily because tests won't have the
+      // live datastore dependencies set up
       instance = new LiveDatastore();
     }
     return instance;
   }
   
-  public static void register(Datastore ds) {
+  public static void setInstance(Datastore ds) {
     instance = ds;
   }
   
-  public abstract Channel getByName(String name);
-  public abstract Target getOrCreateTarget(Channel channel, String name);
+  public abstract Channel getChannelByName(String name);
 
+  public abstract Target getTarget(Channel channel, String name);
+  public abstract Target getOrCreateTarget(Channel channel, String name);
+  public abstract Target getTargetByID(String key);
+
+  public abstract List<Reason> getReasons(Target target, int limit);
+  
+  public abstract void putAll(Collection<Serializable> objects);
   public abstract void put(Serializable s);
   public abstract void put(Serializable s, String name);
   public abstract void delete(Serializable s);

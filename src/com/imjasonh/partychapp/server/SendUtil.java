@@ -10,12 +10,15 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 
-public abstract class SendUtil {
-
-  private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
+public abstract class SendUtil {  
+  private static XMPPService XMPP = XMPPServiceFactory.getXMPPService();
 
   private static final Logger LOG = Logger.getLogger(Channel.class.getName());
 
+  public static void setXMPP(XMPPService xmpp) {
+    XMPP = xmpp;
+  }
+  
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
     XMPP.sendMessage(new MessageBuilder()
         .withBody(msg)
@@ -24,8 +27,8 @@ public abstract class SendUtil {
         .build());
   }
 
-  public static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
-    // awaken snoozers and broadcast them awawking.
+  private static void broadcastHelper(String msg, Channel channel, JID userJID, JID serverJID, JID toExclude) {
+    // awaken snoozers and broadcast them awaking.
     Set<Member> awoken = channel.awakenSnoozers();
     if (!awoken.isEmpty()) {
       channel.put();
@@ -36,7 +39,7 @@ public abstract class SendUtil {
       broadcast(sb.toString(), channel, userJID, serverJID);
     }
 
-    JID[] recipients = channel.getMembersJIDsToSendTo(userJID);
+    JID[] recipients = channel.getMembersJIDsToSendTo(toExclude);
 
     LOG.severe("message: " + msg +
         ", fromjid: " + serverJID +
@@ -51,4 +54,11 @@ public abstract class SendUtil {
     }
   }
 
+  public static void broadcastIncludingSender(String msg, Channel channel, JID userJID, JID serverJID) {
+    broadcastHelper(msg, channel, userJID, serverJID, null);
+  }
+  
+  public static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
+    broadcastHelper(msg, channel, userJID, serverJID, userJID);
+  }
 }

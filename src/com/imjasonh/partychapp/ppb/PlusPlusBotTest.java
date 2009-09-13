@@ -13,7 +13,7 @@ public class PlusPlusBotTest extends TestCase {
   private PlusPlusBot ppb = new PlusPlusBot();
 
   public void setUp() {
-    Datastore.register(new FakeDatastore());
+    Datastore.setInstance(new FakeDatastore());
   }
 
   private void assertReasonEquals(
@@ -30,11 +30,12 @@ public class PlusPlusBotTest extends TestCase {
   
   private List<Reason> runAndGetReasons(String content) {
     Message m = Message.createForTests(content);
-    List<Reason> reasons = ppb.handleMessage(m);
+    assertTrue(ppb.matches(content));
+    List<Reason> reasons = ppb.extractReasons(m);
     assertNotNull(reasons);
     return reasons;
   }
-  
+
   private Reason runAndGetOneReason(String content) {
     List<Reason> reasons = runAndGetReasons(content);
     assertEquals(1, reasons.size());
@@ -46,13 +47,19 @@ public class PlusPlusBotTest extends TestCase {
     Reason r = runAndGetOneReason(content);
     assertReasonEquals(content, "mihai", 1, Action.PLUSPLUS, r);
   }
-
+  
   public void testMinusMinus() {
     String content = "dolapo-- for something random";
     Reason r = runAndGetOneReason(content);
     assertReasonEquals(content, "dolapo", -1, Action.MINUSMINUS, r);
   }
 
+  public void testInMiddleOfMessage() {
+    String content = "that was ridiculous. dolapo-- for something random";
+    Reason r = runAndGetOneReason(content);
+    assertReasonEquals(content, "dolapo", -1, Action.MINUSMINUS, r);    
+  }
+  
   public void testMultiple() {
     String content = "kushal-- dbentley-- mihai++ rohit++";
     List<Reason> reasons = runAndGetReasons(content);
@@ -78,16 +85,7 @@ public class PlusPlusBotTest extends TestCase {
     assertReasonEquals(content, "nsanch", -1, Action.MINUSMINUS, reasons.get(0));
     assertReasonEquals(content, "nsanch", -2, Action.MINUSMINUS, reasons.get(1));
   }
-  
-  public void testOffsettingWithoutOverride() {
-    // this should trigger twice
-    String content = "nsanch-- nsanch++";
-    List<Reason> reasons = runAndGetReasons(content);
-    assertEquals(2, reasons.size());    
-    assertReasonEquals(content, "nsanch", -1, Action.MINUSMINUS, reasons.get(0));
-    assertReasonEquals(content, "nsanch", 0, Action.PLUSPLUS, reasons.get(1));    
-  }
-  
+
   public void testTwoInARow() {
     String content1 = "nsanch--";
     Reason r1 = runAndGetOneReason(content1);
@@ -102,5 +100,23 @@ public class PlusPlusBotTest extends TestCase {
     String content = "i don't understand c++ but i love java++";
     Reason r = runAndGetOneReason(content);
     assertReasonEquals(content, "java", 1, Action.PLUSPLUS, r);
+  }
+
+  public void testWithUnderscore() {
+    String content = "hello_world++";
+    Reason r = runAndGetOneReason(content);
+    assertReasonEquals(content, "hello_world", 1, Action.PLUSPLUS, r);
+  }
+  
+  public void testWithDot() {
+    String content = "hello.world++";
+    Reason r = runAndGetOneReason(content);
+    assertReasonEquals(content, "hello.world", 1, Action.PLUSPLUS, r);
+  }
+  
+  public void testWithDash() {
+    String content = "hello-world++";
+    Reason r = runAndGetOneReason(content);
+    assertReasonEquals(content, "hello-world", 1, Action.PLUSPLUS, r);
   }
 }

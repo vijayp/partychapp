@@ -1,6 +1,8 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -8,9 +10,11 @@ import javax.cache.CacheManager;
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.google.appengine.repackaged.com.google.common.collect.Maps;
+import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
 public class LiveDatastore extends Datastore {
@@ -32,7 +36,7 @@ public class LiveDatastore extends Datastore {
   
   @Override
   @SuppressWarnings("unchecked")
-  public Channel getByName(String name) {
+  public Channel getChannelByName(String name) {
     if (CACHE.containsKey(name)) {
       return (Channel)CACHE.get(name);
     }
@@ -46,8 +50,40 @@ public class LiveDatastore extends Datastore {
   }
   
   @Override
+  public Target getTargetByID(String key) {
+    try {
+      return PERSISTENCE_MANAGER.getObjectById(Target.class, key);
+    } catch (JDOObjectNotFoundException e) {
+      // TODO(nsanch): there has to be a better way
+      return null;
+    }
+  }
+
+  @Override
+  public Target getTarget(Channel channel, String name) {
+    return getTargetByID(Target.createTargetKey(name, channel));
+  }
+  
+  @Override
   public Target getOrCreateTarget(Channel channel, String name) {
-    return new Target(name, channel);
+    Target t = getTarget(channel, name);
+    if (t == null) {
+      t = new Target(name, channel);
+    }
+    return t;
+  }
+  
+  @SuppressWarnings("unchecked")  
+  public List<Reason> getReasons(Target target, int limit) {
+    Query query = PERSISTENCE_MANAGER.newQuery(Reason.class);
+    query.setFilter("targetId == targetIdParam");
+    query.setOrdering("timestamp desc");
+    query.declareParameters("String targetIdParam");
+    query.setRange(0, limit);
+
+    List<Reason> reasons = (List<Reason>) query.execute(target.key());
+    query.closeAll();
+    return reasons;
   }
 
   @Override
@@ -60,6 +96,11 @@ public class LiveDatastore extends Datastore {
   public void put(Serializable s, String name) {
     PERSISTENCE_MANAGER.makePersistent(s);
     CACHE.put(name, s);
+  }
+
+  @Override
+  public void putAll(Collection<Serializable> objects) {
+    PERSISTENCE_MANAGER.makePersistentAll(objects);
   }
 
   @Override
