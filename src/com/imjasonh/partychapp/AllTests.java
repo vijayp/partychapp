@@ -7,6 +7,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBotTest;
 import com.imjasonh.partychapp.server.command.AliasTest;
 import com.imjasonh.partychapp.server.command.ListHandlerTest;
 import com.imjasonh.partychapp.server.command.PPBHandlerTest;
+import com.imjasonh.partychapp.server.command.ReasonsHandlerTest;
 import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 
 public class AllTests {
@@ -17,8 +18,9 @@ public class AllTests {
     suite.addTestSuite(PlusPlusBotTest.class);
     suite.addTestSuite(AliasTest.class);
     suite.addTestSuite(ListHandlerTest.class);
-    suite.addTestSuite(ScoreHandlerTest.class);
     suite.addTestSuite(PPBHandlerTest.class);
+    suite.addTestSuite(ReasonsHandlerTest.class);
+    suite.addTestSuite(ScoreHandlerTest.class);
     //$JUnit-END$
     return suite;
   }

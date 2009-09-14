@@ -26,9 +26,9 @@ public class ReasonsHandler implements CommandHandler {
     for (Reason r : reasons) {
       sb.append(r.action() == PlusPlusBot.Action.PLUSPLUS ? "increment by " : "decrement by ");
       sb.append(r.sender().getJID());
-      sb.append("(" + r.reason() + ")\n");
+      sb.append(" (" + r.reason() + ")\n");
     }
-    SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
+    SendUtil.sendDirect(sb.toString().trim(), msg.userJID, msg.serverJID);
   }
 
   public String documentation() {
@@ -36,6 +36,6 @@ public class ReasonsHandler implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    return pattern.matcher(msg.content).matches();
+    return pattern.matcher(msg.content.trim()).matches();
   }
 }

@@ -22,7 +22,7 @@ public class Target implements Serializable {
   
   @Persistent
   @PrimaryKey
-  private String key;
+  private String key; 
 
   @NotPersistent
   private Channel channel;

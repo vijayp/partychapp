@@ -72,7 +72,7 @@ public class PlusPlusBotTest extends TestCase {
 
   public void testNoDoubleUp() {
     // this should only trigger once
-    String content = "nsanch-- nsanch--";
+    String content = "nsanch-- nsanch-- nsanch++";
     Reason r = runAndGetOneReason(content);
     assertReasonEquals(content, "nsanch", -1, Action.MINUSMINUS, r);
   }
