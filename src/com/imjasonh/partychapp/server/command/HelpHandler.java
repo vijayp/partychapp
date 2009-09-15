@@ -6,7 +6,7 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class HelpHandler extends SlashCommand {
   
   public HelpHandler() {
-    super("(help|commands");
+    super("(help|commands)");
   }
 
   public void doCommand(Message msg) {
