@@ -15,14 +15,20 @@ abstract class SlashCommand implements CommandHandler {
   private Pattern pattern;
   
   SlashCommand(String pattern) {
-    this.pattern = Pattern.compile("/" + pattern);
+    this.pattern = Pattern.compile("^/" + pattern);
   }
 
+  /**
+   * @return the matcher for reading any groups off of, or null if there was no
+   *         match.
+   */
   protected Matcher getMatcher(Message msg) {
-    return pattern.matcher(msg.content.trim()); 
+    Matcher m = pattern.matcher(msg.content.trim());
+    return m.find() ? m : null;
   }
-  
+
+  @Override
   public boolean matches(Message msg) {
-    return getMatcher(msg).matches();
+    return getMatcher(msg) != null;
   }
 }

@@ -1,8 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
@@ -11,14 +9,14 @@ import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class ReasonsHandler implements CommandHandler {
-  private static Pattern pattern =
-    Pattern.compile("/reasons\\s+(" + PlusPlusBot.targetPattern + ")");
-  
+public class ReasonsHandler extends SlashCommand {
+
+  ReasonsHandler() {
+    super("reasons\\s+(" + PlusPlusBot.targetPattern + ")");
+  }
+
   public void doCommand(Message msg) {
-    Matcher m = pattern.matcher(msg.content.trim());
-    m.find();
-    String name = m.group(1);
+    String name = getMatcher(msg).group(1);
     Target target = Datastore.instance().getTarget(msg.channel, name);
     StringBuilder sb = new StringBuilder();
     sb.append(name + ": " + target.score() + "\n");
@@ -33,9 +31,5 @@ public class ReasonsHandler implements CommandHandler {
 
   public String documentation() {
     return "/reasons - see why someone's score was changed";
-  }
-
-  public boolean matches(Message msg) {
-    return pattern.matcher(msg.content.trim()).matches();
   }
 }

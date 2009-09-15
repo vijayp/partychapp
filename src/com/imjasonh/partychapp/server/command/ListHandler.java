@@ -1,15 +1,15 @@
 package com.imjasonh.partychapp.server.command;
 
-import java.util.regex.Pattern;
-
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class ListHandler implements CommandHandler {
-	public static final Pattern pattern = Pattern.compile("^/(list|names)");
-	
+public class ListHandler extends SlashCommand {
+  
+	public ListHandler() {
+    super("(list|names)$");
+  }
 	
   public void doCommand(Message msg) {
     StringBuilder sb = new StringBuilder()
@@ -29,10 +29,6 @@ public class ListHandler implements CommandHandler {
     }
 
     SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
-  }
-  
-  public boolean matches(Message msg) {
-	  return pattern.matcher(msg.content.trim()).matches();
   }
   
   public String documentation() {

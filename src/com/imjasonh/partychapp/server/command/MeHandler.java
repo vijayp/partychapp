@@ -21,7 +21,6 @@ public class MeHandler extends SlashCommand {
     assert msg.member != null;
 
     Matcher matcher = getMatcher(msg);
-    matcher.matches();
     String broadcast = "_" + msg.member.getAlias() + " " +
       matcher.group(1) + "_";
     SendUtil.broadcastIncludingSender(broadcast, msg.channel, null, msg.serverJID);
