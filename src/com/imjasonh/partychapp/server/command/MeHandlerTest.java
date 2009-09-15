@@ -19,6 +19,7 @@ public class MeHandlerTest extends TestCase {
   
   public void testMatches() {
     assertTrue(handler.matches(Message.createForTests("/me x")));
+    assertTrue(handler.matches(Message.createForTests("        /me wants a cookie")));
     assertFalse(handler.matches(Message.createForTests("/me")));
     assertFalse(handler.matches(Message.createForTests("x /me")));
   }

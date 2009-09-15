@@ -15,7 +15,7 @@ abstract class SlashCommand implements CommandHandler {
   private Pattern pattern;
   
   SlashCommand(String pattern) {
-    this.pattern = Pattern.compile("^/" + pattern);
+    this.pattern = Pattern.compile("^\\s*/" + pattern);
   }
 
   /**
@@ -27,7 +27,6 @@ abstract class SlashCommand implements CommandHandler {
     return m.find() ? m : null;
   }
 
-  @Override
   public boolean matches(Message msg) {
     return getMatcher(msg) != null;
   }
