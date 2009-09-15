@@ -20,7 +20,7 @@ abstract class SlashCommand implements CommandHandler {
     for (String otherName : otherNames) {
       sb.append("|").append(otherName);
     }
-    sb.append("(\\s.*)?");
+    sb.append("(\\s.*)?$");
     
     this.pattern = Pattern.compile(sb.toString());
   }
