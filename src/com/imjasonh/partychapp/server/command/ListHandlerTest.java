@@ -16,6 +16,6 @@ public class ListHandlerTest extends TestCase {
     assertTrue(handler.matches(Message.createForTests("/list")));
     assertTrue(handler.matches(Message.createForTests(" /list")));
     assertFalse(handler.matches(Message.createForTests("use /list to tell you who's in the room")));
-    assertFalse(handler.matches(Message.createForTests("/list args")));
+    assertTrue(handler.matches(Message.createForTests("/list args")));
   }
 }

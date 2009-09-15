@@ -1,7 +1,5 @@
 package com.imjasonh.partychapp.server.command;
 
-import java.util.regex.Matcher;
-
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
@@ -13,16 +11,15 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class MeHandler extends SlashCommand {
 
   public MeHandler() {
-    super("me (.+)");
+    super("me");
   }
   
-  public void doCommand(Message msg) {
+  public void doCommand(Message msg, String action) {
     assert msg.channel != null;
     assert msg.member != null;
 
-    Matcher matcher = getMatcher(msg);
     String broadcast = "_" + msg.member.getAlias() + " " +
-      matcher.group(1) + "_";
+        action + "_";
     SendUtil.broadcastIncludingSender(broadcast, msg.channel, null, msg.serverJID);
   }
 

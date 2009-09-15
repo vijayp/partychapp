@@ -6,18 +6,25 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 public class AliasHandler extends SlashCommand {
   
+  private static final String ALIAS_REGEX = "[a-zA-Z0-9\\-_'\\*]+";
+  
   AliasHandler() {
-    super("(alias|rename) [a-zA-Z0-9\\-_'\\*]+");
+    super("alias", "rename");
   }
 
-  public void doCommand(Message msg) {
+  @Override
+  public void doCommand(Message msg, String alias) {
     String oldAlias = msg.member.getAlias();
-    String alias = getMatcher(msg).group(1);
+    if (alias == null || !alias.matches(ALIAS_REGEX)) {
+      String reply = "That alias contains invalid characters";
+      SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+      return;
+    }
 
     for (Member m : msg.channel.getMembers()) {
       if (m.getAlias().equals(alias)) {
         String reply = "That alias is already taken";
-        SendUtil.broadcast(reply, msg.channel, msg.userJID, msg.serverJID);
+        SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
         return;
       }
     }

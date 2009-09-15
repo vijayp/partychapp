@@ -8,10 +8,11 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class ListHandler extends SlashCommand {
   
 	public ListHandler() {
-    super("(list|names)$");
+    super("list", "names");
   }
 	
-  public void doCommand(Message msg) {
+  public void doCommand(Message msg, String argument) {
+    // TODO: Reject or act on non-null argument
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
         .append(msg.channel.getName())

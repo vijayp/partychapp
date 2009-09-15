@@ -12,11 +12,11 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class ReasonsHandler extends SlashCommand {
 
   ReasonsHandler() {
-    super("reasons\\s+(" + PlusPlusBot.targetPattern + ")");
+    super("reasons");
   }
 
-  public void doCommand(Message msg) {
-    String name = getMatcher(msg).group(1);
+  public void doCommand(Message msg, String name) {
+    // TODO: Validate target pattern
     Target target = Datastore.instance().getTarget(msg.channel, name);
     StringBuilder sb = new StringBuilder();
     sb.append(name + ": " + target.score() + "\n");

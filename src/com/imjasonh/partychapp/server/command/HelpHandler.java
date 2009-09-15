@@ -6,10 +6,13 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class HelpHandler extends SlashCommand {
   
   public HelpHandler() {
-    super("(help|commands)");
+    super("help", "commands");
   }
 
-  public void doCommand(Message msg) {
+  @Override
+  public void doCommand(Message msg, String argument) {
+    // TODO: Reject or act on non-null argument
+    
     StringBuilder sb = new StringBuilder().append("List of commands:").append('\n');
     for (Command command : Command.values()) {
       sb.append("* ")

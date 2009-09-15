@@ -12,8 +12,8 @@ public class ScoreHandler extends SlashCommand {
     super("score\\s+(" + PlusPlusBot.targetPattern + ")");
   }
 
-  public void doCommand(Message msg) {
-    String name = getMatcher(msg).group(1);
+  public void doCommand(Message msg, String name) {
+    // TODO: Validate target pattern
     Target target = Datastore.instance().getTarget(msg.channel, name);
     String reply;
     if (target == null) {

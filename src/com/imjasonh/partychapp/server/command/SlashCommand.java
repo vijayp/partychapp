@@ -14,20 +14,41 @@ abstract class SlashCommand implements CommandHandler {
   
   private Pattern pattern;
   
-  SlashCommand(String pattern) {
-    this.pattern = Pattern.compile("^\\s*/" + pattern);
+  SlashCommand(String name, String... otherNames) {
+    StringBuilder sb = new StringBuilder("^/");
+    sb.append(name);
+    for (String otherName : otherNames) {
+      sb.append("|").append(otherName);
+    }
+    sb.append("(\\s.*)?");
+    
+    this.pattern = Pattern.compile(sb.toString());
+  }
+  
+  /**
+   * Subclass do the actual work here, including validating argument
+   * as needed.
+   */
+  abstract void doCommand(Message msg, String argument);
+
+  @Override
+  public void doCommand(Message msg) {
+    Matcher matcher = getMatcher(msg);
+    String argument = matcher.groupCount() > 0 ? matcher.group(1).trim() : null;
+    doCommand(msg, argument);
   }
 
+  @Override
+  public boolean matches(Message msg) {
+    return getMatcher(msg) != null;
+  }
+  
   /**
    * @return the matcher for reading any groups off of, or null if there was no
    *         match.
    */
-  protected Matcher getMatcher(Message msg) {
+  private Matcher getMatcher(Message msg) {
     Matcher m = pattern.matcher(msg.content.trim());
     return m.find() ? m : null;
-  }
-
-  public boolean matches(Message msg) {
-    return getMatcher(msg) != null;
   }
 }

@@ -6,10 +6,12 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class LeaveHandler extends SlashCommand {
   
   LeaveHandler() {
-    super("(leave|exit)");
+    super("leave", "exit");
   }
 
-  public void doCommand(Message msg) {
+  @Override
+  public void doCommand(Message msg, String argument) {
+    // TODO: Reject or act on non-null argument
     msg.channel.removeMember(msg.member);
     msg.channel.put();
     String youMsg = "You have left the room '" + msg.channel.getName() + "'";
