@@ -45,7 +45,7 @@ abstract class SlashCommand implements CommandHandler {
    * @return the matcher for reading any groups off of, or null if there was no
    *         match.
    */
-  protected Matcher getMatcher(Message msg) {
+  private Matcher getMatcher(Message msg) {
     Matcher m = pattern.matcher(msg.content.trim());
     return m.find() ? m : null;
   }
