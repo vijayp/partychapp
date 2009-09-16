@@ -33,7 +33,7 @@ abstract class SlashCommand implements CommandHandler {
 
   public void doCommand(Message msg) {
     Matcher matcher = getMatcher(msg);
-    String argument = matcher.groupCount() > 0 ? matcher.group(1).trim() : null;
+    String argument = matcher.groupCount() > 0 ? matcher.group(0).trim() : null;
     doCommand(msg, argument);
   }
 
@@ -45,7 +45,7 @@ abstract class SlashCommand implements CommandHandler {
    * @return the matcher for reading any groups off of, or null if there was no
    *         match.
    */
-  private Matcher getMatcher(Message msg) {
+  protected Matcher getMatcher(Message msg) {
     Matcher m = pattern.matcher(msg.content.trim());
     return m.find() ? m : null;
   }
