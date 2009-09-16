@@ -5,10 +5,8 @@ import java.util.logging.Logger;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
-import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
-import com.google.appengine.api.xmpp.SendResponse.Status;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 
@@ -22,15 +20,17 @@ public abstract class SendUtil {
   }
 
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
-    SendResponse response = XMPP.sendMessage(new MessageBuilder()
+    XMPP.sendMessage(new MessageBuilder()
         .withBody(msg)
         .withFromJid(serverJID)
         .withRecipientJids(userJID)
         .build());
-    Status status = response.getStatusMap().get(response);
-    if (status != Status.SUCCESS) {
-      LOG.severe("sendMessage unsuccessful: to: " + userJID + " / from: " + serverJID);
-    }
+    /*
+     * Status status = response.getStatusMap().get(response);
+     * if (status != Status.SUCCESS) {
+     * LOG.severe("sendMessage unsuccessful: to: " + userJID + " / from: " + serverJID);
+     * }
+     */
   }
 
   private static void broadcastHelper(String msg, Channel channel, JID userJID, JID serverJID,
@@ -49,23 +49,30 @@ public abstract class SendUtil {
     JID[] recipients = channel.getMembersJIDsToSendTo(toExclude);
 
     if (recipients.length > 0) {
-      SendResponse response = XMPP.sendMessage(new MessageBuilder()
+      XMPP.sendMessage(new MessageBuilder()
           .withBody(msg)
           .withFromJid(serverJID)
           .withRecipientJids(recipients)
           .build());
-      Status status = response.getStatusMap().get(response);
-      if (status != Status.SUCCESS) {
-        StringBuilder sb = new StringBuilder().append("sendMessage unsuccessful! status: ")
-            .append(status.name())
-            .append(" from: ")
-            .append(serverJID.getId())
-            .append(" / to:");
-        for (JID toJID : recipients) {
-          sb.append(" ").append(toJID.getId());
-        }
-        LOG.severe(sb.toString());
-      }
+      /*
+       * Preconditions.checkNotNull(response);
+       * for (JID jid : recipients) {
+       * Map<JID, Status> map = response.getStatusMap();
+       * Preconditions.checkNotNull(map);
+       * Preconditions.checkState(map.containsKey(jid));
+       * Status status = response.getStatusMap().get(jid);
+       * if (status != Status.SUCCESS) {
+       * StringBuilder sb = new StringBuilder().append("sendMessage unsuccessful! ")
+       * .append("status: ")
+       * .append(status.name())
+       * .append(" from: ")
+       * .append(serverJID.getId())
+       * .append(" / to: ")
+       * .append(jid.getId());
+       * LOG.severe(sb.toString());
+       * }
+       * }
+       */
     }
   }
 
