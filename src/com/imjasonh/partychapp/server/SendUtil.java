@@ -56,7 +56,15 @@ public abstract class SendUtil {
           .build());
       Status status = response.getStatusMap().get(response);
       if (status != Status.SUCCESS) {
-        LOG.severe("sendMessage unsuccessful: to: " + recipients + " / from: " + serverJID);
+        StringBuilder sb = new StringBuilder().append("sendMessage unsuccessful! status: ")
+            .append(status.name())
+            .append(" from: ")
+            .append(serverJID.getId())
+            .append(" / to:");
+        for (JID toJID : recipients) {
+          sb.append(" ").append(toJID.getId());
+        }
+        LOG.severe(sb.toString());
       }
     }
   }
