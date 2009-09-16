@@ -5,12 +5,14 @@ import java.util.logging.Logger;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
+import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+import com.google.appengine.api.xmpp.SendResponse.Status;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Member;
 
-public abstract class SendUtil {  
+public abstract class SendUtil {
   private static XMPPService XMPP = XMPPServiceFactory.getXMPPService();
 
   private static final Logger LOG = Logger.getLogger(Channel.class.getName());
@@ -18,16 +20,21 @@ public abstract class SendUtil {
   public static void setXMPP(XMPPService xmpp) {
     XMPP = xmpp;
   }
-  
+
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
-    XMPP.sendMessage(new MessageBuilder()
+    SendResponse response = XMPP.sendMessage(new MessageBuilder()
         .withBody(msg)
         .withFromJid(serverJID)
         .withRecipientJids(userJID)
         .build());
+    Status status = response.getStatusMap().get(response);
+    if (status != Status.SUCCESS) {
+      LOG.severe("sendMessage unsuccessful: to: " + userJID + " / from: " + serverJID);
+    }
   }
 
-  private static void broadcastHelper(String msg, Channel channel, JID userJID, JID serverJID, JID toExclude) {
+  private static void broadcastHelper(String msg, Channel channel, JID userJID, JID serverJID,
+      JID toExclude) {
     // awaken snoozers and broadcast them awaking.
     Set<Member> awoken = channel.awakenSnoozers();
     if (!awoken.isEmpty()) {
@@ -41,23 +48,24 @@ public abstract class SendUtil {
 
     JID[] recipients = channel.getMembersJIDsToSendTo(toExclude);
 
-    LOG.severe("message: " + msg +
-        ", fromjid: " + serverJID +
-        ", tojid: " + recipients);
-
     if (recipients.length > 0) {
-      XMPP.sendMessage(new MessageBuilder()
+      SendResponse response = XMPP.sendMessage(new MessageBuilder()
           .withBody(msg)
           .withFromJid(serverJID)
           .withRecipientJids(recipients)
           .build());
+      Status status = response.getStatusMap().get(response);
+      if (status != Status.SUCCESS) {
+        LOG.severe("sendMessage unsuccessful: to: " + recipients + " / from: " + serverJID);
+      }
     }
   }
 
-  public static void broadcastIncludingSender(String msg, Channel channel, JID userJID, JID serverJID) {
+  public static void broadcastIncludingSender(String msg, Channel channel, JID userJID,
+      JID serverJID) {
     broadcastHelper(msg, channel, userJID, serverJID, null);
   }
-  
+
   public static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
     broadcastHelper(msg, channel, userJID, serverJID, userJID);
   }
