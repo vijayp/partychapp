@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
-import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Datastore;
@@ -43,12 +42,12 @@ public class PartychappServlet extends HttpServlet {
 
     String body = xmppMessage.getBody().trim();
 
+    message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
+
     if (channelName.equalsIgnoreCase("echo")) {
       handleEcho(body);
       return;
     }
-
-    message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
 
     message.channel = Datastore.instance().getChannelByName(channelName);
     if (message.channel == null) {
@@ -77,11 +76,6 @@ public class PartychappServlet extends HttpServlet {
   }
 
   private void handleEcho(String body) {
-    // if the user is talking to echo@, just echo back as simply as possible.
-    XMPP.sendMessage(new MessageBuilder()
-        .withRecipientJids(message.userJID)
-        .withFromJid(message.serverJID)
-        .withBody("echo: " + body)
-        .build());
+    SendUtil.sendDirect("echo: " + body, message.userJID, message.serverJID);
   }
 }
