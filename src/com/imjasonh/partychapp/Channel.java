@@ -89,6 +89,10 @@ public class Channel implements Serializable {
         jids.add(new JID(member.getJID()));
       }
     }
+    
+    if (jids.isEmpty()) {
+      return null;
+    }
 
     JID returnJids[] = new JID[jids.size()];
     jids.toArray(returnJids);

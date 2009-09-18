@@ -58,7 +58,7 @@ public abstract class SendUtil {
    * Sends a message, logs unsuccessful sends.
    */
   private static void sendMessage(String msg, JID fromJID, JID... toJIDs) {
-    if (toJIDs.length > 0) {
+    if (toJIDs != null && toJIDs.length > 0) {
       SendResponse response = XMPP.sendMessage(new MessageBuilder()
           .withBody(msg)
           .withFromJid(fromJID)
