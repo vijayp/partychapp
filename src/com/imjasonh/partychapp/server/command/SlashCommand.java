@@ -15,12 +15,12 @@ abstract class SlashCommand implements CommandHandler {
   private Pattern pattern;
 
   SlashCommand(String name, String... otherNames) {
-    StringBuilder sb = new StringBuilder("^/");
+    StringBuilder sb = new StringBuilder("^/(?:");
     sb.append(name);
     for (String otherName : otherNames) {
       sb.append("|").append(otherName);
     }
-    sb.append("(\\s.*)?$");
+    sb.append(")(\\s.*)?$");
 
     this.pattern = Pattern.compile(sb.toString());
   }
@@ -33,7 +33,10 @@ abstract class SlashCommand implements CommandHandler {
 
   public void doCommand(Message msg) {
     Matcher matcher = getMatcher(msg);
-    String argument = matcher.groupCount() > 0 ? matcher.group(0).trim() : null;
+    String argument = matcher.group(1);
+    if (argument != null) {
+      argument = argument.trim();
+    }
     doCommand(msg, argument);
   }
 
@@ -47,6 +50,6 @@ abstract class SlashCommand implements CommandHandler {
    */
   private Matcher getMatcher(Message msg) {
     Matcher m = pattern.matcher(msg.content.trim());
-    return m.find() ? m : null;
+    return m.matches() ? m : null;
   }
 }

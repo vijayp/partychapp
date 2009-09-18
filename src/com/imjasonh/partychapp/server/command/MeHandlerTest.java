@@ -25,7 +25,7 @@ public class MeHandlerTest extends TestCase {
     assertFalse(handler.matches(Message.createForTests("/meanie")));
   }
   
-  public void testScore() {
+  public void testCommand() {
     handler.doCommand(Message.createForTests("/me xs"));
     assertEquals(1, xmpp.messages.size());
     assertEquals("_neil xs_", xmpp.messages.get(0).getBody());
