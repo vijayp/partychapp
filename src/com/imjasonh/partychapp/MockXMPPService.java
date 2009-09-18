@@ -11,11 +11,11 @@ import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.Presence;
 import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
+import com.google.appengine.api.xmpp.SendResponse.Status;
 
 public class MockXMPPService implements XMPPService {
   public List<Message> messages = new ArrayList<Message>();
-  
-  
+
   public Presence getPresence(JID jabberId) {
     // TODO Auto-generated method stub
     return null;
@@ -43,6 +43,10 @@ public class MockXMPPService implements XMPPService {
 
   public SendResponse sendMessage(Message message) {
     messages.add(message);
-    return null;
+    SendResponse response = new SendResponse();
+    for (JID jid : message.getRecipientJids()) {
+      response.addStatus(jid, Status.SUCCESS);
+    }
+    return response;
   }
 }

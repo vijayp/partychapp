@@ -4,7 +4,7 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
 /**
- * Action taken when the user 
+ * Action taken when the user
  * 
  * @author kushaldave@gmail.com
  */
@@ -13,14 +13,14 @@ public class MeHandler extends SlashCommand {
   public MeHandler() {
     super("me");
   }
-  
+
   public void doCommand(Message msg, String action) {
     assert msg.channel != null;
     assert msg.member != null;
 
     String broadcast = "_" + msg.member.getAlias() + " " +
         action + "_";
-    SendUtil.broadcastIncludingSender(broadcast, msg.channel, null, msg.serverJID);
+    SendUtil.broadcastIncludingSender(broadcast, msg.channel, msg.serverJID);
   }
 
   public String documentation() {

@@ -25,8 +25,19 @@ public abstract class SendUtil {
     sendMessage(msg, serverJID, userJID);
   }
 
-  private static void broadcastHelper(String msg, Channel channel, JID userJID, JID serverJID,
-      JID toExclude) {
+  public static void broadcastIncludingSender(String msg, Channel channel, JID serverJID) {
+    awakenSnoozers(channel, serverJID);
+    JID[] recipients = channel.getMembersJIDsToSendTo();
+    sendMessage(msg, serverJID, recipients);
+  }
+
+  public static void broadcast(String msg, Channel channel, JID serverJID, JID exclude) {
+    awakenSnoozers(channel, serverJID);
+    JID[] recipients = channel.getMembersJIDsToSendTo(exclude);
+    sendMessage(msg, serverJID, recipients);
+  }
+
+  private static void awakenSnoozers(Channel channel, JID serverJID) {
     // awaken snoozers and broadcast them awaking.
     Set<Member> awoken = channel.awakenSnoozers();
     if (!awoken.isEmpty()) {
@@ -35,12 +46,8 @@ public abstract class SendUtil {
       for (Member m : awoken) {
         sb.append('\n').append(m.getAlias());
       }
-      broadcast(sb.toString(), channel, userJID, serverJID);
+      broadcastIncludingSender(sb.toString(), channel, serverJID);
     }
-
-    JID[] recipients = channel.getMembersJIDsToSendTo(toExclude);
-
-    sendMessage(msg, serverJID, recipients);
   }
 
   /**
@@ -72,14 +79,5 @@ public abstract class SendUtil {
         }
       }
     }
-  }
-
-  public static void broadcastIncludingSender(String msg, Channel channel, JID userJID,
-      JID serverJID) {
-    broadcastHelper(msg, channel, userJID, serverJID, null);
-  }
-
-  public static void broadcast(String msg, Channel channel, JID userJID, JID serverJID) {
-    broadcastHelper(msg, channel, userJID, serverJID, userJID);
   }
 }

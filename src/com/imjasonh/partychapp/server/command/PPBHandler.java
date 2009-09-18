@@ -10,16 +10,17 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 public class PPBHandler implements CommandHandler {
   PlusPlusBot ppb = new PlusPlusBot();
-  
+
   public void doCommand(Message msg) {
     List<Reason> reasons = ppb.extractReasons(msg);
     StringBuilder sb = new StringBuilder();
     sb.append(msg.member.getAliasPrefix());
     if (reasons.isEmpty()) {
       sb.append(msg.content);
-      SendUtil.broadcast(sb.toString(), msg.channel, msg.userJID, msg.serverJID);     
+      SendUtil.broadcast(sb.toString(), msg.channel, msg.serverJID, msg.userJID);
       return;
-    };
+    }
+    ;
     int pos = 0;
     // for "whee x++ and y-- yay" we want to change it into
     // "whee x++ [woot! now at 1] and y-- [ouch! now at -1] yay"
@@ -48,7 +49,7 @@ public class PPBHandler implements CommandHandler {
       }
     }
     sb.append(msg.content.substring(pos));
-    SendUtil.broadcastIncludingSender(sb.toString(), msg.channel, msg.userJID, msg.serverJID);
+    SendUtil.broadcastIncludingSender(sb.toString(), msg.channel, msg.serverJID);
   }
 
   public boolean matches(Message msg) {

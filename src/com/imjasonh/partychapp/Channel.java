@@ -71,6 +71,10 @@ public class Channel implements Serializable {
     return awoken;
   }
 
+  public JID[] getMembersJIDsToSendTo() {
+    return getMembersJIDsToSendTo(null);
+  }
+
   /**
    * @param exclude
    *          a JID to exclude (for example the person sending the broadcast message)
@@ -112,11 +116,11 @@ public class Channel implements Serializable {
     }
     return null;
   }
-  
+
   public void put() {
     Datastore.instance().put(this, this.name);
   }
-  
+
   public void delete() {
     Datastore.instance().delete(this, this.name);
   }
