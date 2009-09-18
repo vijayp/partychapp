@@ -24,6 +24,10 @@ public abstract class SendUtil {
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
     sendMessage(msg, serverJID, userJID);
   }
+  
+  public static boolean getPresence(JID userJID) {
+    return XMPP.getPresence(userJID).isAvailable();
+  }
 
   public static void broadcastIncludingSender(String msg, Channel channel, JID serverJID) {
     awakenSnoozers(channel, serverJID);

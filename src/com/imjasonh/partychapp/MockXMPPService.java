@@ -17,13 +17,11 @@ public class MockXMPPService implements XMPPService {
   public List<Message> messages = new ArrayList<Message>();
 
   public Presence getPresence(JID jabberId) {
-    // TODO Auto-generated method stub
-    return null;
+    return new Presence(false);
   }
 
   public Presence getPresence(JID jabberId, JID fromJid) {
-    // TODO Auto-generated method stub
-    return null;
+    return new Presence(false);
   }
 
   public Message parseMessage(HttpServletRequest arg0) throws IOException {
