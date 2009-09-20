@@ -1,8 +1,6 @@
 package com.imjasonh.partychapp.ppb;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +8,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.appengine.repackaged.com.google.common.collect.Maps;
+import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 
@@ -17,7 +18,15 @@ public class PlusPlusBot {
   private static Set<String> blacklist = new HashSet<String>();
 
   public enum Action {
-    PLUSPLUS, MINUSMINUS
+    PLUSPLUS, MINUSMINUS;
+    
+    public boolean isPlusPlus() {
+      return equals(PLUSPLUS);
+    }
+    
+    public Action opposite() {
+      return isPlusPlus() ? MINUSMINUS : PLUSPLUS;
+    }
   };
 
   public static final String targetPattern = "[\\w-\\.\\+]+";
@@ -35,10 +44,19 @@ public class PlusPlusBot {
     return pattern.matcher(content.trim()).find();
   }
 
+  public List<Reason> extractReasonsNoCommit(Message msg) {
+    return extractReasonsHelper(msg, false);
+  }
+
   public List<Reason> extractReasons(Message msg) {
-    List<Reason> reasons = new ArrayList<Reason>();
-    Set<Target> targets = new HashSet<Target>();
-    Map<String, Target> alreadyFetched = new HashMap<String, Target>();
+    return extractReasonsHelper(msg, true);
+  }
+
+  public List<Reason> extractReasonsHelper(Message msg, boolean mutateObjects) {
+    List<Reason> reasons = Lists.newArrayList();
+    Set<Target> targets = Sets.newHashSet();
+    Map<String, Target> alreadyFetched = Maps.newHashMap();
+    Map<String, Integer> scores = Maps.newHashMap();
     boolean hasOverride = msg.content.contains("/combine");
     Matcher m = pattern.matcher(msg.content);
     while (m.find()) {
@@ -58,12 +76,44 @@ public class PlusPlusBot {
       } else {
         targets.add(t);
       }
-      reasons.add(t.takeAction(msg.member, a, msg.content));
+      if (mutateObjects) {
+        reasons.add(t.takeAction(msg.member, a, msg.content));
+      } else {
+        if (!scores.containsKey(t.key())) {
+          scores.put(t.key(), t.score());
+        }
+        int scoreAfter = scores.get(t.key());
+        if (a == Action.PLUSPLUS) {
+          ++scoreAfter;
+        } else {
+          --scoreAfter;
+        }
+        scores.put(t.key(), scoreAfter);
+        reasons.add(new Reason(t, msg.member, a, msg.content, scoreAfter));
+      }
     }
-    // Do a batch-save at the end.
-    List<Serializable> toSave = new ArrayList<Serializable>(targets);
-    toSave.addAll(reasons);
-    Datastore.instance().putAll(toSave);
+    if (mutateObjects) {
+      List<Serializable> toSave = Lists.newArrayList();
+      toSave.addAll(targets);
+      toSave.addAll(reasons);
+      Datastore.instance().putAll(toSave);
+    }
     return reasons;
-  };
+  }
+
+  public List<Reason> undoEarlierMessage(Message msg) {
+    List<Reason> reasonsBefore = extractReasonsNoCommit(msg);
+
+    List<Serializable> toSave = Lists.newArrayList();
+    List<Reason> allUndos = Lists.newArrayList();
+    for (Reason r : reasonsBefore) {
+      Reason undone = r.undo();
+      toSave.add(undone.target());
+      toSave.add(undone);
+      allUndos.add(undone);
+    }
+
+    Datastore.instance().putAll(toSave);
+    return allUndos;
+  }
 }

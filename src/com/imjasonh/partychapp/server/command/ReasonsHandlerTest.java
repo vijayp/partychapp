@@ -27,14 +27,19 @@ public class ReasonsHandlerTest extends TestCase {
   }
   
   public void testReasons() {
-    String content = "x++ for being awesome";
-    ppb.doCommand(Message.createForTests(content));
+    String content1 = "x++ for being awesome";
+    ppb.doCommand(Message.createForTests(content1));
+    xmpp.messages.clear();
+
+    String content2 = "x-- is so lame";
+    ppb.doCommand(Message.createForTests(content2));
     xmpp.messages.clear();
 
     handler.doCommand(Message.createForTests("/reasons x"));
     assertEquals(1, xmpp.messages.size());
-    assertEquals("x: 1\n" +
-                 "increment by neil@gmail.com (" + content + ")",
+    assertEquals("x: 0\n" +
+                 "decrement by neil@gmail.com (" + content2 + ")\n" +
+                 "increment by neil@gmail.com (" + content1 + ")",
                  xmpp.messages.get(0).getBody());
   }
 }

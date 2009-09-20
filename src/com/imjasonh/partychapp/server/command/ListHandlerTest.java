@@ -27,6 +27,13 @@ public class ListHandlerTest extends TestCase {
   public void testCommand() {
     handler.doCommand(Message.createForTests("/list"));
     assertEquals(1, xmpp.messages.size());
-    assertTrue(xmpp.messages.get(0).getBody().startsWith("Listing members of"));
+    assertEquals("Listing members of 'pancake'\n" +
+                 "* akshay (akshay@q00p.net)\n" +
+                 "* david (david@gmail.com)\n" +
+                 "* jason (jason@gmail.com)\n" +
+                 "* kushal (kushal@kushaldave.com)\n" +
+                 "* neil (neil@gmail.com)",
+                 xmpp.messages.get(0).getBody());
+
   }
 }

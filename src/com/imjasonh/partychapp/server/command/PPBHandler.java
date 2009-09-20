@@ -11,16 +11,16 @@ import com.imjasonh.partychapp.server.SendUtil;
 public class PPBHandler implements CommandHandler {
   PlusPlusBot ppb = new PlusPlusBot();
 
-  public void doCommand(Message msg) {
+  private void doCommandWithCustomizedReply(Message msg, String prefix, String suffix) {
+    StringBuilder sb = new StringBuilder(prefix);
+    msg.member.addToLastMessages(msg.content);
     List<Reason> reasons = ppb.extractReasons(msg);
-    StringBuilder sb = new StringBuilder();
-    sb.append(msg.member.getAliasPrefix());
     if (reasons.isEmpty()) {
       sb.append(msg.content);
+      sb.append(suffix);
       SendUtil.broadcast(sb.toString(), msg.channel, msg.serverJID, msg.userJID);
       return;
     }
-    ;
     int pos = 0;
     // for "whee x++ and y-- yay" we want to change it into
     // "whee x++ [woot! now at 1] and y-- [ouch! now at -1] yay"
@@ -42,14 +42,44 @@ public class PPBHandler implements CommandHandler {
       // move the cursor to the "a" in "and"
       pos = nextPos;
       // append "[woot! now at 1] "
-      sb.append(r.action() == PlusPlusBot.Action.PLUSPLUS ? "[woot! " : "[ouch! ");
-      sb.append("now at " + r.scoreAfter() + "]");
+      sb.append(r.wootString());
       if (addSpaceAtEnd) {
         sb.append(" ");
       }
     }
     sb.append(msg.content.substring(pos));
-    SendUtil.broadcastIncludingSender(sb.toString(), msg.channel, msg.serverJID);
+    sb.append(suffix);
+    SendUtil.broadcastIncludingSender(sb.toString(), msg.channel, msg.serverJID);    
+  }
+  
+  public void doCommandAsCorrection(Message msg) {
+    doCommandWithCustomizedReply(msg, "_" + msg.member.getAlias() + " meant ", "_");
+  }
+  
+  public void doCommand(Message msg) {
+    doCommandWithCustomizedReply(msg, msg.member.getAliasPrefix(), "");
+  }
+  
+  public void undoEarlierMessage(Message msg) {
+    List<Reason> allUndos = ppb.undoEarlierMessage(msg);
+
+    StringBuilder summary = new StringBuilder();
+    boolean first = true;
+    for (Reason undo : allUndos) {
+      if (!first) {
+        summary.append(", ");
+      }
+      summary.append(undo.target().name());
+      summary.append(undo.action().opposite().isPlusPlus() ? "++" : "--");
+      summary.append(" [back to ");
+      summary.append(undo.scoreAfter());
+      summary.append("]");
+      first = false;
+    }
+    String str = summary.toString();
+    if (!str.isEmpty()) {
+      SendUtil.broadcastIncludingSender("Undoing original actions: " + str, msg.channel, msg.serverJID);
+    }
   }
 
   public boolean matches(Message msg) {

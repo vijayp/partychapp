@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,9 +11,10 @@ import com.google.appengine.api.xmpp.Presence;
 import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.SendResponse.Status;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 public class MockXMPPService implements XMPPService {
-  public List<Message> messages = new ArrayList<Message>();
+  public List<Message> messages = Lists.newArrayList();
 
   public Presence getPresence(JID jabberId) {
     return new Presence(false);

@@ -36,7 +36,7 @@ public class Target implements Serializable {
   private int score;
 
   public Reason takeAction(Member sender, Action act, String content) {
-    if (act == Action.PLUSPLUS) {
+    if (act.isPlusPlus()) {
       ++score;
     } else {
       --score;
@@ -50,6 +50,14 @@ public class Target implements Serializable {
     this.channel = channel;
     this.channelName = channel.getName();
     this.score = 0;
+  }
+
+  public Target(Target other) {
+    this.key = other.key;
+    this.name = other.name;
+    this.channel = other.channel;
+    this.channelName = other.channelName;
+    this.score = other.score;
   }
   
   public String key() {
@@ -77,5 +85,9 @@ public class Target implements Serializable {
   
   public static String createTargetKey(String name, Channel channel) {
     return "Channel: " + channel.getName() + ", Name: " + name;
+  }
+  
+  public String toString() {
+    return "Target: [Key: [" + key() + "], score: " + score + "]";
   }
 }

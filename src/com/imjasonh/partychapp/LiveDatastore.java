@@ -71,22 +71,12 @@ public class LiveDatastore extends Datastore {
   }
 
   @Override
-  public void put(Serializable s, String name) {
-    PERSISTENCE_MANAGER.makePersistent(s);
-  }
-
-  @Override
-  public void putAll(Collection<Serializable> objects) {
+  public void putAll(Collection<? extends Serializable> objects) {
     PERSISTENCE_MANAGER.makePersistentAll(objects);
   }
 
   @Override
   public void delete(Serializable s) {
-    PERSISTENCE_MANAGER.deletePersistent(s);
-  }
-
-  @Override
-  public void delete(Serializable s, String name) {
     PERSISTENCE_MANAGER.deletePersistent(s);
   }
 }

@@ -1,7 +1,9 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -10,6 +12,7 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 @PersistenceCapable
 public class Member implements Serializable {
@@ -34,6 +37,9 @@ public class Member implements Serializable {
 
   @Persistent
   private Date snoozeUntil;
+  
+  @Persistent(serialized = "true")
+  private List<String> lastMessages;
 
   public enum SnoozeStatus {
     SNOOZING,
@@ -81,5 +87,24 @@ public class Member implements Serializable {
 
   public Date getSnoozeUntil() {
     return snoozeUntil;
+  }
+  
+  private List<String> mutableLastMessages() {
+    if (lastMessages == null) {
+      lastMessages = Lists.newArrayList();
+    }
+    return lastMessages;
+  }
+  
+  public List<String> getLastMessages() {
+    return Collections.unmodifiableList(mutableLastMessages());
+  }
+  
+  public void addToLastMessages(String toAdd) {
+    List<String> messages = mutableLastMessages();
+    messages.add(0, toAdd);
+    if (messages.size() > 10) {
+      messages.remove(10);
+    }
   }
 }

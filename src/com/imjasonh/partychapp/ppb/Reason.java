@@ -51,7 +51,8 @@ public class Reason implements Serializable {
   @Persistent
   private int scoreAfter;
 
-  public Reason(Target t, Member sender, Action act, String reason, int scoreAfter) {
+  // This should only be called by Target.takeAction()
+  Reason(Target t, Member sender, Action act, String reason, int scoreAfter) {
     this.target = t;
     this.targetId = t.key();
     this.sender = sender;
@@ -103,5 +104,18 @@ public class Reason implements Serializable {
   
   public void put() {
     Datastore.instance().put(this);
+  }
+  
+  public Reason undo() {
+    return target().takeAction(sender(),
+                               action().opposite(),
+                               "Undo: " + reason());
+  }
+  
+  public String wootString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(action().isPlusPlus() ? "[woot! " : "[ouch! ");
+    sb.append("now at " + scoreAfter() + "]");
+    return sb.toString();
   }
 }

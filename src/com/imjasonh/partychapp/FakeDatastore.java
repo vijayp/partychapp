@@ -1,21 +1,26 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
 public class FakeDatastore extends Datastore {
-  private Map<String, Channel> channels = new HashMap<String, Channel>();
-  private Map<String, Target> targets = new HashMap<String, Target>();
-  private Map<Target, List<Reason> > reasons = new HashMap<Target, List<Reason> >();
-
+  private Map<String, Channel> channels = Maps.newHashMap();
+  private Map<String, Target> targets = Maps.newHashMap();
+  private Map<String, List<Reason> > reasons = Maps.newHashMap();
+  private Channel fakeChannel;
+  
+  public static FakeDatastore instance() {
+    return (FakeDatastore)Datastore.instance();
+  }
+  
   public FakeDatastore() {
     Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
     // using fake addresses to avoid leaking our email addresses publicly
@@ -25,6 +30,7 @@ public class FakeDatastore extends Datastore {
     channel.addMember(new Member(new JID("david@gmail.com")));
     channel.addMember(new Member(new JID("akshay@q00p.net")));
     put(channel);
+    fakeChannel = channel;
   }
 
   @Override
@@ -33,13 +39,16 @@ public class FakeDatastore extends Datastore {
   }
   
   public Target getTargetByID(String key) {
-    return targets.get(key);
+    Target t = targets.get(key);
+    if (t != null) {
+      return new Target(t);
+    }
+    return null;
   }
 
   @Override
   public Target getTarget(Channel channel, String name) {
-    String key = Target.createTargetKey(name, channel);
-    return targets.get(key);
+    return getTargetByID(Target.createTargetKey(name, channel));
   }
   
   @Override
@@ -52,18 +61,15 @@ public class FakeDatastore extends Datastore {
   }
   
   public List<Reason> getReasons(Target target, int limit) {
-    List<Reason> fullList = reasons.get(target);
-    if (fullList.size() > limit) {
-      return fullList.subList(0, limit-1);
+    List<Reason> list = reasons.get(target.key());
+    if (list == null) {
+      list =  Lists.newArrayList();
+    } else if (list.size() > limit) {
+      list = list.subList(0, limit-1);
     }
-    return fullList;
+    return list;
   }
 
-  @Override
-  public void delete(Serializable s, String name) {
-    delete(s);
-  }
-  
   public void delete(Serializable s) {
     if (s instanceof Channel) {
       channels.remove(((Channel)s).getName());
@@ -72,17 +78,12 @@ public class FakeDatastore extends Datastore {
     }
   }
   
-  public void putAll(Collection<Serializable> objects) {
+  public void putAll(Collection<? extends Serializable> objects) {
     for (Serializable s : objects) {
       put(s);
     }
   }
-  
-  @Override
-  public void put(Serializable s, String name) {
-    put(s);
-  }
-  
+
   @Override
   public void put(Serializable s) {
     if (s instanceof Channel) {
@@ -90,15 +91,26 @@ public class FakeDatastore extends Datastore {
       channels.put(c.getName(), c);
     } else if (s instanceof Reason) {
       Reason r = (Reason)s;
-      reasons.get(r.target()).add(r);
+      reasons.get(r.target().key()).add(0, r);
     } else if (s instanceof Target) {
       Target t = (Target)s;
       targets.put(t.key(), t);
-      if (!reasons.containsKey(t)) {
-        reasons.put(t, new ArrayList<Reason>());
+      if (!reasons.containsKey(t.key())) {
+        reasons.put(t.key(), Lists.<Reason>newArrayList());
       }
     } else {
       throw new RuntimeException("put not implemented for " + s);
     }
+  }
+
+  public Channel fakeChannel() {
+    return fakeChannel;
+  }
+
+  public void clear() {
+    channels = Maps.newHashMap();
+    targets = Maps.newHashMap();
+    reasons = Maps.newHashMap();
+    fakeChannel = null;
   }
 }

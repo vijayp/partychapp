@@ -34,7 +34,10 @@ public class PartychappServlet extends HttpServlet {
     XMPP = XMPPServiceFactory.getXMPPService();
 
     Message xmppMessage = XMPP.parseMessage(req);
+    doXmpp(xmppMessage);
+  }
 
+  public void doXmpp(Message xmppMessage) {
     JID userJID = xmppMessage.getFromJid();
 
     JID serverJID = xmppMessage.getRecipientJids()[0]; // should only be "to" one jid, right?
@@ -71,6 +74,7 @@ public class PartychappServlet extends HttpServlet {
   }
 
   private void handleMessage(String body) {
+    message.member.addToLastMessages(body);
     String msg = message.member.getAliasPrefix() + body;
     SendUtil.broadcast(msg, message.channel, message.userJID, message.serverJID);
   }

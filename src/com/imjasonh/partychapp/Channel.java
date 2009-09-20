@@ -2,6 +2,7 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.jdo.annotations.IdentityType;
@@ -10,7 +11,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.ImmutableSet;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 
@@ -43,7 +44,7 @@ public class Channel implements Serializable {
    * @param member
    */
   public void addMember(Member member) {
-    for (Member m : members) {
+    for (Member m : mutableMembers()) {
       if (m.getAlias().equals(member.getAlias())) {
         member.setAlias("_" + member.getAlias());
         addMember(member);
@@ -52,18 +53,21 @@ public class Channel implements Serializable {
     }
     members.add(member);
   }
-
-  public void removeMember(Member member) {
-    members.remove(member);
-    if (members.isEmpty()) {
-      // App Engine seems to make empty sets null instead of empty sets?
+  
+  private Set<Member> mutableMembers() {
+    if (members == null) {
       members = Sets.newHashSet();
     }
+    return members;
+  }
+
+  public void removeMember(Member member) {
+    mutableMembers().remove(member);
   }
 
   public Set<Member> awakenSnoozers() {
     Set<Member> awoken = Sets.newHashSet();
-    for (Member member : members) {
+    for (Member member : getMembers()) {
       if (member.getSnoozeStatus() == SnoozeStatus.SHOULD_WAKE) {
         member.setSnoozeUntil(null);
         awoken.add(member);
@@ -83,8 +87,8 @@ public class Channel implements Serializable {
    */
   public JID[] getMembersJIDsToSendTo(JID exclude) {
     String excludeJID = (exclude != null) ? exclude.getId().split("/")[0] : null;
-    ArrayList<JID> jids = new ArrayList<JID>();
-    for (Member member : members) {
+    ArrayList<JID> jids = Lists.newArrayList();
+    for (Member member : getMembers()) {
       if (!member.getJID().equals(excludeJID)
           && member.getSnoozeStatus() != SnoozeStatus.SNOOZING) {
         jids.add(new JID(member.getJID()));
@@ -105,16 +109,12 @@ public class Channel implements Serializable {
   }
 
   public Set<Member> getMembers() {
-    return ImmutableSet.copyOf(members);
+    return Collections.unmodifiableSet(mutableMembers());
   }
 
   public Member getMemberByJID(JID jid) {
     String shortJID = jid.getId().split("/")[0];
-    if (members == null) {
-      members = Sets.newHashSet();
-      return null;
-    }
-    for (Member member : members) {
+    for (Member member : getMembers()) {
       if (member.getJID().equals(shortJID)) {
         return member;
       }
@@ -123,10 +123,10 @@ public class Channel implements Serializable {
   }
 
   public void put() {
-    Datastore.instance().put(this, this.name);
+    Datastore.instance().put(this);
   }
 
   public void delete() {
-    Datastore.instance().delete(this, this.name);
+    Datastore.instance().delete(this);
   }
 }

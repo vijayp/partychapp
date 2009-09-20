@@ -1,6 +1,11 @@
 package com.imjasonh.partychapp.server.command;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
@@ -8,19 +13,20 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 public class ListHandler extends SlashCommand {
   
-	public ListHandler() {
+  public ListHandler() {
     super("list", "names");
   }
 	
   public void doCommand(Message msg, String argument) {
     // TODO: Reject or act on non-null argument
     
-    // TODO: sort by online/offline, snoozing, alias
+    List<Member> members = Lists.newArrayList(msg.channel.getMembers());
+    Collections.sort(members, new SortMembersForListComparator());
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
         .append(msg.channel.getName())
         .append("'");
-    for (Member m : msg.channel.getMembers()) {
+    for (Member m : members) {
       sb.append('\n')
           .append("* ")
           .append(m.getAlias())
@@ -40,5 +46,12 @@ public class ListHandler extends SlashCommand {
   
   public String documentation() {
 	  return "/list - show members of room";
+  }
+
+  public static class SortMembersForListComparator implements Comparator<Member> {
+    public int compare(Member first, Member second) {
+      // TODO: sort by online/offline, snoozing
+      return first.getAlias().compareTo(second.getAlias());
+    }
   }
 }

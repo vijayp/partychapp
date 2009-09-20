@@ -31,9 +31,7 @@ public abstract class Datastore {
 
   public abstract List<Reason> getReasons(Target target, int limit);
   
-  public abstract void putAll(Collection<Serializable> objects);
+  public abstract void putAll(Collection<? extends Serializable> objects);
   public abstract void put(Serializable s);
-  public abstract void put(Serializable s, String name);
   public abstract void delete(Serializable s);
-  public abstract void delete(Serializable s, String name);
 }

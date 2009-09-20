@@ -4,7 +4,12 @@ import com.google.appengine.api.xmpp.JID;
 
 public class Message {
   public static Message createForTests(String content) {
-    return new Message(content);
+    JID userJID = new JID("neil@gmail.com");
+    return new Message(content,
+                       userJID,
+                       new JID("pancake@partychat.appspotchat.com"),
+                       FakeDatastore.instance().fakeChannel().getMemberByJID(userJID),
+                       FakeDatastore.instance().fakeChannel());
   }
 
   public Message(String content, JID userJID, JID serverJID, Member member,
@@ -14,15 +19,6 @@ public class Message {
     this.serverJID = serverJID;
     this.member = member;
     this.channel = channel;
-  }
-
-  // for tests only. TODO(nsanch): this blows.
-  private Message(String content) {
-    this.content = content;
-    this.userJID = new JID("neil@gmail.com");
-    this.serverJID = new JID("pancake@partychat.appspotchat.com");
-    this.channel = Datastore.instance().getChannelByName("pancake");
-    this.member = this.channel.getMemberByJID(userJID);
   }
 
   public final String content;
