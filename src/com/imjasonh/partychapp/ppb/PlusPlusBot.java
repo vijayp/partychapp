@@ -25,7 +25,15 @@ public class PlusPlusBot {
     }
     
     public Action opposite() {
-      return isPlusPlus() ? MINUSMINUS : PLUSPLUS;
+      return ifPlusPlusElse(MINUSMINUS, PLUSPLUS);
+    }
+    
+    public <T extends Object> T ifPlusPlusElse(T then, T otherwise) {
+      if (isPlusPlus()) {
+        return then;
+      } else {
+        return otherwise;
+      }
     }
   };
 

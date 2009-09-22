@@ -5,7 +5,6 @@ import java.util.List;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
 import com.imjasonh.partychapp.ppb.Reason;
-import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 import com.imjasonh.partychapp.server.SendUtil;
 
 public class PPBHandler implements CommandHandler {
@@ -27,7 +26,7 @@ public class PPBHandler implements CommandHandler {
     for (Reason r : reasons) {
       // look for x++;
       String toSearch = r.target().name();
-      toSearch += (r.action() == Action.PLUSPLUS) ? "++" : "--";
+      toSearch += r.action().isPlusPlus() ? "++" : "--";
       int nextPos = msg.content.indexOf(toSearch, pos) + toSearch.length() + 1;
       boolean addSpaceAtEnd = true;
       // append "whee x++ "

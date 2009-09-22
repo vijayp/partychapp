@@ -95,7 +95,7 @@ public class Reason implements Serializable {
   
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append((action() == Action.PLUSPLUS) ? "woot!" : "ouch! ");
+    sb.append(action().ifPlusPlusElse("woot!", "ouch!"));
     sb.append(target.name());
     sb.append(" -> ");
     sb.append(scoreAfter);
