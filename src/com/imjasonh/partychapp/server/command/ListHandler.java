@@ -41,6 +41,12 @@ public class ListHandler extends SlashCommand {
       }
     }
 
+    if (msg.channel.isInviteOnly()) {
+      sb.append("\nRoom is invite-only.");
+    }
+    for (String invitee : msg.channel.getInvitees()) {
+      sb.append("\nInvited: ").append(invitee);
+    }
     SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
   }
   

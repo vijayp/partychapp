@@ -11,6 +11,9 @@ public enum Command {
   REASONS(new ReasonsHandler()),
   PLUSPLUSBOT(new PPBHandler()),
   ME(new MeHandler()),
+  INVITE(new InviteHandler()),
+  INVITE_ONLY(new InviteOnlyHandler()),
+  KICK(new KickHandler()),
   SEARCHREPLACE(new SearchReplaceHandler()),
   ;
 

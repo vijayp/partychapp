@@ -38,6 +38,8 @@ public class PartychappServlet extends HttpServlet {
   }
 
   public void doXmpp(Message xmppMessage) {
+    Datastore.instance().startRequest();
+    
     JID userJID = xmppMessage.getFromJid();
 
     JID serverJID = xmppMessage.getRecipientJids()[0]; // should only be "to" one jid, right?
@@ -61,7 +63,11 @@ public class PartychappServlet extends HttpServlet {
     message.member = message.channel.getMemberByJID(userJID);
     if (message.member == null) {
       // room exists, user isn't in room yet
-      new JoinCommand().doCommand(message);
+      try {
+        new JoinCommand().doCommand(message);
+      } catch (IllegalArgumentException e) {
+        return;
+      }
     }
 
     CommandHandler handler = Command.getCommandHandler(message);
@@ -71,6 +77,8 @@ public class PartychappServlet extends HttpServlet {
     } else {
       handleMessage(body);
     }
+    
+    Datastore.instance().endRequest();
   }
 
   private void handleMessage(String body) {

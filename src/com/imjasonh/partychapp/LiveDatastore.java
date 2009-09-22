@@ -7,21 +7,25 @@ import java.util.List;
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
+// NOT thread-safe
 public class LiveDatastore extends Datastore {
 
-  private static final PersistenceManager PERSISTENCE_MANAGER = JDOHelper
-      .getPersistenceManagerFactory("transactions-optional")
-      .getPersistenceManager();
+  private static final PersistenceManagerFactory PERSISTENCE_FACTORY = JDOHelper
+      .getPersistenceManagerFactory("transactions-optional");
 
+  // Created transiently for each request.
+  private PersistenceManager manager;
+  
   @Override
   public Channel getChannelByName(String name) {
     try {
-      Channel channel = PERSISTENCE_MANAGER.getObjectById(Channel.class, name);
+      Channel channel = manager.getObjectById(Channel.class, name);
       return channel;
     } catch (JDOObjectNotFoundException notFound) {
       return null;
@@ -31,7 +35,7 @@ public class LiveDatastore extends Datastore {
   @Override
   public Target getTargetByID(String key) {
     try {
-      return PERSISTENCE_MANAGER.getObjectById(Target.class, key);
+      return manager.getObjectById(Target.class, key);
     } catch (JDOObjectNotFoundException e) {
       // TODO(nsanch): there has to be a better way
       return null;
@@ -54,7 +58,7 @@ public class LiveDatastore extends Datastore {
 
   @SuppressWarnings("unchecked")
   public List<Reason> getReasons(Target target, int limit) {
-    Query query = PERSISTENCE_MANAGER.newQuery(Reason.class);
+    Query query = manager.newQuery(Reason.class);
     query.setFilter("targetId == targetIdParam");
     query.setOrdering("timestamp desc");
     query.declareParameters("String targetIdParam");
@@ -67,16 +71,26 @@ public class LiveDatastore extends Datastore {
 
   @Override
   public void put(Serializable s) {
-    PERSISTENCE_MANAGER.makePersistent(s);
+    manager.makePersistent(s);
   }
 
   @Override
   public void putAll(Collection<? extends Serializable> objects) {
-    PERSISTENCE_MANAGER.makePersistentAll(objects);
+    manager.makePersistentAll(objects);
   }
 
   @Override
   public void delete(Serializable s) {
-    PERSISTENCE_MANAGER.deletePersistent(s);
+    manager.deletePersistent(s);
+  }
+
+  @Override
+  public void endRequest() {
+    manager.close();
+  }
+
+  @Override
+  public void startRequest() {
+    manager = PERSISTENCE_FACTORY.getPersistenceManager();
   }
 }

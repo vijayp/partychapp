@@ -34,4 +34,7 @@ public abstract class Datastore {
   public abstract void putAll(Collection<? extends Serializable> objects);
   public abstract void put(Serializable s);
   public abstract void delete(Serializable s);
+
+  public abstract void startRequest();
+  public abstract void endRequest();
 }

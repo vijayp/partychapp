@@ -113,4 +113,16 @@ public class FakeDatastore extends Datastore {
     reasons = Maps.newHashMap();
     fakeChannel = null;
   }
+
+  @Override
+  public void endRequest() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void startRequest() {
+    // TODO Auto-generated method stub
+    
+  }
 }

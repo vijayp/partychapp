@@ -16,6 +16,13 @@ public class JoinCommand implements CommandHandler {
     assert msg.member == null;
 
     msg.member = new Member(msg.userJID);
+    if (!msg.channel.canJoin(msg.member.getJID())) {
+      String reply = "You must be invited this room.";
+      SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+      // Yuck! Hack until we fix the way this is used by servlet
+      throw new IllegalArgumentException();
+    }
+
     msg.channel.addMember(msg.member);
     msg.channel.put();
 

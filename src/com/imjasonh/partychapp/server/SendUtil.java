@@ -31,6 +31,10 @@ public abstract class SendUtil {
     return XMPP.getPresence(userJID).isAvailable();
   }
 
+  public static void invite(String email, JID serverJID) {
+    XMPP.sendInvitation(new JID(email), serverJID);
+  }
+
   public static void broadcastIncludingSender(String msg, Channel channel, JID serverJID) {
     awakenSnoozers(channel, serverJID);
     JID[] recipients = channel.getMembersJIDsToSendTo();
