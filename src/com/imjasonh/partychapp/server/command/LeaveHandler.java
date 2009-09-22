@@ -18,7 +18,7 @@ public class LeaveHandler extends SlashCommand {
     SendUtil.sendDirect(youMsg, msg.userJID, msg.serverJID);
 
     String reply = msg.member.getAlias() + " has left the room (" + msg.member.getJID() + ")";
-    SendUtil.broadcast(reply, msg.channel, msg.userJID, msg.serverJID);
+    SendUtil.broadcast(reply, msg.channel, msg.serverJID, msg.userJID);
   }
   
   public String documentation() {

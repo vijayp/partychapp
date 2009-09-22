@@ -46,7 +46,7 @@ public class PartychappServletTest extends TestCase {
       //"-neil@gmail.com: [\"neil\"] hi partychat",
       //"-neil@gmail.com: [\"neil\"] okay, now the room should exist",
       "jason@gmail.com: You have joined 'pancake' with the alias 'jason'",
-      "#2: jason@gmail.com has joined the channel with the alias 'jason'",
+      "-jason@gmail.com: jason@gmail.com has joined the channel with the alias 'jason'",
       "-jason@gmail.com: [\"jason\"] i'm joining too!",
       "#2: [\"neil\"] jason++ [woot! now at 1] for joining",
       "#2: [\"jason\"] neil-- [ouch! now at -1] for bugs",
@@ -79,7 +79,7 @@ public class PartychappServletTest extends TestCase {
 
     List<Message> sentMessages = xmpp.messages;
     List<String> expectedMessages = Arrays.asList(expected);
-    //assertEquals(expectedMessages.size(), sentMessages.size());
+    assertEquals(expectedMessages.size(), sentMessages.size());
     for (int i = 0; i < expectedMessages.size(); ++i) {
       String[] splitUp = expectedMessages.get(i).split(": ", 2);
       String currExpectedRecipients = splitUp[0];

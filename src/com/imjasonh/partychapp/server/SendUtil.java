@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.xmpp.JID;
@@ -59,6 +60,9 @@ public abstract class SendUtil {
    * Sends a message, logs unsuccessful sends.
    */
   private static void sendMessage(String msg, JID fromJID, JID... toJIDs) {
+    if (!fromJID.getId().endsWith("appspotchat.com")) {
+      throw new RuntimeException(fromJID + " is not a server JID but is being used as the from");
+    }
     if (toJIDs != null && toJIDs.length > 0) {
       SendResponse response = null;
       try {
@@ -67,9 +71,11 @@ public abstract class SendUtil {
             .withFromJid(fromJID)
             .withRecipientJids(toJIDs)
             .build());
-      } catch (Exception e) {
-        LOG.severe("Got exception while sending msg '" + msg + "' from " + fromJID + " to " +
-                   Arrays.toString(toJIDs));
+      } catch (RuntimeException e) {
+        LOG.log(Level.SEVERE,
+                "Got exception while sending msg '" + msg + "' from " + fromJID + " to " +
+                    Arrays.toString(toJIDs),
+                e);
       }
 
       if (response == null) {
