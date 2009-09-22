@@ -42,25 +42,26 @@ public class PartychappServletTest extends TestCase {
 
     String[] expected = {
       "neil@gmail.com: The channel 'pancake' has been created, and you have joined with the alias 'neil'",
-      "-neil@gmail.com: [\"neil\"] hi partychat",
-      "-neil@gmail.com: [\"neil\"] okay, now the room should exist",
+      // These messages don't get sent because the room is empty.
+      //"-neil@gmail.com: [\"neil\"] hi partychat",
+      //"-neil@gmail.com: [\"neil\"] okay, now the room should exist",
       "jason@gmail.com: You have joined 'pancake' with the alias 'jason'",
-      "*: jason@gmail.com has joined the channel with the alias 'jason'",
+      "#2: jason@gmail.com has joined the channel with the alias 'jason'",
       "-jason@gmail.com: [\"jason\"] i'm joining too!",
-      "*: [\"neil\"] jason++ [woot! now at 1] for joining",
-      "*: [\"jason\"] neil-- [ouch! now at -1] for bugs",
+      "#2: [\"neil\"] jason++ [woot! now at 1] for joining",
+      "#2: [\"jason\"] neil-- [ouch! now at -1] for bugs",
       "-neil@gmail.com: [\"neil\"] s/jason/intern/",
-      "*: Undoing original actions: jason++ [back to 0]",
-      "*: _neil meant intern++ [woot! now at 1] for joining_",
+      "#2: Undoing original actions: jason++ [back to 0]",
+      "#2: _neil meant intern++ [woot! now at 1] for joining_",
       "-neil@gmail.com: [\"neil\"] blah blah blah",
       "-neil@gmail.com: [\"neil\"] s/blah/whee/",
-      "*: _neil meant whee blah blah_",
+      "#2: _neil meant whee blah blah_",
       "neil@gmail.com: You are now known as 'sanchito'",
-      "*: 'neil' is now known as 'sanchito'",
+      "#2: 'neil' is now known as 'sanchito'",
       "-neil@gmail.com: [\"sanchito\"] testing new alias",
       "-neil@gmail.com: _sanchito hopes dolapo is happy_",
       "jason@gmail.com: You are now known as 'intern'",
-      "*: 'jason' is now known as 'intern'",
+      "#2: 'jason' is now known as 'intern'",
       "neil@gmail.com: Listing members of 'pancake'\n* intern (jason@gmail.com)\n* sanchito (neil@gmail.com)",
     };
     
@@ -78,16 +79,34 @@ public class PartychappServletTest extends TestCase {
 
     List<Message> sentMessages = xmpp.messages;
     List<String> expectedMessages = Arrays.asList(expected);
-    assertEquals(expectedMessages.size(), sentMessages.size());
+    //assertEquals(expectedMessages.size(), sentMessages.size());
     for (int i = 0; i < expectedMessages.size(); ++i) {
       String[] splitUp = expectedMessages.get(i).split(": ", 2);
       String currExpectedRecipients = splitUp[0];
       String currExpectedBody = splitUp[1];
       Message currSent = sentMessages.get(i);
-      if (currExpectedRecipients.equals("*")) {
-        // TODO(nsanch)
-      }
       assertEquals(currExpectedBody, currSent.getBody());
+      
+      List<JID> actualRecipients = Arrays.asList(currSent.getRecipientJids());
+      if (currExpectedRecipients.startsWith("#")) {
+        assertEquals(Integer.valueOf(currExpectedRecipients.substring(1)).intValue(),
+                     actualRecipients.size());
+      } else if (currExpectedRecipients.startsWith("-")) {
+        String expectedNotToReceive = currExpectedRecipients.substring(1);
+        for (JID jid : actualRecipients) {
+          assertNotSame(expectedNotToReceive, jid.getId());
+        }
+      } else {
+        String expectedToReceive = currExpectedRecipients;
+        boolean found = false;
+        for (JID jid : actualRecipients) {
+          if (expectedToReceive.equals(jid.getId())) {
+            found = true;
+            break;
+          }
+        }
+        assertTrue(expectedToReceive + " should have received " + currExpectedBody, found);
+      }
     }
   }
 }

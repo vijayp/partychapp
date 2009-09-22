@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp.server;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -59,11 +60,17 @@ public abstract class SendUtil {
    */
   private static void sendMessage(String msg, JID fromJID, JID... toJIDs) {
     if (toJIDs != null && toJIDs.length > 0) {
-      SendResponse response = XMPP.sendMessage(new MessageBuilder()
-          .withBody(msg)
-          .withFromJid(fromJID)
-          .withRecipientJids(toJIDs)
-          .build());
+      SendResponse response = null;
+      try {
+        response = XMPP.sendMessage(new MessageBuilder()
+            .withBody(msg)
+            .withFromJid(fromJID)
+            .withRecipientJids(toJIDs)
+            .build());
+      } catch (Exception e) {
+        LOG.severe("Got exception while sending msg '" + msg + "' from " + fromJID + " to " +
+                   Arrays.toString(toJIDs));
+      }
 
       if (response == null) {
         LOG.severe("XMPP.sendMessage() response is null!");

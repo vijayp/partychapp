@@ -76,7 +76,7 @@ public class PartychappServlet extends HttpServlet {
   private void handleMessage(String body) {
     message.member.addToLastMessages(body);
     String msg = message.member.getAliasPrefix() + body;
-    SendUtil.broadcast(msg, message.channel, message.userJID, message.serverJID);
+    SendUtil.broadcast(msg, message.channel, message.serverJID, message.userJID);
   }
 
   private void handleEcho(String body) {
