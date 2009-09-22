@@ -35,7 +35,7 @@ public class Channel implements Serializable {
   private Set<Member> members;
 
   @Persistent
-  private boolean inviteOnly = false;
+  private Boolean inviteOnly = false;
 
   @Persistent
   private List<String> invitedIds;
@@ -55,21 +55,21 @@ public class Channel implements Serializable {
   }
 
   public boolean canJoin(String email) {
-    return !inviteOnly ||
+    return !isInviteOnly() ||
         (invitedIds != null && invitedIds.contains(email.toLowerCase().trim()));
   }
   
   public void setInviteOnly(boolean inviteOnly) {
     this.inviteOnly = inviteOnly;
   }
-
+  
   /**
    * Adds a member to the channel. This may alter the member's alias by
    * prepending a _ if the channel already has a member with that alias. Removes
    * from invite list if invite-only room.
    */
   public void addMember(Member member) {
-    if (inviteOnly) {
+    if (isInviteOnly()) {
       if (invitedIds == null || !invitedIds.remove(member.getJID())) {
         throw new IllegalArgumentException("Not invited to this room");
       }
@@ -191,7 +191,7 @@ public class Channel implements Serializable {
   }
 
   public boolean isInviteOnly() {
-    return inviteOnly;
+    return inviteOnly != null && inviteOnly;
   }
   
   public List<String> getInvitees() {
