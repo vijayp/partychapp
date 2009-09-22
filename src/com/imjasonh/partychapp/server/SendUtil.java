@@ -60,7 +60,7 @@ public abstract class SendUtil {
    * Sends a message, logs unsuccessful sends.
    */
   private static void sendMessage(String msg, JID fromJID, JID... toJIDs) {
-    if (!fromJID.getId().endsWith("appspotchat.com")) {
+    if (!fromJID.getId().contains("appspotchat.com")) {
       throw new RuntimeException(fromJID + " is not a server JID but is being used as the from");
     }
     if (toJIDs != null && toJIDs.length > 0) {
