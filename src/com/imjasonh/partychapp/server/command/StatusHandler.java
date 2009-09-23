@@ -1,7 +1,4 @@
 package com.imjasonh.partychapp.server.command;
-import java.util.Comparator;
-
-import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
@@ -18,12 +15,5 @@ public class StatusHandler extends SlashCommand {
   
   public String documentation() {
     return "/status - show what room you're in";
-  }
-
-  public static class SortMembersForListComparator implements Comparator<Member> {
-    public int compare(Member first, Member second) {
-      // TODO: sort by online/offline, snoozing
-      return first.getAlias().compareTo(second.getAlias());
-    }
   }
 }

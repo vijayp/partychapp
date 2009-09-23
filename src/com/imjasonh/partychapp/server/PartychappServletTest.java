@@ -44,6 +44,7 @@ public class PartychappServletTest extends TestCase {
       "david@gmail.com: i'll try to join but i haven't been invited",
       "kushal@kushaldave.com: /invite david@gmail.com",
       "david@gmail.com: yay, now i can join",
+      "david@gmail.com: /status",
     };
 
     String[] expected = {
@@ -79,6 +80,7 @@ public class PartychappServletTest extends TestCase {
       "david@gmail.com: You have joined 'pancake' with the alias 'david'",
       "-david@gmail.com: david@gmail.com has joined the channel with the alias 'david'",
       "-david@gmail.com: [\"david\"] yay, now i can join",
+      "david@gmail.com: You are currently in 'pancake' as 'david'",
     };
 
     for (String line : script) {

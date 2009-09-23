@@ -3,8 +3,11 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 
 public enum Command {
+  // these have to be first
   CREATE_AND_JOIN(new CreateAndJoinCommand()),
   JOIN(new JoinCommand()),
+  
+  // these can be in any order
   LEAVE(new LeaveHandler()),
   LIST(new ListHandler()),
   HELP(new HelpHandler()),
@@ -16,7 +19,12 @@ public enum Command {
   INVITE(new InviteHandler()),
   INVITE_ONLY(new InviteOnlyHandler()),
   KICK(new KickHandler()),
+  STATUS(new StatusHandler()),
+  
+  // this has to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
+
+  // this has to be last
   BROADCAST(new BroadcastHandler()),
   ;
 
