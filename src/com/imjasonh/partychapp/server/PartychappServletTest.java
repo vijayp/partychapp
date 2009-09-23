@@ -38,6 +38,7 @@ public class PartychappServletTest extends TestCase {
       "neil@gmail.com: /me hopes dolapo is happy",
       "jason@gmail.com: /alias intern",
       "neil@gmail.com: /list",
+      "neil@gmail.com: this is a unicode TM symbol: \u2122",
     };
 
     String[] expected = {
@@ -63,6 +64,7 @@ public class PartychappServletTest extends TestCase {
       "jason@gmail.com: You are now known as 'intern'",
       "#2: 'jason' is now known as 'intern'",
       "neil@gmail.com: Listing members of 'pancake'\n* intern (jason@gmail.com)\n* sanchito (neil@gmail.com)",
+      "jason@gmail.com: [\"sanchito\"] this is a unicode TM symbol: \u2122",
     };
     
     for (String line : script) {
