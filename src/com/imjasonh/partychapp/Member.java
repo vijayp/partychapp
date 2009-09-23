@@ -24,7 +24,6 @@ public class Member implements Serializable {
 
   // private static final Logger LOG = Logger.getLogger(Member.class.getName());
 
-  @SuppressWarnings("unused")
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   @PrimaryKey
   private Key key;
@@ -51,6 +50,16 @@ public class Member implements Serializable {
     this.jid = jid.getId().split("/")[0]; // remove anything after "/"
     this.alias = this.jid.split("@")[0]; // remove anything after "@" for default alias
   }
+  
+  public Member(Member other) {
+    this.key = other.key;
+    this.jid = other.jid;
+    this.alias = other.alias;
+    this.snoozeUntil = other.snoozeUntil;
+    if (other.lastMessages != null) {
+      this.lastMessages = Lists.newArrayList(other.lastMessages);
+    }
+  }
 
   public String getAlias() {
     return alias;
@@ -65,6 +74,13 @@ public class Member implements Serializable {
   }
 
   public String getJID() {
+    return jid;
+  }
+  
+  public String getEmail() {
+    // TODO(nsanch): this isn't quite right because it's possible to have a
+    // jabber account that doesn't accept email, but this is good enough until
+    // we have a web UI for this.
     return jid;
   }
 

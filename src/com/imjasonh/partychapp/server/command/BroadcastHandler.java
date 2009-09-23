@@ -13,7 +13,7 @@ public class BroadcastHandler implements CommandHandler {
   }
 
   public String documentation() {
-    // TODO Auto-generated method stub
+    // return null so this doesn't show up in /help documentation.
     return null;
   }
 

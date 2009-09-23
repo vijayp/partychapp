@@ -4,12 +4,13 @@ import com.google.appengine.api.xmpp.JID;
 
 public class Message {
   public static Message createForTests(String content) {
+    Channel c = FakeDatastore.instance().fakeChannel();
     JID userJID = new JID("neil@gmail.com");
     return new Message(content,
                        userJID,
                        new JID("pancake@partychat.appspotchat.com"),
-                       FakeDatastore.instance().fakeChannel().getMemberByJID(userJID),
-                       FakeDatastore.instance().fakeChannel());
+                       c.getMemberByJID(userJID),
+                       c);
   }
 
   public Message(String content, JID userJID, JID serverJID, Member member,

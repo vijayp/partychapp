@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 import com.imjasonh.partychapp.ppb.PlusPlusBotTest;
 import com.imjasonh.partychapp.server.PartychappServletTest;
 import com.imjasonh.partychapp.server.command.AliasHandlerTest;
+import com.imjasonh.partychapp.server.command.BroadcastHandlerTest;
 import com.imjasonh.partychapp.server.command.LeaveHandlerTest;
 import com.imjasonh.partychapp.server.command.ListHandlerTest;
 import com.imjasonh.partychapp.server.command.MeHandlerTest;
@@ -32,6 +33,7 @@ public class AllTests {
     suite.addTestSuite(PartychappServletTest.class);
     suite.addTestSuite(MemberTest.class);
     suite.addTestSuite(StatusHandlerTest.class);
+    suite.addTestSuite(BroadcastHandlerTest.class);
     // $JUnit-END$
     return suite;
   }

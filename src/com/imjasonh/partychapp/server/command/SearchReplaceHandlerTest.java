@@ -2,17 +2,15 @@ package com.imjasonh.partychapp.server.command;
 
 import junit.framework.TestCase;
 
-import com.google.appengine.api.xmpp.JID;
-import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
-import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
 public class SearchReplaceHandlerTest extends TestCase {
   SearchReplaceHandler handler = new SearchReplaceHandler();
+  BroadcastHandler bcast = new BroadcastHandler();
   MockXMPPService xmpp = new MockXMPPService();
   PPBHandler ppbHandler = new PPBHandler();
   
@@ -30,9 +28,8 @@ public class SearchReplaceHandlerTest extends TestCase {
   }
   
   public void testSimple() {
-    Channel c = FakeDatastore.instance().fakeChannel();
-    Member m = c.getMemberByJID(new JID("neil@gmail.com"));
-    m.addToLastMessages("foo foo");
+    bcast.doCommand(Message.createForTests("foo foo"));
+    xmpp.messages.clear();
     handler.doCommand(Message.createForTests("s/foo/bar/"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[\"neil\"] s/foo/bar/", xmpp.messages.get(0).getBody());
@@ -40,9 +37,8 @@ public class SearchReplaceHandlerTest extends TestCase {
   }
   
   public void testMissingTrailingSlash() {
-    Channel c = FakeDatastore.instance().fakeChannel();
-    Member m = c.getMemberByJID(new JID("neil@gmail.com"));
-    m.addToLastMessages("foo foo");
+    bcast.doCommand(Message.createForTests("foo foo"));
+    xmpp.messages.clear();
     handler.doCommand(Message.createForTests("s/foo/bag"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[\"neil\"] s/foo/bag", xmpp.messages.get(0).getBody());
@@ -50,9 +46,8 @@ public class SearchReplaceHandlerTest extends TestCase {
   }
   
   public void testGreedy() {
-    Channel c = FakeDatastore.instance().fakeChannel();
-    Member m = c.getMemberByJID(new JID("neil@gmail.com"));
-    m.addToLastMessages("foo bar baz foo bar baz");
+    bcast.doCommand(Message.createForTests("foo bar baz foo bar baz"));
+    xmpp.messages.clear();
     handler.doCommand(Message.createForTests("s/foo/bar/g"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[\"neil\"] s/foo/bar/g", xmpp.messages.get(0).getBody());

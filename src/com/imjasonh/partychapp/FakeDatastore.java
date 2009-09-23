@@ -15,7 +15,6 @@ public class FakeDatastore extends Datastore {
   private Map<String, Channel> channels = Maps.newHashMap();
   private Map<String, Target> targets = Maps.newHashMap();
   private Map<String, List<Reason> > reasons = Maps.newHashMap();
-  private Channel fakeChannel;
   
   public static FakeDatastore instance() {
     return (FakeDatastore)Datastore.instance();
@@ -30,12 +29,15 @@ public class FakeDatastore extends Datastore {
     channel.addMember(new Member(new JID("david@gmail.com")));
     channel.addMember(new Member(new JID("akshay@q00p.net")));
     put(channel);
-    fakeChannel = channel;
   }
 
   @Override
   public Channel getChannelByName(String name) {
-    return channels.get(name);
+    Channel c = channels.get(name);
+    if (c != null) {
+      return new Channel(c);
+    }
+    return null;
   }
   
   public Target getTargetByID(String key) {
@@ -104,14 +106,13 @@ public class FakeDatastore extends Datastore {
   }
 
   public Channel fakeChannel() {
-    return fakeChannel;
+    return getChannelByName("pancake");
   }
 
   public void clear() {
     channels = Maps.newHashMap();
     targets = Maps.newHashMap();
     reasons = Maps.newHashMap();
-    fakeChannel = null;
   }
 
   @Override
@@ -123,6 +124,6 @@ public class FakeDatastore extends Datastore {
   @Override
   public void startRequest() {
     // TODO Auto-generated method stub
-    
+
   }
 }

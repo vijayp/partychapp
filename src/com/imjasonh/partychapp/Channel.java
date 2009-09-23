@@ -46,6 +46,16 @@ public class Channel implements Serializable {
     members = Sets.newHashSet();
     invitedIds = Lists.newArrayList();
   }
+  
+  public Channel(Channel other) {
+    this.name = other.name;
+    this.inviteOnly = other.inviteOnly;
+    this.invitedIds = Lists.newArrayList(other.invitedIds);
+    this.members = Sets.newHashSet();
+    for (Member m : other.getMembers()) {
+      this.members.add(new Member(m));
+    }
+  }
 
   public void invite(String email) {
     // Need to be robust b/c invitees was added after v1 of this class.
