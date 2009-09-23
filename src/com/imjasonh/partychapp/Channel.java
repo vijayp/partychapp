@@ -184,6 +184,9 @@ public class Channel implements Serializable {
   }
 
   public void put() {
+    // I feel dirty doing this! There is some opaque JDO bug that makes
+    // this not save.
+    JDOHelper.makeDirty(this, "members");
     Datastore.instance().put(this);
   }
 
