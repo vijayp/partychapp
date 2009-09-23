@@ -3,6 +3,8 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 
 public enum Command {
+  CREATE_AND_JOIN(new CreateAndJoinCommand()),
+  JOIN(new JoinCommand()),
   LEAVE(new LeaveHandler()),
   LIST(new ListHandler()),
   HELP(new HelpHandler()),
@@ -15,6 +17,7 @@ public enum Command {
   INVITE_ONLY(new InviteOnlyHandler()),
   KICK(new KickHandler()),
   SEARCHREPLACE(new SearchReplaceHandler()),
+  BROADCAST(new BroadcastHandler()),
   ;
 
   public final CommandHandler commandHandler;
@@ -29,6 +32,7 @@ public enum Command {
         return command.commandHandler;
       }
     }
-    return null;
+    throw new RuntimeException("getCommandHandler should never return null, " +
+                               "but we can't find a match. msg = " + msg.toString());
   }
 }

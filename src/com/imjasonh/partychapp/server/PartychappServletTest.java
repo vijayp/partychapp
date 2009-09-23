@@ -39,6 +39,11 @@ public class PartychappServletTest extends TestCase {
       "jason@gmail.com: /alias intern",
       "neil@gmail.com: /list",
       "neil@gmail.com: this is a unicode TM symbol: \u2122",
+      "kushal@kushaldave.com: now i'm joining",
+      "kushal@kushaldave.com: /inviteonly",
+      "david@gmail.com: i'll try to join but i haven't been invited",
+      "kushal@kushaldave.com: /invite david@gmail.com",
+      "david@gmail.com: yay, now i can join",
     };
 
     String[] expected = {
@@ -65,8 +70,17 @@ public class PartychappServletTest extends TestCase {
       "#2: 'jason' is now known as 'intern'",
       "neil@gmail.com: Listing members of 'pancake'\n* intern (jason@gmail.com)\n* sanchito (neil@gmail.com)",
       "jason@gmail.com: [\"sanchito\"] this is a unicode TM symbol: \u2122",
+      "kushal@kushaldave.com: You have joined 'pancake' with the alias 'kushal'",
+      "-kushal@kushaldave.com: kushal@kushaldave.com has joined the channel with the alias 'kushal'",
+      "-kushal@kushaldave.com: [\"kushal\"] now i'm joining",
+      "#3: _kushal set the room to invite-only._",
+      "david@gmail.com: You must be invited to this room.",
+      "#3: _kushal invited david@gmail.com_",
+      "david@gmail.com: You have joined 'pancake' with the alias 'david'",
+      "-david@gmail.com: david@gmail.com has joined the channel with the alias 'david'",
+      "-david@gmail.com: [\"david\"] yay, now i can join",
     };
-    
+
     for (String line : script) {
       String[] splitUp = line.split(": ", 2);
       String sender = splitUp[0];

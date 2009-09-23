@@ -24,6 +24,8 @@ public class CreateAndJoinCommand implements CommandHandler {
     String reply = "The channel '" + msg.channel.getName() + "' has been created, " +
         "and you have joined with the alias '" + msg.member.getAlias() + "'";
     SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+    
+    Command.getCommandHandler(msg).doCommand(msg);
   }
 
   public String documentation() {
@@ -31,7 +33,7 @@ public class CreateAndJoinCommand implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    return false;
+    return msg.channel == null;
   }
 
 }

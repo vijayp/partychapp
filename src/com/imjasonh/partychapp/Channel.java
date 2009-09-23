@@ -13,6 +13,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
@@ -195,6 +196,6 @@ public class Channel implements Serializable {
   }
   
   public List<String> getInvitees() {
-    return invitedIds != null ? invitedIds : Lists.<String>immutableList();
+    return invitedIds != null ? invitedIds : ImmutableList.<String>of();
   }
 }

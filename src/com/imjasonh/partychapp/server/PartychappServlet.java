@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,18 +14,13 @@ import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.server.command.Command;
-import com.imjasonh.partychapp.server.command.CommandHandler;
-import com.imjasonh.partychapp.server.command.CreateAndJoinCommand;
-import com.imjasonh.partychapp.server.command.JoinCommand;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
 
-  // private static final Logger LOG = Logger.getLogger(PartychappServlet.class.getName());
+  private static final Logger LOG = Logger.getLogger(PartychappServlet.class.getName());
 
   private XMPPService XMPP;
-
-  com.imjasonh.partychapp.Message message;
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -47,47 +43,25 @@ public class PartychappServlet extends HttpServlet {
 
     String body = xmppMessage.getBody().trim();
 
-    message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
+    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
 
     if (channelName.equalsIgnoreCase("echo")) {
-      handleEcho(body);
+      handleEcho(message);
       return;
     }
 
     message.channel = Datastore.instance().getChannelByName(channelName);
-    if (message.channel == null) {
-      // channel doesn't exist yet
-      new CreateAndJoinCommand().doCommand(message);
+    if (message.channel != null) {
+      message.member = message.channel.getMemberByJID(userJID);
     }
 
-    message.member = message.channel.getMemberByJID(userJID);
-    if (message.member == null) {
-      // room exists, user isn't in room yet
-      try {
-        new JoinCommand().doCommand(message);
-      } catch (IllegalArgumentException e) {
-        return;
-      }
-    }
-
-    CommandHandler handler = Command.getCommandHandler(message);
-
-    if (handler != null) {
-      handler.doCommand(message);
-    } else {
-      handleMessage(body);
-    }
+    Command.getCommandHandler(message).doCommand(message);
     
     Datastore.instance().endRequest();
   }
 
-  private void handleMessage(String body) {
-    message.member.addToLastMessages(body);
-    String msg = message.member.getAliasPrefix() + body;
-    SendUtil.broadcast(msg, message.channel, message.serverJID, message.userJID);
-  }
-
-  private void handleEcho(String body) {
-    SendUtil.sendDirect("echo: " + body, message.userJID, message.serverJID);
+  private void handleEcho(com.imjasonh.partychapp.Message message) {
+    LOG.info("Body of message sent to echo@ is: " + message.content);
+    SendUtil.sendDirect("echo: " + message.content, message.userJID, message.serverJID);
   }
 }

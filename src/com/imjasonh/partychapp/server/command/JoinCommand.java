@@ -17,10 +17,9 @@ public class JoinCommand implements CommandHandler {
 
     msg.member = new Member(msg.userJID);
     if (!msg.channel.canJoin(msg.member.getJID())) {
-      String reply = "You must be invited this room.";
+      String reply = "You must be invited to this room.";
       SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
-      // Yuck! Hack until we fix the way this is used by servlet
-      throw new IllegalArgumentException();
+      return;
     }
 
     msg.channel.addMember(msg.member);
@@ -33,6 +32,8 @@ public class JoinCommand implements CommandHandler {
     String broadcast = msg.member.getJID() + " has joined the channel with the alias '"
         + msg.member.getAlias() + "'";
     SendUtil.broadcast(broadcast, msg.channel, msg.serverJID, msg.userJID);
+    
+    Command.getCommandHandler(msg).doCommand(msg);
   }
 
   public String documentation() {
@@ -40,7 +41,7 @@ public class JoinCommand implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    return false;
+    return msg.channel != null && msg.member == null;
   }
 
 }

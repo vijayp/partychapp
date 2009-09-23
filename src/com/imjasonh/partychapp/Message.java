@@ -26,4 +26,11 @@ public class Message {
   public final JID serverJID;
   public Member member;
   public Channel channel;
+  
+  public String toString() {
+    return "[Message: content = '" + content + "', userJID = " + userJID
+        + ", serverJID = " + serverJID +
+        ", member = " + member +
+        ", channel = " + channel;
+  }
 }
