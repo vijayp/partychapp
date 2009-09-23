@@ -19,6 +19,7 @@ public class MeHandler extends SlashCommand {
     assert msg.member != null;
     
     msg.member.addToLastMessages(msg.content);
+    msg.channel.put();
 
     String broadcast = "_" + msg.member.getAlias() + " " +
         action + "_";

@@ -25,6 +25,7 @@ public class SearchReplaceHandler implements CommandHandler {
     List<String> lastMessages = Lists.newArrayList(msg.member.getLastMessages()); 
     
     msg.member.addToLastMessages(msg.content);
+    msg.channel.put();
     SendUtil.broadcast(msg.member.getAliasPrefix() + msg.content,
                        msg.channel,
                        msg.serverJID,
@@ -76,6 +77,7 @@ public class SearchReplaceHandler implements CommandHandler {
       ppbHandler.doCommandAsCorrection(afterMsg);
     } else {
       msg.member.addToLastMessages(after);
+      msg.channel.put();
       SendUtil.broadcastIncludingSender("_" + msg.member.getAlias() + " meant " + after + "_",
                                         msg.channel,
                                         msg.serverJID);

@@ -13,6 +13,7 @@ public class PPBHandler implements CommandHandler {
   private void doCommandWithCustomizedReply(Message msg, String prefix, String suffix) {
     StringBuilder sb = new StringBuilder(prefix);
     msg.member.addToLastMessages(msg.content);
+    msg.channel.put();
     List<Reason> reasons = ppb.extractReasons(msg);
     if (reasons.isEmpty()) {
       sb.append(msg.content);
