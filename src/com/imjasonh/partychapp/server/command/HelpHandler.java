@@ -15,9 +15,12 @@ public class HelpHandler extends SlashCommand {
 
     StringBuilder sb = new StringBuilder().append("List of commands:").append('\n');
     for (Command command : Command.values()) {
-      sb.append("* ")
-          .append(command.commandHandler.documentation())
-          .append('\n');
+      String docs = command.commandHandler.documentation();
+      if (docs != null) {
+        sb.append("* ")
+            .append(command.commandHandler.documentation())
+            .append('\n');
+      }
     }
     sb.append("* Message echo@ to hear yourself talk").append('\n')
         .append("* Found a bug? Let us know: http://code.google.com/p/partychapp/issues/entry");
