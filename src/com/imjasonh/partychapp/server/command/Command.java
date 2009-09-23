@@ -20,6 +20,7 @@ public enum Command {
   INVITE_ONLY(new InviteOnlyHandler()),
   KICK(new KickHandler()),
   STATUS(new StatusHandler()),
+  SUMMON(new SummonHandler()),
   
   // this has to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
