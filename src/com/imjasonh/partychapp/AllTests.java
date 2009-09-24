@@ -15,6 +15,7 @@ import com.imjasonh.partychapp.server.command.ReasonsHandlerTest;
 import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.SearchReplaceHandlerTest;
 import com.imjasonh.partychapp.server.command.StatusHandlerTest;
+import com.imjasonh.partychapp.server.command.SummonHandlerTest;
 
 public class AllTests {
 
@@ -34,6 +35,7 @@ public class AllTests {
     suite.addTestSuite(MemberTest.class);
     suite.addTestSuite(StatusHandlerTest.class);
     suite.addTestSuite(BroadcastHandlerTest.class);
+    suite.addTestSuite(SummonHandlerTest.class);
     // $JUnit-END$
     return suite;
   }

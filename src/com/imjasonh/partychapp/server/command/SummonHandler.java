@@ -19,6 +19,10 @@ public class SummonHandler extends SlashCommand {
   public SummonHandler() {
     super("summon");
   }
+  
+  public void setMailService(MailService mailer) {
+    this.mailer = mailer;
+  }
 
   @Override
   public void doCommand(Message msg, String argument) {
@@ -31,11 +35,12 @@ public class SummonHandler extends SlashCommand {
       return;
     }
     String emailBody = msg.member.getAlias() + " has summoned you to '" + msg.channel.getName() + "'.";
-    // TODO(nsanch): add partychat@gmail.com as an admin so we can use it as the From:.
-    MailService.Message email = new MailService.Message("nsanch@gmail.com",
+    MailService.Message email = new MailService.Message("partychat@gmail.com",
                                                         toSummon.getEmail(),
                                                         "You have been summoned to '" + msg.channel.getName() + "'",
                                                         emailBody);
+    
+    String reply = "_" + msg.member.getAlias() + " summoned " + toSummon.getAlias() + "_";
     try {
       mailer.send(email);
     } catch (IOException e) {
@@ -44,14 +49,13 @@ public class SummonHandler extends SlashCommand {
                  toSummon.getAlias() + " with the email address " +
                  toSummon.getEmail(),
               e);
+      reply = "Error while summoning '" + toSummon.getAlias() + "' to room. Email may not have been sent.";
     }
-    String reply = "_" + msg.member.getAlias() + " summoned '" + toSummon.getAlias() + "'_";
     SendUtil.broadcastIncludingSender(reply, msg.channel, msg.serverJID);
   }
 
   public String documentation() {
-    // TODO Auto-generated method stub
-    return null;
+    return "/summon <alias> - summons a person in the room by sending them an email.";
   }
 
 }
