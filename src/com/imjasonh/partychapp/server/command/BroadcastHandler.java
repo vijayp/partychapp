@@ -1,15 +1,15 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class BroadcastHandler implements CommandHandler {
 
   public void doCommand(Message msg) {
     msg.member.addToLastMessages(msg.content);
+    msg.channel.incrementSequenceId();
     msg.channel.put();
     String reply = msg.member.getAliasPrefix() + msg.content;
-    SendUtil.broadcast(reply, msg.channel, msg.serverJID, msg.userJID);
+    msg.channel.broadcast(reply, msg.member);
   }
 
   public String documentation() {

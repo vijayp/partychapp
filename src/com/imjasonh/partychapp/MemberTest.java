@@ -2,11 +2,13 @@ package com.imjasonh.partychapp;
 
 import junit.framework.TestCase;
 
-import com.google.appengine.api.xmpp.JID;
-
 public class MemberTest extends TestCase {
+  public void setUp() {
+    Datastore.setInstance(new FakeDatastore());
+  }
+  
   public void testAddToLastMessages() {
-    Member m = new Member(new JID("neil@gmail.com"));
+    Member m = FakeDatastore.instance().fakeChannel().getMemberByAlias("neil");
     for (Integer i = 0; i < 20; ++i) {
       m.addToLastMessages(i.toString());
     }

@@ -7,6 +7,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBotTest;
 import com.imjasonh.partychapp.server.PartychappServletTest;
 import com.imjasonh.partychapp.server.command.AliasHandlerTest;
 import com.imjasonh.partychapp.server.command.BroadcastHandlerTest;
+import com.imjasonh.partychapp.server.command.DebugHandlerTest;
 import com.imjasonh.partychapp.server.command.LeaveHandlerTest;
 import com.imjasonh.partychapp.server.command.ListHandlerTest;
 import com.imjasonh.partychapp.server.command.MeHandlerTest;
@@ -16,6 +17,7 @@ import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.SearchReplaceHandlerTest;
 import com.imjasonh.partychapp.server.command.StatusHandlerTest;
 import com.imjasonh.partychapp.server.command.SummonHandlerTest;
+import com.imjasonh.partychapp.server.command.UndoHandlerTest;
 
 public class AllTests {
 
@@ -36,6 +38,8 @@ public class AllTests {
     suite.addTestSuite(StatusHandlerTest.class);
     suite.addTestSuite(BroadcastHandlerTest.class);
     suite.addTestSuite(SummonHandlerTest.class);
+    suite.addTestSuite(UndoHandlerTest.class);
+    suite.addTestSuite(DebugHandlerTest.class);
     // $JUnit-END$
     return suite;
   }

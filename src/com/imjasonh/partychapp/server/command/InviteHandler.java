@@ -26,7 +26,7 @@ public class InviteHandler extends SlashCommand {
     
     String broadcast = "_" + msg.member.getAlias() + " invited " +
         action + "_";
-    SendUtil.broadcastIncludingSender(broadcast, msg.channel, msg.serverJID);
+    msg.channel.broadcastIncludingSender(broadcast);
   }
 
   public String documentation() {

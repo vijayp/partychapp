@@ -45,6 +45,15 @@ public class PartychappServletTest extends TestCase {
       "kushal@kushaldave.com: /invite david@gmail.com",
       "david@gmail.com: yay, now i can join",
       "david@gmail.com: /status",
+      "david@gmail.com: radioheda++",
+      "david@gmail.com: /undo",
+      "neil@gmail.com: /debug sequenceIds",
+      "jason@gmail.com: test with sequenceIds on",
+      "neil@gmail.com: /debug",
+      "jason@gmail.com: test2++ with sequenceIds on",
+      "neil@gmail.com: /me is having fun with sequenceIds",
+      "neil@gmail.com: /debug clear",
+      "jason@gmail.com: test with sequenceIds off",
     };
 
     String[] expected = {
@@ -81,6 +90,19 @@ public class PartychappServletTest extends TestCase {
       "-david@gmail.com: david@gmail.com has joined the channel with the alias 'david'",
       "-david@gmail.com: [\"david\"] yay, now i can join",
       "david@gmail.com: You are currently in 'pancake' as 'david'",
+      "#4: [\"david\"] radioheda++ [woot! now at 1]",
+      "-david@gmail.com: [\"david\"] /undo",
+      "#4: Undoing original actions: radioheda++ [back to 0]",
+      "neil@gmail.com: enabling sequenceIds for you",
+      "#2: [\"intern\"] test with sequenceIds on",
+      "neil@gmail.com: [\"intern\"] test with sequenceIds on (36)",
+      "neil@gmail.com: Your current debug options are: [sequenceIds]",
+      "#3: [\"intern\"] test2++ [woot! now at 1] with sequenceIds on",
+      "neil@gmail.com: [\"intern\"] test2++ [woot! now at 1] with sequenceIds on (37)",
+      "#3: _sanchito is having fun with sequenceIds_",
+      "neil@gmail.com: _sanchito is having fun with sequenceIds_ (38)",
+      "neil@gmail.com: clearing all debug options",
+      "#3: [\"intern\"] test with sequenceIds off",
     };
 
     for (String line : script) {
@@ -107,7 +129,8 @@ public class PartychappServletTest extends TestCase {
       
       List<JID> actualRecipients = Arrays.asList(currSent.getRecipientJids());
       if (currExpectedRecipients.startsWith("#")) {
-        assertEquals(Integer.valueOf(currExpectedRecipients.substring(1)).intValue(),
+        assertEquals("Message = '" + currSent.getBody() + "'",
+                     Integer.valueOf(currExpectedRecipients.substring(1)).intValue(),
                      actualRecipients.size());
       } else if (currExpectedRecipients.startsWith("-")) {
         String expectedNotToReceive = currExpectedRecipients.substring(1);
@@ -115,15 +138,8 @@ public class PartychappServletTest extends TestCase {
           assertNotSame(expectedNotToReceive, jid.getId());
         }
       } else {
-        String expectedToReceive = currExpectedRecipients;
-        boolean found = false;
-        for (JID jid : actualRecipients) {
-          if (expectedToReceive.equals(jid.getId())) {
-            found = true;
-            break;
-          }
-        }
-        assertTrue(expectedToReceive + " should have received " + currExpectedBody, found);
+        assertEquals(1, actualRecipients.size());
+        assertEquals(currExpectedRecipients, actualRecipients.get(0).getId());
       }
     }
   }

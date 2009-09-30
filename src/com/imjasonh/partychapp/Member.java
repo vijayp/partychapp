@@ -40,13 +40,16 @@ public class Member implements Serializable {
   @Persistent(serialized = "true")
   private List<String> lastMessages;
 
+  @Persistent(serialized = "true")
+  private DebuggingOptions debugOptions;
+  
   public enum SnoozeStatus {
     SNOOZING,
     NOT_SNOOZING,
     SHOULD_WAKE;
   }
 
-  public Member(JID jid) {
+  public Member(Channel c, JID jid) {
     this.jid = jid.getId().split("/")[0]; // remove anything after "/"
     this.alias = this.jid.split("@")[0]; // remove anything after "@" for default alias
   }
@@ -59,6 +62,7 @@ public class Member implements Serializable {
     if (other.lastMessages != null) {
       this.lastMessages = Lists.newArrayList(other.lastMessages);
     }
+    this.debugOptions = new DebuggingOptions(other.debugOptions());
   }
 
   public String getAlias() {
@@ -111,7 +115,7 @@ public class Member implements Serializable {
     }
     return lastMessages;
   }
-  
+
   public List<String> getLastMessages() {
     return Collections.unmodifiableList(mutableLastMessages());
   }
@@ -122,5 +126,12 @@ public class Member implements Serializable {
     if (messages.size() > 10) {
       messages.remove(10);
     }
+  }
+
+  public DebuggingOptions debugOptions() {
+    if (debugOptions == null) {
+      debugOptions = new DebuggingOptions();
+    }
+    return debugOptions;
   }
 }

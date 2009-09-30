@@ -21,6 +21,8 @@ public enum Command {
   KICK(new KickHandler()),
   STATUS(new StatusHandler()),
   SUMMON(new SummonHandler()),
+  UNDO(new UndoHandler()),
+  DEBUG(new DebugHandler()),
   
   // this has to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),

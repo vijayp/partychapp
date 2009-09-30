@@ -5,7 +5,6 @@ import java.util.List;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
 import com.imjasonh.partychapp.ppb.Reason;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class PPBHandler implements CommandHandler {
   PlusPlusBot ppb = new PlusPlusBot();
@@ -18,7 +17,7 @@ public class PPBHandler implements CommandHandler {
     if (reasons.isEmpty()) {
       sb.append(msg.content);
       sb.append(suffix);
-      SendUtil.broadcast(sb.toString(), msg.channel, msg.serverJID, msg.userJID);
+      msg.channel.broadcast(sb.toString(), msg.member);
       return;
     }
     int pos = 0;
@@ -49,7 +48,7 @@ public class PPBHandler implements CommandHandler {
     }
     sb.append(msg.content.substring(pos));
     sb.append(suffix);
-    SendUtil.broadcastIncludingSender(sb.toString(), msg.channel, msg.serverJID);    
+    msg.channel.broadcastIncludingSender(sb.toString());    
   }
   
   public void doCommandAsCorrection(Message msg) {
@@ -78,7 +77,7 @@ public class PPBHandler implements CommandHandler {
     }
     String str = summary.toString();
     if (!str.isEmpty()) {
-      SendUtil.broadcastIncludingSender("Undoing original actions: " + str, msg.channel, msg.serverJID);
+      msg.channel.broadcastIncludingSender(("Undoing original actions: " + str));
     }
   }
 

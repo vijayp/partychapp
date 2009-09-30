@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +16,7 @@ import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
+import com.imjasonh.partychapp.server.SendUtil;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
@@ -41,10 +41,18 @@ public class Channel implements Serializable {
   @Persistent
   private List<String> invitedIds;
   
+  @Persistent
+  private String serverJID = null;
+  
+  @Persistent
+  private int sequenceId;
+  
   public Channel(JID serverJID) {
+    this.serverJID = serverJID.getId();
     this.name = serverJID.getId().split("@")[0];
     members = Sets.newHashSet();
     invitedIds = Lists.newArrayList();
+    this.sequenceId = 0;
   }
   
   public Channel(Channel other) {
@@ -55,6 +63,16 @@ public class Channel implements Serializable {
     for (Member m : other.getMembers()) {
       this.members.add(new Member(m));
     }
+    this.serverJID = other.serverJID;
+    this.sequenceId = other.sequenceId;
+  }
+  
+  public JID serverJID() {
+    // this is a new addition, so pre-existing rooms won't have this field
+    if (serverJID == null) {
+      serverJID = name + "@partychapp.appspotchat.com";
+    }
+    return new JID(serverJID);
   }
 
   public void invite(String email) {
@@ -62,7 +80,10 @@ public class Channel implements Serializable {
     if (invitedIds == null) {
       invitedIds = Lists.newArrayList();
     }
-    invitedIds.add(email.toLowerCase().trim());
+    String cleanedUp = email.toLowerCase().trim();
+    if (!invitedIds.contains(cleanedUp)) {
+      invitedIds.add(cleanedUp);
+    }
   }
 
   public boolean canJoin(String email) {
@@ -79,19 +100,23 @@ public class Channel implements Serializable {
    * prepending a _ if the channel already has a member with that alias. Removes
    * from invite list if invite-only room.
    */
-  public void addMember(Member member) {
+  public Member addMember(JID jidToAdd) {
     if (isInviteOnly()) {
-      if (invitedIds == null || !invitedIds.remove(member.getJID())) {
+      if (invitedIds == null || !invitedIds.remove(jidToAdd.getId())) {
         throw new IllegalArgumentException("Not invited to this room");
       }
     }
-    while (null != getMemberByAlias(member.getAlias())) {
-      member.setAlias("_" + member.getAlias());
+    Member addedMember = new Member(this, jidToAdd);
+    String dedupedAlias = addedMember.getAlias();
+    while (null != getMemberByAlias(dedupedAlias)) {
+      dedupedAlias = "_" + dedupedAlias;
     }
-    members.add(member);
+    addedMember.setAlias(dedupedAlias);
+    members.add(addedMember);
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
+    return addedMember;
   }
   
   private Set<Member> mutableMembers() {
@@ -108,19 +133,8 @@ public class Channel implements Serializable {
     JDOHelper.makeDirty(this, "members");
   }
 
-  public Set<Member> awakenSnoozers() {
-    Set<Member> awoken = Sets.newHashSet();
-    for (Member member : getMembers()) {
-      if (member.getSnoozeStatus() == SnoozeStatus.SHOULD_WAKE) {
-        member.setSnoozeUntil(null);
-        awoken.add(member);
-      }
-    }
-    return awoken;
-  }
-
-  public JID[] getMembersJIDsToSendTo() {
-    return getMembersJIDsToSendTo(null);
+  public List<Member> getMembersToSendTo() {
+    return getMembersToSendTo(null);
   }
 
   /**
@@ -128,23 +142,16 @@ public class Channel implements Serializable {
    *          a JID to exclude (for example the person sending the broadcast message)
    * @return an array of JIDs to send a message to, excluding snoozing members.
    */
-  public JID[] getMembersJIDsToSendTo(JID exclude) {
-    String excludeJID = (exclude != null) ? exclude.getId().split("/")[0] : null;
-    ArrayList<JID> jids = Lists.newArrayList();
+  public List<Member> getMembersToSendTo(Member exclude) {
+    List<Member> recipients = Lists.newArrayList();
     for (Member member : getMembers()) {
-      if (!member.getJID().equals(excludeJID)
+      if (!member.equals(exclude)
           && member.getSnoozeStatus() != SnoozeStatus.SNOOZING) {
-        jids.add(new JID(member.getJID()));
+        recipients.add(member);
       }
     }
     
-    if (jids.isEmpty()) {
-      return null;
-    }
-
-    JID returnJids[] = new JID[jids.size()];
-    jids.toArray(returnJids);
-    return returnJids;
+    return recipients;
   }
 
   public String getName() {
@@ -210,5 +217,59 @@ public class Channel implements Serializable {
   
   public List<String> getInvitees() {
     return invitedIds != null ? invitedIds : ImmutableList.<String>of();
+  }
+  
+  public void sendMessage(String message, List<Member> recipients) {
+    List<JID> recipientJIDS = Lists.newArrayList();
+    List<JID> recipientJIDSWithSequenceId = Lists.newArrayList();
+    for (Member m : recipients) {
+      if (m.debugOptions().isEnabled("sequenceIds")) {
+        recipientJIDSWithSequenceId.add(new JID(m.getJID()));
+      } else {
+        recipientJIDS.add(new JID(m.getJID()));
+      }
+    }
+    SendUtil.sendMessage(message, serverJID(), recipientJIDS.toArray(new JID[]{}));
+    SendUtil.sendMessage(message + " (" + sequenceId + ")",
+                         serverJID(),
+                         recipientJIDSWithSequenceId.toArray(new JID[]{}));
+  }
+
+  public void broadcast(String message, Member sender) {
+    ++sequenceId;
+    awakenSnoozers();
+    put();
+    sendMessage(message, getMembersToSendTo(sender));
+  }
+  
+  public void broadcastIncludingSender(String message) {
+    ++sequenceId;
+    awakenSnoozers();
+    put();
+    sendMessage(message, getMembersToSendTo());    
+  }
+
+  private void awakenSnoozers() {
+    // awaken snoozers and broadcast them awaking.
+    Set<Member> awoken = Sets.newHashSet();
+    for (Member member : getMembers()) {
+      if (member.getSnoozeStatus() == SnoozeStatus.SHOULD_WAKE) {
+        member.setSnoozeUntil(null);
+        awoken.add(member);
+      }
+    }
+    
+    if (!awoken.isEmpty()) {
+      put();
+      StringBuilder sb = new StringBuilder().append("Members unsnoozed:");
+      for (Member m : awoken) {
+        sb.append('\n').append(m.getAlias());
+      }
+      broadcastIncludingSender(sb.toString());
+    }
+  }
+  
+  public void incrementSequenceId() {
+    ++sequenceId;
   }
 }

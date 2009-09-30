@@ -8,7 +8,6 @@ import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailServiceFactory;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class SummonHandler extends SlashCommand {
   private static final Logger LOG = Logger.getLogger(SummonHandler.class.getName());
@@ -31,7 +30,7 @@ public class SummonHandler extends SlashCommand {
     Member toSummon = msg.channel.getMemberByAlias(argument.trim());
     if (toSummon == null) {
       String reply = "Could not find member with alias '" + argument.trim() + "'";
-      SendUtil.broadcast(reply, msg.channel, msg.serverJID, msg.userJID);
+      msg.channel.broadcast(reply, msg.member);
       return;
     }
     String emailBody = msg.member.getAlias() + " has summoned you to '" + msg.channel.getName() + "'.";
@@ -51,7 +50,7 @@ public class SummonHandler extends SlashCommand {
               e);
       reply = "Error while summoning '" + toSummon.getAlias() + "' to room. Email may not have been sent.";
     }
-    SendUtil.broadcastIncludingSender(reply, msg.channel, msg.serverJID);
+    msg.channel.broadcastIncludingSender(reply);
   }
 
   public String documentation() {

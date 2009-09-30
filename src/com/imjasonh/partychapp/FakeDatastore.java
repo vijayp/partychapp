@@ -23,11 +23,11 @@ public class FakeDatastore extends Datastore {
   public FakeDatastore() {
     Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
     // using fake addresses to avoid leaking our email addresses publicly
-    channel.addMember(new Member(new JID("neil@gmail.com")));
-    channel.addMember(new Member(new JID("jason@gmail.com")));
-    channel.addMember(new Member(new JID("kushal@kushaldave.com")));
-    channel.addMember(new Member(new JID("david@gmail.com")));
-    channel.addMember(new Member(new JID("akshay@q00p.net")));
+    channel.addMember(new JID("neil@gmail.com"));
+    channel.addMember(new JID("jason@gmail.com"));
+    channel.addMember(new JID("kushal@kushaldave.com"));
+    channel.addMember(new JID("david@gmail.com"));
+    channel.addMember(new JID("akshay@q00p.net"));
     put(channel);
   }
 

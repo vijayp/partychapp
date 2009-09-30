@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class SearchReplaceHandler implements CommandHandler {
   private static Pattern pattern = Pattern.compile("^s/([^/]+)/([^/]+)(/?)(g?)$");
@@ -16,9 +15,7 @@ public class SearchReplaceHandler implements CommandHandler {
   PPBHandler ppbHandler = new PPBHandler();
 
   private void sendNoMatchError(Message msg) {
-    SendUtil.broadcastIncludingSender("No message found that matches that pattern.",
-                                      msg.channel,
-                                      msg.serverJID);
+    msg.channel.broadcastIncludingSender("No message found that matches that pattern.");
   }
   
   public void doCommand(Message msg) {
@@ -26,10 +23,7 @@ public class SearchReplaceHandler implements CommandHandler {
     
     msg.member.addToLastMessages(msg.content);
     msg.channel.put();
-    SendUtil.broadcast(msg.member.getAliasPrefix() + msg.content,
-                       msg.channel,
-                       msg.serverJID,
-                       msg.userJID);
+    msg.channel.broadcast((msg.member.getAliasPrefix() + msg.content), msg.member);
 
     Matcher m = pattern.matcher(msg.content.trim());
     if (!m.matches()) {
@@ -78,9 +72,7 @@ public class SearchReplaceHandler implements CommandHandler {
     } else {
       msg.member.addToLastMessages(after);
       msg.channel.put();
-      SendUtil.broadcastIncludingSender("_" + msg.member.getAlias() + " meant " + after + "_",
-                                        msg.channel,
-                                        msg.serverJID);
+      msg.channel.broadcastIncludingSender(("_" + msg.member.getAlias() + " meant " + after + "_"));
     }
   }
 

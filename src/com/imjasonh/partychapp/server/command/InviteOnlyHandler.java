@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 /**
  * Make a room invite-only.
@@ -23,7 +22,7 @@ public class InviteOnlyHandler extends SlashCommand {
     
     String broadcast = "_" + msg.member.getAlias() + " set the room to " +
         (msg.channel.isInviteOnly() ? "" : "not ") + "invite-only._";
-    SendUtil.broadcastIncludingSender(broadcast, msg.channel, msg.serverJID);
+    msg.channel.broadcastIncludingSender(broadcast);
   }
 
   public String documentation() {

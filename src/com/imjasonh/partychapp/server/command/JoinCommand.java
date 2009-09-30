@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp.server.command;
 
-import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
@@ -15,14 +14,13 @@ public class JoinCommand implements CommandHandler {
     assert msg.channel != null;
     assert msg.member == null;
 
-    msg.member = new Member(msg.userJID);
-    if (!msg.channel.canJoin(msg.member.getJID())) {
+    if (!msg.channel.canJoin(msg.userJID.getId())) {
       String reply = "You must be invited to this room.";
       SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
       return;
     }
 
-    msg.channel.addMember(msg.member);
+    msg.member = msg.channel.addMember(msg.userJID);
     msg.channel.put();
 
     String reply = "You have joined '" + msg.channel.getName() + "' with the alias '"
@@ -31,7 +29,7 @@ public class JoinCommand implements CommandHandler {
 
     String broadcast = msg.member.getJID() + " has joined the channel with the alias '"
         + msg.member.getAlias() + "'";
-    SendUtil.broadcast(broadcast, msg.channel, msg.serverJID, msg.userJID);
+    msg.channel.broadcast(broadcast, msg.member);
     
     Command.getCommandHandler(msg).doCommand(msg);
   }

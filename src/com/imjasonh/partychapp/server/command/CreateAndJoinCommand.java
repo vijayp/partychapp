@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
@@ -18,8 +17,7 @@ public class CreateAndJoinCommand implements CommandHandler {
     assert msg.member == null;
 
     msg.channel = new Channel(msg.serverJID);
-    msg.member = new Member(msg.userJID);
-    msg.channel.addMember(msg.member);
+    msg.member = msg.channel.addMember(msg.userJID);
     msg.channel.put();
     String reply = "The channel '" + msg.channel.getName() + "' has been created, " +
         "and you have joined with the alias '" + msg.member.getAlias() + "'";

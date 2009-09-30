@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 /**
  * Action taken when the user
@@ -23,7 +22,7 @@ public class MeHandler extends SlashCommand {
 
     String broadcast = "_" + msg.member.getAlias() + " " +
         action + "_";
-    SendUtil.broadcastIncludingSender(broadcast, msg.channel, msg.serverJID);
+    msg.channel.broadcastIncludingSender(broadcast);
   }
 
   public String documentation() {
