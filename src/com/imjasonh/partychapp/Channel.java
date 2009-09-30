@@ -45,7 +45,7 @@ public class Channel implements Serializable {
   private String serverJID = null;
   
   @Persistent
-  private int sequenceId;
+  private Integer sequenceId = 0;
   
   public Channel(JID serverJID) {
     this.serverJID = serverJID.getId();
@@ -236,14 +236,14 @@ public class Channel implements Serializable {
   }
 
   public void broadcast(String message, Member sender) {
-    ++sequenceId;
+    incrementSequenceId();
     awakenSnoozers();
     put();
     sendMessage(message, getMembersToSendTo(sender));
   }
   
   public void broadcastIncludingSender(String message) {
-    ++sequenceId;
+    incrementSequenceId();
     awakenSnoozers();
     put();
     sendMessage(message, getMembersToSendTo());    
@@ -270,6 +270,9 @@ public class Channel implements Serializable {
   }
   
   public void incrementSequenceId() {
+    if (sequenceId == null) {
+      sequenceId = 0;
+    }
     ++sequenceId;
   }
 }
