@@ -6,8 +6,6 @@ public class BroadcastHandler implements CommandHandler {
 
   public void doCommand(Message msg) {
     msg.member.addToLastMessages(msg.content);
-    msg.channel.incrementSequenceId();
-    msg.channel.put();
     String reply = msg.member.getAliasPrefix() + msg.content;
     msg.channel.broadcast(reply, msg.member);
   }

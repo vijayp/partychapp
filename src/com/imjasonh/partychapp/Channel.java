@@ -274,5 +274,8 @@ public class Channel implements Serializable {
       sequenceId = 0;
     }
     ++sequenceId;
+    if (sequenceId >= 100) {
+      sequenceId = 0;
+    }
   }
 }
