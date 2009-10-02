@@ -4,9 +4,10 @@ import junit.framework.TestCase;
 
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
-import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.MockXMPPService;
+import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
 
 public class SummonHandlerTest extends TestCase {
@@ -17,7 +18,7 @@ public class SummonHandlerTest extends TestCase {
   public void setUp() {
     Datastore.setInstance(new FakeDatastore());
     SendUtil.setXMPP(xmpp);
-    handler.setMailService(mailer);
+    MailUtil.setMailService(mailer);
   }
   
   public void testMatches() {
@@ -55,7 +56,7 @@ public class SummonHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests("/summon jason"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[\"neil\"] /summon jason", xmpp.messages.get(0).getBody());
-    assertEquals("Error while summoning 'jason' to room. Email may not have been sent.",
+    assertEquals("Error while sending mail to 'jason@gmail.com'. Email may not have been sent.",
                  xmpp.messages.get(1).getBody());
   }
 }

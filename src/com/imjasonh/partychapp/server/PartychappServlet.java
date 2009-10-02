@@ -61,7 +61,7 @@ public class PartychappServlet extends HttpServlet {
   }
 
   private void handleEcho(com.imjasonh.partychapp.Message message) {
-    LOG.info("Body of message sent to echo@ is: " + message.content);
+    LOG.severe("Body of message sent to echo@ is: " + message.content);
     SendUtil.sendDirect("echo: " + message.content, message.userJID, message.serverJID);
   }
 }

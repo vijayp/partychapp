@@ -15,6 +15,7 @@ import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 public class MockXMPPService implements XMPPService {
   public List<Message> messages = Lists.newArrayList();
+  public List<JID> invited = Lists.newArrayList();
 
   public Presence getPresence(JID jabberId) {
     return new Presence(false);
@@ -25,18 +26,15 @@ public class MockXMPPService implements XMPPService {
   }
 
   public Message parseMessage(HttpServletRequest arg0) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    throw new RuntimeException("not implemented in mock");
   }
 
   public void sendInvitation(JID jabberId) {
-    // TODO Auto-generated method stub
-
+    invited.add(jabberId);
   }
 
   public void sendInvitation(JID jabberId, JID fromJid) {
-    // TODO Auto-generated method stub
-
+    invited.add(jabberId);
   }
 
   public SendResponse sendMessage(Message message) {

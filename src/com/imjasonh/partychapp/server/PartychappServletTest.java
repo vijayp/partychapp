@@ -10,6 +10,7 @@ import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
+import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.MockXMPPService;
 
 public class PartychappServletTest extends TestCase {
@@ -20,6 +21,7 @@ public class PartychappServletTest extends TestCase {
     Datastore.setInstance(new FakeDatastore());
     FakeDatastore.instance().clear();
     SendUtil.setXMPP(xmpp);
+    MailUtil.setMailService(new MockMailService());
   }
 
   public void testIntegration() {
