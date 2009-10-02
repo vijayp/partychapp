@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import junit.framework.TestCase;
 
+import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
@@ -140,5 +141,40 @@ public class SearchReplaceHandlerTest extends TestCase {
     assertEquals("[\"neil\"] s/h.*,/$0 goodbye/", xmpp.messages.get(0).getBody());
     assertEquals("_neil meant hello, goodbye world_",
                  xmpp.messages.get(1).getBody());
+  }
+  
+  public void testSuggestReplacementForSelfIgnoresAlias() {
+    ppbHandler.doCommand(Message.createForTests("hlleo world"));
+    xmpp.messages.clear();
+
+    handler.doCommand(Message.createForTests("neil: s/lle/ell/"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] neil: s/lle/ell/", xmpp.messages.get(0).getBody());
+    assertEquals("_neil meant hello world_",
+                 xmpp.messages.get(1).getBody());    
+  }
+  
+  public void testSuggestReplacementForOthers() {
+    Channel c = FakeDatastore.instance().fakeChannel();
+    c.getMemberByAlias("jason").addToLastMessages("hlleo world");
+    c.put();
+
+    handler.doCommand(Message.createForTests("jason: s/lle/ell/"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] jason: s/lle/ell/", xmpp.messages.get(0).getBody());
+    assertEquals("_neil thinks jason meant hello world_",
+                 xmpp.messages.get(1).getBody());    
+  }
+  
+  public void testSuggestReplacementForOthersDoesntAffectPlusPluses() {
+    Channel c = FakeDatastore.instance().fakeChannel();
+    c.getMemberByAlias("jason").addToLastMessages("x++");
+    c.put();
+
+    handler.doCommand(Message.createForTests("jason: s/x/y/"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] jason: s/x/y/", xmpp.messages.get(0).getBody());
+    assertEquals("_neil thinks jason meant y++_",
+                 xmpp.messages.get(1).getBody());    
   }
 }

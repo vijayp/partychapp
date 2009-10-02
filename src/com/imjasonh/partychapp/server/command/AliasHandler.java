@@ -6,7 +6,7 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 public class AliasHandler extends SlashCommand {
   
-  private static final String ALIAS_REGEX = "[a-zA-Z0-9\\-_'\\*]+";
+  public static final String ALIAS_REGEX = "[a-zA-Z0-9\\-_'\\*]+";
   
   AliasHandler() {
     super("alias", "rename");
