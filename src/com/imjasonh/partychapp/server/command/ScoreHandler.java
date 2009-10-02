@@ -25,6 +25,6 @@ public class ScoreHandler extends SlashCommand {
   }
 
   public String documentation() {
-    return "/score - see scores in plusplusbot";
+    return "/score target - see the score of 'target' in plusplusbot";
   }
 }

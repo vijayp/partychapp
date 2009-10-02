@@ -28,6 +28,6 @@ public class UndoHandler extends SlashCommand {
   }
 
   public String documentation() {
-    return "/undo - undo the last message";
+    return "/undo - undo the pluspluses and minusminuses from your last message";
   }
 }

@@ -40,6 +40,6 @@ public class AliasHandler extends SlashCommand {
   }
   
   public String documentation() {
-	  return "/alias - rename yourself";
+    return "/alias name - rename yourself to 'name'";
   }
 }

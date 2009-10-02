@@ -29,6 +29,6 @@ public class ReasonsHandler extends SlashCommand {
   }
 
   public String documentation() {
-    return "/reasons - see why someone's score was changed";
+    return "/reasons target - see why target's score was changed";
   }
 }

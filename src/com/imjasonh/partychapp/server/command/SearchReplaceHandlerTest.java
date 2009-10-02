@@ -111,4 +111,34 @@ public class SearchReplaceHandlerTest extends TestCase {
                  xmpp.messages.get(2).getBody());    
 
   }
+  
+  public void testReplacePlusPlusWithMinusMinusThenOpposite() {
+    String firstMessage = "x++";
+    ppbHandler.doCommand(Message.createForTests(firstMessage));
+    xmpp.messages.clear();
+
+    handler.doCommand(Message.createForTests("s/\\+\\+/--/"));
+    handler.doCommand(Message.createForTests("s/--/++/"));
+    assertEquals(6, xmpp.messages.size());
+    assertEquals("[\"neil\"] s/\\+\\+/--/", xmpp.messages.get(0).getBody());
+    assertEquals("Undoing original actions: x++ [back to 0]", xmpp.messages.get(1).getBody());
+    assertEquals("_neil meant x-- [ouch! now at -1]_",
+                 xmpp.messages.get(2).getBody());
+    assertEquals("[\"neil\"] s/--/++/", xmpp.messages.get(3).getBody());
+    assertEquals("Undoing original actions: x-- [back to 0]", xmpp.messages.get(4).getBody());
+    assertEquals("_neil meant x++ [woot! now at 1]_",
+                 xmpp.messages.get(5).getBody());        
+  }
+  
+  public void testRegexReplacement() {
+    String firstMessage = "hello, world";
+    ppbHandler.doCommand(Message.createForTests(firstMessage));
+    xmpp.messages.clear();
+
+    handler.doCommand(Message.createForTests("s/h.*,/$0 goodbye/"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] s/h.*,/$0 goodbye/", xmpp.messages.get(0).getBody());
+    assertEquals("_neil meant hello, goodbye world_",
+                 xmpp.messages.get(1).getBody());
+  }
 }
