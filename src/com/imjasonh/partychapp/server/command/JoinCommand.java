@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import java.util.logging.Logger;
+
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
@@ -10,11 +12,15 @@ import com.imjasonh.partychapp.server.SendUtil;
  */
 public class JoinCommand implements CommandHandler {
 
+  @SuppressWarnings("unused")
+  private static final Logger LOG = Logger.getLogger(JoinCommand.class.getName());
+  
   public void doCommand(Message msg) {
     assert msg.channel != null;
     assert msg.member == null;
 
-    if (!msg.channel.canJoin(msg.userJID.getId())) {
+    String email = msg.userJID.getId().split("/")[0];
+    if (!msg.channel.canJoin(email)) {
       String reply = "You must be invited to this room.";
       SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
       return;
