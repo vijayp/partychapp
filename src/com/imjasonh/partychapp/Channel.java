@@ -102,7 +102,8 @@ public class Channel implements Serializable {
    */
   public Member addMember(JID jidToAdd) {
     if (isInviteOnly()) {
-      if (invitedIds == null || !invitedIds.remove(jidToAdd.getId())) {
+      String email = jidToAdd.getId().split("/")[0];
+      if (invitedIds == null || !invitedIds.remove(email)) {
         throw new IllegalArgumentException("Not invited to this room");
       }
     }
