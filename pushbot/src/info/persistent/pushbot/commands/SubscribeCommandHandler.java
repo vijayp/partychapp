@@ -8,6 +8,8 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
+import org.jdom.Element;
+
 import info.persistent.pushbot.Subscription;
 import info.persistent.pushbot.util.Hubs;
 import info.persistent.pushbot.util.Persistence;
@@ -27,7 +29,12 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
       Logger.getLogger(SubscribeCommandHandler.class.getName());
   
   private static final String HUB_RELATION = "hub";  
-  private static final String SELF_RELATION = "self";  
+  private static final String SELF_RELATION = "self";
+  
+  private static final String ATOM_NAMESPACE = "http://www.w3.org/2005/Atom";
+  private static final String ATOM_LINK = "link";
+  private static final String ATOM_REL_ATTRIBUTE = "rel";
+  private static final String ATOM_HREF_ATTRIBUTE = "href";
 
   @Override
   protected void handle(JID user, URL feedUrl) {
@@ -87,6 +94,7 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
 
   @SuppressWarnings("unchecked")
   private static URL getLinkUrl(SyndFeed feed, String relation) {
+    // Atom feeds can have links accessed directly.
     for (SyndLink link : ((List<SyndLink>) feed.getLinks())) {
       if (link.getRel().equals(relation)) {
         try {
@@ -94,6 +102,25 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
         } catch (MalformedURLException err) {
           logger.log(Level.INFO, "Malformed " + relation + " URL", err);
           return null;
+        }
+      }
+    }
+    
+    // If we have an Atom 1.0 <link> in an RSS feed, it's in the foreign markup
+    // list.
+    List<Element> elements = (List<Element>) feed.getForeignMarkup();
+    for (Element element : elements) {
+      if (element.getNamespaceURI().equals(ATOM_NAMESPACE) &&
+          element.getName().equals(ATOM_LINK) &&
+          relation.equals(element.getAttributeValue(ATOM_REL_ATTRIBUTE))) {
+        String href = element.getAttributeValue(ATOM_HREF_ATTRIBUTE);
+        if (href != null && !href.isEmpty()) {
+          try {
+            return new URL(href);
+          } catch (MalformedURLException err) {
+            logger.log(Level.INFO, "Malformed " + relation + " URL", err);
+            return null;
+          }
         }
       }
     }
