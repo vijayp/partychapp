@@ -65,10 +65,10 @@ public class Hubs {
     writer.write("hub.callback=" + Urls.encode(callbackUrl));
     writer.write("&hub.mode=" + verb);
     writer.write("&hub.topic=" + Urls.encode(feedUrl.toString()));
-    // We can use either synchronous or asynchronous, but since users rely on
-    // seeing the confirmation message (and the Typepad hub seems to be flaky
-    // with async subscriptions), we prefer synchronous ones.
-    writer.write("&hub.verify=sync");
+    // We can use either synchronous or asynchronous, but since we want to 
+    // return as quickly as possible lest we run into App Engine timeouts, we
+    // use asynchronous verification.
+    writer.write("&hub.verify=async");
     // TODO(mihaip): Actually use a verification token.
     writer.write("&hub.verify_token=");
   }
