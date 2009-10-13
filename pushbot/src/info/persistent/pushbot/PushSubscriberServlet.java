@@ -2,22 +2,25 @@ package info.persistent.pushbot;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.base.StringUtil;
+import com.google.common.collect.Lists;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 
+import info.persistent.pushbot.data.Subscription;
+import info.persistent.pushbot.util.Feeds;
+import info.persistent.pushbot.util.Persistence;
 import info.persistent.pushbot.util.Xmpp;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,24 +58,54 @@ public class PushSubscriberServlet extends HttpServlet {
       throws IOException {
     resp.setStatus(204);
 
-    SyndFeedInput input = new SyndFeedInput();
-    SyndFeed feed;
-    try {
-      feed = input.build(new XmlReader(req.getInputStream()));
-    } catch (IllegalArgumentException err) {
-      logger.log(Level.INFO, "Feed parse error", err);
-      return;
-    } catch (FeedException err) {
-      logger.log(Level.INFO, "Feed parse error", err);
+    SyndFeed feed = Feeds.parseFeed(req.getInputStream());
+    if (feed == null) {
       return;
     }
-    
     
     List<SyndEntry> entries = feed.getEntries();
     
     if (entries.isEmpty()) {
       return;
+    }    
+    
+    JID user = new JID(req.getPathInfo().substring(1));
+    // TODO(mihaip): this is potentially incorrect if a feed gets redirected and
+    // its self URL changes since the time the subscription was created
+    List<URL> feedUrls = Feeds.getLinkUrl(feed, Feeds.SELF_RELATION); 
+    if (!feedUrls.isEmpty()) {
+      URL feedUrl = feedUrls.get(0);
+      List<Subscription> subscriptions =
+        Subscription.getSubscriptionsForUserAndFeedUrl(user, feedUrl);
+      
+      if (!subscriptions.isEmpty()) {
+        final Subscription subscription = subscriptions.get(0);
+        Set<String> seenEntryIds = subscription.getSeenEntryIds();
+        List<SyndEntry> filteredEntries = Lists.newArrayList();
+        for (SyndEntry entry : entries) {
+          String entryId = Feeds.getEntryId(entry);
+          if (seenEntryIds.contains(entryId)) {
+            logger.info("Filtering out already seen entry from " + feedUrl);
+            continue;
+          }
+          filteredEntries.add(entry);
+          subscription.addSeenEntryId(entryId);
+        }
+        
+        if (!filteredEntries.isEmpty()) {
+          Persistence.withManager(new Persistence.Closure() {
+            @Override public void run(PersistenceManager manager) {
+              manager.makePersistent(subscription);
+            }
+          });
+        } else {
+          return;
+        }
+        
+        entries = filteredEntries;
+      }
     }
+    
  
     // If subscribing to a previously unseen URL, the hub might report a bunch
     // of entries as new, so we sort them by published date and only show the
@@ -104,7 +137,6 @@ public class PushSubscriberServlet extends HttpServlet {
         .append(entries.size() - displayEntries.size()).append(" more)");
     }
     
-    JID user = new JID(req.getPathInfo().substring(1));
     Xmpp.sendMessage(user, message.toString());
   }
 }

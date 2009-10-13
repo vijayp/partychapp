@@ -2,7 +2,9 @@ package info.persistent.pushbot.data;
 
 import com.google.appengine.api.datastore.Link;
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import info.persistent.pushbot.util.Persistence;
 import info.persistent.pushbot.util.Xmpp;
@@ -10,6 +12,7 @@ import info.persistent.pushbot.util.Xmpp;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -38,11 +41,15 @@ public class Subscription {
   @Persistent
   private String title;
   
+  @Persistent(defaultFetchGroup = "true")
+  private Set<String> seenEntryIds;
+  
   public Subscription(JID user, URL feedUrl, URL hubUrl, String title) {
     this.user = Xmpp.toShortJid(user).getId();
     this.feedUrl = new Link(feedUrl.toString());
     this.hubUrl = new Link (hubUrl.toString());
     this.title = title;
+    this.seenEntryIds = Sets.newHashSet();
   }
   
   public Long getId() {
@@ -74,6 +81,19 @@ public class Subscription {
   
   public String getTitle() {
     return title;
+  }
+  
+  public ImmutableSet<String> getSeenEntryIds() {
+    return seenEntryIds != null
+        ? ImmutableSet.<String>copyOf(seenEntryIds)
+        : ImmutableSet.<String>of();
+  }
+  
+  public void addSeenEntryId(String entryId) {
+    if (seenEntryIds == null) {
+      seenEntryIds = Sets.newHashSet();
+    }
+    seenEntryIds.add(entryId);
   }
   
   public static List<Subscription> getSubscriptionsForUser(JID user) {

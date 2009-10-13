@@ -2,23 +2,16 @@ package info.persistent.pushbot.commands;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
 import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndLink;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
-
-import org.jdom.Element;
 
 import info.persistent.pushbot.data.Subscription;
+import info.persistent.pushbot.util.Feeds;
 import info.persistent.pushbot.util.Hubs;
 import info.persistent.pushbot.util.Persistence;
 import info.persistent.pushbot.util.Xmpp;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -28,16 +21,8 @@ import java.util.logging.Logger;
 import javax.jdo.PersistenceManager;
 
 public class SubscribeCommandHandler extends FeedCommandHandler {
-  private static final Logger logger =
+  public static final Logger logger =
       Logger.getLogger(SubscribeCommandHandler.class.getName());
-  
-  private static final String HUB_RELATION = "hub";  
-  private static final String SELF_RELATION = "self";
-  
-  private static final String ATOM_NAMESPACE = "http://www.w3.org/2005/Atom";
-  private static final String ATOM_LINK = "link";
-  private static final String ATOM_REL_ATTRIBUTE = "rel";
-  private static final String ATOM_HREF_ATTRIBUTE = "href";
   
   private static final Set<String> FEEDBURNER_HOSTS = ImmutableSet.of(
       "feeds.feedburner.com",
@@ -58,12 +43,12 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
     
     // If possible, subscribe to the self URL, since presumably that's the one
     // that the hub knows about.
-    List<URL> selfUrls = getLinkUrl(feed, SELF_RELATION);
+    List<URL> selfUrls = Feeds.getLinkUrl(feed, Feeds.SELF_RELATION);
     if (!selfUrls.isEmpty()) {
       feedUrl = selfUrls.get(0);
     }
 
-    List<URL> hubUrls = getLinkUrl(feed, HUB_RELATION);
+    List<URL> hubUrls = Feeds.getLinkUrl(feed, Feeds.HUB_RELATION);
     URL hubUrl = null;
     
     for (URL candidateHubUrl : hubUrls) {
@@ -97,65 +82,20 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
   }
 
   private static SyndFeed fetchAndParseFeed(JID user, URL feedUrl) {
-    SyndFeedInput feedInput = new SyndFeedInput();
+    SyndFeed feed;
     try {
-      return feedInput.build(new XmlReader(feedUrl));
-    } catch (IllegalArgumentException e) {
-      handleFeedParseException(user, feedUrl, e);
-      return null;
-    } catch (FeedException e) {
-      handleFeedParseException(user, feedUrl, e);
-      return null;
-    } catch (IOException e) {
-      handleFeedParseException(user, feedUrl, e);
-      return null;
-    } catch (IllegalStateException e) {
-      handleFeedParseException(user, feedUrl, e);
+      feed = Feeds.parseFeed(feedUrl.openStream());
+    } catch (IOException err) {
+      logger.log(Level.INFO, "Could not fetch feed " + feedUrl, err);
+      Xmpp.sendMessage(user, "Could not fetch feed " + feedUrl);
       return null;
     }
-  }
-
-  private static void handleFeedParseException(
-      JID user, URL feedUrl, Throwable t) {
-    logger.log(Level.INFO, "Feed parse exception for " + feedUrl, t);
-    Xmpp.sendMessage(user, "Could not parse feed " + feedUrl);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static List<URL> getLinkUrl(SyndFeed feed, String relation) {
-    List<URL> results = Lists.newArrayList();
-    // Atom feeds can have links accessed directly.
-    for (SyndLink link : ((List<SyndLink>) feed.getLinks())) {
-      if (link.getRel().equals(relation)) {
-        try {
-          results.add(new URL(link.getHref()));
-        } catch (MalformedURLException err) {
-          logger.log(Level.INFO, "Malformed " + relation + " URL", err);
-        }
-      }
+    if (feed == null) {
+      Xmpp.sendMessage(user, "Could not parse feed " + feedUrl);      
     }
-    
-    // If we have an Atom 1.0 <link> in an RSS feed, it's in the foreign markup
-    // list.
-    List<Element> elements = (List<Element>) feed.getForeignMarkup();
-    for (Element element : elements) {
-      if (element.getNamespaceURI().equals(ATOM_NAMESPACE) &&
-          element.getName().equals(ATOM_LINK) &&
-          relation.equals(element.getAttributeValue(ATOM_REL_ATTRIBUTE))) {
-        String href = element.getAttributeValue(ATOM_HREF_ATTRIBUTE);
-        if (href != null && !href.isEmpty()) {
-          try {
-            results.add(new URL(href));
-          } catch (MalformedURLException err) {
-            logger.log(Level.INFO, "Malformed " + relation + " URL", err);
-          }
-        }
-      }
-    }
-
-    return results;
+    return feed;
   }
-  
+
   private static void saveSubscription(
       JID user, URL feedUrl, URL hubUrl, String title) {
     List<Subscription> existingSubscriptions =
