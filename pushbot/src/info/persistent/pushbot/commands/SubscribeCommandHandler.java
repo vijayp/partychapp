@@ -1,6 +1,8 @@
 package info.persistent.pushbot.commands;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndLink;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +38,13 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
   private static final String ATOM_LINK = "link";
   private static final String ATOM_REL_ATTRIBUTE = "rel";
   private static final String ATOM_HREF_ATTRIBUTE = "href";
-
+  
+  private static final Set<String> FEEDBURNER_HOSTS = ImmutableSet.of(
+      "feeds.feedburner.com",
+      "feeds2.feedburner.com",
+      "feedproxy.google.com");
+  private static final String FEEDBURNER_HUB_HOST = "pubsubhubbub.appspot.com";
+  
   @Override
   protected void handle(JID user, URL feedUrl) {
     subscribeToFeed(user, feedUrl);
@@ -46,20 +55,40 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
     if (feed == null) {
       return;
     }
-
-    URL hubUrl = getLinkUrl(feed, HUB_RELATION);
-    if (hubUrl == null || hubUrl.getHost() == null
-        || hubUrl.getHost().isEmpty()) {
-      Xmpp.sendMessage(
-          user, "The feed " + feedUrl + " is not associated with a hub");
-      return;
-    }
     
     // If possible, subscribe to the self URL, since presumably that's the one
     // that the hub knows about.
-    URL selfUrl = getLinkUrl(feed, SELF_RELATION);
-    if (selfUrl != null) {
-      feedUrl = selfUrl;
+    List<URL> selfUrls = getLinkUrl(feed, SELF_RELATION);
+    if (!selfUrls.isEmpty()) {
+      feedUrl = selfUrls.get(0);
+    }    
+
+    List<URL> hubUrls = getLinkUrl(feed, HUB_RELATION);
+    URL hubUrl = null;
+    
+    for (URL candidateHubUrl : hubUrls) {
+      // Require absolute URLs
+      if (candidateHubUrl.getHost() == null ||
+          candidateHubUrl.getHost().isEmpty()) {
+        continue;
+      }
+      
+      // If it's a burned feed, then we want to use the FeedBurner hub, not
+      // another one (which doesn't know about the burned feed URL). This can
+      // happen with TypePad.
+      if (FEEDBURNER_HOSTS.contains(feedUrl.getHost()) &&
+          !candidateHubUrl.getHost().equals(FEEDBURNER_HUB_HOST)) {
+        continue;
+      }
+      
+      hubUrl = candidateHubUrl;
+      continue;
+    }
+
+    if (hubUrl == null) {
+      Xmpp.sendMessage(
+          user, "The feed " + feedUrl + " is not associated with a hub");
+      return;      
     }
 
     saveSubscription(user, feedUrl, hubUrl, feed.getTitle());
@@ -93,15 +122,15 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
   }
 
   @SuppressWarnings("unchecked")
-  private static URL getLinkUrl(SyndFeed feed, String relation) {
+  private static List<URL> getLinkUrl(SyndFeed feed, String relation) {
+    List<URL> results = Lists.newArrayList();
     // Atom feeds can have links accessed directly.
     for (SyndLink link : ((List<SyndLink>) feed.getLinks())) {
       if (link.getRel().equals(relation)) {
         try {
-          return new URL(link.getHref());
+          results.add(new URL(link.getHref()));
         } catch (MalformedURLException err) {
           logger.log(Level.INFO, "Malformed " + relation + " URL", err);
-          return null;
         }
       }
     }
@@ -116,16 +145,15 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
         String href = element.getAttributeValue(ATOM_HREF_ATTRIBUTE);
         if (href != null && !href.isEmpty()) {
           try {
-            return new URL(href);
+            results.add(new URL(href));
           } catch (MalformedURLException err) {
             logger.log(Level.INFO, "Malformed " + relation + " URL", err);
-            return null;
           }
         }
       }
     }
 
-    return null;
+    return results;
   }
   
   private static void saveSubscription(
