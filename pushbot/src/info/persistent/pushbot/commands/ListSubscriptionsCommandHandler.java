@@ -5,7 +5,7 @@ import com.google.appengine.repackaged.com.google.common.base.StringUtil;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import info.persistent.pushbot.Subscription;
+import info.persistent.pushbot.data.Subscription;
 import info.persistent.pushbot.util.Xmpp;
 
 import java.util.List;

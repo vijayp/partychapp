@@ -12,7 +12,7 @@ import com.sun.syndication.io.XmlReader;
 
 import org.jdom.Element;
 
-import info.persistent.pushbot.Subscription;
+import info.persistent.pushbot.data.Subscription;
 import info.persistent.pushbot.util.Hubs;
 import info.persistent.pushbot.util.Persistence;
 import info.persistent.pushbot.util.Xmpp;
@@ -61,7 +61,7 @@ public class SubscribeCommandHandler extends FeedCommandHandler {
     List<URL> selfUrls = getLinkUrl(feed, SELF_RELATION);
     if (!selfUrls.isEmpty()) {
       feedUrl = selfUrls.get(0);
-    }    
+    }
 
     List<URL> hubUrls = getLinkUrl(feed, HUB_RELATION);
     URL hubUrl = null;

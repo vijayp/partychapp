@@ -1,4 +1,4 @@
-package info.persistent.pushbot;
+package info.persistent.pushbot.data;
 
 import com.google.appengine.api.datastore.Link;
 import com.google.appengine.api.xmpp.JID;

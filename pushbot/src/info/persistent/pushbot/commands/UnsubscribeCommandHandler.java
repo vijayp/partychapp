@@ -2,7 +2,7 @@ package info.persistent.pushbot.commands;
 
 import com.google.appengine.api.xmpp.JID;
 
-import info.persistent.pushbot.Subscription;
+import info.persistent.pushbot.data.Subscription;
 import info.persistent.pushbot.util.Hubs;
 import info.persistent.pushbot.util.Persistence;
 import info.persistent.pushbot.util.Xmpp;
