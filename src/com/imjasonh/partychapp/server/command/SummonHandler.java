@@ -34,7 +34,7 @@ public class SummonHandler extends SlashCommand {
       if (didYouMean != null) {
         reply = reply + " Maybe you meant to /summon " + didYouMean + ".";
       }
-      msg.channel.broadcast(reply, msg.member);
+      msg.channel.broadcastIncludingSender(reply);
       return;
     }
     String emailBody = msg.member.getAlias() + " has summoned you to '" + msg.channel.getName() + "'.";
