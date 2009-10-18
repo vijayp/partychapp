@@ -1,10 +1,10 @@
 package com.imjasonh.partychapp.ppb;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +15,21 @@ import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 
 public class PlusPlusBot {
-  private static Set<String> blacklist = new HashSet<String>();
+  private static Set<Pattern> blacklist = Sets.newHashSet();
+  public static final String targetPattern = "[\\w-\\.\\+]+";
+  private static final Pattern pattern =
+    Pattern.compile("(" + targetPattern + ")(\\+\\+|--)($|\\s+)");
+
+  @SuppressWarnings("unused")
+  private static final Logger LOG = Logger.getLogger(PlusPlusBot.class.getName());
+
+
+  static {
+    // c++
+    blacklist.add(Pattern.compile("c"));
+    // <----
+    blacklist.add(Pattern.compile("-*"));
+  }
 
   public enum Action {
     PLUSPLUS, MINUSMINUS;
@@ -36,15 +50,6 @@ public class PlusPlusBot {
       }
     }
   };
-
-  public static final String targetPattern = "[\\w-\\.\\+]+";
-  private static final Pattern pattern =
-    Pattern.compile("(" + targetPattern + ")(\\+\\+|--)($|\\s+)");
-
-  static {
-    // c++
-    blacklist.add("c");
-  }
 
   public boolean matches(String content) {
     // use find() instead of matches() because matches() looks for the whole
@@ -70,7 +75,14 @@ public class PlusPlusBot {
     while (m.find()) {
       String target = m.group(1).toLowerCase();
       String action = m.group(2);
-      if (blacklist.contains(target)) {
+      boolean blacklisted = false;
+      for (Pattern p : blacklist) {
+        if (p.matcher(target).matches()) {
+          blacklisted = true;
+          break;
+        }
+      }
+      if (blacklisted) {
         continue;
       }
       Target t = alreadyFetched.get(target);

@@ -101,6 +101,12 @@ public class PlusPlusBotTest extends TestCase {
     Reason r = runAndGetOneReason(content);
     assertReasonEquals(content, "java", 1, Action.PLUSPLUS, r);
   }
+  
+  public void testBlacklist2() {
+    String content = "<------- <-- <--- c++";
+    List<Reason> reasons = runAndGetReasons(content);
+    assertEquals(0, reasons.size());
+  }
 
   public void testWithPunctuation() {
     String content = "_hello-world.foo+++";
