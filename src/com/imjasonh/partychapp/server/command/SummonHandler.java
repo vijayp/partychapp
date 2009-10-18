@@ -22,7 +22,18 @@ public class SummonHandler extends SlashCommand {
     
     Member toSummon = msg.channel.getMemberByAlias(argument.trim());
     if (toSummon == null) {
-      String reply = "Could not find member with alias '" + argument.trim() + "'";
+      String didYouMean = null;
+      for (Member m : msg.channel.getMembers()) {
+        if (m.getAlias().contains(argument.trim()) ||
+            m.getJID().contains(argument.trim())) {
+          didYouMean = m.getAlias();
+          break;
+        }
+      }
+      String reply = "Could not find member with alias '" + argument.trim() + ".'";
+      if (didYouMean != null) {
+        reply = reply + " Maybe you meant to /summon " + didYouMean + ".";
+      }
       msg.channel.broadcast(reply, msg.member);
       return;
     }

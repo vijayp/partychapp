@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 /**
  * Action taken when the user
@@ -23,7 +22,7 @@ public class KickHandler extends SlashCommand {
           action + "_";
       msg.channel.broadcastIncludingSender(broadcast);
     } else {
-      SendUtil.sendDirect("No such member", msg.userJID, msg.serverJID);
+      msg.channel.sendDirect("No such member", msg.member);
     }
   }
 

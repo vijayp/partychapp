@@ -4,7 +4,6 @@ import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
 import com.imjasonh.partychapp.ppb.Target;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class ScoreHandler extends SlashCommand {
   
@@ -21,7 +20,7 @@ public class ScoreHandler extends SlashCommand {
     } else {
       reply = name + ": " + target.score();
     }
-    SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(reply, msg.member);
   }
 
   public String documentation() {

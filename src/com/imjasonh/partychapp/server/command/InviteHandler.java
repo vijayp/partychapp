@@ -33,14 +33,14 @@ public class InviteHandler extends SlashCommand {
                                    msg.channel.getName());
     String body =
       String.format("%s (%s) invited you to a chatroom named '%s'.\n\n" +
-                    "To join, please accept the chat request from %s@partychapp.appspotchat.com, " +
+                    "To join, please accept the chat request from %s, " +
                     "and send it an IM. That will automatically enter you into the chatroom. Once you're in " +
                     "the room, try sending '/help' to it over IM for a handy list of what it can do.\n\n" +
                     "For information about how to invite someone to chat in gmail, read " +
                     "http://mail.google.com/support/bin/answer.py?answer=33508.\n" +
                     "For more information about partychat, try http://code.google.com/p/partychapp/.\n",
                     msg.member.getAlias(), msg.member.getJID(), msg.channel.getName(),
-                    msg.channel.getName());
+                    msg.serverJID.getId());
     String error = MailUtil.sendMail(subject, body, jidToInvite);
     if (error != null) {
       broadcast = error;

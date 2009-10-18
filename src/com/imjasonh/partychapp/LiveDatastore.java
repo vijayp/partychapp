@@ -3,6 +3,7 @@ package com.imjasonh.partychapp;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
@@ -10,6 +11,11 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
@@ -43,11 +49,6 @@ public class LiveDatastore extends Datastore {
   }
 
   @Override
-  public Target getTarget(Channel channel, String name) {
-    return getTargetByID(Target.createTargetKey(name, channel));
-  }
-
-  @Override
   public Target getOrCreateTarget(Channel channel, String name) {
     Target t = getTarget(channel, name);
     if (t == null) {
@@ -62,7 +63,9 @@ public class LiveDatastore extends Datastore {
     query.setFilter("targetId == targetIdParam");
     query.setOrdering("timestamp desc");
     query.declareParameters("String targetIdParam");
-    query.setRange(0, limit);
+    if (limit > 0) {
+      query.setRange(0, limit);
+    }
 
     List<Reason> reasons = (List<Reason>) query.execute(target.key());
     query.closeAll();
@@ -92,5 +95,18 @@ public class LiveDatastore extends Datastore {
   @Override
   public void startRequest() {
     manager = PERSISTENCE_FACTORY.getPersistenceManager();
+  }
+
+  @Override
+  public Map<String, Integer> getStats() {
+    Map<String, Integer> ret = Maps.newHashMap();
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery pq = datastore.prepare(new com.google.appengine.api.datastore.Query("__Stat_Kind__"));
+    for (Entity kindStat : pq.asIterable()) {
+      ret.put((String)kindStat.getProperty("kind_name"),
+              ((Long)kindStat.getProperty("count")).intValue());
+    }
+    
+    return ret;
   }
 }

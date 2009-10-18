@@ -37,6 +37,32 @@ public class SearchReplaceHandlerTest extends TestCase {
     assertEquals("_neil meant bar foo_", xmpp.messages.get(1).getBody());
   }
   
+  public void testDeleteCaptured() {
+    bcast.doCommand(Message.createForTests("foo foo"));
+    xmpp.messages.clear();
+    handler.doCommand(Message.createForTests("s/foo//"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] s/foo//", xmpp.messages.get(0).getBody());
+    assertEquals("_neil meant  foo_", xmpp.messages.get(1).getBody());    
+  }
+  
+  public void testDeleteCapturedNoTrailingSlash() {
+    bcast.doCommand(Message.createForTests("foo foo"));
+    xmpp.messages.clear();
+    handler.doCommand(Message.createForTests("s/foo/"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] s/foo/", xmpp.messages.get(0).getBody());
+    assertEquals("_neil meant  foo_", xmpp.messages.get(1).getBody());        
+  }
+  
+  public void testDeleteCapturedGreedy() {
+    bcast.doCommand(Message.createForTests("foo bar foo"));
+    xmpp.messages.clear();
+    handler.doCommand(Message.createForTests("s/foo//g"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] s/foo//g", xmpp.messages.get(0).getBody());
+    assertEquals("_neil meant  bar _", xmpp.messages.get(1).getBody());    
+  }  
   public void testMissingTrailingSlash() {
     bcast.doCommand(Message.createForTests("foo foo"));
     xmpp.messages.clear();

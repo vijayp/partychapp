@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import junit.framework.TestCase;
 
+import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
@@ -46,7 +47,29 @@ public class SummonHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests("/summon fdsakfj"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[\"neil\"] /summon fdsakfj", xmpp.messages.get(0).getBody());
-    assertEquals("Could not find member with alias 'fdsakfj'", xmpp.messages.get(1).getBody());
+    assertEquals("Could not find member with alias 'fdsakfj.'", xmpp.messages.get(1).getBody());
+    
+    assertEquals(0, mailer.sentMessages.size());
+  }
+  
+  public void testDidYouMean1() {
+    handler.doCommand(Message.createForTests("/summon jaso"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] /summon jaso", xmpp.messages.get(0).getBody());
+    assertEquals("Could not find member with alias 'jaso.' Maybe you meant to /summon jason.", xmpp.messages.get(1).getBody());
+    
+    assertEquals(0, mailer.sentMessages.size());
+  }
+
+  public void testDidYouMean2() {
+    Channel c = FakeDatastore.instance().fakeChannel();
+    c.getMemberByAlias("jason").setAlias("intern");
+    c.put();
+    
+    handler.doCommand(Message.createForTests("/summon jason"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[\"neil\"] /summon jason", xmpp.messages.get(0).getBody());
+    assertEquals("Could not find member with alias 'jason.' Maybe you meant to /summon intern.", xmpp.messages.get(1).getBody());
     
     assertEquals(0, mailer.sentMessages.size());
   }

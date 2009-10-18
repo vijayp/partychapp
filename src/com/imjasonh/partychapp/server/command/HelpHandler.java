@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class HelpHandler extends SlashCommand {
 
@@ -25,7 +24,7 @@ public class HelpHandler extends SlashCommand {
     sb.append("* Message echo@ to hear yourself talk").append('\n')
         .append("* Found a bug? Let us know: http://code.google.com/p/partychapp/issues/entry");
 
-    SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(sb.toString(), msg.member);
   }
 
   public String documentation() {

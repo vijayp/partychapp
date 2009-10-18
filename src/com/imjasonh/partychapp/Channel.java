@@ -7,12 +7,12 @@ import java.util.Set;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
@@ -33,53 +33,41 @@ public class Channel implements Serializable {
   private String name;
 
   @Persistent(serialized = "true")
-  private Set<Member> members;
+  private Set<Member> members =  Sets.newHashSet();
+  
+  //@Persistent(mappedBy = "channel")
+  @NotPersistent
+  private Set<Member> membersV2 = Sets.newHashSet();
 
   @Persistent
   private Boolean inviteOnly = false;
 
   @Persistent
-  private List<String> invitedIds;
-  
-  @Persistent
-  private String serverJID = null;
+  private List<String> invitedIds = Lists.newArrayList();
   
   @Persistent
   private Integer sequenceId = 0;
   
   public Channel(JID serverJID) {
-    this.serverJID = serverJID.getId();
+    //this.serverJID = serverJID.getId();
     this.name = serverJID.getId().split("@")[0];
-    members = Sets.newHashSet();
-    invitedIds = Lists.newArrayList();
-    this.sequenceId = 0;
   }
-  
+   
   public Channel(Channel other) {
     this.name = other.name;
     this.inviteOnly = other.inviteOnly;
     this.invitedIds = Lists.newArrayList(other.invitedIds);
-    this.members = Sets.newHashSet();
-    for (Member m : other.getMembers()) {
-      this.members.add(new Member(m));
-    }
-    this.serverJID = other.serverJID;
+    this.members = Sets.newHashSet(other.members);
+    //this.membersV2 = Sets.newHashSet(other.membersV2);
     this.sequenceId = other.sequenceId;
   }
   
   public JID serverJID() {
-    // this is a new addition, so pre-existing rooms won't have this field
-    if (serverJID == null) {
-      serverJID = name + "@partychapp.appspotchat.com";
-    }
-    return new JID(serverJID);
+    return new JID(name + "@" + Configuration.chatDomain);
   }
 
   public void invite(String email) {
     // Need to be robust b/c invitees was added after v1 of this class.
-    if (invitedIds == null) {
-      invitedIds = Lists.newArrayList();
-    }
     String cleanedUp = email.toLowerCase().trim();
     if (!invitedIds.contains(cleanedUp)) {
       invitedIds.add(cleanedUp);
@@ -88,9 +76,9 @@ public class Channel implements Serializable {
 
   public boolean canJoin(String email) {
     return !isInviteOnly() ||
-        (invitedIds != null && invitedIds.contains(email.toLowerCase().trim()));
+        (invitedIds.contains(email.toLowerCase().trim()));
   }
-  
+
   public void setInviteOnly(boolean inviteOnly) {
     this.inviteOnly = inviteOnly;
   }
@@ -113,7 +101,8 @@ public class Channel implements Serializable {
       dedupedAlias = "_" + dedupedAlias;
     }
     addedMember.setAlias(dedupedAlias);
-    members.add(addedMember);
+    mutableMembers().add(addedMember);
+    mutableMembersV2().add(addedMember);
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
@@ -121,14 +110,17 @@ public class Channel implements Serializable {
   }
   
   private Set<Member> mutableMembers() {
-    if (members == null) {
-      members = Sets.newHashSet();
-    }
     return members;
   }
 
+  private Set<Member> mutableMembersV2() {
+    return membersV2;
+  }
+
+
   public void removeMember(Member member) {
     mutableMembers().remove(member);
+    mutableMembersV2().remove(member);
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
@@ -213,41 +205,47 @@ public class Channel implements Serializable {
   }
 
   public boolean isInviteOnly() {
-    return inviteOnly != null && inviteOnly;
+    return inviteOnly;
   }
   
   public List<String> getInvitees() {
-    return invitedIds != null ? invitedIds : ImmutableList.<String>of();
+    return invitedIds;
   }
   
-  public void sendMessage(String message, List<Member> recipients) {
-    List<JID> recipientJIDS = Lists.newArrayList();
-    List<JID> recipientJIDSWithSequenceId = Lists.newArrayList();
+  private void sendMessage(String message, List<Member> recipients) {
+    incrementSequenceId();
+    awakenSnoozers();
+    put();
+
+    String messageWithSequenceId = message + " (" + sequenceId + ")";
+
+    List<JID> withSequenceId = Lists.newArrayList();
+    List<JID> noSequenceId = Lists.newArrayList();
     for (Member m : recipients) {
       if (m.debugOptions().isEnabled("sequenceIds")) {
-        recipientJIDSWithSequenceId.add(new JID(m.getJID()));
+        withSequenceId.add(new JID(m.getJID()));
       } else {
-        recipientJIDS.add(new JID(m.getJID()));
+        noSequenceId.add(new JID(m.getJID()));
       }
     }
-    SendUtil.sendMessage(message, serverJID(), recipientJIDS.toArray(new JID[]{}));
-    SendUtil.sendMessage(message + " (" + sequenceId + ")",
-                         serverJID(),
-                         recipientJIDSWithSequenceId.toArray(new JID[]{}));
-  }
 
-  public void broadcast(String message, Member sender) {
-    incrementSequenceId();
-    awakenSnoozers();
-    put();
-    sendMessage(message, getMembersToSendTo(sender));
+    SendUtil.sendMessage(message, serverJID(), noSequenceId);
+    SendUtil.sendMessage(messageWithSequenceId, serverJID(),
+                         withSequenceId);
   }
   
+  public void sendDirect(String message, Member recipient) {
+    SendUtil.sendMessage(message,
+                         serverJID(),
+                         Lists.newArrayList(new JID(recipient.getJID())));
+  }
+  
+  public void broadcast(String message, Member sender) {
+    sendMessage(message, getMembersToSendTo(sender));
+  }
+
   public void broadcastIncludingSender(String message) {
-    incrementSequenceId();
-    awakenSnoozers();
-    put();
-    sendMessage(message, getMembersToSendTo());    
+    sendMessage(message, getMembersToSendTo());
   }
 
   private void awakenSnoozers() {
@@ -269,14 +267,43 @@ public class Channel implements Serializable {
       broadcastIncludingSender(sb.toString());
     }
   }
-  
+
   public void incrementSequenceId() {
-    if (sequenceId == null) {
-      sequenceId = 0;
-    }
     ++sequenceId;
     if (sequenceId >= 100) {
       sequenceId = 0;
+    }
+  }
+  
+  public void fixUp() {
+    boolean shouldPut = false;
+    if (sequenceId == null) {
+      sequenceId = 0;
+      shouldPut = true;
+    }
+    if (members == null) {
+      members = Sets.newHashSet();
+      shouldPut = true;
+    }
+    if (inviteOnly == null) {
+      inviteOnly = false; 
+      shouldPut = true;
+    }
+    if (invitedIds == null) {
+      invitedIds = Lists.newArrayList();
+      shouldPut = true;
+    }
+    if ((membersV2 == null) ||
+        (members.size() != membersV2.size())) {
+      membersV2 = Sets.newHashSet(members);
+    }
+    for (Member m : mutableMembers()) {
+      if (m.fixUp(this)) {
+        shouldPut = true;
+      }
+    }
+    if (shouldPut) {
+      put();
     }
   }
 }

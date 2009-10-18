@@ -12,6 +12,7 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.server.command.Command;
 
@@ -62,6 +63,8 @@ public class PartychappServlet extends HttpServlet {
 
   private void handleEcho(com.imjasonh.partychapp.Message message) {
     LOG.severe("Body of message sent to echo@ is: " + message.content);
-    SendUtil.sendDirect("echo: " + message.content, message.userJID, message.serverJID);
+    SendUtil.sendMessage("echo: " + message.content,
+                         message.serverJID,
+                         Lists.newArrayList(message.userJID));
   }
 }

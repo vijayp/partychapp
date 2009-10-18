@@ -2,7 +2,6 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class AliasHandler extends SlashCommand {
   
@@ -17,14 +16,14 @@ public class AliasHandler extends SlashCommand {
     String oldAlias = msg.member.getAlias();
     if (alias == null || !alias.matches(ALIAS_REGEX)) {
       String reply = "That alias contains invalid characters";
-      SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+      msg.channel.sendDirect(reply, msg.member);
       return;
     }
 
     for (Member m : msg.channel.getMembers()) {
       if (m.getAlias().equals(alias)) {
         String reply = "That alias is already taken";
-        SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+        msg.channel.sendDirect(reply, msg.member);
         return;
       }
     }
@@ -33,7 +32,7 @@ public class AliasHandler extends SlashCommand {
     msg.channel.put();
     
     String youMsg = "You are now known as '" + alias + "'";
-    SendUtil.sendDirect(youMsg, msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(youMsg, msg.member);
 
     String reply = "'" + oldAlias + "' is now known as '" + alias + "'";
     msg.channel.broadcastIncludingSender(reply);

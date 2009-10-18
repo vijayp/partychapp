@@ -6,7 +6,6 @@ import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class ReasonsHandler extends SlashCommand {
 
@@ -25,7 +24,7 @@ public class ReasonsHandler extends SlashCommand {
       sb.append(r.sender().getJID());
       sb.append(" (" + r.reason() + ")\n");
     }
-    SendUtil.sendDirect(sb.toString().trim(), msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(sb.toString().trim(), msg.member);
   }
 
   public String documentation() {

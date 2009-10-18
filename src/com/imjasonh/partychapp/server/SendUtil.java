@@ -1,6 +1,6 @@
 package com.imjasonh.partychapp.server;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,7 +10,9 @@ import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.google.appengine.api.xmpp.SendResponse.Status;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Configuration;
 
 public abstract class SendUtil {
   private static XMPPService XMPP = XMPPServiceFactory.getXMPPService();
@@ -22,7 +24,7 @@ public abstract class SendUtil {
   }
 
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
-    sendMessage(msg, serverJID, userJID);
+    sendMessage(msg, serverJID, Lists.newArrayList(userJID));
   }
 
   public static boolean getPresence(JID userJID) {
@@ -36,13 +38,13 @@ public abstract class SendUtil {
   /**
    * Sends a message, logs unsuccessful sends.
    */
-  public static void sendMessage(String msg, JID fromJID, JID... toJIDs) {
-    if (!fromJID.getId().contains("appspotchat.com")) {
+  public static void sendMessage(String msg, JID fromJID, List<JID> toJIDs) {
+    if (!fromJID.getId().contains(Configuration.chatDomain)) {
       throw new RuntimeException(fromJID
         + " is not a server JID but is being used as the from");
     }
 
-    if (toJIDs == null || toJIDs.length == 0) {
+    if (toJIDs == null || toJIDs.isEmpty()) {
       return;
     }
 
@@ -50,10 +52,12 @@ public abstract class SendUtil {
     try {
       response =
         XMPP.sendMessage(new MessageBuilder().withBody(msg)
-                .withFromJid(fromJID).withRecipientJids(toJIDs).build());
+                .withFromJid(fromJID)
+                .withRecipientJids(toJIDs.toArray(new JID[]{}))
+                .build());
     } catch (RuntimeException e) {
       LOG.log(Level.SEVERE, "Got exception while sending msg '" + msg
-        + "' from " + fromJID + " to " + Arrays.toString(toJIDs), e);
+        + "' from " + fromJID + " to " + toJIDs.toString(), e);
       return;
     }
 

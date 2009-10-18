@@ -19,7 +19,6 @@ public class BroadcastHandlerTest extends TestCase {
     SendUtil.setXMPP(xmpp);
   }
 
-  
   public void testAddToLastMessages() {
     handler.doCommand(Message.createForTests("test"));
     
@@ -27,5 +26,8 @@ public class BroadcastHandlerTest extends TestCase {
         FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").getLastMessages();
     assertEquals(1, lastMessages.size());
     assertEquals("test", lastMessages.get(0));
+  }
+  
+  public void testWithMultipleVersions() {
   }
 }

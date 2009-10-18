@@ -33,7 +33,7 @@ public class DebugHandlerTest extends TestCase {
     assertEquals("enabling sequenceIds for you",
                  xmpp.messages.get(0).getBody());
   }
-  
+
   public void testClear() {
     handler.doCommand(Message.createForTests("/debug sequenceIds"));
     assertTrue(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));

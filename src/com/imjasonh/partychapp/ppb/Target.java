@@ -4,6 +4,8 @@
 package com.imjasonh.partychapp.ppb;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
@@ -11,6 +13,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
@@ -19,7 +22,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Target implements Serializable {
   private static final long serialVersionUID = 32874987598375313L;
-  
+   
   @Persistent
   @PrimaryKey
   private String key; 
@@ -89,5 +92,21 @@ public class Target implements Serializable {
   
   public String toString() {
     return "Target: [Key: [" + key() + "], score: " + score + "]";
+  }
+  
+  public void fixUp(List<Reason> allReasons) {
+    List<Reason> copiedReasons = Lists.newArrayList(allReasons);
+    Collections.reverse(copiedReasons);
+    int rightScore = 0;
+    for (Reason r : copiedReasons) {
+      rightScore += r.action().isPlusPlus() ? 1 : -1;
+      if (rightScore != r.scoreAfter()) {
+        r.fixUp(rightScore);
+      }
+    }
+    if (rightScore != score()) {
+      score = rightScore;
+      put();
+    }
   }
 }

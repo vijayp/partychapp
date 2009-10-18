@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -38,11 +39,15 @@ public class Member implements Serializable {
   private Date snoozeUntil;
   
   @Persistent(serialized = "true")
-  private List<String> lastMessages;
+  private List<String> lastMessages = Lists.newArrayList();
 
   @Persistent(serialized = "true")
-  private DebuggingOptions debugOptions;
+  private DebuggingOptions debugOptions = new DebuggingOptions();
   
+  //@Persistent
+  @NotPersistent
+  private Channel channel;
+
   public enum SnoozeStatus {
     SNOOZING,
     NOT_SNOOZING,
@@ -52,9 +57,12 @@ public class Member implements Serializable {
   public Member(Channel c, JID jid) {
     this.jid = jid.getId().split("/")[0]; // remove anything after "/"
     this.alias = this.jid.split("@")[0]; // remove anything after "@" for default alias
+    this.debugOptions = new DebuggingOptions();
+    this.channel = c;
   }
   
   public Member(Member other) {
+    this.channel = other.channel;
     this.key = other.key;
     this.jid = other.jid;
     this.alias = other.alias;
@@ -110,9 +118,6 @@ public class Member implements Serializable {
   }
   
   private List<String> mutableLastMessages() {
-    if (lastMessages == null) {
-      lastMessages = Lists.newArrayList();
-    }
     return lastMessages;
   }
 
@@ -129,9 +134,31 @@ public class Member implements Serializable {
   }
 
   public DebuggingOptions debugOptions() {
+    return debugOptions;
+  }
+
+  public boolean fixUp(Channel c) {
+    boolean shouldPut = false;
+    if (channel != c) {
+      channel = c;
+      //shouldPut = true;
+    }
     if (debugOptions == null) {
       debugOptions = new DebuggingOptions();
+      shouldPut = true;
     }
-    return debugOptions;
+    if (lastMessages == null) {
+      lastMessages = Lists.newArrayList();
+      shouldPut = true;
+    }
+    return shouldPut;
+  }
+  
+  public void put() {
+    channel.put();
+  }
+
+  public Key key() {
+    return key;
   }
 }

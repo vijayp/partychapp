@@ -47,7 +47,7 @@ public class ListHandler extends SlashCommand {
     for (String invitee : msg.channel.getInvitees()) {
       sb.append("\nInvited: ").append(invitee);
     }
-    SendUtil.sendDirect(sb.toString(), msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(sb.toString(), msg.member);
   }
   
   public String documentation() {

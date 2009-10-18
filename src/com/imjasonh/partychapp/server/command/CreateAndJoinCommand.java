@@ -2,7 +2,6 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 /**
  * Action taken when a user messages a channel that does not exist yet. Channel is created and user
@@ -21,7 +20,7 @@ public class CreateAndJoinCommand implements CommandHandler {
     msg.channel.put();
     String reply = "The channel '" + msg.channel.getName() + "' has been created, " +
         "and you have joined with the alias '" + msg.member.getAlias() + "'";
-    SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(reply, msg.member);
     
     Command.getCommandHandler(msg).doCommand(msg);
   }

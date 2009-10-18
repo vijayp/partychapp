@@ -12,18 +12,15 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.api.xmpp.Message;
-import com.google.appengine.api.xmpp.XMPPService;
 import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
 public class WebServlet extends HttpServlet {
 
+  @SuppressWarnings("unused")
   private static final Logger LOG = Logger.getLogger(WebServlet.class.getName());
-
-  private XMPPService XMPP;
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -32,7 +29,6 @@ public class WebServlet extends HttpServlet {
     User user = userService.getCurrentUser();
   
     resp.getWriter().write("<style>body { font-family: Helvetica, sans-serif }</style>");
-    boolean isCreate = req.getParameter("Create a new room") != null;
     String name = req.getParameter("name");
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
@@ -42,19 +38,23 @@ public class WebServlet extends HttpServlet {
       return;
     }
     // TODO: Get this programatically
-    channel = new Channel(new JID(name + "@partychapp.appspotchat.com"));
+    JID serverJID = new JID(name + "@" + Configuration.chatDomain);
+    channel = new Channel(serverJID);
     channel.addMember(new JID(user.getEmail())); // need / ?
-    SendUtil.invite(user.getEmail(), channel.serverJID());
+    SendUtil.invite(user.getEmail(), serverJID);
     
-    if ("true".equals(req.getParameter("inviteOnly"))) {
+    // works for "true" ignoring case
+    if (Boolean.parseBoolean(req.getParameter("inviteOnly"))) {
       channel.setInviteOnly(true);
     }
     
     for (String invitee : req.getParameter("invitees").split(",")) {
       invitee = invitee.trim();
-      if (!"".equals(invitee)) {
+      if (!invitee.isEmpty()) {        
+        resp.getWriter().write("Could not add " + invitee + ". It is not a valid email address.");
+
         channel.invite(invitee);
-        SendUtil.invite(invitee, channel.serverJID());
+        SendUtil.invite(invitee, serverJID);
       }
     }
 
@@ -63,37 +63,5 @@ public class WebServlet extends HttpServlet {
     resp.getWriter().write(
         "Created! Just accept the chat request and start talking. " +
     		"To add users later, type '/invite user@whatever.com'.");
-  }
-
-  public void doXmpp(Message xmppMessage) {
-    Datastore.instance().startRequest();
-    
-    JID userJID = xmppMessage.getFromJid();
-
-    JID serverJID = xmppMessage.getRecipientJids()[0]; // should only be "to" one jid, right?
-    String channelName = serverJID.getId().split("@")[0];
-
-    String body = xmppMessage.getBody().trim();
-
-    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
-
-    if (channelName.equalsIgnoreCase("echo")) {
-      handleEcho(message);
-      return;
-    }
-
-    message.channel = Datastore.instance().getChannelByName(channelName);
-    if (message.channel != null) {
-      message.member = message.channel.getMemberByJID(userJID);
-    }
-
-    Command.getCommandHandler(message).doCommand(message);
-    
-    Datastore.instance().endRequest();
-  }
-
-  private void handleEcho(com.imjasonh.partychapp.Message message) {
-    LOG.severe("Body of message sent to echo@ is: " + message.content);
-    SendUtil.sendDirect("echo: " + message.content, message.userJID, message.serverJID);
   }
 }

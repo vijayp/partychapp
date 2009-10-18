@@ -118,4 +118,9 @@ public class Reason implements Serializable {
     sb.append("now at " + scoreAfter() + "]");
     return sb.toString();
   }
+  
+  public void fixUp(int rightScore) {
+    scoreAfter = rightScore;
+    put();
+  }
 }

@@ -11,7 +11,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot;
 
 public class SearchReplaceHandler implements CommandHandler {
   private static Pattern pattern =
-      Pattern.compile("^(" + AliasHandler.ALIAS_REGEX + ": )?s/([^/]+)/([^/]+)(/?)(g?)$");
+      Pattern.compile("^(" + AliasHandler.ALIAS_REGEX + ": )?s/([^/]+)/([^/]*)(/?)(g?)$");
 
   PlusPlusBot ppb = new PlusPlusBot();
   PPBHandler ppbHandler = new PPBHandler();

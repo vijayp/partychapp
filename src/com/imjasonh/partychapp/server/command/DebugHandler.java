@@ -1,7 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
+
 
 public class DebugHandler extends SlashCommand {
   public DebugHandler() {
@@ -25,7 +25,7 @@ public class DebugHandler extends SlashCommand {
     } else {
       reply = "Your current debug options are: " + msg.member.debugOptions();
     }
-    SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(reply, msg.member);
   }
 
   public String documentation() {

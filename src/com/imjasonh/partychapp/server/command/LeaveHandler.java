@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class LeaveHandler extends SlashCommand {
   
@@ -15,7 +14,7 @@ public class LeaveHandler extends SlashCommand {
     msg.channel.removeMember(msg.member);
     msg.channel.put();
     String youMsg = "You have left the room '" + msg.channel.getName() + "'";
-    SendUtil.sendDirect(youMsg, msg.userJID, msg.serverJID);
+    msg.channel.sendDirect(youMsg, msg.member);
 
     String reply = msg.member.getAlias() + " has left the room (" + msg.member.getJID() + ")";
     msg.channel.broadcast(reply, msg.member);

@@ -8,7 +8,7 @@ public class Message {
     JID userJID = new JID("neil@gmail.com");
     return new Message(content,
                        userJID,
-                       new JID("pancake@partychat.appspotchat.com"),
+                       new JID("pancake@partychapp.appspotchat.com"),
                        c.getMemberByJID(userJID),
                        c);
   }
@@ -24,7 +24,7 @@ public class Message {
 
   public final String content;
   public final JID userJID;
-  public final JID serverJID;
+  public JID serverJID;
   public Member member;
   public Channel channel;
   

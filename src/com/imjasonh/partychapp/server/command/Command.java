@@ -3,7 +3,7 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 
 public enum Command {
-  // these have to be first
+  // these implicit handlers have to be first
   CREATE_AND_JOIN(new CreateAndJoinCommand()),
   JOIN(new JoinCommand()),
   
@@ -14,7 +14,6 @@ public enum Command {
   ALIAS(new AliasHandler()),
   SCORE(new ScoreHandler()),
   REASONS(new ReasonsHandler()),
-  PLUSPLUSBOT(new PPBHandler()),
   ME(new MeHandler()),
   INVITE(new InviteHandler()),
   INVITE_ONLY(new InviteOnlyHandler()),
@@ -23,9 +22,11 @@ public enum Command {
   SUMMON(new SummonHandler()),
   UNDO(new UndoHandler()),
   DEBUG(new DebugHandler()),
+  STATS(new StatsHandler()),
   
-  // this has to be after the slash-commands
+  // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
+  PLUSPLUSBOT(new PPBHandler()),
 
   // this has to be last
   BROADCAST(new BroadcastHandler()),
