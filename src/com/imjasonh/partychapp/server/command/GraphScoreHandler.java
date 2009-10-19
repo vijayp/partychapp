@@ -24,9 +24,9 @@ public class GraphScoreHandler extends SlashCommand {
   public void doCommand(Message msg, String argument) {
     int lo = 0;
     int hi = 0;
-    String y = "";
-    String encodedTargets = "";
-    String legend = "";
+    StringBuffer y = new StringBuffer();
+    StringBuffer encodedTargets = new StringBuffer();
+    StringBuffer legend = new StringBuffer();
 
     String[] targets = argument.split(" ");
     for (String t : targets) {
@@ -36,45 +36,55 @@ public class GraphScoreHandler extends SlashCommand {
         return;
       }
       
+      String encoded = "";
       try {
-        if (!encodedTargets.isEmpty()) {
-          encodedTargets += ",";
-          legend += "|";
-        }
-        encodedTargets += URLEncoder.encode(target.name(), "UTF-8");
-        legend += URLEncoder.encode(target.name(), "UTF-8");
+        encoded = URLEncoder.encode(target.name(), "UTF-8");
       } catch (UnsupportedEncodingException e) {}
+
+      if (encodedTargets.length() > 0) {
+        encodedTargets.append(",");
+        legend.append("|");
+      }
+      encodedTargets.append(encoded);
+      legend.append(encoded);
       
       List<Reason> reasons = Lists.newArrayList(Datastore.instance().getReasons(target, 0));
       // make it oldest-to-newest order
       Collections.reverse(reasons);
   
-      // start t=0,score=0
-      if (!y.isEmpty()) {
-        y += "|";
+      if (y.length() > 0) {
+        y.append("|");
       }
-      y += "0";
+      // start t=0,score=0
+      y.append("0");
       for (Reason r : reasons) {
         lo = Math.min(lo, r.scoreAfter());
         hi = Math.max(hi, r.scoreAfter());
 
-        y += "," + r.scoreAfter();
+        y.append("," + r.scoreAfter());
       }
     }
     
+    StringBuffer url = new StringBuffer("http://chart.apis.google.com/chart?chs=600x500&cht=lc");
+    // labels for lines
+    url.append("&chl=" + encodedTargets);
+    // data
+    url.append("&chd=t:" + y);
+    // scaling factor
+    url.append("&chds=" + lo + "," + hi);
+    // title
+    url.append("&chtt=score+graph+for+" + encodedTargets);
+    // dimensions
+    url.append("&chxt=y&chxr=0," + lo + "," + hi);
+    // colors
+    url.append("&chco=FF0000,0000FF,00FF00");
+    // legend
+    url.append("&chdl=" + legend);
+    // line at y=0
     Double zeroBar = ((double)(0-lo)/(hi-lo));
-    
-    String url = "http://chart.apis.google.com/chart?chs=600x500&cht=lc";
-    url += "&chl=" + encodedTargets;
-    url += "&chd=t:" + y;
-    url += "&chds=" + lo + "," + hi;
-    url += "&chtt=score+graph+for+" + encodedTargets;
-    url += "&chxt=y&chxr=0," + lo + "," + hi;
-    url += "&chco=FF0000,0000FF,00FF00";
-    url += "&chdl=" + legend;
-    url += "&chm=r,000000,0," + roundToThreePlaces(zeroBar) + "," + roundToThreePlaces(zeroBar + .001); 
+    url.append("&chm=r,000000,0," + roundToThreePlaces(zeroBar) + "," + roundToThreePlaces(zeroBar + .001)); 
 
-    msg.channel.sendDirect(url, msg.member);
+    msg.channel.sendDirect(url.toString(), msg.member);
   }
 
   public String documentation() {
