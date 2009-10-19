@@ -23,6 +23,7 @@ public enum Command {
   UNDO(new UndoHandler()),
   DEBUG(new DebugHandler()),
   STATS(new StatsHandler()),
+  GRAPH_SCORES(new GraphScoreHandler()),
   
   // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),

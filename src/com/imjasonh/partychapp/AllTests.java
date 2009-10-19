@@ -8,6 +8,7 @@ import com.imjasonh.partychapp.server.PartychappServletTest;
 import com.imjasonh.partychapp.server.command.AliasHandlerTest;
 import com.imjasonh.partychapp.server.command.BroadcastHandlerTest;
 import com.imjasonh.partychapp.server.command.DebugHandlerTest;
+import com.imjasonh.partychapp.server.command.GraphScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.InviteHandlerTest;
 import com.imjasonh.partychapp.server.command.LeaveHandlerTest;
 import com.imjasonh.partychapp.server.command.ListHandlerTest;
@@ -44,6 +45,7 @@ public class AllTests {
     suite.addTestSuite(DebugHandlerTest.class);
     suite.addTestSuite(InviteHandlerTest.class);
     suite.addTestSuite(StatsHandlerTest.class);
+    suite.addTestSuite(GraphScoreHandlerTest.class);
     // $JUnit-END$
     return suite;
   }
