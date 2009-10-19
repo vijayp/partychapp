@@ -32,7 +32,7 @@ public class GraphScoreHandler extends SlashCommand {
     for (String t : targets) {
       Target target = Datastore.instance().getTarget(msg.channel, t);
       if (target == null) {
-        msg.channel.sendDirect("no target '" + argument + "'", msg.member);
+        msg.channel.sendDirect("no target '" + t + "'", msg.member);
         return;
       }
       
