@@ -19,23 +19,16 @@ public class GraphScoreHandlerTest extends TestCase {
   }
   
   public void testSimple() {
-    ppb.doCommand(Message.createForTests("x++"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x++"));
-    ppb.doCommand(Message.createForTests("x++"));
-    ppb.doCommand(Message.createForTests("x++"));
-    ppb.doCommand(Message.createForTests("x++"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x--"));
-    ppb.doCommand(Message.createForTests("x--"));
+    String[] messages = { "x++", "x--", "x++", "x++", "x++", "x++", "x--", "x--", "x--", "x--", "x--", "x--", "x--",
+           "y++", "y--", "y--", "y--", "y--", "y++", "y++", "y++", "y++", "y++", "y++", };
+    for (String m : messages) {
+      ppb.doCommand(Message.createForTests(m));
+    }
     xmpp.messages.clear();
-    
-    handler.doCommand(Message.createForTests("/graph-score x"));
+
+    handler.doCommand(Message.createForTests("/graph-score x y"));
     String url = xmpp.messages.get(0).getBody();
-    assertEquals("", url);
+    // I don't really care about the URL contents.
+    assertTrue(url.startsWith("http://"));
   }
 }
