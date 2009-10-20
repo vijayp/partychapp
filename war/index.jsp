@@ -75,6 +75,6 @@ Or you can add [roomname]@partychapp.appspotchat.com to your buddy list and send
   <h3>Is this thing on?</h3>
   <p>Partychapp is alpha software, and under active development.  Sometimes things will break.
   If you suspect that Partychapp may be messing up, you can send a message to <b>echo</b>@partychapp.appspotchat.com.
-  If Partychapp is working, it will send back an echo.  If not, <a href="mailto:imjasonh@gmail.com">e-mail or IM me</a> and I'll try desperately to fix it.</p>
+  If Partychapp is working, it will send back an echo.  If not, <a href="mailto:partychapp@googlegroups.com">e-mail or IM me</a> and I'll try desperately to fix it.</p>
   </body>
 </html>
