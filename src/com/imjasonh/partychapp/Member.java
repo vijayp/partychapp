@@ -117,6 +117,14 @@ public class Member implements Serializable {
     return snoozeUntil;
   }
   
+  public boolean unsnoozeIfNecessary() {
+    if (getSnoozeStatus() == SnoozeStatus.SHOULD_WAKE) {
+      setSnoozeUntil(null);
+      return true;
+    }
+    return false;
+  }
+  
   private List<String> mutableLastMessages() {
     return lastMessages;
   }
@@ -126,6 +134,7 @@ public class Member implements Serializable {
   }
   
   public void addToLastMessages(String toAdd) {
+    setSnoozeUntil(null);
     List<String> messages = mutableLastMessages();
     messages.add(0, toAdd);
     if (messages.size() > 10) {

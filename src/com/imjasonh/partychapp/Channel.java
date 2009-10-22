@@ -252,8 +252,7 @@ public class Channel implements Serializable {
     // awaken snoozers and broadcast them awaking.
     Set<Member> awoken = Sets.newHashSet();
     for (Member member : getMembers()) {
-      if (member.getSnoozeStatus() == SnoozeStatus.SHOULD_WAKE) {
-        member.setSnoozeUntil(null);
+      if (member.unsnoozeIfNecessary()) {
         awoken.add(member);
       }
     }

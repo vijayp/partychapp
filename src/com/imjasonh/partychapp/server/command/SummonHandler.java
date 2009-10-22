@@ -37,6 +37,10 @@ public class SummonHandler extends SlashCommand {
       msg.channel.broadcastIncludingSender(reply);
       return;
     }
+    if (toSummon.unsnoozeIfNecessary()) {
+      toSummon.put();
+      msg.channel.broadcastIncludingSender("_" + toSummon.getAlias() + " is no longer snoozing_");
+    }
     String emailBody = msg.member.getAlias() + " has summoned you to '" + msg.channel.getName() + "'.";
     String reply = "_" + msg.member.getAlias() + " summoned " + toSummon.getAlias() + "_";
 

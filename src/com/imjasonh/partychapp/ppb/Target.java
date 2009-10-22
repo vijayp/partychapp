@@ -22,7 +22,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Target implements Serializable {
   private static final long serialVersionUID = 32874987598375313L;
-   
+     
   @Persistent
   @PrimaryKey
   private String key; 

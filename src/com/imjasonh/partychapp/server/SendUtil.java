@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.SendResponse;
+import com.google.appengine.api.xmpp.XMPPFailureException;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.google.appengine.api.xmpp.SendResponse.Status;
@@ -28,7 +29,12 @@ public abstract class SendUtil {
   }
 
   public static boolean getPresence(JID userJID) {
-    return XMPP.getPresence(userJID).isAvailable();
+    try {
+      return XMPP.getPresence(userJID).isAvailable();
+    } catch (XMPPFailureException e) {
+      LOG.log(Level.WARNING, "got exception while getting presence for " + userJID, e);
+      return false;
+    }
   }
 
   public static void invite(String email, JID serverJID) {
