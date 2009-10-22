@@ -37,7 +37,8 @@ public class SummonHandler extends SlashCommand {
       msg.channel.broadcastIncludingSender(reply);
       return;
     }
-    if (toSummon.unsnoozeIfNecessary()) {
+    if (toSummon.getSnoozeUntil() != null) {
+      toSummon.setSnoozeUntil(null);
       toSummon.put();
       msg.channel.broadcastIncludingSender("_" + toSummon.getAlias() + " is no longer snoozing_");
     }
