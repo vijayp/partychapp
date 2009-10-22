@@ -24,7 +24,8 @@ public enum Command {
   DEBUG(new DebugHandler()),
   STATS(new StatsHandler()),
   GRAPH_SCORES(new GraphScoreHandler()),
-  
+  SNOOZE(new SnoozeHandler()),
+
   // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
   PLUSPLUSBOT(new PPBHandler()),

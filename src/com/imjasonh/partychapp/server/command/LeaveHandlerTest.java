@@ -30,6 +30,6 @@ public class LeaveHandlerTest extends TestCase {
                  xmpp.messages.get(0).getBody());
     assertEquals("neil has left the room (neil@gmail.com)",
                  xmpp.messages.get(1).getBody());
-
+    assertNull(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil"));
   }
 }

@@ -42,24 +42,24 @@ public class PPBHandlerTest extends TestCase {
   
   public void testSimple() {
     assertResponse("mihai++ for knowing things",
-                   "[\"neil\"] mihai++ [woot! now at 1] for knowing things");
+                   "[neil] mihai++ [woot! now at 1] for knowing things");
   }
 
   public void testInlineEdit() {
     assertResponse("whee x++ and y-- boo",
-                   "[\"neil\"] whee x++ [woot! now at 1] and y-- [ouch! now at -1] boo");
+                   "[neil] whee x++ [woot! now at 1] and y-- [ouch! now at -1] boo");
   }
 
   public void testNothingAtEnds() {
     assertResponse("x++ y-- z++",
-                   "[\"neil\"] x++ [woot! now at 1] y-- [ouch! now at -1] z++ [woot! now at 1]");
+                   "[neil] x++ [woot! now at 1] y-- [ouch! now at -1] z++ [woot! now at 1]");
   }
   
   public void testNoEchoIfOnlyOnBlacklist() {
     ppb.doCommand(Message.createForTests("blah c++ nyah"));
 
     assertEquals(1, xmpp.messages.size());
-    assertEquals("[\"neil\"] blah c++ nyah", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] blah c++ nyah", xmpp.messages.get(0).getBody());
 
     assertFalse(hasJID("neil@gmail.com"));
   }

@@ -5,7 +5,7 @@ import com.imjasonh.partychapp.Message;
 public class LeaveHandler extends SlashCommand {
   
   LeaveHandler() {
-    super("leave", "exit");
+    super("leave", "exit", "part");
   }
 
   @Override
@@ -21,6 +21,6 @@ public class LeaveHandler extends SlashCommand {
   }
   
   public String documentation() {
-	  return "/leave - leave the room";
+    return "/leave - leave the room";
   }
 }

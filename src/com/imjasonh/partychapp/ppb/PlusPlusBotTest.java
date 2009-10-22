@@ -70,20 +70,15 @@ public class PlusPlusBotTest extends TestCase {
     assertReasonEquals(content, "rohit", 1, Action.PLUSPLUS, reasons.get(3));
   }
 
-  public void testNoDoubleUp() {
-    // this should only trigger once
-    String content = "nsanch-- nsanch-- nsanch++";
-    Reason r = runAndGetOneReason(content);
-    assertReasonEquals(content, "nsanch", -1, Action.MINUSMINUS, r);
-  }
-
-  public void testDoubleUpWithOverride() {
+  public void testDoubleUp() {
     // this should trigger twice
-    String content = "nsanch-- nsanch-- /combine";
+    String content = "nsanch-- nsanch-- nsanch++ nsanch--";
     List<Reason> reasons = runAndGetReasons(content);
-    assertEquals(2, reasons.size());    
+    assertEquals(4, reasons.size());    
     assertReasonEquals(content, "nsanch", -1, Action.MINUSMINUS, reasons.get(0));
     assertReasonEquals(content, "nsanch", -2, Action.MINUSMINUS, reasons.get(1));
+    assertReasonEquals(content, "nsanch", -1, Action.PLUSPLUS, reasons.get(2));
+    assertReasonEquals(content, "nsanch", -2, Action.MINUSMINUS, reasons.get(3));
   }
 
   public void testTwoInARow() {

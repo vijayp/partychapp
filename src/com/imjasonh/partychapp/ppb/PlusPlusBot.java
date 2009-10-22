@@ -70,7 +70,6 @@ public class PlusPlusBot {
     Set<Target> targets = Sets.newHashSet();
     Map<String, Target> alreadyFetched = Maps.newHashMap();
     Map<String, Integer> scores = Maps.newHashMap();
-    boolean hasOverride = msg.content.contains("/combine");
     Matcher m = pattern.matcher(msg.content);
     while (m.find()) {
       String target = m.group(1).toLowerCase();
@@ -91,11 +90,7 @@ public class PlusPlusBot {
         alreadyFetched.put(target, t);
       }
       Action a = action.equals("--") ? Action.MINUSMINUS : Action.PLUSPLUS;
-      if (targets.contains(t) && !hasOverride) {
-        continue;
-      } else {
-        targets.add(t);
-      }
+      targets.add(t);
       if (mutateObjects) {
         reasons.add(t.takeAction(msg.member, a, msg.content));
       } else {

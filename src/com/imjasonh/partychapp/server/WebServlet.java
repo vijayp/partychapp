@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -12,9 +13,11 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.server.command.InviteHandler;
 
 @SuppressWarnings("serial")
 public class WebServlet extends HttpServlet {
@@ -47,16 +50,14 @@ public class WebServlet extends HttpServlet {
     if (Boolean.parseBoolean(req.getParameter("inviteOnly"))) {
       channel.setInviteOnly(true);
     }
-    
-    for (String invitee : req.getParameter("invitees").split(",")) {
-      invitee = invitee.trim();
-      if (!invitee.isEmpty()) {        
-        resp.getWriter().write("Could not add " + invitee + ". It is not a valid email address.");
 
-        channel.invite(invitee);
-        SendUtil.invite(invitee, serverJID);
-      }
+    List<String> invitees = Lists.newArrayList();
+    String error = InviteHandler.parseEmailAddresses(req.getParameter("invitees"), invitees);
+    for (String invitee : invitees) {
+      channel.invite(invitee);
+      SendUtil.invite(invitee, serverJID);
     }
+    resp.getWriter().write(error);
 
     channel.put();
     datastore.endRequest();

@@ -78,7 +78,7 @@ public class Member implements Serializable {
   }
   
   public String getAliasPrefix() {
-    return "[\"" + alias + "\"] ";
+    return "[" + alias + "] ";
   }
 
   public void setAlias(String alias) {

@@ -17,6 +17,7 @@ import com.imjasonh.partychapp.server.command.PPBHandlerTest;
 import com.imjasonh.partychapp.server.command.ReasonsHandlerTest;
 import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.SearchReplaceHandlerTest;
+import com.imjasonh.partychapp.server.command.SnoozeHandlerTest;
 import com.imjasonh.partychapp.server.command.StatsHandlerTest;
 import com.imjasonh.partychapp.server.command.StatusHandlerTest;
 import com.imjasonh.partychapp.server.command.SummonHandlerTest;
@@ -46,6 +47,7 @@ public class AllTests {
     suite.addTestSuite(InviteHandlerTest.class);
     suite.addTestSuite(StatsHandlerTest.class);
     suite.addTestSuite(GraphScoreHandlerTest.class);
+    suite.addTestSuite(SnoozeHandlerTest.class);
     // $JUnit-END$
     return suite;
   }

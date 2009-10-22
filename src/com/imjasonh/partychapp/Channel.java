@@ -89,9 +89,9 @@ public class Channel implements Serializable {
    * from invite list if invite-only room.
    */
   public Member addMember(JID jidToAdd) {
-    if (isInviteOnly()) {
-      String email = jidToAdd.getId().split("/")[0];
-      if (invitedIds == null || !invitedIds.remove(email.toLowerCase())) {
+    String email = jidToAdd.getId().split("/")[0];
+    if (invitedIds == null || !invitedIds.remove(email.toLowerCase())) {
+      if (isInviteOnly()) {
         throw new IllegalArgumentException("Not invited to this room");
       }
     }
@@ -260,9 +260,12 @@ public class Channel implements Serializable {
     
     if (!awoken.isEmpty()) {
       put();
-      StringBuilder sb = new StringBuilder().append("Members unsnoozed:");
+      StringBuilder sb = new StringBuilder();
       for (Member m : awoken) {
-        sb.append('\n').append(m.getAlias());
+        if (sb.length() > 0) {
+          sb.append("\n");
+        }
+        sb.append("_" + m.getAlias() + " is no longer snoozing_");
       }
       broadcastIncludingSender(sb.toString());
     }
@@ -286,7 +289,7 @@ public class Channel implements Serializable {
       shouldPut = true;
     }
     if (inviteOnly == null) {
-      inviteOnly = false; 
+      inviteOnly = false;  
       shouldPut = true;
     }
     if (invitedIds == null) {
@@ -298,6 +301,7 @@ public class Channel implements Serializable {
       membersV2 = Sets.newHashSet(members);
     }
     for (Member m : mutableMembers()) {
+      invitedIds.remove(m.getJID().toLowerCase());
       if (m.fixUp(this)) {
         shouldPut = true;
       }

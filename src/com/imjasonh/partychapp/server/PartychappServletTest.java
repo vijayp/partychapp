@@ -80,33 +80,33 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(true, "neil@gmail.com", "hi partychat"),
       new TestMessage(false, "neil@gmail.com", "The channel 'pancake' has been created, and you have joined with the alias 'neil'"),
       // doesn't get sent because the room is empty.
-      //"-neil@gmail.com", "[\"neil\"]s hi partychat"),
+      //"-neil@gmail.com", "[neil]s hi partychat"),
 
       new TestMessage(true, "neil@gmail.com", "okay, now the room should exist"),
       // doesn't get sent because the room is empty.
-      //"-neil@gmail.com", "[\"neil\"] okay, now the room should exist"),
+      //"-neil@gmail.com", "[neil] okay, now the room should exist"),
 
       new TestMessage(true, "jason@gmail.com", "i'm joining too!"),
       new TestMessage(false, "jason@gmail.com", "You have joined 'pancake' with the alias 'jason'"),
       new TestMessage(false, "-jason@gmail.com", "jason@gmail.com has joined the channel with the alias 'jason'"),
-      new TestMessage(false, "-jason@gmail.com", "[\"jason\"] i'm joining too!"),
+      new TestMessage(false, "-jason@gmail.com", "[jason] i'm joining too!"),
 
       new TestMessage(true, "neil@gmail.com", "jason++ for joining"),
-      new TestMessage(false, "#2", "[\"neil\"] jason++ [woot! now at 1] for joining"),
+      new TestMessage(false, "#2", "[neil] jason++ [woot! now at 1] for joining"),
 
       new TestMessage(true, "jason@gmail.com", "neil-- for bugs"),
-      new TestMessage(false, "#2", "[\"jason\"] neil-- [ouch! now at -1] for bugs"),
+      new TestMessage(false, "#2", "[jason] neil-- [ouch! now at -1] for bugs"),
       
       new TestMessage(true, "neil@gmail.com", "s/jason/intern/"),
-      new TestMessage(false, "-neil@gmail.com", "[\"neil\"] s/jason/intern/"),
+      new TestMessage(false, "-neil@gmail.com", "[neil] s/jason/intern/"),
       new TestMessage(false, "#2", "Undoing original actions: jason++ [back to 0]"),
       new TestMessage(false, "#2", "_neil meant intern++ [woot! now at 1] for joining_"),
 
       new TestMessage(true, "neil@gmail.com", "blah blah blah"),      
-      new TestMessage(false, "-neil@gmail.com", "[\"neil\"] blah blah blah"),
+      new TestMessage(false, "-neil@gmail.com", "[neil] blah blah blah"),
 
       new TestMessage(true, "neil@gmail.com", "s/blah/whee/"),
-      new TestMessage(false, "-neil@gmail.com", "[\"neil\"] s/blah/whee/"),
+      new TestMessage(false, "-neil@gmail.com", "[neil] s/blah/whee/"),
       new TestMessage(false, "#2", "_neil meant whee blah blah_"),
 
       new TestMessage(true, "neil@gmail.com", "/alias sanchito"),
@@ -114,7 +114,7 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(false, "#2", "'neil' is now known as 'sanchito'"),
       
       new TestMessage(true, "neil@gmail.com", "testing new alias"),
-      new TestMessage(false, "-neil@gmail.com", "[\"sanchito\"] testing new alias"),
+      new TestMessage(false, "-neil@gmail.com", "[sanchito] testing new alias"),
       
       new TestMessage(true, "neil@gmail.com", "/me hopes dolapo is happy"),
       new TestMessage(false, "#2", "_sanchito hopes dolapo is happy_"),
@@ -127,12 +127,12 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(false, "neil@gmail.com", "Listing members of 'pancake'\n* intern (jason@gmail.com)\n* sanchito (neil@gmail.com)"),
 
       new TestMessage(true, "neil@gmail.com", "this is a unicode TM symbol: \u2122"),
-      new TestMessage(false, "jason@gmail.com", "[\"sanchito\"] this is a unicode TM symbol: \u2122"),
+      new TestMessage(false, "jason@gmail.com", "[sanchito] this is a unicode TM symbol: \u2122"),
 
       new TestMessage(true, "kushal@kushaldave.com", "now i'm joining"),
       new TestMessage(false, "kushal@kushaldave.com", "You have joined 'pancake' with the alias 'kushal'"),
       new TestMessage(false, "-kushal@kushaldave.com", "kushal@kushaldave.com has joined the channel with the alias 'kushal'"),
-      new TestMessage(false, "-kushal@kushaldave.com", "[\"kushal\"] now i'm joining"),
+      new TestMessage(false, "-kushal@kushaldave.com", "[kushal] now i'm joining"),
 
       new TestMessage(true, "kushal@kushaldave.com", "/inviteonly"),
       new TestMessage(false, "#3", "_kushal set the room to invite-only._"),
@@ -146,31 +146,31 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(true, "david@gmail.com", "yay, now i can join"),
       new TestMessage(false, "david@gmail.com", "You have joined 'pancake' with the alias 'david'"),
       new TestMessage(false, "-david@gmail.com", "david@gmail.com has joined the channel with the alias 'david'"),
-      new TestMessage(false, "-david@gmail.com", "[\"david\"] yay, now i can join"),
+      new TestMessage(false, "-david@gmail.com", "[david] yay, now i can join"),
 
       new TestMessage(true, "david@gmail.com", "/status"),
       new TestMessage(false, "david@gmail.com", "You are currently in 'pancake' as 'david'"),
 
       new TestMessage(true, "david@gmail.com", "radioheda++"),
-      new TestMessage(false, "#4", "[\"david\"] radioheda++ [woot! now at 1]"),
+      new TestMessage(false, "#4", "[david] radioheda++ [woot! now at 1]"),
 
       new TestMessage(true, "david@gmail.com", "/undo"),
-      new TestMessage(false, "-david@gmail.com", "[\"david\"] /undo"),
+      new TestMessage(false, "-david@gmail.com", "[david] /undo"),
       new TestMessage(false, "#4", "Undoing original actions: radioheda++ [back to 0]"),
 
       new TestMessage(true, "neil@gmail.com", "/debug sequenceIds"),
       new TestMessage(false, "neil@gmail.com", "enabling sequenceIds for you"),
 
       new TestMessage(true, "jason@gmail.com", "test with sequenceIds on"),
-      new TestMessage(false, "#2", "[\"intern\"] test with sequenceIds on"),
-      new TestMessage(false, "neil@gmail.com", "[\"intern\"] test with sequenceIds on (27)"),
+      new TestMessage(false, "#2", "[intern] test with sequenceIds on"),
+      new TestMessage(false, "neil@gmail.com", "[intern] test with sequenceIds on (27)"),
 
       new TestMessage(true, "neil@gmail.com", "/debug"),
       new TestMessage(false, "neil@gmail.com", "Your current debug options are: [sequenceIds]"),
 
       new TestMessage(true, "jason@gmail.com", "test2++ with sequenceIds on"),
-      new TestMessage(false, "#3", "[\"intern\"] test2++ [woot! now at 1] with sequenceIds on"),
-      new TestMessage(false, "neil@gmail.com", "[\"intern\"] test2++ [woot! now at 1] with sequenceIds on (28)"),
+      new TestMessage(false, "#3", "[intern] test2++ [woot! now at 1] with sequenceIds on"),
+      new TestMessage(false, "neil@gmail.com", "[intern] test2++ [woot! now at 1] with sequenceIds on (28)"),
 
       new TestMessage(true, "neil@gmail.com", "/me is having fun with sequenceIds"),
       new TestMessage(false, "#3", "_sanchito is having fun with sequenceIds_"),
@@ -180,14 +180,14 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(false, "neil@gmail.com", "clearing all debug options"),
 
       new TestMessage(true, "jason@gmail.com", "test with sequenceIds off"),
-      new TestMessage(false, "#3", "[\"intern\"] test with sequenceIds off"),
+      new TestMessage(false, "#3", "[intern] test with sequenceIds off"),
       
       new TestMessage(true, "jason@gmail.com", "/alias jason--"),
       new TestMessage(false, "jason@gmail.com", "You are now known as 'jason--'"),
       new TestMessage(false, "#4", "'intern' is now known as 'jason--'"),
 
       new TestMessage(true, "neil@gmail.com", "/summon jason--"),
-      new TestMessage(false, "#3", "[\"sanchito\"] /summon jason--"),
+      new TestMessage(false, "#3", "[sanchito] /summon jason--"),
       new TestMessage(false, "#4", "_sanchito summoned jason--_"),
     };
 
