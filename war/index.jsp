@@ -16,11 +16,20 @@
     <title>Partychapp</title>
   </head>
   <body>
-  <h2>Welcome to Partychat</h2>
+  <div id="main">
+  <div style="font-size: 83%; color: #333">Welcome to</div>
+  <span id="title">Partychat</span>
   
-  <p>Partychapp lets you easily create chat rooms using XMPP/Google Talk accounts</p>
-  
-  <h3>Create a room!</h3>
+  <p>Create chat rooms with your friends or coworkers using Google Talk or XMPP.</p>
+
+  <h3>Why use Partychat?</h3>
+  <ul>
+    <li>Use whatever you use to chat already: GMail, Adium,...</li>
+    <li>Catch up on messages you miss while offline.</li>
+    <li>Built on reliable Google App Engine.</li>
+    <li>Easy to use, lots of <a href="#nowwhat">silly features</a>.</li>
+  </ul>
+  <h3>How do I create a room?</h3>
 
 <%
     UserService userService = UserServiceFactory.getUserService();
@@ -54,27 +63,41 @@ Email addresses you would like to invite? (separated by commas)<br>
 <%
     } else {
 %>
-The easiest way to create or join a room is to <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>.
+The easiest way to create a room is to <a style="font-weight: bold" href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a> and do it right here.
 <br/><br/>
 Or you can add [roomname]@partychapp.appspotchat.com to your buddy list and send it a message to join the room. If a room of that name doesn't exist, a new one will be created.
 <%
     }
 %>
 
+<h3>How do I join a room?</h3>
+The easiest way to join a room is to be invited. If the room has already been created, have someone in the room type <tt>/invite youremailaddress@gmail.com</tt>.
+<br><br>
+You should see an invitation from [roomname]@partychapp.appspotchat.com in your chat window. Accept the invitation, and then <b>send a message to your new buddy</b>, such as "hi." This will finish adding you to the room.
+<br><br>
+Alternatively, if a room is not invite-only, you can just add [roomname]@partychapp.appspotchat.com to your buddy list and send it a message.
 
+<a name="nowwhat">
+<h3>Okay, I'm in a room, now what?</h3>
+Besides just sending messages and having everyone see them, most of the things you can do take the form of commands you type as special chat messages starting with a /.<br><br>
+<img src="http://bp0.blogger.com/_qxrodbRnu8Q/RwU0eJp1tXI/AAAAAAAAB3o/eaz_2WHW114/s400/Picture+8.png">
+<br><br>
+You can get a full list of commands by sending the chat message <tt>/help</tt> to the room. Some key ones:
+<ul>
+  <li><tt>/leave</tt> Leave this chat room. You can rejoin by sending another message to the room. If the room is invite-only, you may need to be re-invited.</li>
+  <li><tt>/list</tt> See who is in the chat room.</li>
+  <li><tt>/alias <i>newalias</i></tt> Change what name you show up as in the room.</li>
+  <li><tt>/inviteonly</tt> Toggle whether this room is invite only.</li>
+  <li><tt>/invite <i>someemail</i></tt> Invite someone to the room.</li>
+  <li><tt>/me <i>someaction</i></tt> Tell the room what you're up to. If you type <tt>/me is rolling his eyes</tt>, everyone sees <tt>[youralias] is rolling his eyes</tt>.</li>
+  <li><tt>/score <i>something</i></tt> This one's a bit complicated. You can give points to things you like by typing ++ at the end of them in your message. For example, you might say <tt>partychat++ for being so handy</tt>. This adds one to the score for partychat, which you can see by typing <tt>/score partychat</tt>. Or you can take points away from things you dislike, such as <tt>kushal-- for another bad pun</tt>. 
+</ul>
 
-
-
+<h3>Tell me more about this "partychat"</h3>
+Partychat was started by <a href=http://www.q00p.net/>Akshay</a> and is maintained by a motley, ragtag group of current and former Googlers with names like Neil and Jason, although <i>this is not in any way associated with Google</i>. You can find the source code on <a href="http://code.google.com/p/partychapp/">Google Code</a>.
+<br><br>
+For updates, please subscribe to our <a href="http://techwalla.blogspot.com/">blog</a> or <a href="http://twitter.com/partychat">follow us on Twitter</a>.
   
-  
-  <h3>Commands:</h3>
-  <ul><li>Send "/list" to see a list of all the users in the room</li>
-  <li>Send "/leave" to remove yourself from the room.</li>
-  <li>...more to come!</li></ul>
-  
-  <h3>Is this thing on?</h3>
-  <p>Partychapp is alpha software, and under active development.  Sometimes things will break.
-  If you suspect that Partychapp may be messing up, you can send a message to <b>echo</b>@partychapp.appspotchat.com.
-  If Partychapp is working, it will send back an echo.  If not, <a href="mailto:partychapp@googlegroups.com">e-mail or IM me</a> and I'll try desperately to fix it.</p>
+  </div>
   </body>
 </html>

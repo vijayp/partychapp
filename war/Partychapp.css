@@ -1,3 +1,24 @@
 body {
   font-family: Helvetica, sans-serif;
+  background-color: #ccc;
+  line-height: 130%;
+}
+
+#main {
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	background-color: white;
+	padding: 30px 40px;
+	border: 1px solid #aaa;
+        margin-left: auto;
+        margin-right: auto;
+        width: 600px;
+}
+
+#title {
+	background-color: #f33;
+	color: #ff0;
+	font-weight: bold;
+	font-size: 300%;
+	padding: 3px 2px 0;
 }
