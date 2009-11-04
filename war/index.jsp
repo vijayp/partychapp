@@ -17,9 +17,10 @@
   </head>
   <body>
   <div id="main">
-  <div style="font-size: 83%; color: #333">Welcome to</div>
-  <span id="title">Partychat</span>
-  
+    <div id="header">
+      <img src="logo.png" width="310" height="150" alt="PartyChat">
+    </div>
+
   <p>Create chat rooms with your friends or coworkers using Google Talk or XMPP.</p>
 
   <h3>Why use Partychat?</h3>
@@ -90,14 +91,14 @@ You can get a full list of commands by sending the chat message <tt>/help</tt> t
   <li><tt>/inviteonly</tt> Toggle whether this room is invite only.</li>
   <li><tt>/invite <i>someemail</i></tt> Invite someone to the room.</li>
   <li><tt>/me <i>someaction</i></tt> Tell the room what you're up to. If you type <tt>/me is rolling his eyes</tt>, everyone sees <tt>[youralias] is rolling his eyes</tt>.</li>
-  <li><tt>/score <i>something</i></tt> This one's a bit complicated. You can give points to things you like by typing ++ at the end of them in your message. For example, you might say <tt>partychat++ for being so handy</tt>. This adds one to the score for partychat, which you can see by typing <tt>/score partychat</tt>. Or you can take points away from things you dislike, such as <tt>kushal-- for another bad pun</tt>. 
+  <li><tt>/score <i>something</i></tt> This one's a bit complicated. You can give points to things you like by typing ++ at the end of them in your message. For example, you might say <tt>partychat++ for being so handy</tt>. This adds one to the score for partychat, which you can see by typing <tt>/score partychat</tt>. Or you can take points away from things you dislike, such as <tt>kushal-- for another bad pun</tt>.
 </ul>
 
 <h3>Tell me more about this "partychat"</h3>
 Partychat was started by <a href=http://www.q00p.net/>Akshay</a> and is maintained by a motley, ragtag group of current and former Googlers with names like Neil and Jason, although <i>this is not in any way associated with Google</i>. You can find the source code on <a href="http://code.google.com/p/partychapp/">Google Code</a>.
 <br><br>
 For updates, please subscribe to our <a href="http://techwalla.blogspot.com/">blog</a> or <a href="http://twitter.com/partychat">follow us on Twitter</a>.
-  
+
   </div>
   </body>
 </html>
