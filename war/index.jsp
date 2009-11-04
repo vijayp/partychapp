@@ -18,7 +18,7 @@
   <body>
   <div id="main">
     <div id="header">
-      <img src="logo.png" width="310" height="150" alt="PartyChat">
+      <img src="logo.png" width="310" height="150" alt="Partychat">
     </div>
 
   <p>Create chat rooms with your friends or coworkers using Google Talk or XMPP.</p>
