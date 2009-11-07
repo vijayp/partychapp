@@ -26,7 +26,7 @@ public class InviteHandlerTest extends TestCase {
   
   public void testInviteAndEmailIsSent() {
     handler.doCommand(Message.createForTests("/invite dan@gmail.com"));
-    List<String> invited = FakeDatastore.instance().fakeChannel().getInvitees();
+    List<String> invited = FakeDatastore.fakeChannel().getInvitees();
     assertEquals(1, invited.size());
     assertEquals("dan@gmail.com", invited.get(0));
     
@@ -48,7 +48,7 @@ public class InviteHandlerTest extends TestCase {
 
   public void testMultipleInvitees() {
     handler.doCommand(Message.createForTests("/invite dan@gmail.com, roro@gmail.com"));
-    List<String> invited = FakeDatastore.instance().fakeChannel().getInvitees();
+    List<String> invited = FakeDatastore.fakeChannel().getInvitees();
     assertEquals(2, invited.size());
     assertEquals("dan@gmail.com", invited.get(0));
     assertEquals("roro@gmail.com", invited.get(1));

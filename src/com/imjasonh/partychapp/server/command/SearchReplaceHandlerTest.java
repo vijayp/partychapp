@@ -181,7 +181,7 @@ public class SearchReplaceHandlerTest extends TestCase {
   }
   
   public void testSuggestReplacementForOthers() {
-    Channel c = FakeDatastore.instance().fakeChannel();
+    Channel c = FakeDatastore.fakeChannel();
     c.getMemberByAlias("jason").addToLastMessages("hlleo world");
     c.put();
 
@@ -193,7 +193,7 @@ public class SearchReplaceHandlerTest extends TestCase {
   }
   
   public void testSuggestReplacementForOthersDoesntAffectPlusPluses() {
-    Channel c = FakeDatastore.instance().fakeChannel();
+    Channel c = FakeDatastore.fakeChannel();
     c.getMemberByAlias("jason").addToLastMessages("x++");
     c.put();
 

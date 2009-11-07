@@ -20,7 +20,7 @@ public class UndoHandlerTest extends TestCase {
   }
   
   private int getScore(String target) {
-    Target t = Datastore.instance().getTarget(FakeDatastore.instance().fakeChannel(),
+    Target t = Datastore.instance().getTarget(FakeDatastore.fakeChannel(),
                                               target);
     return t.score();
   }

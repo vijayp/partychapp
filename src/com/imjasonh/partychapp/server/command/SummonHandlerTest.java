@@ -62,7 +62,7 @@ public class SummonHandlerTest extends TestCase {
   }
 
   public void testDidYouMean2() {
-    Channel c = FakeDatastore.instance().fakeChannel();
+    Channel c = FakeDatastore.fakeChannel();
     c.getMemberByAlias("jason").setAlias("intern");
     c.put();
     

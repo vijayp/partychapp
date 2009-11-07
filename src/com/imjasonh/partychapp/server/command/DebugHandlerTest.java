@@ -27,7 +27,7 @@ public class DebugHandlerTest extends TestCase {
   
   public void testSequenceIds() {
     handler.doCommand(Message.createForTests("/debug sequenceIds"));
-    assertTrue(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
+    assertTrue(FakeDatastore.fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
     
     assertEquals(1, xmpp.messages.size());
     assertEquals("enabling sequenceIds for you",
@@ -36,9 +36,9 @@ public class DebugHandlerTest extends TestCase {
 
   public void testClear() {
     handler.doCommand(Message.createForTests("/debug sequenceIds"));
-    assertTrue(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
+    assertTrue(FakeDatastore.fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
     handler.doCommand(Message.createForTests(" /debug clear"));
-    assertFalse(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
+    assertFalse(FakeDatastore.fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
     
     assertEquals(2, xmpp.messages.size());
     assertEquals("enabling sequenceIds for you",
@@ -49,9 +49,9 @@ public class DebugHandlerTest extends TestCase {
   
   public void testList() {
     handler.doCommand(Message.createForTests("/debug sequenceIds"));
-    assertTrue(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
+    assertTrue(FakeDatastore.fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
     handler.doCommand(Message.createForTests(" /debug"));
-    assertTrue(FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
+    assertTrue(FakeDatastore.fakeChannel().getMemberByAlias("neil").debugOptions().isEnabled("sequenceIds"));
     
     assertEquals(2, xmpp.messages.size());
     assertEquals("enabling sequenceIds for you",

@@ -18,11 +18,6 @@ public class FakeDatastore extends Datastore {
   private Map<String, Target> targets = Maps.newHashMap();
   private Map<String, List<Reason> > reasons = Maps.newHashMap();
   
-  public static FakeDatastore instance() {
-    FixingDatastore fixing = (FixingDatastore)Datastore.instance();
-    return (FakeDatastore)fixing.getWrapped();
-  }
-  
   public FakeDatastore() {
     Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
     // using fake addresses to avoid leaking our email addresses publicly
@@ -109,14 +104,8 @@ public class FakeDatastore extends Datastore {
     }
   }
 
-  public Channel fakeChannel() {
-    return getChannelByName("pancake");
-  }
-
-  public void clear() {
-    channels = Maps.newHashMap();
-    targets = Maps.newHashMap();
-    reasons = Maps.newHashMap();
+  public static Channel fakeChannel() {
+    return Datastore.instance().getChannelByName("pancake");
   }
 
   @Override

@@ -8,7 +8,7 @@ public class MemberTest extends TestCase {
   }
   
   public void testAddToLastMessages() {
-    Member m = FakeDatastore.instance().fakeChannel().getMemberByAlias("neil");
+    Member m = FakeDatastore.fakeChannel().getMemberByAlias("neil");
     for (Integer i = 0; i < 20; ++i) {
       m.addToLastMessages(i.toString());
     }

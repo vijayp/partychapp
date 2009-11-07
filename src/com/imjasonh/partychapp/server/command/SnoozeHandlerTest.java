@@ -31,7 +31,8 @@ public class SnoozeHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests(cmd));
     assertEquals(1, xmpp.messages.size());
     assertEquals(reply + ", until " + date, xmpp.messages.get(0).getBody());
-    Date actual = FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
+    Date actual = FakeDatastore.fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
+    assertNotNull(actual);
     assertEquals(date,
                  DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(actual));
   }

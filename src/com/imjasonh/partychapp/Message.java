@@ -4,7 +4,7 @@ import com.google.appengine.api.xmpp.JID;
 
 public class Message {
   public static Message createForTests(String content) {
-    Channel c = FakeDatastore.instance().fakeChannel();
+    Channel c = FakeDatastore.fakeChannel();
     JID userJID = new JID("neil@gmail.com");
     return new Message(content,
                        userJID,

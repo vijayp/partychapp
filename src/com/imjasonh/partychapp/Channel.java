@@ -57,7 +57,10 @@ public class Channel implements Serializable {
     this.name = other.name;
     this.inviteOnly = other.inviteOnly;
     this.invitedIds = Lists.newArrayList(other.invitedIds);
-    this.members = Sets.newHashSet(other.members);
+    this.members = Sets.newHashSet();
+    for (Member m : other.members) {
+      this.members.add(new Member(m));
+    }
     //this.membersV2 = Sets.newHashSet(other.membersV2);
     this.sequenceId = other.sequenceId;
   }
@@ -207,7 +210,7 @@ public class Channel implements Serializable {
   public boolean isInviteOnly() {
     return inviteOnly;
   }
-  
+ 
   public List<String> getInvitees() {
     return invitedIds;
   }

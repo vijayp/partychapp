@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Member;
@@ -28,33 +27,43 @@ public class BroadcastHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests("test"));
     
     List<String> lastMessages =
-        FakeDatastore.instance().fakeChannel().getMemberByAlias("neil").getLastMessages();
+        FakeDatastore.fakeChannel().getMemberByAlias("neil").getLastMessages();
     assertEquals(1, lastMessages.size());
     assertEquals("test", lastMessages.get(0));
   }
   
   public void testSnoozersDontGetMessages() {
-    Channel c = FakeDatastore.instance().fakeChannel();
-    Member m = c.getMemberByAlias("jason");
-    // set jason snooze for a minute
-    m.setSnoozeUntil(new Date(System.currentTimeMillis() + 1000*60));
-    m.put();
-
+    Member jason = null;
+    jason = FakeDatastore.fakeChannel().getMemberByAlias("jason");
+    // set jason to snooze for a minute
+    jason.setSnoozeUntil(new Date(System.currentTimeMillis() + 1000*60));
+    jason.put();
+    
     handler.doCommand(Message.createForTests("test"));
     
     assertEquals(1, xmpp.messages.size());
-    assertFalse(Lists.newArrayList(xmpp.messages.get(0).getRecipientJids()).contains("jason@gmail.com"));
+    List<String> testJids = Lists.newArrayList();
+    for (JID j : xmpp.messages.get(0).getRecipientJids()) {
+      testJids.add(j.getId());
+    }
+    System.out.println(testJids);
+    assertFalse(testJids.contains("jason@gmail.com"));
     
     xmpp.messages.clear();
     // wake him up
-    m.setSnoozeUntil(new Date(System.currentTimeMillis() - 100));
+    jason = FakeDatastore.fakeChannel().getMemberByAlias("jason");
+    jason.setSnoozeUntil(new Date(System.currentTimeMillis() - 100));
+    jason.put();
     handler.doCommand(Message.createForTests("test 2"));
 
-    assertEquals(2, xmpp.messages.size());
-    assertEquals("_jason is no longer snoozing_", xmpp.messages.get(0).getBody());
-    System.out.println(Lists.newArrayList(xmpp.messages.get(1).getRecipientJids()));
+    //assertEquals(2, xmpp.messages.size());
+    assertEquals("[neil] test 2", xmpp.messages.get(0).getBody());
+    assertEquals(null,
+                 FakeDatastore.fakeChannel().getMemberByAlias("jason").getSnoozeUntil());
+
+    assertEquals("_jason is no longer snoozing_", xmpp.messages.get(1).getBody());
     List<String> jids = Lists.newArrayList();
-    for (JID j : xmpp.messages.get(1).getRecipientJids()) {
+    for (JID j : xmpp.messages.get(0).getRecipientJids()) {
       jids.add(j.getId());
     }
     assertTrue(jids.contains("jason@gmail.com"));
