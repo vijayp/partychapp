@@ -28,9 +28,9 @@ public abstract class SendUtil {
     sendMessage(msg, serverJID, Lists.newArrayList(userJID));
   }
 
-  public static boolean getPresence(JID userJID) {
+  public static boolean getPresence(JID userJID, JID serverJID) {
     try {
-      return XMPP.getPresence(userJID).isAvailable();
+      return XMPP.getPresence(userJID, serverJID).isAvailable();
     } catch (XMPPFailureException e) {
       LOG.log(Level.WARNING, "got exception while getting presence for " + userJID, e);
       return false;

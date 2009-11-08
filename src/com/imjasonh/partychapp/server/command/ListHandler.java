@@ -33,7 +33,7 @@ public class ListHandler extends SlashCommand {
           .append(" (")
           .append(m.getJID())
           .append(")");
-      if (SendUtil.getPresence(new JID(m.getJID()))) {
+      if (SendUtil.getPresence(new JID(m.getJID()), msg.channel.serverJID())) {
         sb.append(" (online)");
       }
       if (m.getSnoozeStatus() == SnoozeStatus.SNOOZING) {

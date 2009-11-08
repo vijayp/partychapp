@@ -18,7 +18,7 @@ public class MockXMPPService implements XMPPService {
   public List<JID> invited = Lists.newArrayList();
 
   public Presence getPresence(JID jabberId) {
-    return new Presence(false);
+    throw new RuntimeException("you should use the 2-arg version of getPresence instead");
   }
 
   public Presence getPresence(JID jabberId, JID fromJid) {
