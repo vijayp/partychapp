@@ -59,6 +59,12 @@ public class EmailServlet extends HttpServlet {
           }
           String channelName = emailAddress.split("@")[0];
   
+          Channel channel = Datastore.instance().getChannelByName(channelName);
+          if (channel == null) {
+            LOG.warning("unknown channel " + channelName + " from email sent to " + emailAddress);
+            continue;
+          }
+          
           String contentType = message.getContentType();
           if (!contentType.startsWith("text/plain;") && !contentType.startsWith("text/html;")) {
             LOG.log(Level.WARNING, "ignoring message with unrecognized content type" + contentType);
@@ -67,31 +73,34 @@ public class EmailServlet extends HttpServlet {
           ByteArrayInputStream stream = (ByteArrayInputStream)message.getContent();
           byte[] bytes = new byte[stream.available()];
           stream.read(bytes);
-          String content = new String(bytes);
-          String body = message.getSubject();
-          if (!content.isEmpty()) {
-            body += " / Body: " + content;
-          }
-
-          Channel channel = Datastore.instance().getChannelByName(channelName);
-          if (channel == null) {
-            LOG.warning("unknown channel " + channelName + " from email sent to " + emailAddress);
-            continue;
-          }
+          String body = new String(bytes);
+          String subject = message.getSubject();
+          
           String memberPhoneNumber = tryExtractPhoneNumber(sender);
           Member member = null;
           MessageType messageType = MessageType.EMAIL;
+          String content = null;
           if (memberPhoneNumber == null) {
             member = channel.getMemberByJID(new JID(sender));
+            content = "Subject: " + subject;
+            if (!content.isEmpty()) {
+              content  += " / Body: " + body;
+            }
           } else {
             member = channel.getMemberByPhoneNumber(memberPhoneNumber);
             messageType = MessageType.SMS;
+            int end = body.indexOf("\n--\n");
+            if (end != -1) {
+              content = body.substring(0, end).trim();
+            } else {
+              content = body;
+            }
           }
           if (messageType.equals(MessageType.EMAIL) && member == null) {
             LOG.warning("unknown user " + sender + " in channel " + channelName);
             continue;
           }
-          com.imjasonh.partychapp.Message msg = new com.imjasonh.partychapp.Message(body,
+          com.imjasonh.partychapp.Message msg = new com.imjasonh.partychapp.Message(content,
                                                                                     new JID(member.getJID()),
                                                                                     channel.serverJID(),
                                                                                     member,
