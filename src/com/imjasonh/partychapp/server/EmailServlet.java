@@ -53,6 +53,10 @@ public class EmailServlet extends HttpServlet {
           // is this right?
           InternetAddress ia = new InternetAddress(a.toString());
           String emailAddress = ia.getAddress();
+          // HACK
+          if (emailAddress.equals("dogfood.pancake@gmail.com")) {
+            emailAddress = "dogfood@partychapp.appspotmail.com";
+          }
           if (!emailAddress.endsWith(Configuration.mailDomain)) {
             LOG.log(Level.SEVERE, "ignoring incoming email with unrecognized domain in to: " + emailAddress);
             continue;
@@ -101,7 +105,7 @@ public class EmailServlet extends HttpServlet {
             continue;
           }
           com.imjasonh.partychapp.Message msg = new com.imjasonh.partychapp.Message(content,
-                                                                                    new JID(member.getJID()),
+                                                                                    member != null ? new JID(member.getJID()) : null,
                                                                                     channel.serverJID(),
                                                                                     member,
                                                                                     channel,
