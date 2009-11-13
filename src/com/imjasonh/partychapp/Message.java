@@ -3,7 +3,7 @@ package com.imjasonh.partychapp;
 import com.google.appengine.api.xmpp.JID;
 
 public class Message {
-  public enum MessageType { EMAIL, XMPP };
+  public enum MessageType { EMAIL, XMPP, SMS };
   
   public static Message createForTests(String content) {
     Channel c = FakeDatastore.fakeChannel();
@@ -31,11 +31,14 @@ public class Message {
   public Member member;
   public Channel channel;
   public MessageType messageType;
+  public String phoneNumber;
   
   public String toString() {
     return "[Message: content = '" + content + "', userJID = " + userJID
         + ", serverJID = " + serverJID +
         ", member = " + member +
-        ", channel = " + channel;
+        ", channel = " + channel + 
+        ", type = " + messageType +
+        ", phone = " + (phoneNumber != null ? phoneNumber : "null");
   }
 }

@@ -78,8 +78,16 @@ public class EmailServlet extends HttpServlet {
             LOG.warning("unknown channel " + channelName + " from email sent to " + emailAddress);
             continue;
           }
-          Member member = channel.getMemberByJID(new JID(sender));
-          if (member == null) {
+          String memberPhoneNumber = tryExtractPhoneNumber(sender);
+          Member member = null;
+          MessageType messageType = MessageType.EMAIL;
+          if (memberPhoneNumber == null) {
+            member = channel.getMemberByJID(new JID(sender));
+          } else {
+            member = channel.getMemberByPhoneNumber(memberPhoneNumber);
+            messageType = MessageType.SMS;
+          }
+          if (messageType.equals(MessageType.EMAIL) && member == null) {
             LOG.warning("unknown user " + sender + " in channel " + channelName);
             continue;
           }
@@ -88,7 +96,10 @@ public class EmailServlet extends HttpServlet {
                                                                                     channel.serverJID(),
                                                                                     member,
                                                                                     channel,
-                                                                                    MessageType.EMAIL);
+                                                                                    messageType);
+          if (memberPhoneNumber != null) {
+            msg.phoneNumber = memberPhoneNumber;
+          }
           Command.getCommandHandler(msg).doCommand(msg);
         }
       } catch (MessagingException e) {
@@ -98,5 +109,20 @@ public class EmailServlet extends HttpServlet {
     } finally {
       Datastore.instance().endRequest();
     }
+  }
+  
+  public String tryExtractPhoneNumber(String email) {
+    // extract 19178041000 from 16464623000.19178041000.somehash@txt.voice.google.com
+    if (!email.endsWith("@txt.voice.google.com")) {
+      return null;
+    }
+    
+    String firstPart = email.split("@")[0];
+    int start = firstPart.indexOf(".");
+    int end = firstPart.indexOf(".", start + 1);
+    if ((start == -1) || (end == -1)) {
+      return null;
+    }
+    return firstPart.substring(start + 1, end);
   }
 }

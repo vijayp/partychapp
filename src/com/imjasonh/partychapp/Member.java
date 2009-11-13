@@ -47,6 +47,9 @@ public class Member implements Serializable {
   //@Persistent
   @NotPersistent
   private Channel channel;
+  
+  @Persistent
+  String phoneNumber;
 
   public enum SnoozeStatus {
     SNOOZING,
@@ -94,6 +97,14 @@ public class Member implements Serializable {
     // jabber account that doesn't accept email, but this is good enough until
     // we have a web UI for this.
     return jid;
+  }
+  
+  public String phoneNumber() {
+    return phoneNumber;
+  }
+  
+  public void setPhoneNumber(String phone) {
+    phoneNumber = phone;
   }
 
   public SnoozeStatus getSnoozeStatus() {

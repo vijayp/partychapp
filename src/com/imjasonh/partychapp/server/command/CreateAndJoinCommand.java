@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.Message.MessageType;
 
 /**
  * Action taken when a user messages a channel that does not exist yet. Channel is created and user
@@ -30,7 +31,6 @@ public class CreateAndJoinCommand implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    return msg.channel == null;
+    return (msg.channel == null) && msg.messageType.equals(MessageType.XMPP);
   }
-
 }

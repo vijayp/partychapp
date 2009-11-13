@@ -3,6 +3,7 @@ package com.imjasonh.partychapp.server.command;
 import java.util.logging.Logger;
 
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.SendUtil;
 
 /**
@@ -45,7 +46,7 @@ public class JoinCommand implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    return msg.channel != null && msg.member == null;
+    return msg.channel != null && msg.member == null && msg.messageType.equals(MessageType.XMPP);
   }
 
 }

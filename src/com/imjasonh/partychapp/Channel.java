@@ -181,6 +181,16 @@ public class Channel implements Serializable {
     }
     return null;
   }
+  
+  public Member getMemberByPhoneNumber(String phoneNumber) {
+    for (Member member : getMembers()) {
+      String memberPhone = member.phoneNumber();
+      if ((memberPhone != null) && memberPhone.equals(phoneNumber)) {
+        return member;
+      }
+    }
+    return null;    
+  }
 
   /**
    * Remove a user or invitee by alias or ID.
