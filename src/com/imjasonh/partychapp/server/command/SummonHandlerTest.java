@@ -42,7 +42,22 @@ public class SummonHandlerTest extends TestCase {
     assertEquals("pancake@partychapp.appspotmail.com",
                  mailer.sentMessages.get(0).getSender());
   }
-  
+
+  public void testSummonSomeoneWithMessage() {
+	  handler.doCommand(Message.createForTests("/summon jason where is lauren?"));
+	  assertEquals(2, xmpp.messages.size());
+	  assertEquals("[neil] /summon jason where is lauren?", xmpp.messages.get(0).getBody());
+	  assertEquals("_neil summoned jason_", xmpp.messages.get(1).getBody());
+
+	  assertEquals(1, mailer.sentMessages.size());
+	  assertEquals("neil has summoned you to 'pancake'.\n neil said: where is lauren?",
+			  mailer.sentMessages.get(0).getTextBody());
+	  assertEquals("You have been summoned to 'pancake'",
+			  mailer.sentMessages.get(0).getSubject());
+	  assertEquals("pancake@partychapp.appspotmail.com",
+			  mailer.sentMessages.get(0).getSender());
+  }
+
   public void testSummonUnknownAlias() {
     handler.doCommand(Message.createForTests("/summon fdsakfj"));
     assertEquals(2, xmpp.messages.size());

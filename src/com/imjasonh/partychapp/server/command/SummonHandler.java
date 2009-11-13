@@ -18,8 +18,13 @@ public class SummonHandler extends SlashCommand {
   @Override
   public void doCommand(Message msg, String argument) {
     bcast.doCommand(msg);
+    String[] arguments = argument.split(" ", 2);
     
-    Member toSummon = msg.channel.getMemberByAlias(argument.trim());
+    if (arguments.length == 0) {
+    	return;
+    }
+    
+    Member toSummon = msg.channel.getMemberByAlias(arguments[0].trim());
     if (toSummon == null) {
       String didYouMean = null;
       for (Member m : msg.channel.getMembers()) {
@@ -36,10 +41,18 @@ public class SummonHandler extends SlashCommand {
       msg.channel.broadcastIncludingSender(reply);
       return;
     }
-    String emailBody = msg.member.getAlias() + " has summoned you to '" + msg.channel.getName() + "'.";
-    String reply = "_" + msg.member.getAlias() + " summoned " + toSummon.getAlias() + "_";
+    String emailBody = String.format("%s has summoned you to '%s'.",
+    		msg.member.getAlias(), msg.channel.getName());
+    if (arguments.length == 2) {
+    	emailBody += String.format("\n %s said: %s",msg.member.getAlias(),arguments[1]);
+    }
 
-    String error = msg.channel.sendMail("You have been summoned to '" + msg.channel.getName() + "'",
+    String reply = String.format("_%s summoned %s_",
+    		msg.member.getAlias(), toSummon.getAlias());
+    String emailTitle = String.format("You have been summoned to '%s'",
+    		msg.channel.getName());
+
+    String error = msg.channel.sendMail(emailTitle,
                       emailBody,
                       toSummon.getEmail());
     if (error != null) {
