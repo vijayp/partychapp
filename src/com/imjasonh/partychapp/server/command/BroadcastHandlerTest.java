@@ -56,14 +56,15 @@ public class BroadcastHandlerTest extends TestCase {
     jason.put();
     handler.doCommand(Message.createForTests("test 2"));
 
-    //assertEquals(2, xmpp.messages.size());
-    assertEquals("[neil] test 2", xmpp.messages.get(0).getBody());
+    assertEquals(2, xmpp.messages.size());
     assertEquals(null,
                  FakeDatastore.fakeChannel().getMemberByAlias("jason").getSnoozeUntil());
 
-    assertEquals("_jason is no longer snoozing_", xmpp.messages.get(1).getBody());
+    assertEquals("_jason is no longer snoozing_", xmpp.messages.get(0).getBody());
+
+    assertEquals("[neil] test 2", xmpp.messages.get(1).getBody());
     List<String> jids = Lists.newArrayList();
-    for (JID j : xmpp.messages.get(0).getRecipientJids()) {
+    for (JID j : xmpp.messages.get(1).getRecipientJids()) {
       jids.add(j.getId());
     }
     assertTrue(jids.contains("jason@gmail.com"));

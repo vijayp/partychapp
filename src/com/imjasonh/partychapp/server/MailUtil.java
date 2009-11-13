@@ -24,9 +24,10 @@ public class MailUtil {
   }
   
   public static String sendMail(String subject,
-                              String body,
-                              String recipient) {
-    MailService.Message email = new MailService.Message("partychat@gmail.com",
+                                String body,
+                                String sender,
+                                String recipient) {
+    MailService.Message email = new MailService.Message(sender,
                                                         recipient,
                                                         subject,
                                                         body);

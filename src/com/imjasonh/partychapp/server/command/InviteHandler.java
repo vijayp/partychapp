@@ -7,7 +7,6 @@ import javax.mail.internet.InternetAddress;
 
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
 
 /**
@@ -54,7 +53,7 @@ public class InviteHandler extends SlashCommand {
                       "For more information about partychat, try http://code.google.com/p/partychapp/.\n",
                       msg.member.getAlias(), msg.member.getJID(), msg.channel.getName(),
                       msg.serverJID.getId());
-      String mailError = MailUtil.sendMail(subject, body, jidToInvite);
+      String mailError = msg.channel.sendMail(subject, body, jidToInvite);
       if (mailError != null) {
         broadcast = mailError;
       }

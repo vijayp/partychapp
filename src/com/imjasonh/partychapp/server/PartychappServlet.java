@@ -14,6 +14,7 @@ import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
@@ -44,7 +45,7 @@ public class PartychappServlet extends HttpServlet {
 
     String body = xmppMessage.getBody().trim();
 
-    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null);
+    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null, MessageType.XMPP);
 
     if (channelName.equalsIgnoreCase("echo")) {
       handleEcho(message);

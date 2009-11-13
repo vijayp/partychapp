@@ -16,6 +16,7 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
+import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -67,6 +68,10 @@ public class Channel implements Serializable {
   
   public JID serverJID() {
     return new JID(name + "@" + Configuration.chatDomain);
+  }
+  
+  public String mailingAddress() {
+    return name + "@" + Configuration.mailDomain;
   }
 
   public void invite(String email) {
@@ -249,6 +254,12 @@ public class Channel implements Serializable {
 
   public void broadcastIncludingSender(String message) {
     sendMessage(message, getMembersToSendTo());
+  }
+  
+  public String sendMail(String subject,
+                       String body,
+                       String recipient) {
+    return MailUtil.sendMail(subject, body, this.mailingAddress(), recipient);
   }
 
   private void awakenSnoozers() {

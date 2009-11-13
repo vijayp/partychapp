@@ -1,13 +1,18 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.Message.MessageType;
 
 public class BroadcastHandler implements CommandHandler {
 
   public void doCommand(Message msg) {
     msg.member.addToLastMessages(msg.content);
     String reply = msg.member.getAliasPrefix() + msg.content;
-    msg.channel.broadcast(reply, msg.member);
+    if (msg.messageType == MessageType.EMAIL) {
+      msg.channel.broadcastIncludingSender(reply);
+    } else {
+      msg.channel.broadcast(reply, msg.member);
+    }
   }
 
   public String documentation() {
@@ -19,5 +24,4 @@ public class BroadcastHandler implements CommandHandler {
     // This has to be last in the list, because it swallows everything.
     return true;
   }
-
 }

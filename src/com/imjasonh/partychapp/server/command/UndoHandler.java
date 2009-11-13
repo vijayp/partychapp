@@ -3,6 +3,7 @@ package com.imjasonh.partychapp.server.command;
 import java.util.List;
 
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.Message.MessageType;
 
 public class UndoHandler extends SlashCommand {
   private PPBHandler ppbHandler = new PPBHandler();
@@ -23,7 +24,7 @@ public class UndoHandler extends SlashCommand {
 
     String toUndo = lastMessages.get(0);
     Message originalMsg = new Message(toUndo, msg.userJID,
-                                      msg.serverJID, msg.member, msg.channel);
+                                      msg.serverJID, msg.member, msg.channel, MessageType.XMPP);
     ppbHandler.undoEarlierMessage(originalMsg);
   }
 

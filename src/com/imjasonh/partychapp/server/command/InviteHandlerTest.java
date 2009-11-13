@@ -42,7 +42,7 @@ public class InviteHandlerTest extends TestCase {
     assertTrue("Actual Message: " + mailer.sentMessages.get(0).getTextBody(),
                mailer.sentMessages.get(0).getTextBody().startsWith(
                    "neil (neil@gmail.com) invited you to a chatroom named 'pancake'"));
-    assertEquals("partychat@gmail.com",
+    assertEquals("pancake@partychapp.appspotmail.com",
                  mailer.sentMessages.get(0).getSender());
   }
 

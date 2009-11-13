@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
 
 public class SearchReplaceHandler implements CommandHandler {
@@ -83,11 +84,11 @@ public class SearchReplaceHandler implements CommandHandler {
 
     if (!isSuggestion) {
       Message originalMsg = new Message(messageToChange, msg.userJID,
-                                        msg.serverJID, msg.member, msg.channel);
+                                        msg.serverJID, msg.member, msg.channel, MessageType.XMPP);
       if (ppbHandler.matches(originalMsg)) {
         ppbHandler.undoEarlierMessage(originalMsg);
       }
-      Message afterMsg = new Message(after, msg.userJID, msg.serverJID, msg.member, msg.channel);
+      Message afterMsg = new Message(after, msg.userJID, msg.serverJID, msg.member, msg.channel, MessageType.XMPP);
       if (ppbHandler.matches(afterMsg)) {
         ppbHandler.doCommandAsCorrection(afterMsg);
       } else {

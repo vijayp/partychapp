@@ -39,7 +39,7 @@ public class SummonHandlerTest extends TestCase {
                  mailer.sentMessages.get(0).getTextBody());
     assertEquals("You have been summoned to 'pancake'",
                  mailer.sentMessages.get(0).getSubject());
-    assertEquals("partychat@gmail.com",
+    assertEquals("pancake@partychapp.appspotmail.com",
                  mailer.sentMessages.get(0).getSender());
   }
   

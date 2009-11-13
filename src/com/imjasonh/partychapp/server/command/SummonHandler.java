@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.server.MailUtil;
 
 public class SummonHandler extends SlashCommand {
   @SuppressWarnings("unused")
@@ -40,7 +39,7 @@ public class SummonHandler extends SlashCommand {
     String emailBody = msg.member.getAlias() + " has summoned you to '" + msg.channel.getName() + "'.";
     String reply = "_" + msg.member.getAlias() + " summoned " + toSummon.getAlias() + "_";
 
-    String error = MailUtil.sendMail("You have been summoned to '" + msg.channel.getName() + "'",
+    String error = msg.channel.sendMail("You have been summoned to '" + msg.channel.getName() + "'",
                       emailBody,
                       toSummon.getEmail());
     if (error != null) {
