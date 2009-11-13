@@ -22,7 +22,7 @@ public class Message {
     this.serverJID = serverJID;
     this.member = member;
     this.channel = channel;
-    this.messageType = MessageType.XMPP;
+    this.messageType = messageType;
   }
   
   public final String content;

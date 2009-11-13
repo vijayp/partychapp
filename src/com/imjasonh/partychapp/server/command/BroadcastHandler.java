@@ -8,7 +8,7 @@ public class BroadcastHandler implements CommandHandler {
   public void doCommand(Message msg) {
     msg.member.addToLastMessages(msg.content);
     String reply = msg.member.getAliasPrefix() + msg.content;
-    if (msg.messageType == MessageType.EMAIL) {
+    if (msg.messageType.equals(MessageType.EMAIL)) {
       msg.channel.broadcastIncludingSender(reply);
     } else {
       msg.channel.broadcast(reply, msg.member);
