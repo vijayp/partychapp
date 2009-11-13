@@ -45,7 +45,7 @@ public class PartychappServlet extends HttpServlet {
 
     String body = xmppMessage.getBody().trim();
 
-    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null, MessageType.XMPP);
+    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null, null, MessageType.XMPP);
 
     if (channelName.equalsIgnoreCase("echo")) {
       handleEcho(message);

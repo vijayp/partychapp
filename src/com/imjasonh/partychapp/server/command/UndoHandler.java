@@ -24,7 +24,7 @@ public class UndoHandler extends SlashCommand {
 
     String toUndo = lastMessages.get(0);
     Message originalMsg = new Message(toUndo, msg.userJID,
-                                      msg.serverJID, msg.member, msg.channel, MessageType.XMPP);
+                                      msg.serverJID, msg.member, msg.channel, null, MessageType.XMPP);
     ppbHandler.undoEarlierMessage(originalMsg);
   }
 

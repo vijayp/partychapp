@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,112 +17,157 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
 public class EmailServlet extends HttpServlet {
   private static final Logger LOG = Logger.getLogger(EmailServlet.class.getName());
+  
+  public static class EmailMessage {
+    public InternetAddress from;
+    public List<InternetAddress> to;
+    public String subject;
+    public String body;
+  }
+  
+  public EmailMessage parseToBetterFormat(MimeMessage m) {
+    try {
+      EmailMessage email = new EmailMessage();
+      Address[] senders = m.getFrom();
+      if ((senders == null) || senders.length != 1) {
+        LOG.severe("ignoring incoming email with null or multiple from's: "
+          + senders);
+        return null;
+      }
+      email.from = new InternetAddress(senders[0].toString());
+  
+      Address[] recipients = m.getAllRecipients();
+      if (recipients == null) {
+        LOG.severe("ignoring incoming email with null recipient list from sender: "
+                   + email.from);
+        return null;
+      }
+      email.to = Lists.newArrayList();
+  
+      for (Address a : recipients) {
+        email.to.add(new InternetAddress(a.toString()));
+      }
+      
+      email.subject = m.getSubject();
+      
+      String contentType = m.getContentType();
+      if (!contentType.startsWith("text/plain;") && !contentType.startsWith("text/html;")) {
+        LOG.log(Level.WARNING, "ignoring message with unrecognized content type" + contentType);
+        return null;
+      }
+      try {
+        ByteArrayInputStream stream = (ByteArrayInputStream)m.getContent();
+        byte[] bytes = new byte[stream.available()];
+        stream.read(bytes);
+        email.body = new String(bytes);
+      } catch (IOException e) {
+        LOG.log(Level.SEVERE, "Caught exception while trying to read content of email from " + email.from, e);
+        return null;
+      }
+      
+      return email;
+    } catch (MessagingException e) {
+      LOG.log(Level.SEVERE, "Couldn't parse incoming email", e);
+      return null;
+    }
+  }
+  
+  public Message extractPchappMessageFromEmail(EmailMessage email, InternetAddress to) {
+    String recipient = to.getAddress();
+    // HACK
+    if (recipient.equals("dogfood.pancake@gmail.com")) {
+      recipient = "dogfood@partychapp.appspotmail.com";
+    }
+    if (!recipient.endsWith(Configuration.mailDomain)) {
+      LOG.log(Level.SEVERE, "ignoring incoming email with unrecognized domain in to: " + recipient);
+      return null;
+    }
+    String channelName = recipient.split("@")[0];
+
+    Channel channel = Datastore.instance().getChannelByName(channelName);
+    if (channel == null) {
+      LOG.warning("unknown channel " + channelName + " from email sent to " + recipient);
+      return null;
+    }
+    
+    String memberPhoneNumber = tryExtractPhoneNumber(email.from.getAddress());
+    if (memberPhoneNumber == null) {
+      Member member = channel.getMemberByJID(new JID(email.from.getAddress()));
+      if (member == null) {
+        LOG.warning("unknown user " + email.from + " in channel " + channelName);
+        return null;
+      }
+      String content = "Subject: " + email.from;
+      if (!email.body.isEmpty()) {
+        content  += " / Body: " + email.body;
+      }
+      
+      return new Message(null,
+                         new JID(member.getJID()),
+                         channel.serverJID(),
+                         member,
+                         channel,
+                         null,
+                         MessageType.EMAIL);
+    } else {
+      // member might be null if we don't know the phone number
+      Member member = channel.getMemberByPhoneNumber(memberPhoneNumber);
+      
+      // GV emails have a --\nGoogle Voice footer, so try and look for that.
+      int end = email.body.indexOf("\n--\n");
+      String content = null;
+      if (end != -1) {
+        content = email.body.substring(0, end).trim();
+      } else {
+        content = email.body;
+      }
+      
+      return new Message(content,
+                         member != null ? new JID(member.getJID()) : null,
+                         channel.serverJID(),
+                         member,
+                         channel,
+                         memberPhoneNumber,
+                         MessageType.SMS);
+    }
+  }
 
   public void doPost(HttpServletRequest req, 
                      HttpServletResponse resp) 
           throws IOException {
+    Datastore.instance().startRequest();
+
+    MimeMessage mime = null;
     try {
-      Datastore.instance().startRequest();
-  
-      Properties props = new Properties(); 
-      Session session = Session.getDefaultInstance(props, null);
-      try {
-        MimeMessage message = new MimeMessage(session, req.getInputStream());
-        Address[] senders = message.getFrom();
-        if ((senders == null) || senders.length != 1) {
-          LOG.severe("ignoring incoming email with null or multiple from's: " + senders);
-          return;
-        }
-        String sender = (new InternetAddress(senders[0].toString())).getAddress();
-  
-        Address[] recipients = message.getAllRecipients();
-        if (recipients == null) {
-          LOG.severe("ignoring incoming email with null recipient list from sender: " + sender);
-        }
-  
-        for (Address a : recipients) {
-          // is this right?
-          InternetAddress ia = new InternetAddress(a.toString());
-          String emailAddress = ia.getAddress();
-          // HACK
-          if (emailAddress.equals("dogfood.pancake@gmail.com")) {
-            emailAddress = "dogfood@partychapp.appspotmail.com";
-          }
-          if (!emailAddress.endsWith(Configuration.mailDomain)) {
-            LOG.log(Level.SEVERE, "ignoring incoming email with unrecognized domain in to: " + emailAddress);
-            continue;
-          }
-          String channelName = emailAddress.split("@")[0];
-  
-          Channel channel = Datastore.instance().getChannelByName(channelName);
-          if (channel == null) {
-            LOG.warning("unknown channel " + channelName + " from email sent to " + emailAddress);
-            continue;
-          }
-          
-          String contentType = message.getContentType();
-          if (!contentType.startsWith("text/plain;") && !contentType.startsWith("text/html;")) {
-            LOG.log(Level.WARNING, "ignoring message with unrecognized content type" + contentType);
-            return;
-          }
-          ByteArrayInputStream stream = (ByteArrayInputStream)message.getContent();
-          byte[] bytes = new byte[stream.available()];
-          stream.read(bytes);
-          String body = new String(bytes);
-          String subject = message.getSubject();
-          
-          String memberPhoneNumber = tryExtractPhoneNumber(sender);
-          Member member = null;
-          MessageType messageType = MessageType.EMAIL;
-          String content = null;
-          if (memberPhoneNumber == null) {
-            member = channel.getMemberByJID(new JID(sender));
-            content = "Subject: " + subject;
-            if (!content.isEmpty()) {
-              content  += " / Body: " + body;
-            }
-          } else {
-            member = channel.getMemberByPhoneNumber(memberPhoneNumber);
-            messageType = MessageType.SMS;
-            int end = body.indexOf("\n--\n");
-            if (end != -1) {
-              content = body.substring(0, end).trim();
-            } else {
-              content = body;
-            }
-          }
-          if (messageType.equals(MessageType.EMAIL) && member == null) {
-            LOG.warning("unknown user " + sender + " in channel " + channelName);
-            continue;
-          }
-          com.imjasonh.partychapp.Message msg = new com.imjasonh.partychapp.Message(content,
-                                                                                    member != null ? new JID(member.getJID()) : null,
-                                                                                    channel.serverJID(),
-                                                                                    member,
-                                                                                    channel,
-                                                                                    messageType);
-          if (memberPhoneNumber != null) {
-            msg.phoneNumber = memberPhoneNumber;
-          }
-          Command.getCommandHandler(msg).doCommand(msg);
-        }
-      } catch (MessagingException e) {
-        LOG.log(Level.SEVERE, "Couldn't parse incoming email", e);
-        return;
-      }
-    } finally {
-      Datastore.instance().endRequest();
+      mime = new MimeMessage(Session.getDefaultInstance(new Properties(), null),
+                             req.getInputStream());
+    } catch (Exception e) {
+      LOG.log(Level.SEVERE, "error while parsing incoming email", e);
+      return;
     }
+
+    EmailMessage email = parseToBetterFormat(mime);
+
+    for (InternetAddress ia : email.to) {
+      Message msg = extractPchappMessageFromEmail(email, ia);
+      if (msg != null) {
+        Command.getCommandHandler(msg).doCommand(msg);
+      }
+    }
+    
+    Datastore.instance().endRequest();
   }
   
   public String tryExtractPhoneNumber(String email) {

@@ -12,17 +12,18 @@ public class Message {
                        userJID,
                        new JID("pancake@partychapp.appspotchat.com"),
                        c.getMemberByJID(userJID),
-                       c, MessageType.XMPP);
+                       c, null, MessageType.XMPP);
   }
 
   public Message(String content, JID userJID, JID serverJID, Member member,
-          Channel channel, MessageType messageType) {
+          Channel channel, String phoneNumber, MessageType messageType) {
     this.content = content;
     this.userJID = userJID;
     this.serverJID = serverJID;
     this.member = member;
     this.channel = channel;
     this.messageType = messageType;
+    this.phoneNumber = phoneNumber;
   }
   
   public final String content;

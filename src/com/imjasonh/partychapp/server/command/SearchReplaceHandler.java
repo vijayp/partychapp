@@ -84,11 +84,11 @@ public class SearchReplaceHandler implements CommandHandler {
 
     if (!isSuggestion) {
       Message originalMsg = new Message(messageToChange, msg.userJID,
-                                        msg.serverJID, msg.member, msg.channel, MessageType.XMPP);
+                                        msg.serverJID, msg.member, msg.channel, null, MessageType.XMPP);
       if (ppbHandler.matches(originalMsg)) {
         ppbHandler.undoEarlierMessage(originalMsg);
       }
-      Message afterMsg = new Message(after, msg.userJID, msg.serverJID, msg.member, msg.channel, MessageType.XMPP);
+      Message afterMsg = new Message(after, msg.userJID, msg.serverJID, msg.member, msg.channel, null, MessageType.XMPP);
       if (ppbHandler.matches(afterMsg)) {
         ppbHandler.doCommandAsCorrection(afterMsg);
       } else {
