@@ -68,11 +68,11 @@ public class EmailServlet extends HttpServlet {
           byte[] bytes = new byte[stream.available()];
           stream.read(bytes);
           String content = new String(bytes);
-          String body = "Incoming Email! Subject: " + message.getSubject() + "\n"
-            + "Body: " + content;
-  
+          String body = message.getSubject();
+          if (!content.isEmpty()) {
+            body += " / Body: " + content;
+          }
 
-  
           Channel channel = Datastore.instance().getChannelByName(channelName);
           if (channel == null) {
             LOG.warning("unknown channel " + channelName + " from email sent to " + emailAddress);

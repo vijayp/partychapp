@@ -3,11 +3,10 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 
-public class BroadcastHandler implements CommandHandler {
+public class EmailHandler implements CommandHandler {
   public void doCommand(Message msg) {
-    msg.member.addToLastMessages(msg.content);
-    String reply = msg.member.getAliasPrefix() + msg.content;
-    msg.channel.broadcast(reply, msg.member);
+    String reply = "**via email** " + msg.member.getAliasPrefix() + msg.content;
+    msg.channel.broadcastIncludingSender(reply);
   }
 
   public String documentation() {
@@ -16,7 +15,6 @@ public class BroadcastHandler implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    // This has to be last in the list, because it swallows every XMPP message.
-    return msg.messageType.equals(MessageType.XMPP);
+    return msg.messageType.equals(MessageType.EMAIL);
   }
 }
