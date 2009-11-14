@@ -33,6 +33,8 @@ public class PartychappServlet extends HttpServlet {
 
     Message xmppMessage = XMPP.parseMessage(req);
     doXmpp(xmppMessage);
+    
+    resp.setStatus(HttpServletResponse.SC_OK);
   }
 
   public void doXmpp(Message xmppMessage) {
