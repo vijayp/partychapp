@@ -2,6 +2,7 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -59,10 +60,10 @@ public class FakeDatastore extends Datastore {
   }
   
   @Override
-  public Map<String, Integer> getStats() {
-    Map<String, Integer> ret = Maps.newHashMap();
-    ret.put("Channel", channels.size());
-    ret.put("Member", members.size());
+  public Datastore.Stats getStats() {
+    Datastore.Stats ret = new Datastore.Stats();
+    ret.numChannels = channels.size();
+    ret.timestamp = new Date(1256134870830L);
     return ret;
   }
   

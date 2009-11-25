@@ -2,8 +2,8 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
@@ -42,7 +42,11 @@ public abstract class Datastore {
 
   public abstract List<Reason> getReasons(Target target, int limit);
 
-  public abstract Map<String, Integer> getStats();
+  public static class Stats {
+    public int numChannels;
+    public Date timestamp;
+  }
+  public abstract Stats getStats();
   
   public abstract void putAll(Collection<? extends Serializable> objects);
   public abstract void put(Serializable s);

@@ -2,8 +2,8 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
@@ -15,7 +15,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
@@ -98,13 +97,16 @@ public class LiveDatastore extends Datastore {
   }
 
   @Override
-  public Map<String, Integer> getStats() {
-    Map<String, Integer> ret = Maps.newHashMap();
+  public Datastore.Stats getStats() {
+    Datastore.Stats ret = new Datastore.Stats();
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery pq = datastore.prepare(new com.google.appengine.api.datastore.Query("__Stat_Kind__"));
     for (Entity kindStat : pq.asIterable()) {
-      ret.put((String)kindStat.getProperty("kind_name"),
-              ((Long)kindStat.getProperty("count")).intValue());
+      String kind = (String)kindStat.getProperty("kind_name");
+      if ("Channel".equals(kind)) {
+        ret.numChannels = ((Long)kindStat.getProperty("count")).intValue();
+        ret.timestamp = (Date)kindStat.getProperty("timestamp");
+      }
     }
     
     return ret;

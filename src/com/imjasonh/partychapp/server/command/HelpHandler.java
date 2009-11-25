@@ -22,7 +22,8 @@ public class HelpHandler extends SlashCommand {
       }
     }
     sb.append("* Message echo@ to hear yourself talk").append('\n')
-        .append("* Found a bug? Let us know: http://code.google.com/p/partychapp/issues/entry");
+        .append("* Found a bug? Let us know: http://code.google.com/p/partychapp/issues/entry\n")
+        .append("* Follow us for announcements at http://twitter.com/partychat");
 
     msg.channel.sendDirect(sb.toString(), msg.member);
   }

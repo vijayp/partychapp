@@ -19,6 +19,6 @@ public class StatsHandlerTest extends TestCase {
   
   public void testStats() {
     handler.doCommand(Message.createForTests(" /stats"));
-    assertEquals("Number of channels: 1", xmpp.messages.get(0).getBody());
+    assertEquals("Number of channels: 1\nStats last refreshed: Wed Oct 21 10:21:10 EDT 2009", xmpp.messages.get(0).getBody());
   }
 }

@@ -3,7 +3,6 @@ package com.imjasonh.partychapp;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
@@ -56,7 +55,7 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
-  public Map<String, Integer> getStats() {
+  public Datastore.Stats getStats() {
     return wrapped.getStats();
   }
   
