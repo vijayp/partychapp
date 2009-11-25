@@ -181,6 +181,32 @@ public class Channel implements Serializable {
     }
     return null;
   }
+ 
+  public Member getOrSuggestMemberFromUserInput(String input, StringBuilder suggestion) {
+    Member found = getMemberByAlias(input);
+    if (found != null) {
+      return found;
+    }
+    if (input.indexOf('@') != -1) {
+      found = getMemberByJID(new JID(input));
+    } else {
+      for (Member m : getMembers()) {
+        if (m.getJID().startsWith(input + "@")) {
+          return m;
+        }
+      }
+    }
+
+    suggestion.append("Could not find member with input '" + input + ".'");
+    for (Member m : getMembers()) {
+      if (m.getAlias().contains(input) ||
+          m.getJID().contains(input)) {
+        suggestion.append(" Maybe you meant '" + m.getAlias() + ".'");
+      }
+    }
+    return null;
+  }
+
   
   public Member getMemberByPhoneNumber(String phoneNumber) {
     for (Member member : getMembers()) {

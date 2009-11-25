@@ -24,21 +24,11 @@ public class SummonHandler extends SlashCommand {
     	return;
     }
     
-    Member toSummon = msg.channel.getMemberByAlias(arguments[0].trim());
-    if (toSummon == null) {
-      String didYouMean = null;
-      for (Member m : msg.channel.getMembers()) {
-        if (m.getAlias().contains(argument.trim()) ||
-            m.getJID().contains(argument.trim())) {
-          didYouMean = m.getAlias();
-          break;
-        }
-      }
-      String reply = "Could not find member with alias '" + argument.trim() + ".'";
-      if (didYouMean != null) {
-        reply = reply + " Maybe you meant to /summon " + didYouMean + ".";
-      }
-      msg.channel.broadcastIncludingSender(reply);
+    String userArg = arguments[0].trim();
+    StringBuilder didYouMean = new StringBuilder();
+    Member toSummon = msg.channel.getOrSuggestMemberFromUserInput(userArg, didYouMean);
+    if (toSummon == null && didYouMean.length() != 0) {
+      msg.channel.broadcastIncludingSender(didYouMean.toString());
       return;
     }
     String emailBody = String.format("%s has summoned you to '%s'.",

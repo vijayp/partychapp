@@ -62,7 +62,7 @@ public class SummonHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests("/summon fdsakfj"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[neil] /summon fdsakfj", xmpp.messages.get(0).getBody());
-    assertEquals("Could not find member with alias 'fdsakfj.'", xmpp.messages.get(1).getBody());
+    assertEquals("Could not find member with input 'fdsakfj.'", xmpp.messages.get(1).getBody());
     
     assertEquals(0, mailer.sentMessages.size());
   }
@@ -71,12 +71,12 @@ public class SummonHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests("/summon jaso"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[neil] /summon jaso", xmpp.messages.get(0).getBody());
-    assertEquals("Could not find member with alias 'jaso.' Maybe you meant to /summon jason.", xmpp.messages.get(1).getBody());
+    assertEquals("Could not find member with input 'jaso.' Maybe you meant 'jason.'", xmpp.messages.get(1).getBody());
     
     assertEquals(0, mailer.sentMessages.size());
   }
 
-  public void testDidYouMean2() {
+  public void testFindByEmailAddress() {
     Channel c = FakeDatastore.fakeChannel();
     c.getMemberByAlias("jason").setAlias("intern");
     c.put();
@@ -84,9 +84,9 @@ public class SummonHandlerTest extends TestCase {
     handler.doCommand(Message.createForTests("/summon jason"));
     assertEquals(2, xmpp.messages.size());
     assertEquals("[neil] /summon jason", xmpp.messages.get(0).getBody());
-    assertEquals("Could not find member with alias 'jason.' Maybe you meant to /summon intern.", xmpp.messages.get(1).getBody());
+    assertEquals("_neil summoned intern_", xmpp.messages.get(1).getBody());
     
-    assertEquals(0, mailer.sentMessages.size());
+    assertEquals(1, mailer.sentMessages.size());
   }
   
   public void testException() {
