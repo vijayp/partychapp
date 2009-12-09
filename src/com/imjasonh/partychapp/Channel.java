@@ -26,7 +26,7 @@ public class Channel implements Serializable {
    * 
    */
   private static final long serialVersionUID = 3860339764413214817L;
-
+ 
   // private static final Logger LOG = Logger.getLogger(Channel.class.getName());
 
   @PrimaryKey

@@ -50,11 +50,50 @@ public class Member implements Serializable {
   
   @Persistent
   String phoneNumber;
+  
+  @Persistent
+  String carrier;
 
   public enum SnoozeStatus {
     SNOOZING,
     NOT_SNOOZING,
     SHOULD_WAKE;
+  }
+  
+  // I stole from http://en.wikipedia.org/wiki/List_of_carriers_providing_SMS_transit
+  public enum Carrier {
+    ATT("at&t", "txt.att.net", false),
+    VERIZON("verizon", "vtext.net", true),
+    TMOBILE("tmobile", "tmomail.net", true),
+    SPRINT("sprint", "messaging.sprintpcs.com", true),
+    VIRGIN("virgin", "vmobl.com", true)
+    ;
+    
+    public final String shortName;
+    public final String emailToSmsDomain;
+    public final boolean wantsLeadingOne;
+    
+    private Carrier(String shortName, String emailToSmsDomain, boolean wantsLeadingOne) {
+      this.shortName = shortName;
+      this.emailToSmsDomain = emailToSmsDomain;
+      this.wantsLeadingOne = wantsLeadingOne;
+    }
+    
+    public String emailAddress(String phoneNumber) {
+      if (phoneNumber == null) {
+        return null;
+      }
+      if (wantsLeadingOne) {
+        if (!phoneNumber.startsWith("1")) {
+          phoneNumber = "1" + phoneNumber;
+        }
+      } else {
+        if (phoneNumber.startsWith("1")) {
+          phoneNumber = phoneNumber.substring(1);
+        }
+      }
+      return phoneNumber + "@" + emailToSmsDomain;
+    }
   }
 
   public Member(Channel c, JID jid) {
@@ -105,6 +144,17 @@ public class Member implements Serializable {
   
   public void setPhoneNumber(String phone) {
     phoneNumber = phone;
+  }
+  
+  public Member.Carrier carrier() {
+    if (carrier == null) {
+      return null;
+    }
+    return Carrier.valueOf(carrier);
+  }
+  
+  public void setCarrier(Carrier carrier) {
+    this.carrier = carrier.name();
   }
 
   public SnoozeStatus getSnoozeStatus() {

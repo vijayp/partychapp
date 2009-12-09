@@ -32,6 +32,8 @@ public enum Command {
   GRAPH_SCORES(new GraphScoreHandler()),
   SNOOZE(new SnoozeHandler()),
   SET_PHONE_NUMBER(new SetPhoneNumberHandler()),
+  SET_CARRIER(new SetCarrierHandler()),
+  BROADCAST_SMS(new SendBroadcastSMSHandler()),
 
   // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),

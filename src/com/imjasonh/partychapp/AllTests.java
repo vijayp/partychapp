@@ -19,6 +19,7 @@ import com.imjasonh.partychapp.server.command.ReasonsHandlerTest;
 import com.imjasonh.partychapp.server.command.SMSHandlerTest;
 import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.SearchReplaceHandlerTest;
+import com.imjasonh.partychapp.server.command.SendBroadcastSMSHandlerTest;
 import com.imjasonh.partychapp.server.command.SnoozeHandlerTest;
 import com.imjasonh.partychapp.server.command.StatsHandlerTest;
 import com.imjasonh.partychapp.server.command.StatusHandlerTest;
@@ -52,6 +53,7 @@ public class AllTests {
     suite.addTestSuite(SnoozeHandlerTest.class);
     suite.addTestSuite(EmailHandlerTest.class);
     suite.addTestSuite(SMSHandlerTest.class);
+    suite.addTestSuite(SendBroadcastSMSHandlerTest.class);
     // $JUnit-END$
     return suite;
   }

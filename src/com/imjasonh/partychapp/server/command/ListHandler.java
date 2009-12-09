@@ -39,6 +39,14 @@ public class ListHandler extends SlashCommand {
       if (m.getSnoozeStatus() == SnoozeStatus.SNOOZING) {
         sb.append(" _snoozing_");
       }
+      if (m.phoneNumber() != null) {
+        sb.append(" (");
+        sb.append(m.phoneNumber());
+        if (m.carrier() != null) {
+          sb.append(" @ " + m.carrier().shortName);
+        }
+        sb.append(")");
+      }
     }
 
     if (msg.channel.isInviteOnly()) {
