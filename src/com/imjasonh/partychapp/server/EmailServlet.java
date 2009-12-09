@@ -68,10 +68,17 @@ public class EmailServlet extends HttpServlet {
         return null;
       }
       try {
-        ByteArrayInputStream stream = (ByteArrayInputStream)m.getContent();
-        byte[] bytes = new byte[stream.available()];
-        stream.read(bytes);
-        email.body = new String(bytes);
+        // This is stupid, but I've seen both ByteArrayInputStream and String,
+        // and the interface doesn't specify one.
+        Object o = m.getContent();
+        if (o instanceof String) {
+          email.body = (String)o;
+        } else if (o instanceof ByteArrayInputStream) {
+          ByteArrayInputStream stream = (ByteArrayInputStream)o;
+          byte[] bytes = new byte[stream.available()];
+          stream.read(bytes);
+          email.body = new String(bytes);
+        }
       } catch (IOException e) {
         LOG.log(Level.SEVERE, "Caught exception while trying to read content of email from " + email.from, e);
         return null;
