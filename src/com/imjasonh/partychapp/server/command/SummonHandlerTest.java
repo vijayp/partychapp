@@ -76,7 +76,7 @@ public class SummonHandlerTest extends TestCase {
     assertEquals(0, mailer.sentMessages.size());
   }
 
-  public void testFindByEmailAddress() {
+  public void testFindByEmailAddressBeginning() {
     Channel c = FakeDatastore.fakeChannel();
     c.getMemberByAlias("jason").setAlias("intern");
     c.put();
@@ -88,6 +88,20 @@ public class SummonHandlerTest extends TestCase {
     
     assertEquals(1, mailer.sentMessages.size());
   }
+
+  public void testFindByEmailAddress() {
+    Channel c = FakeDatastore.fakeChannel();
+    c.getMemberByAlias("jason").setAlias("intern");
+    c.put();
+    
+    handler.doCommand(Message.createForTests("/summon jason@gmail.com"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[neil] /summon jason@gmail.com", xmpp.messages.get(0).getBody());
+    assertEquals("_neil summoned intern_", xmpp.messages.get(1).getBody());
+    
+    assertEquals(1, mailer.sentMessages.size());
+  }
+
   
   public void testException() {
     mailer.setThrowException();

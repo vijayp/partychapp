@@ -189,6 +189,9 @@ public class Channel implements Serializable {
     }
     if (input.indexOf('@') != -1) {
       found = getMemberByJID(new JID(input));
+      if (found != null) {
+        return found;
+      }
     } else {
       for (Member m : getMembers()) {
         if (m.getJID().startsWith(input + "@")) {
