@@ -18,3 +18,8 @@ body {
 #header {
   text-align: center;
 }
+
+.channelName {
+  text-align: center;
+  font-size: 150%;
+}

@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.google.appengine.api.xmpp.JID;
@@ -21,7 +20,7 @@ public class ListHandler extends SlashCommand {
     // TODO: Reject or act on non-null argument
     
     List<Member> members = Lists.newArrayList(msg.channel.getMembers());
-    Collections.sort(members, new SortMembersForListComparator());
+    Collections.sort(members, new Member.SortMembersForListComparator());
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
         .append(msg.channel.getName())
@@ -60,12 +59,5 @@ public class ListHandler extends SlashCommand {
   
   public String documentation() {
 	  return "/list - show members of room";
-  }
-
-  public static class SortMembersForListComparator implements Comparator<Member> {
-    public int compare(Member first, Member second) {
-      // TODO: sort by online/offline, snoozing
-      return first.getAlias().compareTo(second.getAlias());
-    }
   }
 }

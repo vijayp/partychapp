@@ -39,6 +39,11 @@ public class FixingDatastore extends Datastore {
     Target t = wrapped.getOrCreateTarget(channel, name);
     return t;
   }
+  
+  @Override
+  public List<Target> getTargetsByChannel(String channel) {
+	  return wrapped.getTargetsByChannel(channel);
+  }
 
   @Override
   public List<Reason> getReasons(Target target, int limit) {

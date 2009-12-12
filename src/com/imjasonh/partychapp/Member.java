@@ -2,6 +2,7 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -230,5 +231,12 @@ public class Member implements Serializable {
 
   public Key key() {
     return key;
+  }
+  
+  public static class SortMembersForListComparator implements Comparator<Member> {
+	  public int compare(Member first, Member second) {
+		  // TODO: sort by online/offline, snoozing
+		  return first.getAlias().compareTo(second.getAlias());
+	  }
   }
 }

@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +47,11 @@ public class FakeDatastore extends Datastore {
       return new Target(t);
     }
     return null;
+  }
+  
+  @Override
+  public List<Target> getTargetsByChannel(String channel) {
+	  return new ArrayList<Target>(targets.values());
   }
   
   @Override

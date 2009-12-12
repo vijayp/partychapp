@@ -1,10 +1,13 @@
 package com.imjasonh.partychapp;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
@@ -39,6 +42,12 @@ public abstract class Datastore {
     }
     return t;
   }
+  
+  public List<Target> getTargetsByChannel(Channel channel) {
+	  return getTargetsByChannel(channel.getName());
+  }
+  
+  public abstract List<Target> getTargetsByChannel(String channel);
 
   public abstract List<Reason> getReasons(Target target, int limit);
 
@@ -54,4 +63,18 @@ public abstract class Datastore {
 
   public abstract void startRequest();
   public abstract void endRequest();
+
+  public Channel getChannelFromWeb(User user, String channelName) throws IOException {
+	  Channel channel = getChannelByName(channelName);
+	  if (channel == null) {
+		  // resp.getWriter().write("Sorry, room name is not there");
+		  return null;
+	  } 
+
+	  if (channel.getMemberByJID(new JID(user.getEmail())) == null) {
+		  // resp.getWriter().write("Sorry, you're not in that room.");
+		  return null;
+	  }
+	  return channel;
+  }
 }

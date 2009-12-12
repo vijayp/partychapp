@@ -55,6 +55,20 @@ public class LiveDatastore extends Datastore {
     }
     return t;
   }
+  
+  @Override
+  public List<Target> getTargetsByChannel(String channelName) {
+	  Query query = manager.newQuery(Target.class);
+	  query.setFilter("channelName == channelNameParam");
+	  //	query.setOrdering("hireDate desc");
+	  query.declareParameters("String channelNameParam");
+
+	  try {
+		  return (List<Target>) query.execute(channelName);
+	  } finally {
+		  query.closeAll();
+	  }
+  }
 
   @SuppressWarnings("unchecked")
   public List<Reason> getReasons(Target target, int limit) {
