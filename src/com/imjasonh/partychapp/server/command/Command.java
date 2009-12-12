@@ -6,8 +6,8 @@ public enum Command {
   // just to avoid craziness, let's assume we only let people broadcast from
   // email and sms, so let's steal these and never let the slash-commands see
   // them.
-  EMAIL(new EmailHandler()),
-  SMS(new SMSHandler()),
+  INCOMING_EMAIL(new IncomingEmailHandler()),
+  INCOMING_SMS(new IncomingSMSHandler()),
   
   // these implicit handlers have to be first
   CREATE_AND_JOIN(new CreateAndJoinCommand()),

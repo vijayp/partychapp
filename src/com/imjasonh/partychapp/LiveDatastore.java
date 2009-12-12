@@ -15,6 +15,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
@@ -29,12 +30,54 @@ public class LiveDatastore extends Datastore {
   
   @Override
   public Channel getChannelByName(String name) {
+    Channel c = null;
     try {
-      Channel channel = manager.getObjectById(Channel.class, name);
-      return channel;
+      c = manager.getObjectById(Channel.class, name);
     } catch (JDOObjectNotFoundException notFound) {
       return null;
     }
+
+    return attachUsersToChannelMembers(c);
+  }
+  
+  @Override
+  public User getUserByJID(String jid) {
+    try {
+      User user = manager.getObjectById(User.class, jid);
+      return user;
+    } catch (JDOObjectNotFoundException notFound) {
+      return null;
+    }    
+  }
+
+  @Override
+  public User getUserByPhoneNumber(String phoneNumber) {
+    Query query = manager.newQuery(User.class);
+    query.setFilter("phoneNumber == phoneNumberParam");
+    query.declareParameters("String phoneNumberParam");
+
+    @SuppressWarnings("unchecked")
+    List<User> users = (List<User>) query.execute(phoneNumber);
+    query.closeAll();
+    if ((users != null) && !users.isEmpty()) {
+      return users.get(0);
+    }
+    return null;
+  }
+  
+  @Override
+  public List<User> getUsersByChannel(Channel c) {
+    Query query = manager.newQuery(User.class);
+    query.setFilter("channelNames.contains(channelNameParam)");
+    query.declareParameters("String channelNameParam");
+
+    @SuppressWarnings("unchecked")
+    List<User> users = (List<User>) query.execute(c.getName());
+    query.closeAll();
+    if (users == null) {
+      return Lists.newArrayList();
+    }
+    return users;
   }
 
   @Override
@@ -56,21 +99,21 @@ public class LiveDatastore extends Datastore {
     return t;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public List<Target> getTargetsByChannel(String channelName) {
-	  Query query = manager.newQuery(Target.class);
-	  query.setFilter("channelName == channelNameParam");
-	  //	query.setOrdering("hireDate desc");
-	  query.declareParameters("String channelNameParam");
+    Query query = manager.newQuery(Target.class);
+    query.setFilter("channelName == channelNameParam");
+    //	query.setOrdering("hireDate desc");
+    query.declareParameters("String channelNameParam");
 
-	  try {
-		  return (List<Target>) query.execute(channelName);
-	  } finally {
-		  query.closeAll();
-	  }
+    try {
+      return (List<Target>) query.execute(channelName);
+    } finally {
+      query.closeAll();
+    }
   }
 
-  @SuppressWarnings("unchecked")
   public List<Reason> getReasons(Target target, int limit) {
     Query query = manager.newQuery(Reason.class);
     query.setFilter("targetId == targetIdParam");
@@ -80,6 +123,7 @@ public class LiveDatastore extends Datastore {
       query.setRange(0, limit);
     }
 
+    @SuppressWarnings("unchecked")
     List<Reason> reasons = (List<Reason>) query.execute(target.key());
     query.closeAll();
     return reasons;
@@ -120,6 +164,8 @@ public class LiveDatastore extends Datastore {
       if ("Channel".equals(kind)) {
         ret.numChannels = ((Long)kindStat.getProperty("count")).intValue();
         ret.timestamp = (Date)kindStat.getProperty("timestamp");
+      } else if ("User".equals(kind)) {
+        ret.numUsers = ((Long)kindStat.getProperty("count")).intValue();
       }
     }
     

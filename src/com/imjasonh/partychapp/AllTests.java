@@ -8,7 +8,7 @@ import com.imjasonh.partychapp.server.PartychappServletTest;
 import com.imjasonh.partychapp.server.command.AliasHandlerTest;
 import com.imjasonh.partychapp.server.command.BroadcastHandlerTest;
 import com.imjasonh.partychapp.server.command.DebugHandlerTest;
-import com.imjasonh.partychapp.server.command.EmailHandlerTest;
+import com.imjasonh.partychapp.server.command.IncomingEmailHandlerTest;
 import com.imjasonh.partychapp.server.command.GraphScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.InviteHandlerTest;
 import com.imjasonh.partychapp.server.command.LeaveHandlerTest;
@@ -16,7 +16,7 @@ import com.imjasonh.partychapp.server.command.ListHandlerTest;
 import com.imjasonh.partychapp.server.command.MeHandlerTest;
 import com.imjasonh.partychapp.server.command.PPBHandlerTest;
 import com.imjasonh.partychapp.server.command.ReasonsHandlerTest;
-import com.imjasonh.partychapp.server.command.SMSHandlerTest;
+import com.imjasonh.partychapp.server.command.IncomingSMSHandlerTest;
 import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.SearchReplaceHandlerTest;
 import com.imjasonh.partychapp.server.command.SendBroadcastSMSHandlerTest;
@@ -51,8 +51,8 @@ public class AllTests {
     suite.addTestSuite(StatsHandlerTest.class);
     suite.addTestSuite(GraphScoreHandlerTest.class);
     suite.addTestSuite(SnoozeHandlerTest.class);
-    suite.addTestSuite(EmailHandlerTest.class);
-    suite.addTestSuite(SMSHandlerTest.class);
+    suite.addTestSuite(IncomingEmailHandlerTest.class);
+    suite.addTestSuite(IncomingSMSHandlerTest.class);
     suite.addTestSuite(SendBroadcastSMSHandlerTest.class);
     // $JUnit-END$
     return suite;

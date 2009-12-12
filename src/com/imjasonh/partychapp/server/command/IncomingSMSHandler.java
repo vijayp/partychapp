@@ -3,10 +3,17 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 
-public class EmailHandler implements CommandHandler {
+public class IncomingSMSHandler implements CommandHandler {
   public void doCommand(Message msg) {
-    String reply = "**via email** " + msg.member.getAliasPrefix() + msg.content;
+    String reply = "*via SMS* ";
+    reply += msg.member.getAliasPrefix();
+    reply += msg.content;
+    msg.member.addToLastMessages(msg.content);
+    
+    msg.channel.broadcastSMS(reply);
+
     msg.channel.broadcastIncludingSender(reply);
+    msg.channel.put();
   }
 
   public String documentation() {
@@ -15,6 +22,6 @@ public class EmailHandler implements CommandHandler {
   }
 
   public boolean matches(Message msg) {
-    return msg.messageType.equals(MessageType.EMAIL);
+    return msg.messageType.equals(MessageType.SMS);
   }
 }

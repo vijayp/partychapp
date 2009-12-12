@@ -33,6 +33,33 @@ public class FixingDatastore extends Datastore {
     }
     return c;
   }
+  
+  @Override
+  public User getUserByJID(String jid) {
+    User u = wrapped.getUserByJID(jid);
+    if (u != null) {
+      u.fixUp();
+    }
+    return u;
+  }
+
+  @Override
+  public User getUserByPhoneNumber(String phoneNumber) {
+    User u = wrapped.getUserByPhoneNumber(phoneNumber);
+    if (u != null) {
+      u.fixUp();
+    }
+    return u;
+  }
+  
+  @Override
+  public List<User> getUsersByChannel(Channel c) {
+    List<User> users = wrapped.getUsersByChannel(c);
+    for (User u : users) {
+      u.fixUp();
+    }
+    return users;
+  }
 
   @Override
   public Target getOrCreateTarget(Channel channel, String name) {

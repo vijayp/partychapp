@@ -149,7 +149,7 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(false, "-david@gmail.com", "[david] yay, now i can join"),
 
       new TestMessage(true, "david@gmail.com", "/status"),
-      new TestMessage(false, "david@gmail.com", "You are currently in 'pancake' as 'david'"),
+      new TestMessage(false, "david@gmail.com", "You are currently in 'pancake' as 'david.'"),
 
       new TestMessage(true, "david@gmail.com", "radioheda++"),
       new TestMessage(false, "#4", "[david] radioheda++ [woot! now at 1]"),

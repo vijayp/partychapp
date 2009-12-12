@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.logging.Logger;
 
+import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.SendUtil;
@@ -28,6 +29,9 @@ public class JoinCommand implements CommandHandler {
     }
 
     msg.member = msg.channel.addMember(msg.userJID);
+    msg.member.setUser(Datastore.instance().getOrCreateUser(msg.member.getJID()));
+    msg.member.user().addChannel(msg.channel.getName());
+    msg.member.user().put();
     msg.channel.put();
 
     String reply = "You have joined '" + msg.channel.getName() + "' with the alias '"

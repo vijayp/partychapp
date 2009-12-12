@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +22,7 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
-
+ 
   /**
    * 
    */
@@ -114,7 +115,8 @@ public class Channel implements Serializable {
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
-    return addedMember;
+    
+    return addedMember;    
   }
   
   private Set<Member> mutableMembers() {
@@ -209,16 +211,20 @@ public class Channel implements Serializable {
     }
     return null;
   }
-
+ 
   
   public Member getMemberByPhoneNumber(String phoneNumber) {
     for (Member member : getMembers()) {
-      String memberPhone = member.phoneNumber();
+      String memberPhone = member.user().phoneNumber();
       if ((memberPhone != null) && memberPhone.equals(phoneNumber)) {
         return member;
       }
     }
-    return null;    
+    if (phoneNumber.startsWith("1")) {
+      return getMemberByPhoneNumber(phoneNumber.substring(1));
+    } else {
+      return getMemberByPhoneNumber("1" + phoneNumber);
+    }
   }
 
   /**
@@ -296,11 +302,34 @@ public class Channel implements Serializable {
   }
   
   public String sendMail(String subject,
-                       String body,
-                       String recipient) {
+                         String body,
+                         String recipient) {
     return MailUtil.sendMail(subject, body, this.mailingAddress(), recipient);
   }
 
+  public List<Member> sendSMS(String body, Collection<Member> recipients) {
+    List<Member> realRecipients = Lists.newArrayList();
+    List<String> addresses = Lists.newArrayList();
+    for (Member m : recipients) {
+      if (m.user().canReceiveSMS()) {
+        addresses.add(m.user().carrier().emailAddress(m.user().phoneNumber()));
+        realRecipients.add(m);
+      }
+    }
+
+    for (String addr : addresses) {
+      sendMail("(sent from partychat)",
+               body,
+               addr);
+    }
+    
+    return realRecipients;
+  }
+  
+  public List<Member> broadcastSMS(String body) {
+    return sendSMS(body, getMembers());
+  }
+  
   private void awakenSnoozers() {
     // awaken snoozers and broadcast them awaking.
     Set<Member> awoken = Sets.newHashSet();

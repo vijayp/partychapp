@@ -11,6 +11,7 @@ public class StatsHandler extends SlashCommand {
   public void doCommand(Message msg, String argument) {
     Datastore.Stats stats = Datastore.instance().getStats();
     String reply = "Number of channels: " + stats.numChannels + "\n";
+    reply += "Number of users (it's actually more than this): " + stats.numUsers + "\n";
     reply += "Stats last refreshed: " + stats.timestamp;
     //     "Number of members: " + getOrZero(stats, "Member");
     msg.channel.sendDirect(reply, msg.member);

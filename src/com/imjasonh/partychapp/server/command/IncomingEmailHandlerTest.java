@@ -9,8 +9,8 @@ import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class EmailHandlerTest extends TestCase {
-  EmailHandler handler = new EmailHandler();
+public class IncomingEmailHandlerTest extends TestCase {
+  IncomingEmailHandler handler = new IncomingEmailHandler();
   MockXMPPService xmpp = new MockXMPPService();
   
   public void setUp() {

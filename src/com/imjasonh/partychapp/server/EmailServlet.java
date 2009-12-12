@@ -131,8 +131,8 @@ public class EmailServlet extends HttpServlet {
     } else {
       // member might be null if we don't know the phone number
       Member member = channel.getMemberByPhoneNumber(memberPhoneNumber);
-      if ((member == null) && memberPhoneNumber.startsWith("1")) {
-        member = channel.getMemberByPhoneNumber(memberPhoneNumber.substring(1));
+      if (member == null) {
+        LOG.severe("Got an SMS from " + memberPhoneNumber + " but I don't know what channel they're in. Dropping on floor.");
       }
       
       // GV emails have a --\nGoogle Voice footer, so try and look for that.

@@ -19,6 +19,7 @@ public class FakeDatastore extends Datastore {
   private Map<Key, Member> members = Maps.newHashMap();
   private Map<String, Target> targets = Maps.newHashMap();
   private Map<String, List<Reason> > reasons = Maps.newHashMap();
+  private Map<String, User> users = Maps.newHashMap();
   
   public FakeDatastore() {
     Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
@@ -34,12 +35,42 @@ public class FakeDatastore extends Datastore {
   @Override
   public Channel getChannelByName(String name) {
     Channel c = channels.get(name);
-    if (c != null) {
-      return new Channel(c);
+    if (c == null) {
+      return null;
+    }
+    return attachUsersToChannelMembers(new Channel(c));
+  }
+  
+  @Override
+  public User getUserByJID(String jid) {
+    User u = users.get(jid);
+    if (u != null) {
+      return new User(u);
     }
     return null;
   }
-  
+
+  @Override
+  public User getUserByPhoneNumber(String phoneNumber) {
+    for (User u : users.values()) {
+      if (u.phoneNumber().equals(phoneNumber)) {
+        return new User(u);
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public List<User> getUsersByChannel(Channel c) {
+    List<User> ret = Lists.newArrayList();
+    for (User u : users.values()) {
+      if (u.channelNames().contains(c.getName())) {
+        ret.add(new User(u));
+      }
+    }
+    return ret;
+  }
+
   @Override
   public Target getTargetByID(String key) {
     Target t = targets.get(key);
@@ -69,6 +100,7 @@ public class FakeDatastore extends Datastore {
   public Datastore.Stats getStats() {
     Datastore.Stats ret = new Datastore.Stats();
     ret.numChannels = channels.size();
+    ret.numUsers = users.size();
     ret.timestamp = new Date(1256134870830L);
     return ret;
   }
@@ -106,6 +138,9 @@ public class FakeDatastore extends Datastore {
     } else if (s instanceof Member) {
       Member m = (Member)s;
       members.put(m.key(), m);
+    } else if (s instanceof User) {
+      User u = (User)s;
+      users.put(u.getJID(), u);
     } else {
       throw new RuntimeException("put not implemented for " + s);
     }

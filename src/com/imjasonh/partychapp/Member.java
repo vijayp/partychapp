@@ -54,6 +54,9 @@ public class Member implements Serializable {
   
   @Persistent
   String carrier;
+  
+  @NotPersistent
+  User user;
 
   public enum SnoozeStatus {
     SNOOZING,
@@ -61,42 +64,6 @@ public class Member implements Serializable {
     SHOULD_WAKE;
   }
   
-  // I stole from http://en.wikipedia.org/wiki/List_of_carriers_providing_SMS_transit
-  public enum Carrier {
-    ATT("at&t", "txt.att.net", false),
-    VERIZON("verizon", "vtext.net", true),
-    TMOBILE("tmobile", "tmomail.net", true),
-    SPRINT("sprint", "messaging.sprintpcs.com", true),
-    VIRGIN("virgin", "vmobl.com", true)
-    ;
-    
-    public final String shortName;
-    public final String emailToSmsDomain;
-    public final boolean wantsLeadingOne;
-    
-    private Carrier(String shortName, String emailToSmsDomain, boolean wantsLeadingOne) {
-      this.shortName = shortName;
-      this.emailToSmsDomain = emailToSmsDomain;
-      this.wantsLeadingOne = wantsLeadingOne;
-    }
-    
-    public String emailAddress(String phoneNumber) {
-      if (phoneNumber == null) {
-        return null;
-      }
-      if (wantsLeadingOne) {
-        if (!phoneNumber.startsWith("1")) {
-          phoneNumber = "1" + phoneNumber;
-        }
-      } else {
-        if (phoneNumber.startsWith("1")) {
-          phoneNumber = phoneNumber.substring(1);
-        }
-      }
-      return phoneNumber + "@" + emailToSmsDomain;
-    }
-  }
-
   public Member(Channel c, JID jid) {
     this.jid = jid.getId().split("/")[0]; // remove anything after "/"
     this.alias = this.jid.split("@")[0]; // remove anything after "@" for default alias
@@ -105,7 +72,6 @@ public class Member implements Serializable {
   }
   
   public Member(Member other) {
-    this.channel = other.channel;
     this.key = other.key;
     this.jid = other.jid;
     this.alias = other.alias;
@@ -114,6 +80,11 @@ public class Member implements Serializable {
       this.lastMessages = Lists.newArrayList(other.lastMessages);
     }
     this.debugOptions = new DebuggingOptions(other.debugOptions());
+    this.phoneNumber = other.phoneNumber;
+    this.carrier = other.carrier;
+    // to simulate the not-persistent-ness, let's zero these out
+    this.user = null;
+    this.channel = null;
   }
 
   public String getAlias() {
@@ -127,37 +98,23 @@ public class Member implements Serializable {
   public void setAlias(String alias) {
     this.alias = alias;
   }
+  
+  public void setUser(User u) {
+    user = u;
+  }
+  
+  public User user() {
+    return user;
+  }
 
   public String getJID() {
     return jid;
   }
   
   public String getEmail() {
-    // TODO(nsanch): this isn't quite right because it's possible to have a
-    // jabber account that doesn't accept email, but this is good enough until
-    // we have a web UI for this.
-    return jid;
+    return user().getEmail();
   }
   
-  public String phoneNumber() {
-    return phoneNumber;
-  }
-  
-  public void setPhoneNumber(String phone) {
-    phoneNumber = phone;
-  }
-  
-  public Member.Carrier carrier() {
-    if (carrier == null) {
-      return null;
-    }
-    return Carrier.valueOf(carrier);
-  }
-  
-  public void setCarrier(Carrier carrier) {
-    this.carrier = carrier.name();
-  }
-
   public SnoozeStatus getSnoozeStatus() {
     Date now = new Date();
     if (snoozeUntil == null) {
@@ -202,6 +159,8 @@ public class Member implements Serializable {
     if (messages.size() > 10) {
       messages.remove(10);
     }
+    user().markSeen();
+    user().put();
   }
 
   public DebuggingOptions debugOptions() {
@@ -212,7 +171,6 @@ public class Member implements Serializable {
     boolean shouldPut = false;
     if (channel != c) {
       channel = c;
-      //shouldPut = true;
     }
     if (debugOptions == null) {
       debugOptions = new DebuggingOptions();
@@ -222,11 +180,20 @@ public class Member implements Serializable {
       lastMessages = Lists.newArrayList();
       shouldPut = true;
     }
+    if (phoneNumber != null) {
+      user.setPhoneNumber(phoneNumber);
+      phoneNumber = null;
+    }
+    if (carrier != null) {
+      user.setCarrier(User.Carrier.valueOf(carrier));
+      carrier = null;
+    }
     return shouldPut;
   }
   
   public void put() {
     channel.put();
+    user.put();
   }
 
   public Key key() {

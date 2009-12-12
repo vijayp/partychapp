@@ -18,6 +18,8 @@ import com.imjasonh.partychapp.Datastore;
 public class WebChannelServlet  extends HttpServlet {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(WebServlet.class.getName());
+	
+	public static final long serialVersionUID = 985749740983755L;
 
 	
 	@Override
