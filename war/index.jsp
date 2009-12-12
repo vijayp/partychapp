@@ -2,6 +2,10 @@
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
+<%
+UserService userService = UserServiceFactory.getUserService();
+User user = userService.getCurrentUser();
+%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -17,6 +21,11 @@
   </head>
   <body>
   <div id="main">
+  <% if (user != null) { %>
+    <div id="logout" style="text-align:right">
+       <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out of <%=user.getEmail()%></a>
+    </div>
+  <% } %>
     <div id="header">
       <img src="logo.png" width="310" height="150" alt="Partychat">
     </div>
@@ -33,8 +42,6 @@
   <h3>How do I create a room?</h3>
 
 <%
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();
     if (user != null) {
 %>
 <div id="actionOptions">
