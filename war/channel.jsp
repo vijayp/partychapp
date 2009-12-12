@@ -17,7 +17,7 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link type="text/css" rel="stylesheet" href="/Partychapp.css">
-<title>Partychapp - Channel Stats:</title>
+<title>Partychapp - Channel Stats: <%=channel.getName()%></title>
 </head>
 <body>
   <div id="main">
@@ -28,23 +28,26 @@
 <div class="channelName">Channel stats for: 
 <span style="font-weight:bold"><%=channel.getName()%></span></div>
 
+<script>
+function addReasons(cell, name, score) {
+}
+</script>
+
 <div class="channelHeading">PlusPlusBot</div>
-<table class="targetTable">
-	<tr>
-		<td>Target</td>
-		<td>Score</td>
-	</tr>
-	<%
+<%
 		List<Target> targets = datastore.getTargetsByChannel(channel);
 		for (Target t : targets) {
 	%>
+<div>
+<table>
 	<tr>
-		<td><%=t.name()%></td>
+		<td width="500" onclick="addReasons(this, '<%=t.name()%>', '<%=t.score()%>')">
+		<%=t.name()%></td>
 		<td><%=t.score()%></td>
 	</tr>
-	<% } %>
 </table>
-
+<% } %>
+<P></P>
 <div class="channelHeading">Members</div>
 <table class="scoreTable">
 	<tr>
@@ -62,6 +65,5 @@
 	</tr>
 	<% } %>
 </table>
-</div>
-</body>
+</div></body>
 </html>

@@ -1,46 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://java.sun.com/xml/ns/javaee"
-xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
-  <servlet>
-    <servlet-name>xmppreceiver</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.server.PartychappServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>webServlet</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.server.WebServlet</servlet-class>
-  </servlet>
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+	<servlet>
+		<servlet-name>xmppreceiver</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.PartychappServlet</servlet-class>
+	</servlet>
 
-  <servlet-mapping>
-    <servlet-name>xmppreceiver</servlet-name>
-    <url-pattern>/_ah/xmpp/message/chat/</url-pattern>
-  </servlet-mapping>
+	<servlet>
+		<servlet-name>webServlet</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.WebServlet</servlet-class>
+	</servlet>
 
-  <servlet-mapping>
-    <servlet-name>webServlet</servlet-name>
-    <url-pattern>/room</url-pattern>
-  </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>xmppreceiver</servlet-name>
+		<url-pattern>/_ah/xmpp/message/chat/</url-pattern>
+	</servlet-mapping>
 
-  <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
-  </welcome-file-list>
+	<servlet-mapping>
+		<servlet-name>webServlet</servlet-name>
+		<url-pattern>/room</url-pattern>
+	</servlet-mapping>
 
-  <servlet>
-	<servlet-name>mailhandler</servlet-name>
-	<servlet-class>com.imjasonh.partychapp.server.EmailServlet</servlet-class>
-  </servlet>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<servlet>
+		<servlet-name>mailhandler</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.EmailServlet</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>webchannelhandler</servlet-name>
 		<servlet-class>com.imjasonh.partychapp.server.WebChannelServlet</servlet-class>
 	</servlet>
+
+	<servlet>
+		<servlet-name>reasonsjsonhandler</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.json.ReasonsJsonServlet</servlet-class>
+	</servlet>
 	
 		<servlet>
-		<servlet-name>webreasonsjsonhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.WebReasonsJsonServlet</servlet-class>
+		<servlet-name>channeljsonhandler</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.json.ChannelJsonServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>userinfojsonhandler</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.json.UserInfoJsonServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
@@ -49,21 +59,31 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>webreasonsjsonhandler</servlet-name>
-		<url-pattern>/reason/*</url-pattern>
+		<servlet-name>channeljsonhandler</servlet-name>
+		<url-pattern>/channeljson/*</url-pattern>
 	</servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>mailhandler</servlet-name>
-    <url-pattern>/_ah/mail/*</url-pattern>
-  </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>reasonsjsonhandler</servlet-name>
+		<url-pattern>/reasons/*</url-pattern>
+	</servlet-mapping>
 
-  <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/_ah/mail/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name>
-    </auth-constraint>
-  </security-constraint>
+	<servlet-mapping>
+		<servlet-name>userinfojsonhandler</servlet-name>
+		<url-pattern>/userinfo</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mailhandler</servlet-name>
+		<url-pattern>/_ah/mail/*</url-pattern>
+	</servlet-mapping>
+
+	<security-constraint>
+		<web-resource-collection>
+			<url-pattern>/_ah/mail/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
 </web-app>
