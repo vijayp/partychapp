@@ -5,10 +5,12 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
+import com.imjasonh.partychapp.server.WebServlet;
 
 public abstract class Datastore {
   private static Datastore instance;
@@ -93,17 +95,20 @@ public abstract class Datastore {
 
   public abstract void startRequest();
   public abstract void endRequest();
+  
+  private static final Logger LOG = Logger.getLogger(WebServlet.class.getName());
 
-  public Channel getChannelFromWeb(com.google.appengine.api.users.User user,
-                                   String channelName) throws IOException {
-    Channel channel = getChannelByName(channelName);
-    if (channel == null) {
-      return null;
-    } 
+  public Channel getChannelIfUserPresent(String channelName, String email) throws IOException {
+	  Channel channel = getChannelByName(channelName);
+	  if (channel == null) {
+		  System.out.println("Sorry room name is not there: " + channelName);
+		  return null;
+	  } 
 
-    if (channel.getMemberByJID(new JID(user.getEmail())) == null) {
-      return null;
-    }
-    return channel;
+	  if (channel.getMemberByJID(new JID(email)) == null) {
+		  System.out.println("Sorry you're not in that room: " + email);
+		  return null;
+	  }
+	  return channel;
   }
 }

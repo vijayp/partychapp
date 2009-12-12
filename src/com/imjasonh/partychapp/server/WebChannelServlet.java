@@ -40,7 +40,7 @@ public class WebChannelServlet  extends HttpServlet {
 		Datastore datastore = Datastore.instance();
 		datastore.startRequest();
 
-		Channel channel = datastore.getChannelFromWeb(user, channelName);
+		Channel channel = datastore.getChannelIfUserPresent(channelName, user.getEmail());
 		if (channel != null) {
 			RequestDispatcher disp;
 			disp = getServletContext().getRequestDispatcher("/channel.jsp");

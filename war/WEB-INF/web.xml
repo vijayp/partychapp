@@ -37,10 +37,20 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>webchannelhandler</servlet-name>
 		<servlet-class>com.imjasonh.partychapp.server.WebChannelServlet</servlet-class>
 	</servlet>
+	
+		<servlet>
+		<servlet-name>webreasonsjsonhandler</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.WebReasonsJsonServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>webchannelhandler</servlet-name>
 		<url-pattern>/channel/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>webreasonsjsonhandler</servlet-name>
+		<url-pattern>/reason/*</url-pattern>
 	</servlet-mapping>
 
   <servlet-mapping>
