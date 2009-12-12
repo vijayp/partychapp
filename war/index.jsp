@@ -2,6 +2,7 @@
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
+<%@ page import="com.imjasonh.partychapp.Configuration" %>
 <%
 UserService userService = UserServiceFactory.getUserService();
 User user = userService.getCurrentUser();
@@ -17,7 +18,7 @@ User user = userService.getCurrentUser();
         document.getElementById(elt).style.display = '';
       }
     </script>
-    <title>Partychapp</title>
+    <title>Partychat</title>
   </head>
   <body>
   <div id="main">
@@ -36,9 +37,19 @@ User user = userService.getCurrentUser();
   <ul>
     <li>Use whatever you use to chat already: GMail, Adium,...</li>
     <li>Catch up on messages you miss while offline.</li>
+    <li>Don't have to re-join rooms when you log-out.</li>
     <li>Built on reliable Google App Engine.</li>
     <li>Easy to use, lots of <a href="#nowwhat">silly features</a>.</li>
   </ul>
+<% 
+    if (Configuration.isConfidential) {
+%>
+  <h3>Are messages confidential?</h3>
+  Yup! We're running on an internal instance of AppEngine, so everything stays
+  safe.
+<%
+    }
+%>
   <h3>How do I create a room?</h3>
 
 <%
@@ -73,22 +84,22 @@ Email addresses you would like to invite? (separated by commas)<br>
 %>
 The easiest way to create a room is to <a style="font-weight: bold" href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a> and do it right here.
 <br/><br/>
-Or you can add [roomname]@partychapp.appspotchat.com to your buddy list and send it a message to join the room. If a room of that name doesn't exist, a new one will be created.
+Or you can add <tt>[roomname]@<%= Configuration.chatDomain %></tt> to your buddy list and send it a message to join the room. If a room of that name doesn't exist, a new one will be created.
 <%
     }
 %>
 
 <h3>How do I join a room?</h3>
-The easiest way to join a room is to be invited. If the room has already been created, have someone in the room type <tt>/invite youremailaddress@gmail.com</tt>.
+The easiest way to join a room is to be invited. If the room has already been created, have someone in the room type <tt>/invite youremailaddress@anydomain.com</tt>.
 <br><br>
-You should see an invitation from [roomname]@partychapp.appspotchat.com in your chat window. Accept the invitation, and then <b>send a message to your new buddy</b>, such as "hi." This will finish adding you to the room.
+You should see an invitation from <tt>[roomname]@<%= Configuration.chatDomain %></tt> in your chat window. Accept the invitation, and then <b>send a message to your new buddy</b>, such as "hi." This will finish adding you to the room.
 <br><br>
-Alternatively, if a room is not invite-only, you can just add [roomname]@partychapp.appspotchat.com to your buddy list and send it a message.
+Alternatively, if a room is not invite-only, you can just add <tt>[roomname]@<%= Configuration.chatDomain %></tt> to your buddy list and send it a message.
 
 <a name="nowwhat">
 <h3>Okay, I'm in a room, now what?</h3>
 Besides just sending messages and having everyone see them, most of the things you can do take the form of commands you type as special chat messages starting with a /.<br><br>
-<img src="http://bp0.blogger.com/_qxrodbRnu8Q/RwU0eJp1tXI/AAAAAAAAB3o/eaz_2WHW114/s400/Picture+8.png">
+<img src="http://1.bp.blogspot.com/_qxrodbRnu8Q/SyL57yANfsI/AAAAAAAAD4w/pRdYP3wI_a4/s400/pchapp-shot.png">
 <br><br>
 You can get a full list of commands by sending the chat message <tt>/help</tt> to the room. Some key ones:
 <ul>
@@ -102,7 +113,7 @@ You can get a full list of commands by sending the chat message <tt>/help</tt> t
 </ul>
 
 <h3>Tell me more about this "partychat"</h3>
-Partychat was started by <a href=http://www.q00p.net/>Akshay</a> and is maintained by a motley, ragtag group of current and former Googlers with names like Neil and Jason, although <i>this is not in any way associated with Google</i>. You can find the source code on <a href="http://code.google.com/p/partychapp/">Google Code</a>.
+Partychat was started by <a href=http://www.q00p.net/>Akshay</a> and is maintained by a motley, ragtag group of current and former Googlers with names like Neil, Jason, and Kushal, although <i>this is not in any way associated with Google</i>. You can find the source code on <a href="http://code.google.com/p/partychapp/">Google Code</a>.
 <br><br>
 For updates, please subscribe to our <a href="http://techwalla.blogspot.com/">blog</a> or <a href="http://twitter.com/partychat">follow us on Twitter</a>.
 
