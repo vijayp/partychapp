@@ -13,6 +13,11 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>createRoomServlet</servlet-name>
 		<servlet-class>com.imjasonh.partychapp.server.web.CreateRoomServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>inviteToRoomServlet</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.web.InviteToRoomServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>xmppreceiver</servlet-name>
@@ -20,8 +25,13 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>createRoomServlet</servlet-name>
-		<url-pattern>/room</url-pattern>
+	    <servlet-name>createRoomServlet</servlet-name>
+	    <url-pattern>/room</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>inviteToRoomServlet</servlet-name>
+		<url-pattern>/invite</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>

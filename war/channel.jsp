@@ -105,5 +105,31 @@ function addReasons(cell, channelName, targetName) {
 	</tr>
 	<% } %>
 </table>
+<P></P>
+<div class="channelHeading">Invited</div>
+	<%
+	   List<String> invitedMembers = Lists.newArrayList(channel.getInvitees());
+    Collections.sort(invitedMembers);
+    for (String m : invitedMembers) { %>
+    	<%=m%><BR></BR>
+	<% } %>
+<P></P>
+Invite People!
+<div id="invite" style="border: 1px solid #ccc">
+<table cellpadding=10>
+	<tr>
+		<td>
+		<form action="/invite" method="post" target="inviteResults">
+		<input type="hidden" name="name" value="<%=channel.getName()%>"/>
+		Email addresses you would like to invite? (separated by commas)<br>
+		<textarea name="invitees"></textarea> <br>
+		<br>
+		<input type="submit" value="Invite!"></form>
+		</td>
+		<td><iframe frameborder=0 name="inviteResults"> </iframe></td>
+	</tr>
+</table>
+</div>
+
 </div></body>
 </html>

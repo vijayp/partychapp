@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -21,58 +23,46 @@ import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.command.InviteHandler;
 
 @SuppressWarnings("serial")
-public class CreateRoomServlet extends HttpServlet {
+public class InviteToRoomServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
-  private static final Logger LOG = Logger.getLogger(CreateRoomServlet.class.getName());
+  private static final Logger LOG = Logger.getLogger(InviteToRoomServlet.class.getName());
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
-  
-    resp.getWriter().write("<style>body { font-family: Helvetica, sans-serif }</style>");
-    String name = req.getParameter("name");
+    
+    if (user == null) {
+    	resp.getWriter().write("not logged in");
+    	return;
+    }
+    
+    String channelName = req.getParameter("name");
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
-    Channel channel = datastore.getChannelByName(name);
-    if (channel != null) {
-      resp.getWriter().write("Sorry, room name is taken");
-      return;
-    }
-    // TODO: Get this programatically
-    JID serverJID = new JID(name + "@" + Configuration.chatDomain);
-    channel = new Channel(serverJID);
-    channel.addMember(new JID(user.getEmail())); // need / ?
-    SendUtil.invite(user.getEmail(), serverJID);
-    
-    // works for "true" ignoring case
-    if (Boolean.parseBoolean(req.getParameter("inviteOnly"))) {
-      channel.setInviteOnly(true);
-    }
-
+	Channel channel = datastore.getChannelIfUserPresent(channelName, user.getEmail());
+	if (channel == null) {
+    	resp.getWriter().write("access denied");
+    	return;
+	}
+  
+    resp.getWriter().write("<style>body { font-family: Helvetica, sans-serif }</style>");
     List<String> invitees = Lists.newArrayList();
     if (!req.getParameter("invitees").isEmpty()) {
     	String error = InviteHandler.parseEmailAddresses(req.getParameter("invitees"), invitees);
     	for (String invitee : invitees) {
     		channel.invite(invitee);
-    		SendUtil.invite(invitee, serverJID);
+    		SendUtil.invite(invitee, channel.serverJID());
+    		error += "Invited " + invitee + "<br>";
     	}
 	    resp.getWriter().write(error);
     } else {
-    	resp.getWriter().write("You're the only person in this room for now.<P>");
+    	resp.getWriter().write("No one to invite.<P>");
     }
 
     channel.put();
-    datastore.endRequest();
-    resp.getWriter().write(
-        "Created! Just accept the chat request and start talking. " +
-    		"To add users later, type '/invite user@whatever.com'.");
-    
-    resp.getWriter().write(
-    		"<P>Try messaging <a href=im:" + serverJID.getId() + ">"
-    		+ serverJID.getId() + "</a>");
-    
+    datastore.endRequest();    
   }
 }
