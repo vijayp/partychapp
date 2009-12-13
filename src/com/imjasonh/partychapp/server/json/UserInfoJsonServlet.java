@@ -33,6 +33,8 @@ public class UserInfoJsonServlet  extends JsonServlet {
 			list.put(channelJson);
 		}
 
-		return new JSONObject().put("channels", list);
+		JSONObject jsonResponse = new JSONObject().put("channels", list);
+		jsonResponse.put("email", user.getEmail());
+		return jsonResponse;
 	}
 }

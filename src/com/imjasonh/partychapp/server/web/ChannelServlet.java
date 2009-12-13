@@ -1,4 +1,4 @@
-package com.imjasonh.partychapp.server;
+package com.imjasonh.partychapp.server.web;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -15,9 +15,8 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 
-public class WebChannelServlet  extends HttpServlet {
+public class ChannelServlet  extends HttpServlet {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(WebServlet.class.getName());
 	
 	public static final long serialVersionUID = 985749740983755L;
 
