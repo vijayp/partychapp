@@ -13,6 +13,31 @@
 <head>
 
 <script>
+
+function displayInfo(data) {
+    var userInfo = eval("(" + data + ")");
+
+    var headerDiv = document.getElementById("header");
+    var header = document.createElement("div");
+    header.setAttribute('style', "text-align: center; font-size: 150%");
+    header.innerHTML = "Stats for: " + userInfo['email'];
+    headerDiv.appendChild(header);
+
+    var dataDiv = document.getElementById("data");
+    var channels = userInfo['channels'];
+    for (var i = 0; i < channels.length; i++) {
+       var channelName = channels[i].name;     
+       var nameDiv = document.createElement("div");
+       var nameAnchor = document.createElement("a");
+       nameAnchor.href = "/channel/" + channelName;
+       var nameNode = document.createTextNode(channelName);
+       nameAnchor.appendChild(nameNode);
+       nameDiv.appendChild(nameAnchor);
+       nameDiv.appendChild(document.createTextNode(" (alias: " + channels[i].alias + ")"));
+       dataDiv.appendChild(nameDiv);
+    }
+}
+
 function processInfo() {
   var url = "/userinfo";
 
@@ -20,27 +45,7 @@ function processInfo() {
   xmlHttp.open('GET', url, true);
   xmlHttp.onreadystatechange = function(){
       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-        var userInfo = eval("(" + xmlHttp.responseText + ")");
-
-        var headerDiv = document.getElementById("header");
-        var header = document.createElement("div");
-        header.setAttribute('style', "text-align: center; font-size: 150%");
-        header.innerHTML = "Stats for: " + userInfo['email'];
-        headerDiv.appendChild(header);
-
-        var dataDiv = document.getElementById("data");
-        var channels = userInfo['channels'];
-        for (var i = 0; i < channels.length; i++) {
-           var channelName = channels[i].name;     
-           var nameDiv = document.createElement("div");
-           var nameAnchor = document.createElement("a");
-           nameAnchor.href = "/channel/" + channelName;
-           var nameNode = document.createTextNode(channelName);
-           nameAnchor.appendChild(nameNode);
-           nameDiv.appendChild(nameAnchor);
-           nameDiv.appendChild(document.createTextNode(" (alias: " + channels[i].alias + ")"));
-           dataDiv.appendChild(nameDiv);
-        }
+		displayInfo(xmlHttp.responseText);
       }};
 
     xmlHttp.send(null);

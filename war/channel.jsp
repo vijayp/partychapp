@@ -29,29 +29,69 @@
 <span style="font-weight:bold"><%=channel.getName()%></span></div>
 
 <script>
-function addReasons(cell, name, score) {
+function displayReasons(cell, data) {
+    var reasons = eval("(" + data + ")")['reasons'];
+	var reasonsDiv = document.createElement("div");
+	reasonsDiv.class = "reasons";
+    for (var i = 0; i < reasons.length; ++i) {	
+    	reasonsDiv.innerHTML += reasons[i].reason + " (" + reasons[i].sender + ")<BR>";
+    }
+	cell.appendChild(reasonsDiv);
+	cell.isExpanded = true;
+	cell.expanded = reasonsDiv;
 }
+
+function addReasons(cell, channelName, targetName) {
+	if (cell.isExpanded) {
+		if (cell.expanded.style.display == 'none') {
+			cell.expanded.style.display = 'block';
+		} else {
+			cell.expanded.style.display = 'none';
+		}
+		return;
+	}
+	
+	var url = "/reasons/" + channelName + "/" + targetName;
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.open('GET', url, true);
+	xmlHttp.onreadystatechange = function(){
+	if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+		displayReasons(cell, xmlHttp.responseText);
+    }};
+
+    xmlHttp.send(null);
+}  
+
 </script>
 
 <div class="channelHeading">PlusPlusBot</div>
+
+<table>
+	<tr>
+		<td width="450px">Target</td>
+		<td>Score</td>
+	</tr>
+</table>
 <%
 		List<Target> targets = datastore.getTargetsByChannel(channel);
 		for (Target t : targets) {
 	%>
-<div>
+
+<div
+	onclick="addReasons(this, '<%=channel.getName()%>', '<%=t.name()%>')">
 <table>
 	<tr>
-		<td width="500" onclick="addReasons(this, '<%=t.name()%>', '<%=t.score()%>')">
-		<%=t.name()%></td>
+		<td width="450px"><%=t.name()%></td>
 		<td><%=t.score()%></td>
 	</tr>
 </table>
+</div>
 <% } %>
 <P></P>
 <div class="channelHeading">Members</div>
 <table class="scoreTable">
 	<tr>
-		<td>Alias</td>
+		<td width="100px">Alias</td>
 		<td>Email address</td>
 	</tr>
 	<%
