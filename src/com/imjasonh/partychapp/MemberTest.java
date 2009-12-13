@@ -4,7 +4,9 @@ import junit.framework.TestCase;
 
 public class MemberTest extends TestCase {
   public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
+	FakeDatastore datastore = new FakeDatastore();
+	Datastore.setInstance(datastore);
+	datastore.setUp();
   }
   
   public void testAddToLastMessages() {

@@ -8,14 +8,8 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class StatsHandlerTest extends TestCase {
+public class StatsHandlerTest extends CommandHandlerTest {
   StatsHandler handler = new StatsHandler();
-  MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
   
   public void testStats() {
     handler.doCommand(Message.createForTests(" /stats"));

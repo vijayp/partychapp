@@ -9,14 +9,8 @@ import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class StatusHandlerTest extends TestCase {
+public class StatusHandlerTest extends CommandHandlerTest {
   StatusHandler handler = new StatusHandler();
-  MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
 
   public void testMatches() {
     assertTrue(handler.matches(Message.createForTests("/status")));

@@ -12,14 +12,8 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class PPBHandlerTest extends TestCase {
-  MockXMPPService xmpp = new MockXMPPService();
+public class PPBHandlerTest extends CommandHandlerTest {
   PPBHandler ppb = new PPBHandler();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
   
   public boolean hasJID(String jid) {
     List<JID> recipients = Arrays.asList(xmpp.messages.get(0).getRecipientJids());

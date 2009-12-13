@@ -29,7 +29,6 @@ public class JoinCommand implements CommandHandler {
     }
 
     msg.member = msg.channel.addMember(msg.userJID);
-    msg.member.setUser(Datastore.instance().getOrCreateUser(msg.member.getJID()));
     msg.member.user().addChannel(msg.channel.getName());
     msg.member.user().put();
     msg.channel.put();

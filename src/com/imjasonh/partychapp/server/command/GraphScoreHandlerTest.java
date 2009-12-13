@@ -8,15 +8,9 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 import junit.framework.TestCase;
 
-public class GraphScoreHandlerTest extends TestCase {
-  MockXMPPService xmpp = new MockXMPPService();
+public class GraphScoreHandlerTest extends CommandHandlerTest {
   PPBHandler ppb = new PPBHandler();
   GraphScoreHandler handler = new GraphScoreHandler();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
   
   public void testSimple() {
     String[] messages = { "x++", "x--", "x++", "x++", "x++", "x++", "x--", "x--", "x--", "x--", "x--", "x--", "x--",

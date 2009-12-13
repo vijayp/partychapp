@@ -6,11 +6,7 @@ import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
 
-public class AliasHandlerTest extends TestCase {
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-  }
-  
+public class AliasHandlerTest extends CommandHandlerTest {
   public void testAliasMatches() {
     AliasHandler handler = new AliasHandler();
 

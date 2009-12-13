@@ -8,15 +8,9 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 import junit.framework.TestCase;
 
-public class LeaveHandlerTest extends TestCase {
+public class LeaveHandlerTest extends CommandHandlerTest {
   LeaveHandler handler = new LeaveHandler();
-  MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
-  
+
   public void testMatches() {
     assertTrue(handler.matches(Message.createForTests("/leave")));
     assertTrue(handler.matches(Message.createForTests(" /leave")));

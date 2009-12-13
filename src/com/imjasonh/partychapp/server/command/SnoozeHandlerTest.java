@@ -11,13 +11,11 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class SnoozeHandlerTest extends TestCase {
+public class SnoozeHandlerTest extends CommandHandlerTest {
   SnoozeHandler handler = new SnoozeHandler();
-  MockXMPPService xmpp = new MockXMPPService();
   
   public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
+    super.setUp();
     // 10/21/2009 at 10:21:10 am EDT
     handler.setTimeForTesting(1256134870830L);
   }
@@ -59,6 +57,6 @@ public class SnoozeHandlerTest extends TestCase {
     // ooh, a bonus daylight savings test
     snoozeAndGetDate("/snooze 7d",
                      "Okay, snoozing for 7 days (604800 seconds)",
-                     "October 28, 2009 9:21:10 AM EST");
+                     "October 28, 2009 10:21:10 AM EDT");
   }
 }

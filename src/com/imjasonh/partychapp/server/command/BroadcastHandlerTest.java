@@ -14,14 +14,8 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class BroadcastHandlerTest extends TestCase {
+public class BroadcastHandlerTest extends CommandHandlerTest {
   BroadcastHandler handler = new BroadcastHandler();
-  MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
 
   public void testAddToLastMessages() {
     handler.doCommand(Message.createForTests("test"));

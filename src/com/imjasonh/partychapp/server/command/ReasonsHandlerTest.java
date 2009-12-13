@@ -8,16 +8,10 @@ import com.imjasonh.partychapp.server.SendUtil;
 
 import junit.framework.TestCase;
 
-public class ReasonsHandlerTest extends TestCase {
+public class ReasonsHandlerTest extends CommandHandlerTest {
   ReasonsHandler handler = new ReasonsHandler();
-  MockXMPPService xmpp = new MockXMPPService();
   PPBHandler ppb = new PPBHandler();
 
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
-  
   public void testMatches() {
     assertTrue(handler.matches(Message.createForTests("/reasons x")));
     assertTrue(handler.matches(Message.createForTests(" /reasons x")));

@@ -9,14 +9,8 @@ import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class IncomingSMSHandlerTest extends TestCase {
+public class IncomingSMSHandlerTest extends CommandHandlerTest {
   IncomingSMSHandler handler = new IncomingSMSHandler();
-  MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
 
   public void testSimple() {
     Message m = Message.createForTests("this is a text message");

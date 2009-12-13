@@ -8,14 +8,8 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class DebugHandlerTest extends TestCase {
+public class DebugHandlerTest extends CommandHandlerTest {
   DebugHandler handler = new DebugHandler();
-  private MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
   
   public void testMatches() {
     assertTrue(handler.matches(Message.createForTests("/debug sequenceIds")));

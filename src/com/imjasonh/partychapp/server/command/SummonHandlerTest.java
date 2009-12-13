@@ -11,14 +11,12 @@ import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class SummonHandlerTest extends TestCase {
+public class SummonHandlerTest extends CommandHandlerTest {
   SummonHandler handler = new SummonHandler();
-  MockXMPPService xmpp = new MockXMPPService();
   MockMailService mailer = new MockMailService();
   
   public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
+	super.setUp();
     MailUtil.setMailService(mailer);
   }
   

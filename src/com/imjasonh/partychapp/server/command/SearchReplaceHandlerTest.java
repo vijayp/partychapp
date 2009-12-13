@@ -9,16 +9,10 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class SearchReplaceHandlerTest extends TestCase {
+public class SearchReplaceHandlerTest extends CommandHandlerTest {
   SearchReplaceHandler handler = new SearchReplaceHandler();
   BroadcastHandler bcast = new BroadcastHandler();
-  MockXMPPService xmpp = new MockXMPPService();
   PPBHandler ppbHandler = new PPBHandler();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
   
   public void testMatches() {
     assertTrue(handler.matches(Message.createForTests("s/foo/bar/")));

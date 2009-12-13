@@ -9,15 +9,9 @@ import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.ppb.Target;
 import com.imjasonh.partychapp.server.SendUtil;
 
-public class UndoHandlerTest extends TestCase {
+public class UndoHandlerTest extends CommandHandlerTest {
   private PPBHandler ppbHandler = new PPBHandler();
   private UndoHandler handler = new UndoHandler();
-  private MockXMPPService xmpp = new MockXMPPService();
-  
-  public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
-    SendUtil.setXMPP(xmpp);
-  }
   
   private int getScore(String target) {
     Target t = Datastore.instance().getTarget(FakeDatastore.fakeChannel(),

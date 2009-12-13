@@ -13,7 +13,9 @@ public class PlusPlusBotTest extends TestCase {
   private PlusPlusBot ppb = new PlusPlusBot();
 
   public void setUp() {
-    Datastore.setInstance(new FakeDatastore());
+	FakeDatastore datastore = new FakeDatastore();
+    Datastore.setInstance(datastore);
+    datastore.setUp();
   }
 
   private void assertReasonEquals(
