@@ -37,7 +37,6 @@ function displayReasons(cell, data) {
     	reasonsDiv.innerHTML += reasons[i].reason + " (" + reasons[i].sender + ")<BR>";
     }
 	cell.appendChild(reasonsDiv);
-	cell.isExpanded = true;
 	cell.expanded = reasonsDiv;
 }
 
@@ -50,6 +49,7 @@ function addReasons(cell, channelName, targetName) {
 		}
 		return;
 	}
+	cell.isExpanded = true;
 	
 	var url = "/reasons/" + channelName + "/" + targetName;
 	var xmlHttp = new XMLHttpRequest();
