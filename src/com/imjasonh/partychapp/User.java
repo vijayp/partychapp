@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.jdo.JDOHelper;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -138,6 +139,10 @@ public class User implements Serializable {
   public void addChannel(String c) {
     if (!channelNames.contains(c)) {
       channelNames.add(c);
+      
+      // I feel dirty doing this! There is some opaque JDO bug that makes
+      // this not save.
+      JDOHelper.makeDirty(this, "channelNames");
     }
   }
 

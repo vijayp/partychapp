@@ -167,7 +167,7 @@ public class LiveDatastore extends Datastore {
       } else if ("User".equals(kind)) {
         ret.numUsers = ((Long)kindStat.getProperty("count")).intValue();
       }
-    }
+    } 
     
     return ret;
   }

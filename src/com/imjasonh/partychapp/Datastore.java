@@ -39,7 +39,8 @@ public abstract class Datastore {
         }
       }
       if (m.user() == null) {
-        m.setUser(new User(m.getJID()));
+        User u = getOrCreateUser(m.getJID());
+        m.setUser(u);
         m.user().addChannel(c.getName());
         m.user().put();
       }

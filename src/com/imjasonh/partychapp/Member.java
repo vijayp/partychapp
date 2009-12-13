@@ -188,6 +188,11 @@ public class Member implements Serializable {
       user.setCarrier(User.Carrier.valueOf(carrier));
       carrier = null;
     }
+    if (!user.channelNames.contains(channel.getName())) {
+      user.addChannel(channel.getName());
+      user.put();
+      shouldPut = true;
+    }
     return shouldPut;
   }
   
@@ -201,9 +206,9 @@ public class Member implements Serializable {
   }
   
   public static class SortMembersForListComparator implements Comparator<Member> {
-	  public int compare(Member first, Member second) {
-		  // TODO: sort by online/offline, snoozing
-		  return first.getAlias().compareTo(second.getAlias());
-	  }
+    public int compare(Member first, Member second) {
+      // TODO: sort by online/offline, snoozing
+      return first.getAlias().compareTo(second.getAlias());
+    }
   }
 }
