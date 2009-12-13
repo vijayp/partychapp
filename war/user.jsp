@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="java.util.List"%>
+<%@ page import="com.google.appengine.api.users.User" %>
+<%@ page import="com.google.appengine.api.users.UserService" %>
+<%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.google.appengine.repackaged.com.google.common.collect.Lists"%>
 <%@ page import="com.imjasonh.partychapp.Channel"%>
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
@@ -17,12 +20,22 @@
 function displayInfo(data) {
     var userInfo = eval("(" + data + ")");
 
+    if (userInfo.error) {
+        var headerDiv = document.getElementById("header");
+        var header = document.createElement("div");
+        header.setAttribute('style', "text-align: center; font-size: 150%");
+        header.innerHTML = "ERROR: " + userInfo.error;
+        headerDiv.appendChild(header);
+        return;
+    }
+
     var headerDiv = document.getElementById("header");
     var header = document.createElement("div");
     header.setAttribute('style', "text-align: center; font-size: 150%");
     header.innerHTML = "Stats for: " + userInfo['email'];
     headerDiv.appendChild(header);
 
+    document.getElementById("channels").setAttribute('style', 'display: block');
     var dataDiv = document.getElementById("data");
     var channels = userInfo['channels'];
     for (var i = 0; i < channels.length; i++) {
@@ -57,13 +70,24 @@ function processInfo() {
 <title>Partychapp - User Info</title>
 </head>
 <body onLoad="processInfo();">
-  <div id="main">
-     <div id="header">
-      <img src="/logo.png" width="310" height="150" alt="Partychat">
-    </div>
-    <P></P>
-    Channels:
-	<div id="data"></div>
+<%
+UserService userService = UserServiceFactory.getUserService();
+User user = userService.getCurrentUser();
+
+if (user == null) {
+%>
+<script>
+location.href="<%=userService.createLoginURL(request.getRequestURI()) %>";
+</script>
+<% } %>
+
+<div id="main">
+<div id="header"><img src="/logo.png" width="310" height="150"
+	alt="Partychat"></div>
+<P></P>
+<div id="channels" style="display: none">Channels:
+<div id="data"></div>
+</div>
 </div>
 </body>
 </html>
