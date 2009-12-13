@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
-import com.imjasonh.partychapp.server.WebServlet;
 
 public abstract class Datastore {
   private static Datastore instance;
@@ -96,7 +95,7 @@ public abstract class Datastore {
   public abstract void startRequest();
   public abstract void endRequest();
   
-  private static final Logger LOG = Logger.getLogger(WebServlet.class.getName());
+  private static final Logger LOG = Logger.getLogger(Datastore.class.getName());
 
   public Channel getChannelIfUserPresent(String channelName, String email) throws IOException {
 	  Channel channel = getChannelByName(channelName);

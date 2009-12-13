@@ -10,8 +10,8 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet>
 
 	<servlet>
-		<servlet-name>webServlet</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.WebServlet</servlet-class>
+		<servlet-name>createRoomServlet</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.web.CreateRoomServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
@@ -20,7 +20,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>webServlet</servlet-name>
+		<servlet-name>createRoomServlet</servlet-name>
 		<url-pattern>/room</url-pattern>
 	</servlet-mapping>
 
@@ -35,7 +35,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 
 	<servlet>
 		<servlet-name>webchannelhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.WebChannelServlet</servlet-class>
+		<servlet-class>com.imjasonh.partychapp.server.web.ChannelServlet</servlet-class>
 	</servlet>
 
 	<servlet>

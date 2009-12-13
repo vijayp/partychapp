@@ -1,4 +1,4 @@
-package com.imjasonh.partychapp.server;
+package com.imjasonh.partychapp.server.web;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,13 +17,14 @@ import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.command.InviteHandler;
 
 @SuppressWarnings("serial")
-public class WebServlet extends HttpServlet {
+public class CreateRoomServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
-  private static final Logger LOG = Logger.getLogger(WebServlet.class.getName());
+  private static final Logger LOG = Logger.getLogger(CreateRoomServlet.class.getName());
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -52,17 +53,26 @@ public class WebServlet extends HttpServlet {
     }
 
     List<String> invitees = Lists.newArrayList();
-    String error = InviteHandler.parseEmailAddresses(req.getParameter("invitees"), invitees);
-    for (String invitee : invitees) {
-      channel.invite(invitee);
-      SendUtil.invite(invitee, serverJID);
+    if (!req.getParameter("invitees").isEmpty()) {
+    	String error = InviteHandler.parseEmailAddresses(req.getParameter("invitees"), invitees);
+    	for (String invitee : invitees) {
+    		channel.invite(invitee);
+    		SendUtil.invite(invitee, serverJID);
+    	    resp.getWriter().write(error);
+    	}
+    } else {
+    	resp.getWriter().write("You're the only person in this room for now.<P>");
     }
-    resp.getWriter().write(error);
 
     channel.put();
     datastore.endRequest();
     resp.getWriter().write(
         "Created! Just accept the chat request and start talking. " +
     		"To add users later, type '/invite user@whatever.com'.");
+    
+    resp.getWriter().write(
+    		"<P>Try messaging <a href=im:" + serverJID.getId() + ">"
+    		+ serverJID.getId() + "</a>");
+    
   }
 }

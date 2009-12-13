@@ -55,28 +55,28 @@ User user = userService.getCurrentUser();
 <%
     if (user != null) {
 %>
-<div id="actionOptions">
-<input type="button" value="Create a new room" onclick="show('create')"/>
-</div>
+<div id="actionOptions"><input type="button"
+	value="Create a new room" onclick="show('create')" /></div>
 <div id="create" style="display: none; border: 1px solid #ccc">
-<table cellpadding=10><tr><td>
-<form action="/room" method="post" target="createResults">
-Pick a room name<br>
-<input type="text" name="name">
-<br><br>
-Do you only want people who are invited to be able to join?<br>
-<input type="radio" name="inviteonly" value="true" checked="yes"> yes
-<input type="radio" name="inviteonly" value="false"> no
-<br><br>
-Email addresses you would like to invite? (separated by commas)<br>
-<textarea name="invitees"></textarea>
-<br><br>
-<input type="submit" value="Create!">
-</form>
-</td><td>
-<iframe frameborder=0 name="createResults">
-</iframe>
-</td></tr></table>
+<table cellpadding=10>
+	<tr>
+		<td>
+		<form action="/room" method="post" target="createResults">Pick
+		a room name<br>
+		<input type="text" name="name"> <br>
+		<br>
+		Do you only want people who are invited to be able to join?<br>
+		<input type="radio" name="inviteonly" value="true" checked="yes">
+		yes <input type="radio" name="inviteonly" value="false"> no <br>
+		<br>
+		Email addresses you would like to invite? (separated by commas)<br>
+		<textarea name="invitees"></textarea> <br>
+		<br>
+		<input type="submit" value="Create!"></form>
+		</td>
+		<td><iframe frameborder=0 name="createResults"> </iframe></td>
+	</tr>
+</table>
 </div>
 
 <%
