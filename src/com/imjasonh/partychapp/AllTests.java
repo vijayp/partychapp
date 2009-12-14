@@ -3,20 +3,21 @@ package com.imjasonh.partychapp;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import com.imjasonh.partychapp.datastoretask.DatastoreTaskMasterTest;
 import com.imjasonh.partychapp.ppb.PlusPlusBotTest;
 import com.imjasonh.partychapp.server.PartychappServletTest;
 import com.imjasonh.partychapp.server.command.AliasHandlerTest;
 import com.imjasonh.partychapp.server.command.BroadcastHandlerTest;
 import com.imjasonh.partychapp.server.command.DebugHandlerTest;
-import com.imjasonh.partychapp.server.command.IncomingEmailHandlerTest;
 import com.imjasonh.partychapp.server.command.GraphScoreHandlerTest;
+import com.imjasonh.partychapp.server.command.IncomingEmailHandlerTest;
+import com.imjasonh.partychapp.server.command.IncomingSMSHandlerTest;
 import com.imjasonh.partychapp.server.command.InviteHandlerTest;
 import com.imjasonh.partychapp.server.command.LeaveHandlerTest;
 import com.imjasonh.partychapp.server.command.ListHandlerTest;
 import com.imjasonh.partychapp.server.command.MeHandlerTest;
 import com.imjasonh.partychapp.server.command.PPBHandlerTest;
 import com.imjasonh.partychapp.server.command.ReasonsHandlerTest;
-import com.imjasonh.partychapp.server.command.IncomingSMSHandlerTest;
 import com.imjasonh.partychapp.server.command.ScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.SearchReplaceHandlerTest;
 import com.imjasonh.partychapp.server.command.SendBroadcastSMSHandlerTest;
@@ -54,6 +55,7 @@ public class AllTests {
     suite.addTestSuite(IncomingEmailHandlerTest.class);
     suite.addTestSuite(IncomingSMSHandlerTest.class);
     suite.addTestSuite(SendBroadcastSMSHandlerTest.class);
+    suite.addTestSuite(DatastoreTaskMasterTest.class);
     // $JUnit-END$
     return suite;
   }

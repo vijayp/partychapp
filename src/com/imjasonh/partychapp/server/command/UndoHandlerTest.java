@@ -1,13 +1,9 @@
 package com.imjasonh.partychapp.server.command;
 
-import junit.framework.TestCase;
-
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.ppb.Target;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class UndoHandlerTest extends CommandHandlerTest {
   private PPBHandler ppbHandler = new PPBHandler();

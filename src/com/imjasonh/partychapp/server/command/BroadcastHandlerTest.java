@@ -3,16 +3,11 @@ package com.imjasonh.partychapp.server.command;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.MockXMPPService;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class BroadcastHandlerTest extends CommandHandlerTest {
   BroadcastHandler handler = new BroadcastHandler();

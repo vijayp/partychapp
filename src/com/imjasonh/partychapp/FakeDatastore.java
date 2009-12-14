@@ -3,7 +3,9 @@ package com.imjasonh.partychapp;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,14 +27,14 @@ public class FakeDatastore extends Datastore {
   }
   
   public void setUp() {
-	  Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
-	  // using fake addresses to avoid leaking our email addresses publicly
-	  channel.addMember(new JID("neil@gmail.com"));
-	  channel.addMember(new JID("jason@gmail.com"));
-	  channel.addMember(new JID("kushal@kushaldave.com"));
-	  channel.addMember(new JID("david@gmail.com"));
-	  channel.addMember(new JID("akshay@q00p.net"));
-	  put(channel);
+    Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
+    // using fake addresses to avoid leaking our email addresses publicly
+    channel.addMember(new JID("neil@gmail.com"));
+    channel.addMember(new JID("jason@gmail.com"));
+    channel.addMember(new JID("kushal@kushaldave.com"));
+    channel.addMember(new JID("david@gmail.com"));
+    channel.addMember(new JID("akshay@q00p.net"));
+    put(channel);
   }
 
   @Override
@@ -105,6 +107,11 @@ public class FakeDatastore extends Datastore {
     ret.numChannels = channels.size();
     ret.numUsers = users.size();
     ret.timestamp = new Date(1256134870830L);
+
+    ret.oneDayActiveUsers = 1;
+    ret.sevenDayActiveUsers = 2;
+    ret.thirtyDayActiveUsers = 3;
+
     return ret;
   }
   
@@ -163,5 +170,17 @@ public class FakeDatastore extends Datastore {
   public void startRequest() {
     // TODO Auto-generated method stub
 
+  }
+  
+  @Override  
+  public Iterator<String> getAllChannelKeys(String lastKey) {
+    List<String> ret = Lists.newArrayList();
+    for (String s : channels.keySet()) {
+      if ((lastKey == null) || s.compareTo(lastKey) > 0) {
+        ret.add(s);
+      }
+    }
+    Collections.sort(ret);
+    return ret.iterator();
   }
 }

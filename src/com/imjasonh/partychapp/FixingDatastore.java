@@ -2,6 +2,7 @@ package com.imjasonh.partychapp;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import com.imjasonh.partychapp.ppb.Reason;
@@ -108,5 +109,10 @@ public class FixingDatastore extends Datastore {
   
   public Datastore getWrapped() {
     return wrapped;
+  }
+
+  @Override
+  public Iterator<String> getAllChannelKeys(String lastKey) {
+    return wrapped.getAllChannelKeys(lastKey);
   }
 }

@@ -20,10 +20,10 @@ public class PartychappServletTest extends TestCase {
   PartychappServlet servlet = new PartychappServlet();
 
   public void setUp() {
-	FakeDatastore datastore = new FakeDatastore();
-	Datastore.setInstance(datastore);
-	datastore.setUp();
-	FakeDatastore.fakeChannel().delete();
+    FakeDatastore datastore = new FakeDatastore();
+    Datastore.setInstance(datastore);
+    datastore.setUp();
+    FakeDatastore.fakeChannel().delete();
     SendUtil.setXMPP(xmpp);
     MailUtil.setMailService(new MockMailService());
   }

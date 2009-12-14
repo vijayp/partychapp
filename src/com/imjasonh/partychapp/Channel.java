@@ -8,7 +8,6 @@ import java.util.Set;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -37,10 +36,6 @@ public class Channel implements Serializable {
   @Persistent(serialized = "true")
   private Set<Member> members =  Sets.newHashSet();
   
-  //@Persistent(mappedBy = "channel")
-  @NotPersistent
-  private Set<Member> membersV2 = Sets.newHashSet();
-
   @Persistent
   private Boolean inviteOnly = false;
 
@@ -51,7 +46,6 @@ public class Channel implements Serializable {
   private Integer sequenceId = 0;
   
   public Channel(JID serverJID) {
-    //this.serverJID = serverJID.getId();
     this.name = serverJID.getId().split("@")[0];
   }
    
@@ -63,7 +57,6 @@ public class Channel implements Serializable {
     for (Member m : other.members) {
       this.members.add(new Member(m));
     }
-    //this.membersV2 = Sets.newHashSet(other.membersV2);
     this.sequenceId = other.sequenceId;
   }
   
@@ -98,23 +91,26 @@ public class Channel implements Serializable {
    * from invite list if invite-only room.
    */
   public Member addMember(JID jidToAdd) {
-    String email = jidToAdd.getId().split("/")[0];
+    String jidNoResource = jidToAdd.getId().split("/")[0];
+    String email = jidNoResource;
     if (invitedIds == null || !invitedIds.remove(email.toLowerCase())) {
       if (isInviteOnly()) {
         throw new IllegalArgumentException("Not invited to this room");
       }
     }
-    Member addedMember = new Member(this, jidToAdd);
+    Member addedMember = new Member(this, Datastore.instance().getOrCreateUser(jidNoResource));
     String dedupedAlias = addedMember.getAlias();
     while (null != getMemberByAlias(dedupedAlias)) {
       dedupedAlias = "_" + dedupedAlias;
     }
     addedMember.setAlias(dedupedAlias);
     mutableMembers().add(addedMember);
-    mutableMembersV2().add(addedMember);
+
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
+    
+    addedMember.user().addChannel(getName());
     
     return addedMember;    
   }
@@ -123,14 +119,8 @@ public class Channel implements Serializable {
     return members;
   }
 
-  private Set<Member> mutableMembersV2() {
-    return membersV2;
-  }
-
-
   public void removeMember(Member member) {
     mutableMembers().remove(member);
-    mutableMembersV2().remove(member);
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
@@ -377,16 +367,13 @@ public class Channel implements Serializable {
       invitedIds = Lists.newArrayList();
       shouldPut = true;
     }
-    if ((membersV2 == null) ||
-        (members.size() != membersV2.size())) {
-      membersV2 = Sets.newHashSet(members);
-    }
     for (Member m : mutableMembers()) {
       invitedIds.remove(m.getJID().toLowerCase());
       if (m.fixUp(this)) {
         shouldPut = true;
       }
     }
+    
     if (shouldPut) {
       put();
     }

@@ -3,14 +3,8 @@ package com.imjasonh.partychapp.server.command;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import com.google.appengine.api.xmpp.JID;
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.MockXMPPService;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class PPBHandlerTest extends CommandHandlerTest {
   PPBHandler ppb = new PPBHandler();

@@ -1,7 +1,6 @@
 package com.imjasonh.partychapp.server.web;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -16,10 +15,7 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 
 public class ChannelServlet  extends HttpServlet {
-	@SuppressWarnings("unused")
-	
 	public static final long serialVersionUID = 985749740983755L;
-
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)

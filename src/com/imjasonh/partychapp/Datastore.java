@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -13,6 +14,9 @@ import com.imjasonh.partychapp.ppb.Target;
 
 public abstract class Datastore {
   private static Datastore instance;
+  
+  @SuppressWarnings("unused")
+  private static final Logger LOG = Logger.getLogger(Datastore.class.getName());
 
   public static Datastore instance() {
     if (instance == null) {
@@ -86,6 +90,9 @@ public abstract class Datastore {
     public int numChannels;
     public int numUsers;
     public Date timestamp;
+    public int oneDayActiveUsers;
+    public int sevenDayActiveUsers;
+    public int thirtyDayActiveUsers;
   }
   public abstract Stats getStats();
   
@@ -96,8 +103,6 @@ public abstract class Datastore {
   public abstract void startRequest();
   public abstract void endRequest();
   
-  private static final Logger LOG = Logger.getLogger(Datastore.class.getName());
-
   public Channel getChannelIfUserPresent(String channelName, String email) throws IOException {
 	  Channel channel = getChannelByName(channelName);
 	  if (channel == null) {
@@ -111,4 +116,7 @@ public abstract class Datastore {
 	  }
 	  return channel;
   }
+  
+  
+  public abstract Iterator<String> getAllChannelKeys(String lastKey);
 }

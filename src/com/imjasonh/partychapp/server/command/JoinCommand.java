@@ -2,7 +2,6 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.logging.Logger;
 
-import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.SendUtil;

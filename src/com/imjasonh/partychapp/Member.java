@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.NotPersistent;
@@ -13,7 +14,6 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 @PersistenceCapable
@@ -24,7 +24,7 @@ public class Member implements Serializable {
    */
   private static final long serialVersionUID = 8243978327905416562L;
 
-  // private static final Logger LOG = Logger.getLogger(Member.class.getName());
+  private static final Logger LOG = Logger.getLogger(Member.class.getName());
 
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   @PrimaryKey
@@ -64,8 +64,9 @@ public class Member implements Serializable {
     SHOULD_WAKE;
   }
   
-  public Member(Channel c, JID jid) {
-    this.jid = jid.getId().split("/")[0]; // remove anything after "/"
+  public Member(Channel c, User user) {
+    this.user = user;
+    this.jid = user.getJID();
     this.alias = this.jid.split("@")[0]; // remove anything after "@" for default alias
     this.debugOptions = new DebuggingOptions();
     this.channel = c;
@@ -100,6 +101,9 @@ public class Member implements Serializable {
   }
   
   public void setUser(User u) {
+    if (user != null) {
+      LOG.severe("attempt to override existing User object " + user + " with replacement " + u);
+    }
     user = u;
   }
   

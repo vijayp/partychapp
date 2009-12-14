@@ -3,7 +3,9 @@ package com.imjasonh.partychapp;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
@@ -15,6 +17,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
@@ -154,6 +157,16 @@ public class LiveDatastore extends Datastore {
     manager = PERSISTENCE_FACTORY.getPersistenceManager();
   }
 
+  int countUsersActiveInLastNDays(DatastoreService ds, int numDays) {
+    com.google.appengine.api.datastore.Query q = 
+      new com.google.appengine.api.datastore.Query("User");
+    q.addFilter("lastSeen", FilterOperator.GREATER_THAN,
+                new Date(System.currentTimeMillis() - numDays*24*60*60));
+
+    return ds.prepare(q).countEntities();
+  }
+
+
   @Override
   public Datastore.Stats getStats() {
     Datastore.Stats ret = new Datastore.Stats();
@@ -167,8 +180,56 @@ public class LiveDatastore extends Datastore {
       } else if ("User".equals(kind)) {
         ret.numUsers = ((Long)kindStat.getProperty("count")).intValue();
       }
-    } 
+    }
+
+    ret.oneDayActiveUsers = countUsersActiveInLastNDays(datastore, 1);
+    ret.sevenDayActiveUsers = countUsersActiveInLastNDays(datastore, 7);
+    ret.thirtyDayActiveUsers = countUsersActiveInLastNDays(datastore, 30);
     
     return ret;
+  }
+  
+  public boolean wereThereAnyPuts() {
+    @SuppressWarnings("unchecked")
+    Set objects = manager.getManagedObjects();
+    for (Object o : objects) {
+      if (JDOHelper.isDirty(o)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static class ExtractingKeyIterable implements Iterator<String> {
+    private Iterator<Entity> wrapped;
+    
+    public ExtractingKeyIterable(Iterator<Entity> wrapped) {
+      this.wrapped = wrapped;
+    }
+    
+    public boolean hasNext() {
+      return wrapped.hasNext();
+    }
+    
+    public String next() {
+      return wrapped.next().getKey().getName();
+    }
+    
+    public void remove() {
+      throw new UnsupportedOperationException("remove isn't supported");
+    }
+  }
+  
+  @Override
+  public Iterator<String> getAllChannelKeys(String lastKey) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Channel");
+    q.setKeysOnly();
+    if (lastKey != null) {
+      q.addFilter("name", FilterOperator.GREATER_THAN, lastKey);
+    }
+    q.addSort("name");
+    PreparedQuery pq = datastore.prepare(q);
+    return new ExtractingKeyIterable(pq.asIterator());
   }
 }

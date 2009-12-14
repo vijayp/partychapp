@@ -3,13 +3,8 @@ package com.imjasonh.partychapp.server.command;
 import java.text.DateFormat;
 import java.util.Date;
 
-import junit.framework.TestCase;
-
-import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.MockXMPPService;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class SnoozeHandlerTest extends CommandHandlerTest {
   SnoozeHandler handler = new SnoozeHandler();
@@ -54,9 +49,8 @@ public class SnoozeHandlerTest extends CommandHandlerTest {
   }
 
   public void testSimple4() {
-    // ooh, a bonus daylight savings test
-    snoozeAndGetDate("/snooze 7d",
-                     "Okay, snoozing for 7 days (604800 seconds)",
-                     "October 28, 2009 10:21:10 AM EDT");
+    snoozeAndGetDate("/snooze 4d",
+                     "Okay, snoozing for 4 days (345600 seconds)",
+                     "October 25, 2009 9:21:10 AM EST");
   }
 }

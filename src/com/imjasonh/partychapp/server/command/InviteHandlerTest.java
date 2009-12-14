@@ -2,16 +2,11 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockMailService;
-import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.MailUtil;
-import com.imjasonh.partychapp.server.SendUtil;
 
 public class InviteHandlerTest extends CommandHandlerTest {
   InviteHandler handler = new InviteHandler();
