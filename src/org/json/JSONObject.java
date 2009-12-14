@@ -86,6 +86,7 @@ import java.util.TreeSet;
  * @author JSON.org
  * @version 2009-03-06
  */
+@SuppressWarnings("all")
 public class JSONObject {
 
     /**
@@ -308,6 +309,7 @@ public class JSONObject {
         populateInternalMap(bean, includeSuperClass);
     }
 
+    @SuppressWarnings("all")
     private void populateInternalMap(Object bean, boolean includeSuperClass){
         Class klass = bean.getClass();
 

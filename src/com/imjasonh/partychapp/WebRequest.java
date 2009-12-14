@@ -9,11 +9,9 @@ import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Maps;
 
 public class WebRequest {
-  private String path;
   private Map<String, List<String>> params;
   
-  public WebRequest(String path, Map<String, String[]> params) {
-    this.path = path;
+  public WebRequest(Map<String, String[]> params) {
     this.params = Maps.newHashMap();
     for (Map.Entry<String, String[]> e : params.entrySet()) {
       this.params.put(e.getKey(), Lists.newArrayList(e.getValue()));
@@ -22,7 +20,7 @@ public class WebRequest {
 
   @SuppressWarnings("unchecked")
   public WebRequest(HttpServletRequest req) {
-    this(req.getRequestURI(), (Map<String, String[]>)req.getParameterMap());
+    this((Map<String, String[]>)req.getParameterMap());
   }
   
   public List<String> getParameterValues(String arg) {

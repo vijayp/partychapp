@@ -19,6 +19,8 @@ import com.imjasonh.partychapp.Datastore;
 public class JsonServlet  extends HttpServlet {
 	  @SuppressWarnings("unused")
 	  private static final Logger LOG = Logger.getLogger(JsonServlet.class.getName());
+	  
+	  public static final long serialVersionUID = 4324234259835098L;
 	 	  
 	  @Override
 	  protected void doGet(HttpServletRequest req, HttpServletResponse resp)

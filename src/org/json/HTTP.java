@@ -31,6 +31,7 @@ import java.util.Iterator;
  * @author JSON.org
  * @version 2008-09-18
  */
+@SuppressWarnings("all")
 public class HTTP {
 
     /** Carriage return/line feed. */

@@ -41,7 +41,7 @@ public class DatastoreTaskMasterTest extends TestCase {
   public void runTaskMaster() {
     Map<String, String[]> params = Maps.newHashMap();
     params.put("act", new String[]{ DatastoreTaskMaster.Action.FIX_CHANNELS.name() });
-    dtm.handle(new WebRequest("/cron/MASTER_TASK", params), tq);    
+    dtm.handle(new WebRequest(params), tq);    
   }
   
   public void assertURIsEquiv(String expected, String actual) {
@@ -74,7 +74,7 @@ public class DatastoreTaskMasterTest extends TestCase {
     Map<String, String[]> params = Maps.newHashMap();
     params.put("act", new String[]{ DatastoreTaskMaster.Action.FIX_CHANNELS.name() });
     params.put("lastKeyHandled", new String[]{ "pancake09" });
-    dtm.handle(new WebRequest("/cron/MASTER_TASK", params), tq);    
+    dtm.handle(new WebRequest(params), tq);    
 
     assertEquals(2, tq.getTasks().size());
     assertURIsEquiv("/tasks/FIX_CHANNELS?key=pancake10&key=pancake11",
@@ -105,7 +105,7 @@ public class DatastoreTaskMasterTest extends TestCase {
     Map<String, String[]> params = Maps.newHashMap();
     params.put("act", new String[]{ DatastoreTaskMaster.Action.FIX_CHANNELS.name() });
     params.put("lastKeyHandled", new String[]{ "pancake11" });
-    dtm.handle(new WebRequest("/cron/MASTER_TASK", params), tq);    
+    dtm.handle(new WebRequest(params), tq);    
 
     assertEquals(0, tq.getTasks().size());
   }
@@ -121,7 +121,7 @@ public class DatastoreTaskMasterTest extends TestCase {
     Map<String, String[]> params = Maps.newHashMap();
     params.put("act", new String[]{ DatastoreTaskMaster.Action.FIX_CHANNELS.name() });
     params.put("max", new String[]{ "11" });
-    dtm.handle(new WebRequest("/cron/MASTER_TASK", params), tq);    
+    dtm.handle(new WebRequest(params), tq);    
 
     assertEquals(2, tq.getTasks().size());
     assertURIsEquiv("/tasks/FIX_CHANNELS?key=pancake00&key=pancake01&key=pancake02&key=pancake03&key=pancake04&key=pancake05&key=pancake06&key=pancake07&key=pancake08&key=pancake09",

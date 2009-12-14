@@ -5,6 +5,7 @@ package org.json;
  * @author JSON.org
  * @version 2008-09-18
  */
+@SuppressWarnings("all")
 public class JSONException extends Exception {
     private Throwable cause;
 
