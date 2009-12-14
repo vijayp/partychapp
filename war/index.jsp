@@ -4,8 +4,8 @@
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.imjasonh.partychapp.Configuration" %>
 <%
-UserService userService = UserServiceFactory.getUserService();
-User user = userService.getCurrentUser();
+	UserService userService = UserServiceFactory.getUserService();
+	User user = userService.getCurrentUser();
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -22,12 +22,18 @@ User user = userService.getCurrentUser();
   </head>
   <body>
   <div id="main">
-  <% if (user != null) { %>
-    <div id="logout" style="text-align:right">
-       <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out of <%=user.getEmail()%></a>
-    </div>
-  <% } %>
-    <div id="header">
+<div id="loginlogout" style="text-align: right">
+<%
+	if (user != null) {
+%> <a href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign
+out of <%=user.getEmail()%></a> <%
+ 	} else {
+ %> <a href="<%=userService.createLoginURL(request.getRequestURI())%>">sign
+in</a> <%
+ 	}
+ %>
+</div>
+<div id="header">
       <img src="logo.png" width="310" height="150" alt="Partychat">
     </div>
 
@@ -41,19 +47,19 @@ User user = userService.getCurrentUser();
     <li>Built on reliable Google App Engine.</li>
     <li>Easy to use, lots of <a href="#nowwhat">silly features</a>.</li>
   </ul>
-<% 
-    if (Configuration.isConfidential) {
+<%
+	if (Configuration.isConfidential) {
 %>
   <h3>Are messages confidential?</h3>
   Yup! We're running on an internal instance of AppEngine, so everything stays
   safe.
 <%
-    }
-%>
+  	}
+  %>
   <h3>How do I create a room?</h3>
 
 <%
-    if (user != null) {
+	if (user != null) {
 %>
 <div id="actionOptions"><input type="button"
 	value="Create a new room" onclick="show('create')" /></div>
@@ -80,21 +86,21 @@ User user = userService.getCurrentUser();
 </div>
 
 <%
-    } else {
+	} else {
 %>
-The easiest way to create a room is to <a style="font-weight: bold" href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a> and do it right here.
+The easiest way to create a room is to <a style="font-weight: bold" href="<%=userService.createLoginURL(request.getRequestURI())%>">sign in</a> and do it right here.
 <br/><br/>
-Or you can add <tt>[roomname]@<%= Configuration.chatDomain %></tt> to your buddy list and send it a message to join the room. If a room of that name doesn't exist, a new one will be created.
+Or you can add <tt>[roomname]@<%=Configuration.chatDomain%></tt> to your buddy list and send it a message to join the room. If a room of that name doesn't exist, a new one will be created.
 <%
-    }
+	}
 %>
 
 <h3>How do I join a room?</h3>
 The easiest way to join a room is to be invited. If the room has already been created, have someone in the room type <tt>/invite youremailaddress@anydomain.com</tt>.
 <br><br>
-You should see an invitation from <tt>[roomname]@<%= Configuration.chatDomain %></tt> in your chat window. Accept the invitation, and then <b>send a message to your new buddy</b>, such as "hi." This will finish adding you to the room.
+You should see an invitation from <tt>[roomname]@<%=Configuration.chatDomain%></tt> in your chat window. Accept the invitation, and then <b>send a message to your new buddy</b>, such as "hi." This will finish adding you to the room.
 <br><br>
-Alternatively, if a room is not invite-only, you can just add <tt>[roomname]@<%= Configuration.chatDomain %></tt> to your buddy list and send it a message.
+Alternatively, if a room is not invite-only, you can just add <tt>[roomname]@<%=Configuration.chatDomain%></tt> to your buddy list and send it a message.
 
 <a name="nowwhat">
 <h3>Okay, I'm in a room, now what?</h3>
