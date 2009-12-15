@@ -97,14 +97,8 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		</auth-constraint>
 	</security-constraint>
 
-	<servlet>
-		<servlet-name>cronhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.web.CronServlet</servlet-class>
-	</servlet>
-
-
 	<servlet-mapping>
-		<servlet-name>cronhandler</servlet-name>
+		<servlet-name>cronandtaskshandler</servlet-name>
 		<url-pattern>/cron/*</url-pattern>
 	</servlet-mapping>
 	
@@ -118,13 +112,13 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     </security-constraint>
     
 	<servlet>
-		<servlet-name>taskshandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.web.TaskServlet</servlet-class>
+		<servlet-name>cronandtaskshandler</servlet-name>
+		<servlet-class>com.imjasonh.partychapp.server.web.CronAndTasksServlet</servlet-class>
 	</servlet>
 
 
 	<servlet-mapping>
-		<servlet-name>taskshandler</servlet-name>
+		<servlet-name>cronandtaskshandler</servlet-name>
 		<url-pattern>/tasks/*</url-pattern>
 	</servlet-mapping>
 	
