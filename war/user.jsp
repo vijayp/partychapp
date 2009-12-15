@@ -10,16 +10,44 @@
 <%@ page import="com.imjasonh.partychapp.Member"%>
 <%@ page import="com.imjasonh.partychapp.ppb.Reason"%>
 <%@ page import="com.imjasonh.partychapp.ppb.Target"%>
+<%@ page import="com.imjasonh.partychapp.server.json.UserInfoJsonServlet"%>
+
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 
+<%
+UserService userService = UserServiceFactory.getUserService();
+User user = userService.getCurrentUser();
+Datastore datastore = Datastore.instance();
+datastore.startRequest();
+com.imjasonh.partychapp.User pchappUser = datastore.getUserByJID(user.getEmail());
+%>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="/Partychapp.css">
+<title>Partychapp - User Info</title>
+</head>
+<body>
+<%
+if (user == null) {
+%>
+<script>
+location.href="<%=userService.createLoginURL(request.getRequestURI()) %>";
+</script>
+<% } %>
+
+<div id="main">
+<div id="header"><img src="/logo.png" width="310" height="150"
+	alt="Partychat"></div>
+<P></P>
+<div id="channels" style="display: none">Channels:
+<div id="data"></div>
+
 <script>
 
-function displayInfo(data) {
-    var userInfo = eval("(" + data + ")");
-
+function displayInfo(userInfo) {
     if (userInfo.error) {
         var headerDiv = document.getElementById("header");
         var header = document.createElement("div");
@@ -51,42 +79,11 @@ function displayInfo(data) {
     }
 }
 
-function processInfo() {
-  var url = "/userinfo";
+var userInfo = <%=UserInfoJsonServlet.getJsonFromUser(pchappUser, datastore)%>
+displayInfo(userInfo);
 
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open('GET', url, true);
-  xmlHttp.onreadystatechange = function(){
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-		displayInfo(xmlHttp.responseText);
-      }};
-
-    xmlHttp.send(null);
-}  
 </script>
 
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<link type="text/css" rel="stylesheet" href="/Partychapp.css">
-<title>Partychapp - User Info</title>
-</head>
-<body onLoad="processInfo();">
-<%
-UserService userService = UserServiceFactory.getUserService();
-User user = userService.getCurrentUser();
-
-if (user == null) {
-%>
-<script>
-location.href="<%=userService.createLoginURL(request.getRequestURI()) %>";
-</script>
-<% } %>
-
-<div id="main">
-<div id="header"><img src="/logo.png" width="310" height="150"
-	alt="Partychat"></div>
-<P></P>
-<div id="channels" style="display: none">Channels:
-<div id="data"></div>
 </div>
 </div>
 </body>

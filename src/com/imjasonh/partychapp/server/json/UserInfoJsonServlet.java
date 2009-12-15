@@ -16,9 +16,8 @@ import com.imjasonh.partychapp.Datastore;
 public class UserInfoJsonServlet  extends JsonServlet {
   private static final long serialVersionUID = 6640873547765357683L;
 	
-	@Override
-	protected JSONObject getJson(HttpServletRequest req, HttpServletResponse resp,
-			com.imjasonh.partychapp.User user, Datastore datastore) throws JSONException, IOException {
+	static public JSONObject getJsonFromUser(com.imjasonh.partychapp.User user,
+			Datastore datastore) throws JSONException {
 		JSONArray list = new JSONArray();
 		for (String channelName: user.channelNames()) {
 			JSONObject channelJson = new JSONObject();
@@ -30,6 +29,12 @@ public class UserInfoJsonServlet  extends JsonServlet {
 
 		JSONObject jsonResponse = new JSONObject().put("channels", list);
 		jsonResponse.put("email", user.getEmail());
-		return jsonResponse;
+		return jsonResponse;	
+	}
+	
+	@Override
+	protected JSONObject getJson(HttpServletRequest req, HttpServletResponse resp,
+			com.imjasonh.partychapp.User user, Datastore datastore) throws JSONException, IOException {
+		return getJsonFromUser(user, datastore);
 	}
 }
