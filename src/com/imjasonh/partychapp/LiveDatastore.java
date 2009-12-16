@@ -160,8 +160,10 @@ public class LiveDatastore extends Datastore {
   int countUsersActiveInLastNDays(DatastoreService ds, int numDays) {
     com.google.appengine.api.datastore.Query q = 
       new com.google.appengine.api.datastore.Query("User");
-    q.addFilter("lastSeen", FilterOperator.GREATER_THAN,
-                new Date(System.currentTimeMillis() - numDays*24*60*60));
+    if (numDays > 0) {
+      q.addFilter("lastSeen", FilterOperator.GREATER_THAN,
+                  new Date(System.currentTimeMillis() - numDays*24*60*60*1000));
+    }
 
     return ds.prepare(q).countEntities();
   }
@@ -177,11 +179,10 @@ public class LiveDatastore extends Datastore {
       if ("Channel".equals(kind)) {
         ret.numChannels = ((Long)kindStat.getProperty("count")).intValue();
         ret.timestamp = (Date)kindStat.getProperty("timestamp");
-      } else if ("User".equals(kind)) {
-        ret.numUsers = ((Long)kindStat.getProperty("count")).intValue();
       }
     }
 
+    ret.numUsers = countUsersActiveInLastNDays(datastore, -1);
     ret.oneDayActiveUsers = countUsersActiveInLastNDays(datastore, 1);
     ret.sevenDayActiveUsers = countUsersActiveInLastNDays(datastore, 7);
     ret.thirtyDayActiveUsers = countUsersActiveInLastNDays(datastore, 30);

@@ -52,7 +52,6 @@ public class DatastoreTaskMaster extends DatastoreTask {
                             .method(Method.GET);
       while (keys.hasNext()) {
         lastKeyHandled = keys.next();
-        System.err.println(lastKeyHandled);
         ++count;
         if ((max > 0) && (count > max)) {
           suppressContinuation = true;
