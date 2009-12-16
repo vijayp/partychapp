@@ -101,7 +101,7 @@ public class Member implements Serializable {
   }
   
   public void setUser(User u) {
-    if (user != null) {
+    if ((user != null) && (user != u)) {
       LOG.severe("attempt to override existing User object " + user + " with replacement " + u);
     }
     user = u;

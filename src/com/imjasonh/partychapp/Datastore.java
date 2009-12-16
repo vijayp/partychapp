@@ -36,6 +36,9 @@ public abstract class Datastore {
   public Channel attachUsersToChannelMembers(Channel c) {
     List<User> users = getUsersByChannel(c);
     for (Member m : c.getMembers()) {
+      if (m.user() != null) {
+        continue;
+      }
       for (User u : users) {
         if (u.getJID().equals(m.getJID())) {
           m.setUser(u);
