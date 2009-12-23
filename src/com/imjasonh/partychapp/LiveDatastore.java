@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
@@ -16,6 +15,7 @@ import javax.jdo.Query;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
@@ -160,6 +160,7 @@ public class LiveDatastore extends Datastore {
   int countUsersActiveInLastNDays(DatastoreService ds, int numDays) {
     com.google.appengine.api.datastore.Query q = 
       new com.google.appengine.api.datastore.Query("User");
+    q.setKeysOnly();
     if (numDays > 0) {
       q.addFilter("lastSeen", FilterOperator.GREATER_THAN,
                   new Date(System.currentTimeMillis() - numDays*24*60*60*1000));
@@ -185,22 +186,11 @@ public class LiveDatastore extends Datastore {
     ret.numUsers = countUsersActiveInLastNDays(datastore, -1);
     ret.oneDayActiveUsers = countUsersActiveInLastNDays(datastore, 1);
     ret.sevenDayActiveUsers = countUsersActiveInLastNDays(datastore, 7);
-    ret.thirtyDayActiveUsers = countUsersActiveInLastNDays(datastore, 30);
+    ret.thirtyDayActiveUsers = 0; //countUsersActiveInLastNDays(datastore, 30);
     
     return ret;
   }
   
-  public boolean wereThereAnyPuts() {
-    @SuppressWarnings("unchecked")
-    Set objects = manager.getManagedObjects();
-    for (Object o : objects) {
-      if (JDOHelper.isDirty(o)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private static class ExtractingKeyIterable implements Iterator<String> {
     private Iterator<Entity> wrapped;
     
@@ -213,7 +203,8 @@ public class LiveDatastore extends Datastore {
     }
     
     public String next() {
-      return wrapped.next().getKey().getName();
+      Key next = wrapped.next().getKey();
+      return next.getName();
     }
     
     public void remove() {
@@ -229,7 +220,6 @@ public class LiveDatastore extends Datastore {
     if (lastKey != null) {
       q.addFilter("name", FilterOperator.GREATER_THAN, lastKey);
     }
-    q.addSort("name");
     PreparedQuery pq = datastore.prepare(q);
     return new ExtractingKeyIterable(pq.asIterator());
   }

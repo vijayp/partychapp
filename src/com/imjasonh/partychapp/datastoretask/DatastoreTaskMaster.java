@@ -33,71 +33,66 @@ public class DatastoreTaskMaster extends DatastoreTask {
     // get a JDO extent. this only works with LiveDatastore, so cast away.
     // grab N items, get their keys and make a JSON array of their names
     // add a task with that array as an arg
-    try {
-      Action act = Action.valueOf(req.getParameter("act"));
+    Action act = Action.valueOf(req.getParameter("act"));
 
-      // This is only passed if we break and resume.
-      String lastKeyHandled = req.getParameter("lastKeyHandled");
+    // This is only passed if we break and resume.
+    String lastKeyHandled = req.getParameter("lastKeyHandled");
 
-      String maxParam = req.getParameter("max");
-      int max = maxParam != null ? Integer.parseInt(maxParam) : -1;
-      
-      Datastore.instance().startRequest();
-
-      Iterator<String> keys = Datastore.instance().getAllChannelKeys(lastKeyHandled);
-            
-      int count = 0;
-      boolean suppressContinuation = false;
-      TaskOptions opts = TaskOptions.Builder.url("/tasks/" + act.name())
-                            .method(Method.GET);
-      while (keys.hasNext()) {
-        lastKeyHandled = keys.next();
-        ++count;
-        if ((max > 0) && (count > max)) {
-          suppressContinuation = true;
-          break;
-        }
-
-        opts.param("key", lastKeyHandled);
-        if ((count % kNumPerBatch) == 0) {
-          q.add(opts);
-
-          opts = TaskOptions.Builder.url("/tasks/" + act.name()).method(Method.GET);
-        }
-        
-        // cut ourselves off after 20 seconds. we don't want app engine to kill us.
-        if ((System.currentTimeMillis() - startTime) > 20*1000) {
-          break;
-        }
+    String maxParam = req.getParameter("max");
+    int max = maxParam != null ? Integer.parseInt(maxParam) : -1;
+    
+    Iterator<String> keys = Datastore.instance().getAllChannelKeys(lastKeyHandled);
+          
+    int count = 0;
+    boolean suppressContinuation = false;
+    TaskOptions opts = TaskOptions.Builder.url("/tasks/" + act.name())
+                          .method(Method.GET);
+    while (keys.hasNext()) {
+      if ((max > 0) && ((count+1) > max)) {
+        suppressContinuation = true;
+        break;
       }
-      if ((count % kNumPerBatch) != 0) {
+
+      lastKeyHandled = keys.next();
+      ++count;
+      
+      opts.param("key", lastKeyHandled);
+      if ((count % kNumPerBatch) == 0) {
         q.add(opts);
+
         opts = TaskOptions.Builder.url("/tasks/" + act.name()).method(Method.GET);
       }
-      if (count < max) {
-        suppressContinuation = true;
+      
+      // cut ourselves off after 20 seconds. we don't want app engine to kill us.
+      if ((System.currentTimeMillis() - startTime) > 20*1000) {
+        break;
       }
-      if (count != 0) {
-        if (!suppressContinuation) {
-          LOG.log(Level.WARNING,
-                  "created sub-tasks for " + count + " objects. creating " +
-                  "replacement task for remaining objects. lastKeyHandled = " +
-                  lastKeyHandled);
-          // just add a replacement task, and only end when we try and there's nothing else remaining.
-          q.add(TaskOptions.Builder.url("/tasks/" + Action.MASTER_TASK.name())
-                .param("act", act.name())
-                .param("lastKeyHandled", lastKeyHandled));          
-        } else {
-          LOG.log(Level.WARNING,
-                  "created sub-tasks for " + count + " objects. suppressing replacement. " +
-                  "lastKeyHandled = " + lastKeyHandled);
-        }
+    }
+    if ((count % kNumPerBatch) != 0) {
+      q.add(opts);
+      opts = TaskOptions.Builder.url("/tasks/" + act.name()).method(Method.GET);
+    }
+    if (count < max) {
+      suppressContinuation = true;
+    }
+    if (count != 0) {
+      if (!suppressContinuation) {
+        LOG.log(Level.WARNING,
+                "created sub-tasks for " + count + " objects. creating " +
+                "replacement task for remaining objects. lastKeyHandled = " +
+                lastKeyHandled);
+        // just add a replacement task, and only end when we try and there's nothing else remaining.
+        q.add(TaskOptions.Builder.url("/tasks/" + Action.MASTER_TASK.name())
+              .param("act", act.name())
+              .param("lastKeyHandled", lastKeyHandled));          
       } else {
         LOG.log(Level.WARNING,
-                "all done! lastKeyHandled = " + lastKeyHandled);
+                "created sub-tasks for " + count + " objects. suppressing replacement. " +
+                "lastKeyHandled = " + lastKeyHandled);
       }
-    } finally {
-      Datastore.instance().endRequest();
+    } else {
+      LOG.log(Level.WARNING,
+              "all done! lastKeyHandled = " + lastKeyHandled);
     }
   }
 }
