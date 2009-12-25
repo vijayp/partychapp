@@ -16,7 +16,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-
 <%
 UserService userService = UserServiceFactory.getUserService();
 User user = userService.getCurrentUser();
@@ -26,6 +25,7 @@ com.imjasonh.partychapp.User pchappUser = datastore.getUserByJID(user.getEmail()
 %>
 
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
 <link type="text/css" rel="stylesheet" href="/Partychapp.css">
 <title>Partychapp - User Info</title>
 </head>
@@ -81,6 +81,23 @@ function displayInfo(userInfo) {
 
 var userInfo = <%=UserInfoJsonServlet.getJsonFromUser(pchappUser, datastore)%>
 displayInfo(userInfo);
+
+var _sf_async_config={uid:2197,domain:"partychapp.appspot.com"};
+(function(){
+  function loadChartbeat() {
+    window._sf_endpt=(new Date()).getTime();
+    var e = document.createElement('script');
+    e.setAttribute('language', 'javascript');
+    e.setAttribute('type', 'text/javascript');
+    e.setAttribute('src',
+       (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
+       "static.chartbeat.com/js/chartbeat.js");
+    document.body.appendChild(e);
+  }
+  var oldonload = window.onload;
+  window.onload = (typeof window.onload != 'function') ?
+     loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
 
 </script>
 
