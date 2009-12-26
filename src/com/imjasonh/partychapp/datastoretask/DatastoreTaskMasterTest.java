@@ -6,7 +6,6 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import com.google.appengine.api.labs.taskqueue.TestQueue;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
@@ -19,7 +18,7 @@ import com.imjasonh.partychapp.WebRequest;
 public class DatastoreTaskMasterTest extends TestCase {
   FakeDatastore fd;
   DatastoreTaskMaster dtm = new DatastoreTaskMaster();
-  TestQueue tq = new TestQueue();
+  FakeQueue tq = new FakeQueue();
   
   public void setUp() {
     fd = new FakeDatastore();
@@ -44,12 +43,11 @@ public class DatastoreTaskMasterTest extends TestCase {
     dtm.handle(new WebRequest(params), tq);    
   }
   
-  public void assertURIsEquiv(String expected, String actual) {
+  public void assertURIsEquiv(String expected, TestableQueue.Options actual) {
     URI expURI = URI.create(expected);
-    URI actURI = URI.create(actual);
-    assertEquals(expURI.getPath(), actURI.getPath());
+    assertEquals(expURI.getPath(), actual.url());
     Set<String> expParams = Sets.newHashSet(expURI.getQuery().split("&"));
-    Set<String> actParams = Sets.newHashSet(actURI.getQuery().split("&"));
+    Set<String> actParams = Sets.newHashSet(actual.params());
     // union - intersection = everything in one but not another
     Set<String> diff = Sets.difference(Sets.union(expParams, actParams),
                                        Sets.intersection(expParams, actParams));

@@ -4,9 +4,6 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.appengine.api.labs.taskqueue.Queue;
-import com.google.appengine.api.labs.taskqueue.TaskOptions;
-import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.WebRequest;
 
@@ -27,7 +24,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
   public static final int kNumPerBatch = 10;
   
   @Override
-  public void handle(WebRequest req, Queue q) {
+  public void handle(WebRequest req, TestableQueue q) {
     long startTime = System.currentTimeMillis();
     
     // get a JDO extent. this only works with LiveDatastore, so cast away.
@@ -45,8 +42,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
           
     int count = 0;
     boolean suppressContinuation = false;
-    TaskOptions opts = TaskOptions.Builder.url("/tasks/" + act.name())
-                          .method(Method.GET);
+    TestableQueue.Options opts = new TestableQueue.Options("/tasks/" + act.name());
     while (keys.hasNext()) {
       if ((max > 0) && ((count+1) > max)) {
         suppressContinuation = true;
@@ -60,7 +56,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
       if ((count % kNumPerBatch) == 0) {
         q.add(opts);
 
-        opts = TaskOptions.Builder.url("/tasks/" + act.name()).method(Method.GET);
+        opts = new TestableQueue.Options("/tasks/" + act.name());
       }
       
       // cut ourselves off after 20 seconds. we don't want app engine to kill us.
@@ -70,7 +66,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
     }
     if ((count % kNumPerBatch) != 0) {
       q.add(opts);
-      opts = TaskOptions.Builder.url("/tasks/" + act.name()).method(Method.GET);
+      opts = new TestableQueue.Options("/tasks/" + act.name());
     }
     if (count < max) {
       suppressContinuation = true;
@@ -82,9 +78,9 @@ public class DatastoreTaskMaster extends DatastoreTask {
                 "replacement task for remaining objects. lastKeyHandled = " +
                 lastKeyHandled);
         // just add a replacement task, and only end when we try and there's nothing else remaining.
-        q.add(TaskOptions.Builder.url("/tasks/" + Action.MASTER_TASK.name())
-              .param("act", act.name())
-              .param("lastKeyHandled", lastKeyHandled));          
+        TestableQueue.Options replacement = new TestableQueue.Options("/tasks/" + Action.MASTER_TASK.name());
+        q.add(replacement.param("act", act.name())
+                         .param("lastKeyHandled", lastKeyHandled));          
       } else {
         LOG.log(Level.WARNING,
                 "created sub-tasks for " + count + " objects. suppressing replacement. " +
