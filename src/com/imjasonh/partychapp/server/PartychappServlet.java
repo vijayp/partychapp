@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -19,7 +20,6 @@ import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
-
   private static final Logger LOG = Logger.getLogger(PartychappServlet.class.getName());
 
   private XMPPService XMPP;
@@ -31,7 +31,16 @@ public class PartychappServlet extends HttpServlet {
 
     XMPP = XMPPServiceFactory.getXMPPService();
 
-    Message xmppMessage = XMPP.parseMessage(req);
+    Message xmppMessage = null;
+    try {
+      xmppMessage = XMPP.parseMessage(req);
+    } catch (IllegalArgumentException e) {
+      // These exceptions are apparently caused by a bug in the gtalk flash
+      // gadget, so let's just ignore them.
+      // http://code.google.com/p/googleappengine/issues/detail?id=2082
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
     doXmpp(xmppMessage);
     
     resp.setStatus(HttpServletResponse.SC_OK);

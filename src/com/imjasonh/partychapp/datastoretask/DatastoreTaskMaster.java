@@ -62,7 +62,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
     }
     if (count != 0) {
       if (!suppressContinuation) {
-        LOG.log(Level.WARNING,
+        LOG.log(Level.INFO,
                 "created sub-tasks for " + count + " objects. creating " +
                 "replacement task for remaining objects. lastKeyHandled = " +
                 lastKeyHandled);
@@ -71,12 +71,12 @@ public class DatastoreTaskMaster extends DatastoreTask {
         q.add(replacement.param("act", act.name())
                          .param("lastKeyHandled", lastKeyHandled));          
       } else {
-        LOG.log(Level.WARNING,
+        LOG.log(Level.INFO,
                 "created sub-tasks for " + count + " objects. suppressing replacement. " +
                 "lastKeyHandled = " + lastKeyHandled);
       }
     } else {
-      LOG.log(Level.WARNING,
+      LOG.log(Level.INFO,
               "all done! lastKeyHandled = " + lastKeyHandled);
     }
   }
