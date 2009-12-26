@@ -15,6 +15,7 @@ import javax.jdo.Query;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -166,7 +167,11 @@ public class LiveDatastore extends Datastore {
                   new Date(System.currentTimeMillis() - numDays*24*60*60*1000));
     }
 
-    return ds.prepare(q).countEntities();
+    // this is sad, I'm fetching everything and I just want a count. But this query should work according to 
+    // http://groups.google.com/group/google-appengine-java/browse_thread/thread/f97bdd5bdf91c114/43035e4eea644c6b?#43035e4eea644c6b
+    PreparedQuery pq = ds.prepare(q);
+    FetchOptions fetchOptions = FetchOptions.Builder.withOffset(0); 
+    return pq.asList(fetchOptions).size(); 
   }
 
 
