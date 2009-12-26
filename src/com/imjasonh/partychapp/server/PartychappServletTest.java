@@ -191,6 +191,9 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(true, "neil@gmail.com", "/summon jason--"),
       new TestMessage(false, "#3", "[sanchito] /summon jason--"),
       new TestMessage(false, "#4", "_sanchito summoned jason--_"),
+      
+      new TestMessage(true, "neil@gmail.com", "/bug I don't like this behavior"),
+      new TestMessage(false, "neil@gmail.com", "http://code.google.com/p/partychapp/issues/entry?summary=I+don%27t+like+this+behavior&comment=Filed+by+user+sanchito+from+channel+pancake"),
     };
 
     for (int i = 0; i < script.length;) {

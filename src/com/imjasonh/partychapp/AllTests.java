@@ -8,6 +8,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBotTest;
 import com.imjasonh.partychapp.server.PartychappServletTest;
 import com.imjasonh.partychapp.server.command.AliasHandlerTest;
 import com.imjasonh.partychapp.server.command.BroadcastHandlerTest;
+import com.imjasonh.partychapp.server.command.BugHandlerTest;
 import com.imjasonh.partychapp.server.command.DebugHandlerTest;
 import com.imjasonh.partychapp.server.command.GraphScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.IncomingEmailHandlerTest;
@@ -56,6 +57,7 @@ public class AllTests {
     suite.addTestSuite(IncomingSMSHandlerTest.class);
     suite.addTestSuite(SendBroadcastSMSHandlerTest.class);
     suite.addTestSuite(DatastoreTaskMasterTest.class);
+    suite.addTestSuite(BugHandlerTest.class);
     // $JUnit-END$
     return suite;
   }

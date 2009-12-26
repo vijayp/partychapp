@@ -34,6 +34,7 @@ public enum Command {
   SET_PHONE_NUMBER(new SetPhoneNumberHandler()),
   SET_CARRIER(new SetCarrierHandler()),
   BROADCAST_SMS(new SendBroadcastSMSHandler()),
+  BUG(new BugHandler()),
 
   // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
