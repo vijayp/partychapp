@@ -2,6 +2,7 @@ package com.imjasonh.partychapp;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -96,6 +97,20 @@ public abstract class Datastore {
     public int oneDayActiveUsers;
     public int sevenDayActiveUsers;
     public int thirtyDayActiveUsers;
+
+    private static final DateFormat df =
+      DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    
+    public String toString() {
+      String reply = "Number of channels (as of " + df.format(timestamp) + "): " + numChannels + "\n";
+      reply += "1-day active users: " + oneDayActiveUsers + "\n";
+      reply += "7-day active users: " + sevenDayActiveUsers + "\n";
+      reply += "Number of users: " + numUsers + "\n";
+      // TODO(nsanch): uncomment when we've had the User object for more than
+      // 30 days (mid-January)
+      // reply += "30-day active users: " + stats.thirtyDayActiveUsers + "\n";
+      return reply;
+    }
   }
   public abstract Stats getStats();
   

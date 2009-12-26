@@ -29,6 +29,10 @@ public class PlusPlusBot {
     blacklist.add(Pattern.compile("c"));
     // <----
     blacklist.add(Pattern.compile("-*"));
+    // g++
+    blacklist.add(Pattern.compile("g"));
+    // lgtm++
+    blacklist.add(Pattern.compile("lgtm"));
   }
 
   public enum Action {

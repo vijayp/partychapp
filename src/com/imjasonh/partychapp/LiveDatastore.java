@@ -226,6 +226,7 @@ public class LiveDatastore extends Datastore {
       q.addFilter("name", FilterOperator.GREATER_THAN, lastKey);
     }
     PreparedQuery pq = datastore.prepare(q);
-    return new ExtractingKeyIterable(pq.asIterator());
+    FetchOptions fetchOptions = FetchOptions.Builder.withOffset(0);
+    return new ExtractingKeyIterable(pq.asIterator(fetchOptions));
   }
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+<!--
+  <cron>
+    <url>/cron/MASTER_TASK?act=FIX_CHANNELS</url>
+    <description>Fix Datastore</description>
+    <schedule>every day 00:00</schedule>
+    <timezone>America/New_York</timezone>
+  </cron>
+-->
+
+  <cron>
+    <url>/cron/STATS_CRON_JOB</url>
+    <description>Gather datastore stats</description>
+    <schedule>every day 00:00</schedule>
+    <timezone>America/New_York</timezone>
+  </cron>
+</cronentries>

@@ -10,17 +10,6 @@ import com.imjasonh.partychapp.WebRequest;
 public class DatastoreTaskMaster extends DatastoreTask {
   private static final Logger LOG = Logger.getLogger(DatastoreTaskMaster.class.getName());
   
-  public enum Action {
-    MASTER_TASK(new DatastoreTaskMaster()),
-    FIX_CHANNELS(new FixChannelsTask());
-    
-    public DatastoreTask datastoreTask;
-    
-    private Action(DatastoreTask t) {
-      this.datastoreTask = t;
-    }
-  }
-  
   public static final int kNumPerBatch = 10;
   
   @Override
