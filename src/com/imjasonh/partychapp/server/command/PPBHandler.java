@@ -70,7 +70,7 @@ public class PPBHandler implements CommandHandler {
         summary.append(", ");
       }
       summary.append(undo.target().name());
-      summary.append(undo.action().opposite().isPlusPlus() ? "++" : "--");
+      summary.append(undo.action().opposite().toString());
       summary.append(" [back to ");
       summary.append(undo.scoreAfter());
       summary.append("]");
