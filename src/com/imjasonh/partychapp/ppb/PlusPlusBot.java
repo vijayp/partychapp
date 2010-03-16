@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
+import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 
@@ -37,7 +38,9 @@ public class PlusPlusBot {
 
   public enum Action {
     PLUSPLUS, MINUSMINUS;
-    
+    public String toString() {
+      return isPlusPlus() ? "++" : "--"; 
+    }
     public boolean isPlusPlus() {
       return equals(PLUSPLUS);
     }
@@ -68,29 +71,37 @@ public class PlusPlusBot {
   public List<Reason> extractReasons(Message msg) {
     return extractReasonsHelper(msg, true);
   }
+  private Target getTargetForEntity(Channel channel, String entity) {
+    Target target = Datastore.instance().getOrCreateTarget(
+                    channel, entity.toLowerCase());
+    return target;
+  }
+
+  public int getScoreForEntity(Channel channel, String entity) {
+    return getTargetForEntity(channel, entity).score();
+  }
 
   public List<Reason> extractReasonsHelper(Message msg, boolean mutateObjects) {
     List<Reason> reasons = Lists.newArrayList();
     Set<Target> targets = Sets.newHashSet();
-    Map<String, Target> alreadyFetched = Maps.newHashMap();
-    Map<String, Integer> scores = Maps.newHashMap();
+ 
+    Map<String, Target> alreadyFetched = Maps.newTreeMap();
     Matcher m = pattern.matcher(msg.content);
+    
+    tokenLoop:
     while (m.find()) {
-      String target = m.group(1).toLowerCase();
-      String action = m.group(2);
-      boolean blacklisted = false;
+      final String target = m.group(1);
+      final String action = m.group(2);
       for (Pattern p : blacklist) {
-        if (p.matcher(target).matches()) {
-          blacklisted = true;
-          break;
+        if (p.matcher(target.toLowerCase()).matches()) {
+          // blacklisted
+          continue tokenLoop;
         }
       }
-      if (blacklisted) {
-        continue;
-      }
+      
       Target t = alreadyFetched.get(target);
-      if (t == null) {
-        t = Datastore.instance().getOrCreateTarget(msg.channel, target);
+      if (null == t) {
+        t = getTargetForEntity(msg.channel, target);
         alreadyFetched.put(target, t);
       }
       Action a = action.equals("--") ? Action.MINUSMINUS : Action.PLUSPLUS;
@@ -98,16 +109,12 @@ public class PlusPlusBot {
       if (mutateObjects) {
         reasons.add(t.takeAction(msg.member, a, msg.content));
       } else {
-        if (!scores.containsKey(t.key())) {
-          scores.put(t.key(), t.score());
-        }
-        int scoreAfter = scores.get(t.key());
+        int scoreAfter = t.score();
         if (a == Action.PLUSPLUS) {
           ++scoreAfter;
         } else {
           --scoreAfter;
         }
-        scores.put(t.key(), scoreAfter);
         reasons.add(new Reason(t, msg.member, a, msg.content, scoreAfter));
       }
     }
