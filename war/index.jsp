@@ -83,7 +83,6 @@ stays safe. <%
 		Datastore datastore = Datastore.instance();
 		datastore.startRequest();
 		com.imjasonh.partychapp.User pchappUser = datastore.getOrCreateUser(user.getEmail());
-		datastore.endRequest();
 %>
 <div id="actionOptions"><input type="button"
 	value="Create a new room" onclick="show('create')" /></div>
@@ -116,6 +115,7 @@ stays safe. <%
 var userInfo = <%=UserInfoJsonServlet.getJsonFromUser(pchappUser, datastore)%>
 displayChannels(userInfo, document.getElementById("channels"));
 </script> <%
+		datastore.endRequest();
 	} else {
 %> The easiest way to create a room is to <a style="font-weight: bold"
 	href="<%=userService.createLoginURL(request.getRequestURI())%>">sign
