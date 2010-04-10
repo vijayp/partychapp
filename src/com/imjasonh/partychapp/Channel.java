@@ -228,6 +228,8 @@ public class Channel implements Serializable {
     }
     if (member != null) {
       removeMember(member);
+      member.user().removeChannel(getName());
+      member.user().put();
       return true;
     }
     if (invitedIds.remove(id)) {

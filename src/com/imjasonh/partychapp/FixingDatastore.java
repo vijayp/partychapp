@@ -39,7 +39,7 @@ public class FixingDatastore extends Datastore {
   public User getUserByJID(String jid) {
     User u = wrapped.getUserByJID(jid);
     if (u != null) {
-      u.fixUp();
+      u.fixUp(this);
     }
     return u;
   }
@@ -48,7 +48,7 @@ public class FixingDatastore extends Datastore {
   public User getUserByPhoneNumber(String phoneNumber) {
     User u = wrapped.getUserByPhoneNumber(phoneNumber);
     if (u != null) {
-      u.fixUp();
+      u.fixUp(this);
     }
     return u;
   }
@@ -57,7 +57,7 @@ public class FixingDatastore extends Datastore {
   public List<User> getUsersByChannel(Channel c) {
     List<User> users = wrapped.getUsersByChannel(c);
     for (User u : users) {
-      u.fixUp();
+      u.fixUp(this);
     }
     return users;
   }

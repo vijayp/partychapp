@@ -83,6 +83,7 @@ stays safe. <%
 		Datastore datastore = Datastore.instance();
 		datastore.startRequest();
 		com.imjasonh.partychapp.User pchappUser = datastore.getOrCreateUser(user.getEmail());
+		datastore.endRequest();
 %>
 <div id="actionOptions"><input type="button"
 	value="Create a new room" onclick="show('create')" /></div>

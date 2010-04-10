@@ -12,6 +12,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -145,15 +146,39 @@ public class User implements Serializable {
       JDOHelper.makeDirty(this, "channelNames");
     }
   }
+  
+  public void removeChannel(String c) {
+    if (channelNames.contains(c)) {
+      channelNames.remove(c);
+      
+      // Similar to the dirty hack in {@link #addChannel}
+      JDOHelper.makeDirty(this, "channelNames");
+    }
+  }
 
-  public void fixUp() {
+  public void fixUp(Datastore datastore) {
+    boolean shouldPut = false;
+    for (String channelName : channelNames) {
+      Channel channel = datastore.getChannelByName(channelName);
+      Member member = channel.getMemberByJID(new JID(jid));
+      if (member == null) {
+        LOG.warning("User " + jid + " wasn't actually in " +
+            channelName + ", removing");
+        removeChannel(channelName);
+        shouldPut = true;
+      }      
+    }
+    
+    if (shouldPut) {
+      put();
+    }
   }
   
   public void put() {
     Datastore.instance().put(this);
   }
 
-  public String toString() {
+  @Override public String toString() {
     return "[User: jid: " + jid + ", phoneNumber: " + phoneNumber +
       ", carrier: " + carrier + ", channelNames: " + channelNames +
       "]";
