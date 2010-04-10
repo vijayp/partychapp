@@ -8,6 +8,7 @@ public class StatsHandler extends SlashCommand {
     super("stats");
   }
   
+  @Override
   public void doCommand(Message msg, String argument) {
     Datastore.Stats stats = Datastore.instance().getStats();    
     msg.channel.sendDirect(stats.toString(), msg.member);

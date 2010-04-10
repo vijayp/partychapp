@@ -21,6 +21,7 @@ public class GraphScoreHandler extends SlashCommand {
     return s.substring(0, Math.min(s.indexOf(".") + 4, s.length()));
   }
 
+  @Override
   public void doCommand(Message msg, String argument) {
     int lo = 0;
     int hi = 0;

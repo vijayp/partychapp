@@ -8,6 +8,7 @@ import com.google.appengine.repackaged.com.google.common.collect.Lists;
 public class FakeQueue extends TestableQueue {
   List<TestableQueue.Options> addedTasks = Lists.newArrayList();
   
+  @Override
   public TaskHandle add(Options opts) {
     addedTasks.add(opts);
     return null;

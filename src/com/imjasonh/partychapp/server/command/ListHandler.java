@@ -16,6 +16,7 @@ public class ListHandler extends SlashCommand {
     super("list", "names");
   }
 	
+  @Override
   public void doCommand(Message msg, String argument) {
     // TODO: Reject or act on non-null argument
     

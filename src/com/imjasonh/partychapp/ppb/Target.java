@@ -90,6 +90,7 @@ public class Target implements Serializable {
     return "Channel: " + channel.getName() + ", Name: " + name;
   }
   
+  @Override
   public String toString() {
     return "Target: [Key: [" + key() + "], score: " + score + "]";
   }

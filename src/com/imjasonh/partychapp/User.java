@@ -156,10 +156,10 @@ public class User implements Serializable {
     }
   }
 
-  public void fixUp(Datastore datastore) {
+  public void fixUp() {
     boolean shouldPut = false;
     for (String channelName : channelNames) {
-      Channel channel = datastore.getChannelByName(channelName);
+      Channel channel = Datastore.instance().getChannelByName(channelName);
       Member member = channel.getMemberByJID(new JID(jid));
       if (member == null) {
         LOG.warning("User " + jid + " wasn't actually in " +

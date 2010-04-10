@@ -38,6 +38,7 @@ public class PlusPlusBot {
 
   public enum Action {
     PLUSPLUS, MINUSMINUS;
+    @Override
     public String toString() {
       return isPlusPlus() ? "++" : "--"; 
     }
@@ -56,7 +57,7 @@ public class PlusPlusBot {
         return otherwise;
       }
     }
-  };
+  }
 
   public boolean matches(String content) {
     // use find() instead of matches() because matches() looks for the whole

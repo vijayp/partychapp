@@ -20,6 +20,7 @@ public class InviteHandler extends SlashCommand {
     super("invite");
   }
 
+  @Override
   public void doCommand(Message msg, String jids) {
     assert msg.channel != null;
     assert msg.member != null;

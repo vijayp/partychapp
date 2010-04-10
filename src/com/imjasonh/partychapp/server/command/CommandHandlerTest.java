@@ -8,13 +8,13 @@ import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 
 public class CommandHandlerTest extends TestCase {
-	BroadcastHandler handler = new BroadcastHandler();
-	MockXMPPService xmpp = new MockXMPPService();
+  MockXMPPService xmpp = new MockXMPPService();
 
-	public void setUp() {
-		FakeDatastore datastore = new FakeDatastore();
-		Datastore.setInstance(datastore);
-		datastore.setUp();
-		SendUtil.setXMPP(xmpp);
-	}
+  @Override
+  public void setUp() {
+    FakeDatastore datastore = new FakeDatastore();
+    Datastore.setInstance(datastore);
+    datastore.setUp();
+    SendUtil.setXMPP(xmpp);
+  }
 }

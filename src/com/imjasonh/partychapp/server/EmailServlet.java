@@ -154,9 +154,9 @@ public class EmailServlet extends HttpServlet {
     }
   }
 
+  @Override
   public void doPost(HttpServletRequest req, 
-                     HttpServletResponse resp) 
-          throws IOException {
+                     HttpServletResponse resp) {
     Datastore.instance().startRequest();
 
     MimeMessage mime = null;

@@ -21,7 +21,7 @@ public class MockMailService implements MailService {
     sentMessages.add(message);
   }
 
-  public void sendToAdmins(Message message) throws IOException {
+  public void sendToAdmins(Message message) {
     throw new RuntimeException("sendToAdmins not implemented in the fake");
   }
 

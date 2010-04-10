@@ -10,6 +10,7 @@ public class SummonHandlerTest extends CommandHandlerTest {
   SummonHandler handler = new SummonHandler();
   MockMailService mailer = new MockMailService();
   
+  @Override
   public void setUp() {
 	super.setUp();
     MailUtil.setMailService(mailer);

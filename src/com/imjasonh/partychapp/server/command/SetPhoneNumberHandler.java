@@ -7,6 +7,7 @@ public class SetPhoneNumberHandler extends SlashCommand {
     super("set-phone-number");
   }
 
+  @Override
   public void doCommand(Message msg, String phone) {
     msg.member.user().setPhoneNumber(phone);
     msg.channel.sendDirect("Set your phone number to " + phone, msg.member);

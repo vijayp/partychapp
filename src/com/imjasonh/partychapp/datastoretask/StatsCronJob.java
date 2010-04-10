@@ -6,6 +6,7 @@ import com.imjasonh.partychapp.WebRequest;
 import com.imjasonh.partychapp.server.MailUtil;
 
 public class StatsCronJob extends DatastoreTask {
+  @Override
   public void handle(WebRequest req, TestableQueue q) {
     Datastore.Stats stats = Datastore.instance().getStats();
     MailUtil.sendMail("pchat stats update",

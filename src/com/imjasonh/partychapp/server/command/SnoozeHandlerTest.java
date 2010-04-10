@@ -9,6 +9,7 @@ import com.imjasonh.partychapp.Message;
 public class SnoozeHandlerTest extends CommandHandlerTest {
   SnoozeHandler handler = new SnoozeHandler();
   
+  @Override
   public void setUp() {
     super.setUp();
     // 10/21/2009 at 10:21:10 am EDT

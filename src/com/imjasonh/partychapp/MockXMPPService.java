@@ -1,10 +1,5 @@
 package com.imjasonh.partychapp;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.Presence;
@@ -12,6 +7,10 @@ import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.SendResponse.Status;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class MockXMPPService implements XMPPService {
   public List<Message> messages = Lists.newArrayList();
@@ -25,7 +24,7 @@ public class MockXMPPService implements XMPPService {
     return new Presence(false);
   }
 
-  public Message parseMessage(HttpServletRequest arg0) throws IOException {
+  public Message parseMessage(HttpServletRequest arg0) {
     throw new RuntimeException("not implemented in mock");
   }
 

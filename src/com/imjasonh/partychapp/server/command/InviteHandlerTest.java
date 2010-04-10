@@ -12,6 +12,7 @@ public class InviteHandlerTest extends CommandHandlerTest {
   InviteHandler handler = new InviteHandler();
   MockMailService mailer = new MockMailService();
   
+  @Override
   public void setUp() {
 	super.setUp();
     MailUtil.setMailService(mailer);

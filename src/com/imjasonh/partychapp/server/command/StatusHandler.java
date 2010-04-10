@@ -8,6 +8,7 @@ public class StatusHandler extends SlashCommand {
     super("status");
   }
 
+  @Override
   public void doCommand(Message msg, String argument) {
     String reply = "You are currently in '" + msg.channel.getName() + "' as '" + msg.member.getAlias() + ".'";
     User u = msg.member.user();

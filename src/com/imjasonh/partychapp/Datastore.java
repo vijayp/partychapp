@@ -1,6 +1,10 @@
 package com.imjasonh.partychapp;
 
-import java.io.IOException;
+import com.google.appengine.api.xmpp.JID;
+
+import com.imjasonh.partychapp.ppb.Reason;
+import com.imjasonh.partychapp.ppb.Target;
+
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Collection;
@@ -8,10 +12,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-
-import com.google.appengine.api.xmpp.JID;
-import com.imjasonh.partychapp.ppb.Reason;
-import com.imjasonh.partychapp.ppb.Target;
 
 public abstract class Datastore {
   private static Datastore instance;
@@ -101,14 +101,13 @@ public abstract class Datastore {
     private static final DateFormat df =
       DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     
+    @Override
     public String toString() {
       String reply = "Number of channels (as of " + df.format(timestamp) + "): " + numChannels + "\n";
       reply += "1-day active users: " + oneDayActiveUsers + "\n";
       reply += "7-day active users: " + sevenDayActiveUsers + "\n";
+      reply += "30-day active users: " + thirtyDayActiveUsers + "\n";
       reply += "Number of users: " + numUsers + "\n";
-      // TODO(nsanch): uncomment when we've had the User object for more than
-      // 30 days (mid-January)
-      // reply += "30-day active users: " + stats.thirtyDayActiveUsers + "\n";
       return reply;
     }
   }
@@ -121,7 +120,7 @@ public abstract class Datastore {
   public abstract void startRequest();
   public abstract void endRequest();
   
-  public Channel getChannelIfUserPresent(String channelName, String email) throws IOException {
+  public Channel getChannelIfUserPresent(String channelName, String email) {
 	  Channel channel = getChannelByName(channelName);
 	  if (channel == null) {
 		  System.out.println("Sorry room name is not there: " + channelName);

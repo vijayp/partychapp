@@ -19,6 +19,7 @@ public class PartychappServletTest extends TestCase {
   MockXMPPService xmpp = new MockXMPPService();
   PartychappServlet servlet = new PartychappServlet();
 
+  @Override
   public void setUp() {
     FakeDatastore datastore = new FakeDatastore();
     Datastore.setInstance(datastore);
@@ -70,12 +71,13 @@ public class PartychappServletTest extends TestCase {
       assertEquals(serverJID.getId(), actual.getFromJid().getId());
     }
     
+    @Override
     public String toString() {
       return "[ TestMessage: " + incoming + ", " +
           userString + ", " +
           "'" + content + "' ]"; 
     }
-  };
+  }
   
   public void testIntegration() {
     TestMessage script[] = {

@@ -20,6 +20,7 @@ public class DatastoreTaskMasterTest extends TestCase {
   DatastoreTaskMaster dtm = new DatastoreTaskMaster();
   FakeQueue tq = new FakeQueue();
   
+  @Override
   public void setUp() {
     fd = new FakeDatastore();
     Datastore.setInstance(fd);

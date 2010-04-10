@@ -3,6 +3,7 @@ package com.imjasonh.partychapp;
 import junit.framework.TestCase;
 
 public class MemberTest extends TestCase {
+  @Override
   public void setUp() {
 	FakeDatastore datastore = new FakeDatastore();
 	Datastore.setInstance(datastore);

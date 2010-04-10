@@ -1,25 +1,23 @@
 package com.imjasonh.partychapp.server.json;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.ppb.Reason;
+import com.imjasonh.partychapp.ppb.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.ppb.Reason;
-import com.imjasonh.partychapp.ppb.Target;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class ReasonsJsonServlet  extends JsonServlet {
   private static final long serialVersionUID = 6640879543547767683L;
 	
 	@Override
 	protected JSONObject getJson(HttpServletRequest req, HttpServletResponse resp,
-			com.imjasonh.partychapp.User user, Datastore datastore) throws JSONException, IOException {
+			com.imjasonh.partychapp.User user, Datastore datastore) throws JSONException {
 		String[] paths = req.getRequestURI().split("/");
 		if (paths.length < 3) {
 			return new JSONObject().put("error", "bad path");

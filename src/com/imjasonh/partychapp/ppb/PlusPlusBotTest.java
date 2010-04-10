@@ -13,6 +13,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 public class PlusPlusBotTest extends TestCase {
   private PlusPlusBot ppb = new PlusPlusBot();
 
+  @Override
   public void setUp() {
 	FakeDatastore datastore = new FakeDatastore();
     Datastore.setInstance(datastore);

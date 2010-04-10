@@ -13,6 +13,7 @@ public class KickHandler extends SlashCommand {
     super("kick");
   }
 
+  @Override
   public void doCommand(Message msg, String action) {
     assert msg.channel != null;
     assert msg.member != null;
