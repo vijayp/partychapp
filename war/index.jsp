@@ -28,7 +28,7 @@
     targetDiv.setAttribute('style', 'display: block');
     var channels = userInfo['channels'];
     for (var i = 0; i < channels.length; i++) {
-       var channelName = channels[i].name;     
+       var channelName = channels[i].name;
        var nameDiv = document.createElement("div");
        var nameAnchor = document.createElement("a");
        nameAnchor.href = "/channel/" + channelName;
@@ -82,7 +82,7 @@ stays safe. <%
 	if (user != null) {
 		Datastore datastore = Datastore.instance();
 		datastore.startRequest();
-		com.imjasonh.partychapp.User pchappUser = datastore.getUserByJID(user.getEmail());
+		com.imjasonh.partychapp.User pchappUser = datastore.getOrCreateUser(user.getEmail());
 %>
 <div id="actionOptions"><input type="button"
 	value="Create a new room" onclick="show('create')" /></div>
@@ -167,7 +167,7 @@ to the room. Some key ones:
 	being so handy</tt>. This adds one to the score for partychat, which you can
 	see by typing <tt>/score partychat</tt>. Or you can take points away
 	from things you dislike, such as <tt>kushal-- for another bad pun</tt>.
-	
+
 </ul>
 
 <h3>Tell me more about this "partychat"</h3>

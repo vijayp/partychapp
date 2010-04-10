@@ -17,6 +17,7 @@ import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.command.InviteHandler;
 
@@ -44,7 +45,10 @@ public class CreateRoomServlet extends HttpServlet {
     // TODO: Get this programatically
     JID serverJID = new JID(name + "@" + Configuration.chatDomain);
     channel = new Channel(serverJID);
-    channel.addMember(new JID(user.getEmail())); // need / ?
+    Member member = channel.addMember(new JID(user.getEmail())); // need / ?
+    member.user().put();    
+    member.put();
+    
     SendUtil.invite(user.getEmail(), serverJID);
     
     // works for "true" ignoring case
