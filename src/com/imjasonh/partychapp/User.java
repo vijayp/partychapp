@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp;
 
-import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 import java.io.Serializable;
@@ -155,9 +154,7 @@ public class User implements Serializable {
   public void fixUp() {
     boolean shouldPut = false;
     for (String channelName : channelNames) {
-      Channel channel = Datastore.instance().getChannelByName(channelName);
-      Member member = channel.getMemberByJID(new JID(jid));
-      if (member == null) {
+      if (!Datastore.instance().isJIDInChannel(channelName, jid)) {
         logger.warning("User " + jid + " wasn't actually in " +
             channelName + ", removing");
         removeChannel(channelName);
@@ -167,6 +164,11 @@ public class User implements Serializable {
     
     if (shouldPut) {
       put();
+      // Ending this request and starting a new one so that the edit gets 
+      // immediately applied in a transaction, to make sure that we're in our
+      // own entity group.
+      Datastore.instance().endRequest();
+      Datastore.instance().startRequest();
     }
   }
   

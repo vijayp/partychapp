@@ -47,6 +47,16 @@ public class FakeDatastore extends Datastore {
   }
   
   @Override
+  public boolean isJIDInChannel(String channelName, String jid) {
+    Channel c = channels.get(channelName);
+    if (c == null) {
+      return false;
+    }
+    
+    return c.getMemberByJID(new JID(jid)) != null;
+  }    
+  
+  @Override
   public User getUserByJID(String jid) {
     User u = users.get(jid);
     if (u != null) {

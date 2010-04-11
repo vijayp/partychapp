@@ -36,6 +36,11 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
+  public boolean isJIDInChannel(String channelName, String jid) {
+    return wrapped.isJIDInChannel(channelName, jid);
+  }  
+  
+  @Override
   public User getUserByJID(String jid) {
     User u = wrapped.getUserByJID(jid);
     if (u != null) {

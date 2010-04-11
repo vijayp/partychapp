@@ -7,6 +7,7 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.ppb.Reason;
@@ -49,6 +50,18 @@ public class LiveDatastore extends Datastore {
 
     return attachUsersToChannelMembers(c);
   }
+  
+  @Override
+  public boolean isJIDInChannel(String channelName, String jid) {
+    Channel c = null;
+    try {
+      c = manager.getObjectById(Channel.class, channelName);
+    } catch (JDOObjectNotFoundException notFound) {
+      return false;
+    }    
+    
+    return c.getMemberByJID(new JID(jid)) != null;
+  }  
   
   @Override
   public User getUserByJID(String jid) {

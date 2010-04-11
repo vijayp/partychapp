@@ -35,6 +35,8 @@ public abstract class Datastore {
   
   public abstract Channel getChannelByName(String name);
   
+  public abstract boolean isJIDInChannel(String channelName, String jid);
+  
   protected Channel attachUsersToChannelMembers(Channel c) {
     List<User> users = getUsersByChannel(c);
     for (Member m : c.getMembers()) {
