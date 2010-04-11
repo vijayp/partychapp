@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
@@ -25,12 +26,18 @@ public class SnoozeHandlerTest extends CommandHandlerTest {
   public void snoozeAndGetDate(String cmd, String reply, String date) {
     handler.doCommand(Message.createForTests(cmd));
     assertEquals(1, xmpp.messages.size());
-    assertEquals(reply + ", until " + date, xmpp.messages.get(0).getBody());
+    String msg = xmpp.messages.get(0).getBody();
+    assertTrue("expected to find \"" + reply + " in \"" + msg + "\"",
+               msg.contains(reply));
     Date actual = FakeDatastore.fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
     assertNotNull(actual);
     DateFormat format = DateFormat.getDateTimeInstance(
         DateFormat.LONG, DateFormat.LONG, Locale.US);
-    assertEquals(date, format.format(actual));
+    try {
+      // divide by 1000 because the expected values are only accurate to the
+      // second, not to the millisecond.
+      assertEquals(format.parse(date).getTime() / 1000, actual.getTime() / 1000);
+    } catch (ParseException e) { fail("bad expected value " + date); }
   }
 
   public void testSimple1() {
