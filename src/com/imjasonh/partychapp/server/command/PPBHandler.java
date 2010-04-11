@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -10,25 +11,25 @@ import com.imjasonh.partychapp.ppb.Reason;
 public class PPBHandler implements CommandHandler {
   PlusPlusBot ppb = new PlusPlusBot();
 
-  private void doCommandWithCustomizedReply(Message msg, String prefix, 
-              String suffix) {
+  private void doCommandWithCustomizedReply(
+      Message msg, String prefix, String suffix) {
     msg.member.addToLastMessages(msg.content);
     msg.channel.put();
     List<Reason> reasons = ppb.extractReasons(msg);
 
     // for "whee x++ and y-- yay" we want to change it into
     // "whee x++ [woot! now at 1] and y-- [ouch! now at -1] yay"
-    List<String> strList = Lists.newArrayListWithCapacity(reasons.size()*3+3);
+    List<String> strList =
+        Lists.newArrayListWithCapacity(reasons.size() * 3 + 3);
     strList.add(prefix);
     strList.add(msg.content);
     int nextStartPos = 0;
     final String lcaseContent = msg.content.toLowerCase();
     for (Reason reason: reasons) {
-      final String search_string = reason.target().name() + 
-                                   reason.action().toString();
-      int foundPos = lcaseContent.indexOf(search_string, nextStartPos);
+      String searchString =
+          reason.target().name() + reason.action().toString();
+      int foundPos = lcaseContent.indexOf(searchString, nextStartPos);
       
-      // TODO: this should probably use stringbuilder to avoid  copying
       // zap the old "rest of the string" since we're going to do some cutting
       strList.remove(strList.size() - 1);
       
@@ -36,7 +37,7 @@ public class PPBHandler implements CommandHandler {
       strList.add(msg.content.substring(nextStartPos, foundPos));
       
       // add the "x++" part
-      nextStartPos = foundPos + search_string.length();
+      nextStartPos = foundPos + searchString.length();
       strList.add(msg.content.substring(foundPos, nextStartPos));
 
       // add the "[woot x->1]" part
@@ -48,13 +49,13 @@ public class PPBHandler implements CommandHandler {
     }
     strList.add(suffix);
     
-    StringBuilder outString = new StringBuilder();
-    for (String s : strList) 
-      outString.append(s.toString());
-    if (reasons.isEmpty()) 
-      msg.channel.broadcast(outString.toString(), msg.member);    
-    else
-      msg.channel.broadcastIncludingSender(outString.toString());    
+    String outString = Joiner.on("").join(strList);
+
+    if (reasons.isEmpty()) {
+      msg.channel.broadcast(outString, msg.member);    
+    } else {
+      msg.channel.broadcastIncludingSender(outString);
+    }
   }
   
   public void doCommandAsCorrection(Message msg) {
