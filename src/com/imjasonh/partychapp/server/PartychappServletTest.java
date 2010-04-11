@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -17,15 +18,16 @@ import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.MockXMPPService;
 
 public class PartychappServletTest extends TestCase {
+  private static final Logger logger = 
+      Logger.getLogger(PartychappServletTest.class.getName());
+
   MockXMPPService xmpp = new MockXMPPService();
   PartychappServlet servlet = new PartychappServlet();
-
+  
   @Override
   public void setUp() {
     FakeDatastore datastore = new FakeDatastore();
     Datastore.setInstance(datastore);
-    datastore.setUp();
-    FakeDatastore.fakeChannel().delete();
     SendUtil.setXMPP(xmpp);
     MailUtil.setMailService(new MockMailService());
   }
@@ -201,6 +203,8 @@ public class PartychappServletTest extends TestCase {
 
     for (int i = 0; i < script.length;) {
       TestMessage line = script[i];
+      logger.info("Test message " + i + ": " + line.content);
+      
       servlet.doXmpp(line.toIncomingMessage());
 
       List<Message> sentMessages = xmpp.messages;
