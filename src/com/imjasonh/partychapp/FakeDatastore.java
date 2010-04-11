@@ -11,8 +11,9 @@ import java.util.Map;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 

@@ -11,7 +11,8 @@ import com.google.appengine.api.xmpp.XMPPFailureException;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.google.appengine.api.xmpp.SendResponse.Status;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
+
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 

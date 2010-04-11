@@ -6,7 +6,7 @@ import com.google.appengine.api.xmpp.Presence;
 import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.SendResponse.Status;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 

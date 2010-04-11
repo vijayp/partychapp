@@ -1,6 +1,6 @@
 package com.imjasonh.partychapp.server.json;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;

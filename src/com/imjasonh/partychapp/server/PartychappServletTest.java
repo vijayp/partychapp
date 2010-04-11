@@ -8,7 +8,8 @@ import junit.framework.TestCase;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.MessageBuilder;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
+
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.FakeDatastore;

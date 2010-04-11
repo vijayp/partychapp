@@ -1,12 +1,12 @@
 package com.imjasonh.partychapp;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
 
 public class WebRequest {
   private final Map<String, List<String>> params;

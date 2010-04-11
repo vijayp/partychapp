@@ -1,5 +1,9 @@
 package com.imjasonh.partychapp.ppb;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +12,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
-import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
@@ -22,7 +23,7 @@ public class PlusPlusBot {
     Pattern.compile("(" + targetPattern + ")(\\+\\+|--)($|\\s+)");
 
   @SuppressWarnings("unused")
-  private static final Logger LOG = Logger.getLogger(PlusPlusBot.class.getName());
+  private static final Logger logger = Logger.getLogger(PlusPlusBot.class.getName());
 
 
   static {

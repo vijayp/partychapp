@@ -3,7 +3,7 @@ package com.imjasonh.partychapp.server.web;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
@@ -22,7 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 public class InviteToRoomServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
-  private static final Logger LOG = Logger.getLogger(InviteToRoomServlet.class.getName());
+  private static final Logger logger =
+      Logger.getLogger(InviteToRoomServlet.class.getName());
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)

@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="java.util.List"%>
-<%@ page import="com.google.appengine.repackaged.com.google.common.collect.Lists"%>
+<%@ page import="com.google.common.collect.Lists"%>
 <%@ page import="com.imjasonh.partychapp.Channel"%>
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
 <%@ page import="com.imjasonh.partychapp.Member"%>
@@ -26,7 +26,7 @@
       <img src="/logo.png" width="310" height="150" alt="Partychat">
     </div>
 
-<div class="channelName">Channel stats for: 
+<div class="channelName">Channel stats for:
 <span style="font-weight:bold"><%=channel.getName()%></span></div>
 
 <script>
@@ -34,7 +34,7 @@ function displayReasons(cell, data) {
     var reasons = eval("(" + data + ")")['reasons'];
 	var reasonsDiv = document.createElement("div");
 	reasonsDiv.class = "reasons";
-    for (var i = 0; i < reasons.length; ++i) {	
+    for (var i = 0; i < reasons.length; ++i) {
     	reasonsDiv.innerHTML += reasons[i].reason + " (" + reasons[i].sender + ")<BR>";
     }
 	cell.appendChild(reasonsDiv);
@@ -51,7 +51,7 @@ function addReasons(cell, channelName, targetName) {
 		return;
 	}
 	cell.isExpanded = true;
-	
+
 	var url = "/reasons/" + channelName + "/" + targetName;
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.open('GET', url, true);
@@ -61,7 +61,7 @@ function addReasons(cell, channelName, targetName) {
     }};
 
     xmlHttp.send(null);
-}  
+}
 
 </script>
 

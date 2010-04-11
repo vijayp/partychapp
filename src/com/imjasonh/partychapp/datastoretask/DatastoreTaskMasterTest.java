@@ -7,8 +7,9 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
-import com.google.appengine.repackaged.com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;

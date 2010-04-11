@@ -12,14 +12,16 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
+
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
-  private static final Logger LOG = Logger.getLogger(PartychappServlet.class.getName());
+  private static final Logger logger =
+      Logger.getLogger(PartychappServlet.class.getName());
 
   private XMPPService XMPP;
 
@@ -50,12 +52,15 @@ public class PartychappServlet extends HttpServlet {
     
     JID userJID = xmppMessage.getFromJid();
 
-    JID serverJID = xmppMessage.getRecipientJids()[0]; // should only be "to" one jid, right?
+    // should only be "to" one JID, right?
+    JID serverJID = xmppMessage.getRecipientJids()[0];
     String channelName = serverJID.getId().split("@")[0];
 
     String body = xmppMessage.getBody().trim();
 
-    com.imjasonh.partychapp.Message message = new com.imjasonh.partychapp.Message(body, userJID, serverJID, null, null, null, MessageType.XMPP);
+    com.imjasonh.partychapp.Message message =
+        new com.imjasonh.partychapp.Message(
+            body, userJID, serverJID, null, null, null, MessageType.XMPP);
 
     if (channelName.equalsIgnoreCase("echo")) {
       handleEcho(message);
@@ -73,7 +78,7 @@ public class PartychappServlet extends HttpServlet {
   }
 
   private void handleEcho(com.imjasonh.partychapp.Message message) {
-    LOG.severe("Body of message sent to echo@ is: " + message.content);
+    logger.severe("Body of message sent to echo@ is: " + message.content);
     SendUtil.sendMessage("echo: " + message.content,
                          message.serverJID,
                          Lists.newArrayList(message.userJID));

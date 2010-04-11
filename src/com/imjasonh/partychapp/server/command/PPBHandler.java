@@ -1,7 +1,8 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
 import com.imjasonh.partychapp.ppb.Reason;

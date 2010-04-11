@@ -17,7 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
@@ -119,10 +121,10 @@ public class EmailServlet extends HttpServlet {
         return null;
       }
       String content = "";
-      if (email.subject != null && !email.subject.isEmpty()) {
+      if (!Strings.isNullOrEmpty(email.subject)) {
         content += "Subject: " + email.subject;
       }
-      if (email.body != null && !email.body.isEmpty()) {
+      if (!Strings.isNullOrEmpty(email.body)) {
         content += " / Body: " + email.body;
       }
       

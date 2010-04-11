@@ -1,12 +1,12 @@
 package com.imjasonh.partychapp;
 
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.List;
 
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
-
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 
 @PersistenceCapable
 public class DebuggingOptions implements Serializable {

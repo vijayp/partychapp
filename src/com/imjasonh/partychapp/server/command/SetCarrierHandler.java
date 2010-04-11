@@ -1,8 +1,9 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.collect.Maps;
+
 import java.util.Map;
 
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
 

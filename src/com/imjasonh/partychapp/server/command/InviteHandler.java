@@ -1,16 +1,17 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
 /**
- * Action taken when the user
+ * Action taken when the user invites other to the current channel.
  * 
  * @author kushaldave@gmail.com
  */

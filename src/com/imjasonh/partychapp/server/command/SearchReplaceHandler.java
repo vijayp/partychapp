@@ -1,10 +1,11 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;

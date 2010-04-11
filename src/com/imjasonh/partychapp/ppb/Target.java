@@ -3,6 +3,8 @@
  */
 package com.imjasonh.partychapp.ppb;
 
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +15,6 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;

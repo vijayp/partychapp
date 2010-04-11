@@ -14,8 +14,9 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
-import com.google.appengine.repackaged.com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;

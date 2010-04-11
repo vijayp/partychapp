@@ -4,7 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
+
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Member.SnoozeStatus;

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.appengine.api.mail.MailService;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 public class MockMailService implements MailService {
   public final List<Message> sentMessages = Lists.newArrayList();

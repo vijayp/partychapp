@@ -1,10 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="java.util.List"%>
+<%@ page import="com.google.common.collect.Lists"%>
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
-<%@ page import="com.google.appengine.repackaged.com.google.common.collect.Lists"%>
 <%@ page import="com.imjasonh.partychapp.Channel"%>
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
 <%@ page import="com.imjasonh.partychapp.Member"%>
