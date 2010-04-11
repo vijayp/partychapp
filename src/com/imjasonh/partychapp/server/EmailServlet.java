@@ -113,15 +113,20 @@ public class EmailServlet extends HttpServlet {
     if (memberPhoneNumber == null) {
       Member member = channel.getMemberByJID(new JID(email.from.getAddress()));
       if (member == null) {
-        LOG.warning("unknown user " + email.from + " in channel " + channelName);
+        LOG.warning(
+            email.from + " attempted to email channel " + channelName + 
+            "but they're not in that channel. Dropping on the floor.");
         return null;
       }
-      String content = "Subject: " + email.from;
-      if (!email.body.isEmpty()) {
-        content  += " / Body: " + email.body;
+      String content = "";
+      if (email.subject != null && !email.subject.isEmpty()) {
+        content += "Subject: " + email.subject;
+      }
+      if (email.body != null && !email.body.isEmpty()) {
+        content += " / Body: " + email.body;
       }
       
-      return new Message(null,
+      return new Message(content,
                          new JID(member.getJID()),
                          channel.serverJID(),
                          member,
@@ -132,7 +137,9 @@ public class EmailServlet extends HttpServlet {
       // member might be null if we don't know the phone number
       Member member = channel.getMemberByPhoneNumber(memberPhoneNumber);
       if (member == null) {
-        LOG.severe("Got an SMS from " + memberPhoneNumber + " but I don't know what channel they're in. Dropping on floor.");
+        LOG.severe(
+            "Got an SMS from " + memberPhoneNumber +
+            " but I don't know what channel they're in. Dropping on floor.");
       }
       
       // GV emails have a --\nGoogle Voice footer, so try and look for that.
@@ -158,26 +165,31 @@ public class EmailServlet extends HttpServlet {
   public void doPost(HttpServletRequest req, 
                      HttpServletResponse resp) {
     Datastore.instance().startRequest();
-
-    MimeMessage mime = null;
     try {
-      mime = new MimeMessage(Session.getDefaultInstance(new Properties(), null),
-                             req.getInputStream());
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "error while parsing incoming email", e);
-      return;
-    }
-
-    EmailMessage email = parseToBetterFormat(mime);
-
-    for (InternetAddress ia : email.to) {
-      Message msg = extractPchappMessageFromEmail(email, ia);
-      if (msg != null) {
-        Command.getCommandHandler(msg).doCommand(msg);
+      MimeMessage mime = null;
+      try {
+        mime = new MimeMessage(Session.getDefaultInstance(new Properties(), null),
+                               req.getInputStream());
+      } catch (Exception e) {
+        LOG.log(Level.SEVERE, "error while parsing incoming email", e);
+        return;
       }
+  
+      EmailMessage email = parseToBetterFormat(mime);
+      if (email == null) {
+        // parseToBetterFormat already logged why the email couldn't be parsed
+        return;
+      }
+  
+      for (InternetAddress ia : email.to) {
+        Message msg = extractPchappMessageFromEmail(email, ia);
+        if (msg != null) {
+          Command.getCommandHandler(msg).doCommand(msg);
+        }
+      }
+    } finally {
+      Datastore.instance().endRequest();
     }
-    
-    Datastore.instance().endRequest();
   }
   
   public String tryExtractPhoneNumber(String email) {
