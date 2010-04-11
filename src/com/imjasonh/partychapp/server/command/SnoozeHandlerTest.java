@@ -2,6 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
@@ -27,8 +28,9 @@ public class SnoozeHandlerTest extends CommandHandlerTest {
     assertEquals(reply + ", until " + date, xmpp.messages.get(0).getBody());
     Date actual = FakeDatastore.fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
     assertNotNull(actual);
-    assertEquals(date,
-                 DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(actual));
+    DateFormat format = DateFormat.getDateTimeInstance(
+        DateFormat.LONG, DateFormat.LONG, Locale.US);
+    assertEquals(date, format.format(actual));
   }
 
   public void testSimple1() {
@@ -52,6 +54,6 @@ public class SnoozeHandlerTest extends CommandHandlerTest {
   public void testSimple4() {
     snoozeAndGetDate("/snooze 4d",
                      "Okay, snoozing for 4 days (345600 seconds)",
-                     "October 25, 2009 9:21:10 AM EST");
+                     "October 25, 2009 10:21:10 AM EDT");
   }
 }
