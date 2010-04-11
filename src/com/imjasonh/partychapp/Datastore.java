@@ -17,7 +17,8 @@ public abstract class Datastore {
   private static Datastore instance;
   
   @SuppressWarnings("unused")
-  private static final Logger LOG = Logger.getLogger(Datastore.class.getName());
+  private static final Logger logger = 
+      Logger.getLogger(Datastore.class.getName());
 
   public static Datastore instance() {
     if (instance == null) {
@@ -34,7 +35,7 @@ public abstract class Datastore {
   
   public abstract Channel getChannelByName(String name);
   
-  public Channel attachUsersToChannelMembers(Channel c) {
+  protected Channel attachUsersToChannelMembers(Channel c) {
     List<User> users = getUsersByChannel(c);
     for (Member m : c.getMembers()) {
       if (m.user() != null) {
@@ -121,17 +122,17 @@ public abstract class Datastore {
   public abstract void endRequest();
   
   public Channel getChannelIfUserPresent(String channelName, String email) {
-	  Channel channel = getChannelByName(channelName);
-	  if (channel == null) {
-		  System.out.println("Sorry room name is not there: " + channelName);
-		  return null;
-	  } 
+    Channel channel = getChannelByName(channelName);
+    if (channel == null) {
+      System.out.println("Sorry room name is not there: " + channelName);
+      return null;
+    }
 
-	  if (channel.getMemberByJID(new JID(email)) == null) {
-		  System.out.println("Sorry you're not in that room: " + email);
-		  return null;
-	  }
-	  return channel;
+    if (channel.getMemberByJID(new JID(email)) == null) {
+      System.out.println("Sorry you're not in that room: " + email);
+      return null;
+    }
+    return channel;
   }
   
   

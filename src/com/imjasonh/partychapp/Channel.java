@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.annotations.IdentityType;
@@ -22,19 +23,17 @@ import com.imjasonh.partychapp.server.SendUtil;
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
  
-  /**
-   * 
-   */
   private static final long serialVersionUID = 3860339764413214817L;
  
-  // private static final Logger LOG = Logger.getLogger(Channel.class.getName());
+  private static final Logger logger = 
+      Logger.getLogger(Channel.class.getName());
 
   @PrimaryKey
   @Persistent
   private String name;
 
   @Persistent(serialized = "true")
-  private Set<Member> members =  Sets.newHashSet();
+  private Set<Member> members = Sets.newHashSet();
   
   @Persistent
   private Boolean inviteOnly = false;
@@ -377,6 +376,7 @@ public class Channel implements Serializable {
     }
     
     if (shouldPut) {
+      logger.warning("Channel " + name + "needed fixing up");
       put();
     }
   }

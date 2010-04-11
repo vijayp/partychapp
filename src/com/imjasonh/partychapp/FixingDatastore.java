@@ -107,10 +107,6 @@ public class FixingDatastore extends Datastore {
     wrapped.startRequest();
   }
   
-  public Datastore getWrapped() {
-    return wrapped;
-  }
-
   @Override
   public Iterator<String> getAllChannelKeys(String lastKey) {
     return wrapped.getAllChannelKeys(lastKey);

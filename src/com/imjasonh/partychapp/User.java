@@ -1,5 +1,8 @@
 package com.imjasonh.partychapp;
 
+import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -12,19 +15,12 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
-
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class User implements Serializable {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 89437432538532985L;
 
-  @SuppressWarnings("unused")
-  private static final Logger LOG = Logger.getLogger(User.class.getName());
+  private static final Logger logger = Logger.getLogger(User.class.getName());
 
   @Persistent
   @PrimaryKey
@@ -162,7 +158,7 @@ public class User implements Serializable {
       Channel channel = Datastore.instance().getChannelByName(channelName);
       Member member = channel.getMemberByJID(new JID(jid));
       if (member == null) {
-        LOG.warning("User " + jid + " wasn't actually in " +
+        logger.warning("User " + jid + " wasn't actually in " +
             channelName + ", removing");
         removeChannel(channelName);
         shouldPut = true;

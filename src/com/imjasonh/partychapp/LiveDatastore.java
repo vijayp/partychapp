@@ -1,17 +1,5 @@
 package com.imjasonh.partychapp;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.jdo.JDOHelper;
-import javax.jdo.JDOObjectNotFoundException;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Query;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -20,12 +8,30 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.repackaged.com.google.common.collect.Lists;
+
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Logger;
+
+import javax.jdo.JDOHelper;
+import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Query;
 
 // NOT thread-safe
 public class LiveDatastore extends Datastore {
 
+  @SuppressWarnings("unused")
+  private static final Logger logger =
+      Logger.getLogger(LiveDatastore.class.getName());
+  
   private static final PersistenceManagerFactory PERSISTENCE_FACTORY = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
@@ -192,7 +198,7 @@ public class LiveDatastore extends Datastore {
     ret.numUsers = countUsersActiveInLastNDays(datastore, -1);
     ret.oneDayActiveUsers = countUsersActiveInLastNDays(datastore, 1);
     ret.sevenDayActiveUsers = countUsersActiveInLastNDays(datastore, 7);
-    ret.thirtyDayActiveUsers = 0; //countUsersActiveInLastNDays(datastore, 30);
+    ret.thirtyDayActiveUsers = countUsersActiveInLastNDays(datastore, 30);
     
     return ret;
   }
