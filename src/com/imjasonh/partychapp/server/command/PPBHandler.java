@@ -14,25 +14,27 @@ public class PPBHandler implements CommandHandler {
               String suffix) {
     msg.member.addToLastMessages(msg.content);
     msg.channel.put();
-    
     List<Reason> reasons = ppb.extractReasons(msg);
+
     // for "whee x++ and y-- yay" we want to change it into
     // "whee x++ [woot! now at 1] and y-- [ouch! now at -1] yay"
-    
     List<String> strList = Lists.newArrayListWithCapacity(reasons.size()*3+3);
     strList.add(prefix);
     strList.add(msg.content);
     int nextStartPos = 0;
-    final String content = msg.content.toLowerCase();
+    final String lcaseContent = msg.content.toLowerCase();
     for (Reason reason: reasons) {
       final String search_string = reason.target().name() + 
                                    reason.action().toString();
-      // should always be lcase
-      int foundPos = content.indexOf(search_string, nextStartPos);
+      int foundPos = lcaseContent.indexOf(search_string, nextStartPos);
       
+      // TODO: this should probably use stringbuilder to avoid  copying
       // zap the old "rest of the string" since we're going to do some cutting
       strList.remove(strList.size() - 1);
-        
+      
+      // add the part between the last reason and this one:
+      strList.add(msg.content.substring(nextStartPos, foundPos));
+      
       // add the "x++" part
       nextStartPos = foundPos + search_string.length();
       strList.add(msg.content.substring(foundPos, nextStartPos));
@@ -48,8 +50,11 @@ public class PPBHandler implements CommandHandler {
     
     StringBuilder outString = new StringBuilder();
     for (String s : strList) 
-      outString.append(s);
-    msg.channel.broadcastIncludingSender(outString.toString());    
+      outString.append(s.toString());
+    if (reasons.isEmpty()) 
+      msg.channel.broadcast(outString.toString(), msg.member);    
+    else
+      msg.channel.broadcastIncludingSender(outString.toString());    
   }
   
   public void doCommandAsCorrection(Message msg) {
@@ -91,3 +96,4 @@ public class PPBHandler implements CommandHandler {
     return "plusplusbot: handles ++'s and --'s";
   }
 }
+

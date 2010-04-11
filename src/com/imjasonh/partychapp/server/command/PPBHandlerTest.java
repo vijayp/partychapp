@@ -47,7 +47,8 @@ public class PPBHandlerTest extends CommandHandlerTest {
     ppb.doCommand(Message.createForTests("blah c++ nyah"));
 
     assertEquals(1, xmpp.messages.size());
-    assertEquals("[neil] blah c++ nyah", xmpp.messages.get(0).getBody());
+    String output = xmpp.messages.get(0).getBody();
+    assertEquals("[neil] blah c++ nyah", output);
 
     assertFalse(hasJID("neil@gmail.com"));
   }
