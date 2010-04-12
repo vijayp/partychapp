@@ -3,59 +3,13 @@
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.imjasonh.partychapp.Configuration" %>
-<%@ page import="com.imjasonh.partychapp.Datastore"%>
-<%@ page import="com.imjasonh.partychapp.server.json.UserInfoJsonServlet"%>
-
-<%
-	UserService userService = UserServiceFactory.getUserService();
-	User user = userService.getCurrentUser();
-%>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<link type="text/css" rel="stylesheet" href="Partychapp.css">
-<script type="text/javascript">
-      var _sf_startpt=(new Date()).getTime();
-      function show(elt) {
-        document.getElementById('actionOptions').style.display = 'none';
-        document.getElementById(elt).style.display = '';
-      }
-    </script>
-<title>Partychat</title>
-<script>
-  function displayChannels(userInfo, targetDiv) {
-    targetDiv.setAttribute('style', 'display: block');
-    var channels = userInfo['channels'];
-    for (var i = 0; i < channels.length; i++) {
-       var channelName = channels[i].name;
-       var nameDiv = document.createElement("div");
-       var nameAnchor = document.createElement("a");
-       nameAnchor.href = "/channel/" + channelName;
-       var nameNode = document.createTextNode(channelName);
-       nameAnchor.appendChild(nameNode);
-       nameDiv.appendChild(nameAnchor);
-       nameDiv.appendChild(document.createTextNode(" (alias: " + channels[i].alias + ")"));
-       targetDiv.appendChild(nameDiv);
-    }
-}
-</script>
+  <jsp:include page="include/head.jsp"/>
 </head>
 <body>
-<div id="main">
-<div id="loginlogout" style="text-align: right">
-<%
-	if (user != null) {
-%> <a href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign
-out of <%=user.getEmail()%></a> <%
- 	} else {
- %> <a href="<%=userService.createLoginURL(request.getRequestURI())%>">sign
-in</a> <%
- 	}
- %>
-</div>
-<div id="header"><img src="logo.png" width="310" height="150"
-	alt="Partychat"></div>
+<jsp:include page="include/header.jsp"/>
 
 <p>Create chat rooms with your friends or coworkers using Google
 Talk or XMPP.</p>
@@ -79,43 +33,39 @@ stays safe. <%
 <h3>How do I create a room?</h3>
 
 <%
+	UserService userService = UserServiceFactory.getUserService();
+	User user = userService.getCurrentUser();
+
 	if (user != null) {
-		Datastore datastore = Datastore.instance();
-		datastore.startRequest();
-		com.imjasonh.partychapp.User pchappUser = datastore.getOrCreateUser(user.getEmail());
 %>
-<div id="actionOptions"><input type="button"
-	value="Create a new room" onclick="show('create')" /></div>
+<div id="actionOptions">
+  <input type="button" value="Create a new room" onclick="show('create')" />
+</div>
 <div id="create" style="display: none; border: 1px solid #ccc">
-<table cellpadding=10>
-	<tr>
-		<td>
-		<form action="/room" method="post" target="createResults">Pick
-		a room name<br>
-		<input type="text" name="name"> <br>
-		<br>
-		Do you only want people who are invited to be able to join?<br>
-		<input type="radio" name="inviteonly" value="true" checked="yes">
-		yes <input type="radio" name="inviteonly" value="false"> no <br>
-		<br>
-		Email addresses you would like to invite? (separated by commas)<br>
-		<textarea name="invitees"></textarea> <br>
-		<br>
-		<input type="submit" value="Create!"></form>
-		</td>
-		<td><iframe frameborder=0 name="createResults"> </iframe></td>
-	</tr>
-</table>
+  <table cellpadding=10>
+    <tr>
+      <td>
+      <form action="/room" method="post" target="createResults">Pick
+      a room name<br>
+      <input type="text" name="name"> <br>
+      <br>
+      Do you only want people who are invited to be able to join?<br>
+      <input type="radio" name="inviteonly" value="true" checked="yes">
+      yes <input type="radio" name="inviteonly" value="false"> no <br>
+      <br>
+      Email addresses you would like to invite? (separated by commas)<br>
+      <textarea name="invitees"></textarea> <br>
+      <br>
+      <input type="submit" value="Create!"></form>
+      </td>
+      <td><iframe frameborder=0 name="createResults"> </iframe></td>
+    </tr>
+  </table>
 </div>
 
-<div id="channels" style="display: none">
-<h3>My Channels</h3>
-</div>
-<script>
-var userInfo = <%=UserInfoJsonServlet.getJsonFromUser(pchappUser, datastore)%>
-displayChannels(userInfo, document.getElementById("channels"));
-</script> <%
-		datastore.endRequest();
+<jsp:include page="include/userinfo.jsp"/>
+
+<%
 	} else {
 %> The easiest way to create a room is to <a style="font-weight: bold"
 	href="<%=userService.createLoginURL(request.getRequestURI())%>">sign
@@ -174,31 +124,14 @@ to the room. Some key ones:
 <h3>Tell me more about this "partychat"</h3>
 Partychat was started by <a href=http://www.q00p.net />Akshay</a> and is
 maintained by a motley, ragtag group of current and former Googlers with
-names like Neil, Jason, and Kushal, although <i>this is not in any
-way associated with Google</i>. You can find the source code on <a
+names like Neil, Jason, Kushal, Vijay, and Mihai, although <i>this is not in
+any way associated with Google</i>. You can find the source code on <a
 	href="http://code.google.com/p/partychapp/">Google Code</a>. <br>
 <br>
 For updates, please subscribe to our <a
 	href="http://techwalla.blogspot.com/">blog</a> or <a
 	href="http://twitter.com/partychat">follow us on Twitter</a>. </div>
-<script type="text/javascript">
-var _sf_async_config={uid:2197,domain:"partychapp.appspot.com"};
-(function(){
-  function loadChartbeat() {
-    window._sf_endpt=(new Date()).getTime();
-    var e = document.createElement('script');
-    e.setAttribute('language', 'javascript');
-    e.setAttribute('type', 'text/javascript');
-    e.setAttribute('src',
-       (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
-       "static.chartbeat.com/js/chartbeat.js");
-    document.body.appendChild(e);
-  }
-  var oldonload = window.onload;
-  window.onload = (typeof window.onload != 'function') ?
-     loadChartbeat : function() { oldonload(); loadChartbeat(); };
-})();
 
-</script>
+<jsp:include page="include/footer.jsp"/>
 </body>
 </html>

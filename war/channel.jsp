@@ -8,148 +8,98 @@
 <%@ page import="com.imjasonh.partychapp.ppb.Reason"%>
 <%@ page import="com.imjasonh.partychapp.ppb.Target"%>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<%
-	Channel channel = (Channel) request.getAttribute("channel");
-	Datastore datastore = Datastore.instance();
-%>
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
-<link type="text/css" rel="stylesheet" href="/Partychapp.css">
-<title>Partychapp - Channel Stats: <%=channel.getName()%></title>
+<%
+  Channel channel = (Channel) request.getAttribute("channel");
+  Datastore datastore = Datastore.instance();
+%>
+<jsp:include page="include/head.jsp">
+  <jsp:param name="subtitle" value="<%="Channel Stats: " + channel.getName()%>"/>
+</jsp:include>
 </head>
 <body>
-  <div id="main">
-     <div id="header">
-      <img src="/logo.png" width="310" height="150" alt="Partychat">
-    </div>
+  <jsp:include page="include/header.jsp"/>
 
 <div class="channelName">Channel stats for:
 <span style="font-weight:bold"><%=channel.getName()%></span></div>
 
-<script>
-function displayReasons(cell, data) {
-    var reasons = eval("(" + data + ")")['reasons'];
-	var reasonsDiv = document.createElement("div");
-	reasonsDiv.class = "reasons";
-    for (var i = 0; i < reasons.length; ++i) {
-    	reasonsDiv.innerHTML += reasons[i].reason + " (" + reasons[i].sender + ")<BR>";
-    }
-	cell.appendChild(reasonsDiv);
-	cell.expanded = reasonsDiv;
-}
+<h3>PlusPlusBot</h3>
 
-function addReasons(cell, channelName, targetName) {
-	if (cell.isExpanded) {
-		if (cell.expanded.style.display == 'none') {
-			cell.expanded.style.display = 'block';
-		} else {
-			cell.expanded.style.display = 'none';
-		}
-		return;
-	}
-	cell.isExpanded = true;
+<table class="channel-table">
+  <tr>
+    <th class="target-cell">Target</th>
+    <th classs="score-cell">Score</th>
+  </tr>
+  <%
+    List<Target> targets = datastore.getTargetsByChannel(channel);
+    for (Target t : targets) {
+  %>
 
-	var url = "/reasons/" + channelName + "/" + targetName;
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.open('GET', url, true);
-	xmlHttp.onreadystatechange = function(){
-	if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-		displayReasons(cell, xmlHttp.responseText);
-    }};
-
-    xmlHttp.send(null);
-}
-
-</script>
-
-<div class="channelHeading">PlusPlusBot</div>
-
-<table>
-	<tr>
-		<td width="450px">Target</td>
-		<td>Score</td>
-	</tr>
-</table>
-<%
-		List<Target> targets = datastore.getTargetsByChannel(channel);
-		for (Target t : targets) {
-	%>
-
-<div
-	onclick="addReasons(this, '<%=channel.getName()%>', '<%=t.name()%>')">
-<table>
-	<tr>
-		<td width="450px"><%=t.name()%></td>
-		<td><%=t.score()%></td>
-	</tr>
-</table>
-</div>
+  <tr>
+    <td class="target-cell">
+      <div class="target-name" onclick="toggleTargetDetails(this, '<%=channel.getName()%>', '<%=t.name()%>')">
+        <%=t.name()%>
+      </div>
+    </td>
+    <td class="score-cell"><%=t.score()%></td>
+  </tr>
 <% } %>
-<P></P>
-<div class="channelHeading">Members</div>
-<table class="scoreTable">
-	<tr>
-		<td width="100px">Alias</td>
-		<td>Email address</td>
-	</tr>
-	<%
-	   List<Member> members = Lists.newArrayList(channel.getMembers());
+</table>
+
+<h3>Members</h3>
+<table class="channel-table">
+  <tr>
+    <th>Alias</th>
+    <th>Email address</th>
+  </tr>
+  <%
+    List<Member> members = Lists.newArrayList(channel.getMembers());
     Collections.sort(members, new Member.SortMembersForListComparator());
     for (Member m : members) {
-    	%>
-	<tr>
-		<td><%=m.getAlias()%></td>
-		<td><%=m.getJID()%></td>
-	</tr>
-	<% } %>
+  %>
+  <tr>
+    <td><%=m.getAlias()%></td>
+    <td><%=m.getJID()%></td>
+  </tr>
+  <% } %>
 </table>
-<P></P>
-<div class="channelHeading">Invited</div>
-	<%
-	   List<String> invitedMembers = Lists.newArrayList(channel.getInvitees());
-    Collections.sort(invitedMembers);
-    for (String m : invitedMembers) { %>
-    	<%=m%><BR></BR>
-	<% } %>
-<P></P>
-Invite People!
-<div id="invite" style="border: 1px solid #ccc">
-<table cellpadding=10>
-	<tr>
-		<td>
-		<form action="/invite" method="post" target="inviteResults">
-		<input type="hidden" name="name" value="<%=channel.getName()%>"/>
-		Email addresses you would like to invite? (separated by commas)<br>
-		<textarea name="invitees"></textarea> <br>
-		<br>
-		<input type="submit" value="Invite!"></form>
-		</td>
-		<td><iframe frameborder=0 name="inviteResults"> </iframe></td>
-	</tr>
-</table>
-</div>
-</div>
-<script type="text/javascript">
-var _sf_async_config={uid:2197,domain:"partychapp.appspot.com"};
-(function(){
-  function loadChartbeat() {
-    window._sf_endpt=(new Date()).getTime();
-    var e = document.createElement('script');
-    e.setAttribute('language', 'javascript');
-    e.setAttribute('type', 'text/javascript');
-    e.setAttribute('src',
-       (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
-       "static.chartbeat.com/js/chartbeat.js");
-    document.body.appendChild(e);
-  }
-  var oldonload = window.onload;
-  window.onload = (typeof window.onload != 'function') ?
-     loadChartbeat : function() { oldonload(); loadChartbeat(); };
-})();
 
-</script>
+<% if (!channel.getInvitees().isEmpty()) {%>
+  <h3>Invited</h3>
+  <table class="channel-table">
+    <tr>
+      <th>Email address</th>
+    </tr>
+    <%
+      List<String> invitedMembers = Lists.newArrayList(channel.getInvitees());
+      Collections.sort(invitedMembers);
+      for (String invitedMember : invitedMembers) {
+    %>
+      <tr>
+        <td><%=invitedMember%></td>
+      </tr>
+    <% } %>
+  </table>
+<% } %>
+
+<h3>Invite People!</h3>
+
+<table>
+  <tr>
+    <td>
+    <form action="/invite" method="post" target="inviteResults">
+    <input type="hidden" name="name" value="<%=channel.getName()%>"/>
+    Email addresses you would like to invite? (separated by commas)<br>
+    <textarea name="invitees"></textarea> <br>
+    <br>
+    <input type="submit" value="Invite!"></form>
+    </td>
+    <td><iframe frameborder=0 name="inviteResults"> </iframe></td>
+  </tr>
+</table>
+
+<jsp:include page="include/footer.jsp"/>
 </body>
 </html>

@@ -1,0 +1,106 @@
+body {
+  font-family: Helvetica, sans-serif;
+  background-color: #ccc;
+  line-height: 130%;
+}
+
+#main {
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  background-color: white;
+  padding: 30px 40px;
+  border: 1px solid #aaa;
+  margin-left: auto;
+  margin-right: auto;
+  width: 600px;
+}
+
+#header {
+  text-align: center;
+}
+
+.channelName {
+  text-align: center;
+  font-size: 150%;
+}
+
+.channel-table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  width: 600px;
+}
+
+.channel-table td,
+.channel-table th {
+  vertical-align: top;
+  padding: 2px 10px 2px 0;
+}
+
+.channel-table th {
+  text-align: left;
+  border-bottom: solid 1px #ccc;
+}
+
+.target-loading {
+  opacity: .5;
+}
+
+.target-cell {
+  overflow: hidden;
+  max-width: 550px;
+}
+
+.score-cell {
+  text-align: right;
+}
+
+.target-name {
+  cursor: pointer;
+  padding-left: 11px;
+  background: url(/images/expand.png) no-repeat left center;
+}
+
+.target-expanded td {
+  background: #fafafa;
+}
+
+.target-expanded .target-name {
+  background-image: url(/images/collapse.png);
+}
+
+.target-details {
+  display: none;
+}
+
+.target-expanded .target-details {
+  display: block;
+}
+
+.target-details .reasons {
+  list-style-type: none;
+  padding: 2px;
+  margin: 0 0 0 11px;
+  background: #eee;
+}
+
+.target-details .reasons li {
+  padding: 0;
+  margin: 0;
+}
+
+.target-details .reasons .action {
+  font-family: Courier;
+  font-weight: bold;
+}
+
+.target-details .reasons .plusplus {
+  color: green;
+}
+
+.target-details .reasons .minusminus {
+  color: red;
+}
+
+.target-details .reasons .sender {
+  font-weight: bold;
+}

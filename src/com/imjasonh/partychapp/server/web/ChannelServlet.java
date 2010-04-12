@@ -22,12 +22,6 @@ public class ChannelServlet extends HttpServlet {
       throws ServletException, IOException {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
-    if (user == null) {
-      resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      resp.setHeader("Location", userService.createLoginURL(req.getRequestURL()
-          .toString()));
-      return;
-    }
 
     String[] paths = req.getRequestURI().split("/");
     String channelName = paths[paths.length - 1];

@@ -34,6 +34,7 @@ public class ReasonsJsonServlet  extends JsonServlet {
 		Target t = datastore.getTarget(channel, targetName);
 		for (Reason r: datastore.getReasons(t, 100)) {
 			JSONObject reasonJson = new JSONObject();
+            reasonJson.put("action", r.action());
 			reasonJson.put("reason", r.reason());
 			reasonJson.put("sender", r.sender().getAlias());
 			list.put(reasonJson);

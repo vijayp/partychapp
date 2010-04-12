@@ -1,134 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+  xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	version="2.5">
-	<servlet>
-		<servlet-name>xmppreceiver</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.PartychappServlet</servlet-class>
-	</servlet>
+  version="2.5">
+  <!-- XMPP receiving -->
+  <servlet>
+    <servlet-name>xmppreceiver</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.PartychappServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>xmppreceiver</servlet-name>
+    <url-pattern>/_ah/xmpp/message/chat/</url-pattern>
+  </servlet-mapping>  
 
-	<servlet>
-		<servlet-name>createRoomServlet</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.web.CreateRoomServlet</servlet-class>
-	</servlet>
-	
-	<servlet>
-		<servlet-name>inviteToRoomServlet</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.web.InviteToRoomServlet</servlet-class>
-	</servlet>
+  <!-- Web UI -->
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <servlet>
+    <servlet-name>createRoomServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.CreateRoomServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>createRoomServlet</servlet-name>
+    <url-pattern>/room</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>inviteToRoomServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.InviteToRoomServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>inviteToRoomServlet</servlet-name>
+    <url-pattern>/invite</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>webchannelhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.ChannelServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>webchannelhandler</servlet-name>
+    <url-pattern>/channel/*</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>webuserhandler</servlet-name>
+    <jsp-file>user.jsp</jsp-file>
+  </servlet>  
+  
+  <servlet-mapping>
+    <servlet-name>webuserhandler</servlet-name>
+    <url-pattern>/user</url-pattern>
+  </servlet-mapping>    
+  
+  <!-- JSON outputs -->
+  <servlet>
+    <servlet-name>reasonsjsonhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.json.ReasonsJsonServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>reasonsjsonhandler</servlet-name>
+    <url-pattern>/reasons/*</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>channeljsonhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.json.ChannelJsonServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>channeljsonhandler</servlet-name>
+    <url-pattern>/channeljson/*</url-pattern>
+  </servlet-mapping>  
 
-	<servlet-mapping>
-		<servlet-name>xmppreceiver</servlet-name>
-		<url-pattern>/_ah/xmpp/message/chat/</url-pattern>
-	</servlet-mapping>
+  <servlet>
+    <servlet-name>userinfojsonhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.json.UserInfoJsonServlet</servlet-class>
+  </servlet>
 
-	<servlet-mapping>
-	    <servlet-name>createRoomServlet</servlet-name>
-	    <url-pattern>/room</url-pattern>
-	</servlet-mapping>
-	
-	<servlet-mapping>
-		<servlet-name>inviteToRoomServlet</servlet-name>
-		<url-pattern>/invite</url-pattern>
-	</servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>userinfojsonhandler</servlet-name>
+    <url-pattern>/userinfo</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Specify which of the web and JSON outputs require login -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/room</url-pattern>
+      <url-pattern>/invite</url-pattern>
+      <url-pattern>/user</url-pattern>
+      <url-pattern>/user.jsp</url-pattern>
+      <url-pattern>/channel/*</url-pattern>
+      <url-pattern>/reasons/*</url-pattern>
+      <url-pattern>/channeljson/*</url-pattern>
+      <url-pattern>/userinfo</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>  
 
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
+  <!-- None of the include/ JSPs should be directly accessible -->   
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/include/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>    
+  
+  <!-- Mail receiving -->
+  <servlet>
+    <servlet-name>mailhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.EmailServlet</servlet-class>
+  </servlet>
 
-	<servlet>
-		<servlet-name>mailhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.EmailServlet</servlet-class>
-	</servlet>
+  <servlet-mapping>
+    <servlet-name>mailhandler</servlet-name>
+    <url-pattern>/_ah/mail/*</url-pattern>
+  </servlet-mapping>
 
-	<servlet>
-		<servlet-name>webchannelhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.web.ChannelServlet</servlet-class>
-	</servlet>
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/_ah/mail/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
 
-	<servlet>
-		<servlet-name>reasonsjsonhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.json.ReasonsJsonServlet</servlet-class>
-	</servlet>
-	
-	<servlet>
-		<servlet-name>channeljsonhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.json.ChannelJsonServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>userinfojsonhandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.json.UserInfoJsonServlet</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>webchannelhandler</servlet-name>
-		<url-pattern>/channel/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>channeljsonhandler</servlet-name>
-		<url-pattern>/channeljson/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>reasonsjsonhandler</servlet-name>
-		<url-pattern>/reasons/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>userinfojsonhandler</servlet-name>
-		<url-pattern>/userinfo</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>mailhandler</servlet-name>
-		<url-pattern>/_ah/mail/*</url-pattern>
-	</servlet-mapping>
-
-	<security-constraint>
-		<web-resource-collection>
-			<url-pattern>/_ah/mail/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>admin</role-name>
-		</auth-constraint>
-	</security-constraint>
-
-	<servlet-mapping>
-		<servlet-name>cronandtaskshandler</servlet-name>
-		<url-pattern>/cron/*</url-pattern>
-	</servlet-mapping>
-	
-	<security-constraint>
-        <web-resource-collection>
-            <url-pattern>/cron/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
+  <!-- Cron and tasks -->
+  <servlet>
+    <servlet-name>cronandtaskshandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.CronAndTasksServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>cronandtaskshandler</servlet-name>
+    <url-pattern>/cron/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>cronandtaskshandler</servlet-name>
+    <url-pattern>/tasks/*</url-pattern>
+  </servlet-mapping>
     
-	<servlet>
-		<servlet-name>cronandtaskshandler</servlet-name>
-		<servlet-class>com.imjasonh.partychapp.server.web.CronAndTasksServlet</servlet-class>
-	</servlet>
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/cron/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
 
-
-	<servlet-mapping>
-		<servlet-name>cronandtaskshandler</servlet-name>
-		<url-pattern>/tasks/*</url-pattern>
-	</servlet-mapping>
-	
-	<security-constraint>
-        <web-resource-collection>
-            <url-pattern>/tasks/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
-    
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/tasks/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
 </web-app>
