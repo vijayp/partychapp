@@ -47,13 +47,17 @@ public class PartychappServlet extends HttpServlet {
     resp.setStatus(HttpServletResponse.SC_OK);
   }
 
+  JID jidToLowerCase(JID in) {
+    return new JID(in.getId().toLowerCase());
+  }
+  
   public void doXmpp(Message xmppMessage) {
     Datastore.instance().startRequest();
     
-    JID userJID = xmppMessage.getFromJid();
+    JID userJID = jidToLowerCase(xmppMessage.getFromJid());
 
     // should only be "to" one JID, right?
-    JID serverJID = xmppMessage.getRecipientJids()[0];
+    JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
     String channelName = serverJID.getId().split("@")[0];
 
     String body = xmppMessage.getBody().trim();

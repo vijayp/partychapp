@@ -196,6 +196,17 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(true, "neil@gmail.com", "/summon jason--"),
       new TestMessage(false, "#3", "[sanchito] /summon jason--"),
       new TestMessage(false, "#4", "_sanchito summoned jason--_"),
+
+      new TestMessage(true, "neil@gmail.com", "/invite CAPS@gmail.com"),
+      new TestMessage(false, "#4", "_sanchito invited CAPS@gmail.com_"),
+      
+      new TestMessage(true, "CAPS@gmail.com", "foo"),
+      new TestMessage(false, "caps@gmail.com", "You have joined 'pancake' with the alias 'caps'"),
+      new TestMessage(false, "-caps@gmail.com", "caps@gmail.com has joined the channel with the alias 'caps'"),
+      new TestMessage(false, "-caps@gmail.com", "[caps] foo"),
+
+      new TestMessage(true, "CAPS@gmail.com", "bar"),
+      new TestMessage(false, "-caps@gmail.com", "[caps] bar"),
       
       new TestMessage(true, "neil@gmail.com", "/bug I don't like this behavior"),
       new TestMessage(false, "neil@gmail.com", "http://code.google.com/p/partychapp/issues/entry?summary=I+don%27t+like+this+behavior&comment=Filed+by+user+sanchito+from+channel+pancake"),
@@ -213,7 +224,7 @@ public class PartychappServletTest extends TestCase {
         expectedMessages.add(script[i]);
       }
       
-      assertEquals("wrong number of messages sent for input line '" + line.content + ".'",
+      assertEquals("wrong number of messages sent for input line '" + line.content + ".'" + expectedMessages + (sentMessages.size() > 0 ? sentMessages.get(0).getBody() : ""),
                    expectedMessages.size(), sentMessages.size());
       for (int it = 0; it < expectedMessages.size(); ++it) {
         TestMessage expected = expectedMessages.get(it);
