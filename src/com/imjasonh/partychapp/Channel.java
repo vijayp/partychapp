@@ -370,7 +370,10 @@ public class Channel implements Serializable {
       shouldPut = true;
     }
     for (Member m : mutableMembers()) {
-      invitedIds.remove(m.getJID().toLowerCase());
+      String jid = m.getJID().toLowerCase();
+      if (invitedIds.contains(jid)) {
+        invitedIds.remove(jid);
+      }
       if (m.fixUp(this)) {
         shouldPut = true;
       }
