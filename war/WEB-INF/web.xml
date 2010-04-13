@@ -62,13 +62,13 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   
   <!-- JSON outputs -->
   <servlet>
-    <servlet-name>reasonsjsonhandler</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.server.json.ReasonsJsonServlet</servlet-class>
+    <servlet-name>targetdetailsjsonhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.json.TargetDetailsJsonServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>reasonsjsonhandler</servlet-name>
-    <url-pattern>/reasons/*</url-pattern>
+    <servlet-name>targetdetailsjsonhandler</servlet-name>
+    <url-pattern>/targetdetailsjson/*</url-pattern>
   </servlet-mapping>  
   
   <servlet>

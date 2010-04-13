@@ -30,7 +30,7 @@
 <table class="channel-table">
   <tr>
     <th class="target-cell">Target</th>
-    <th classs="score-cell">Score</th>
+    <th class="score-cell">Score</th>
   </tr>
   <%
     List<Target> targets = datastore.getTargetsByChannel(channel);

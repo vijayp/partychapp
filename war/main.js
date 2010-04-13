@@ -46,7 +46,12 @@ function addTargetDetails(targetName, targetCellNode, data) {
     reasonsNode.appendChild(reasonNode);
   }
 
-	var detailsNode = goog.dom.$dom('div', 'target-details', reasonsNode);
+  var graphNode = goog.dom.$dom('img', {
+    'src': data.graph
+  });
+
+	var detailsNode =
+	    goog.dom.$dom('div', 'target-details', graphNode, reasonsNode);
 	targetCellNode.appendChild(detailsNode);
 }
 
@@ -64,7 +69,7 @@ function toggleTargetDetails(targetNameNode, channelName, targetName) {
   goog.dom.classes.add(targetRowNode, 'target-loading');
 
   // Otherwise fill it in (this will only happen when expanding the first time)
-	var url = '/reasons/' + channelName + '/' + targetName;
+	var url = '/targetdetailsjson/' + channelName + '/' + targetName;
   goog.net.XhrIo.send(url, function(e) {
     goog.dom.classes.remove(targetRowNode, 'target-loading');
     var xhr = e.target;

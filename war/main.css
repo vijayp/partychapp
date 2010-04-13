@@ -51,7 +51,7 @@ body {
 }
 
 .score-cell {
-  text-align: right;
+  text-align: right !important;
 }
 
 .target-name {
