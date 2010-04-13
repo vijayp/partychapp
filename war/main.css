@@ -104,3 +104,8 @@ body {
 .target-details .reasons .sender {
   font-weight: bold;
 }
+
+.target-details .reasons .date {
+  color: #999;
+  font-size: smaller;  
+}

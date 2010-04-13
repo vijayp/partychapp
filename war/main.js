@@ -8,6 +8,13 @@ function show(elt) {
   document.getElementById(elt).style.display = '';
 }
 
+function formatDate(date) {
+ function pad(n) {return n < 10 ? '0' + n : n}
+ return pad(date.getMonth() + 1) + '/' +
+        pad(date.getDate())+ '/' +
+        date.getFullYear();
+}
+
 function addTargetDetails(targetName, targetCellNode, data) {
 	var reasonsNode = goog.dom.$dom('ul', 'reasons');
 
@@ -42,6 +49,12 @@ function addTargetDetails(targetName, targetCellNode, data) {
         reasonNode.appendChild(reasonDetailsNode);
       }
     }
+
+    var dateNode = goog.dom.$dom(
+        'span',
+        'date',
+        ' on ' + formatDate(new Date(reason.timestampMsec)));
+    reasonNode.appendChild(dateNode);
 
     reasonsNode.appendChild(reasonNode);
   }
