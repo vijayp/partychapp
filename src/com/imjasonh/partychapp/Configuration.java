@@ -11,6 +11,9 @@ public class Configuration {
 
   public static final boolean isConfidential = false;
   
+  // A nightly stats email is sent to this address. (See StatsCronJob.)
+  public static final String statsEmailAddress = "nsanch@gmail.com";
+  
   //public static final String chatDomain = "partych.at";
   //public static final String webDomain = "partych.at";
 }

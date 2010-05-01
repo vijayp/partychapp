@@ -12,6 +12,6 @@ public class StatsCronJob extends DatastoreTask {
     MailUtil.sendMail("pchat stats update",
                       stats.toString(),
                       "statscronjob@" + Configuration.mailDomain,
-                      "nsanch@gmail.com");
+                      Configuration.statsEmailAddress);
   }
 }
