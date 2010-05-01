@@ -126,7 +126,7 @@ public class Channel implements Serializable {
     JDOHelper.makeDirty(this, "members");
   }
 
-  public List<Member> getMembersToSendTo() {
+  private List<Member> getMembersToSendTo() {
     return getMembersToSendTo(null);
   }
 
@@ -135,7 +135,7 @@ public class Channel implements Serializable {
    *          a JID to exclude (for example the person sending the broadcast message)
    * @return an array of JIDs to send a message to, excluding snoozing members.
    */
-  public List<Member> getMembersToSendTo(Member exclude) {
+  private List<Member> getMembersToSendTo(Member exclude) {
     List<Member> recipients = Lists.newArrayList();
     for (Member member : getMembers()) {
       if (!member.equals(exclude)
@@ -258,12 +258,6 @@ public class Channel implements Serializable {
   }
   
   private void sendMessage(String message, List<Member> recipients) {
-    incrementSequenceId();
-    awakenSnoozers();
-    put();
-
-    String messageWithSequenceId = message + " (" + sequenceId + ")";
-
     List<JID> withSequenceId = Lists.newArrayList();
     List<JID> noSequenceId = Lists.newArrayList();
     for (Member m : recipients) {
@@ -273,10 +267,27 @@ public class Channel implements Serializable {
         noSequenceId.add(new JID(m.getJID()));
       }
     }
+    
+    // Also send messages to all invitees. That way as soon as they accept the
+    // chat request, they'll start getting messages, even before they message
+    // the bot and are added to the room in JoinCommand.
+    for (String invitee : getInvitees()) {
+      noSequenceId.add(new JID(invitee));
+    }
+
+    sendMessage(message, withSequenceId, noSequenceId);
+  }
+  
+  private void sendMessage(
+        String message, List<JID> withSequenceId, List<JID> noSequenceId) {
+    incrementSequenceId();
+    awakenSnoozers();
+    put();
+
+    String messageWithSequenceId = message + " (" + sequenceId + ")";
 
     SendUtil.sendMessage(message, serverJID(), noSequenceId);
-    SendUtil.sendMessage(messageWithSequenceId, serverJID(),
-                         withSequenceId);
+    SendUtil.sendMessage(messageWithSequenceId, serverJID(), withSequenceId);
   }
   
   public void sendDirect(String message, Member recipient) {
