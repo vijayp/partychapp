@@ -183,8 +183,12 @@ public class LiveDatastore extends Datastore {
       new com.google.appengine.api.datastore.Query("User");
     q.setKeysOnly();
     if (numDays > 0) {
+      // This is ridiculous, but 30 days in milliseconds is 2.5B, and if numDays is
+      // in int, the expression below overflows and we look for
+      // lastSeen > some-future-date. To fix, just cast it to a long. 
+      long numDays64Bit = numDays;
       q.addFilter("lastSeen", FilterOperator.GREATER_THAN,
-                  new Date(System.currentTimeMillis() - numDays*24*60*60*1000));
+                  new Date(System.currentTimeMillis() - numDays64Bit*24*60*60*1000));
     }
 
     // this is sad, I'm fetching everything and I just want a count. But this query should work according to 
