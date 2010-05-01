@@ -47,7 +47,7 @@ public class LiveDatastore extends Datastore {
     } catch (JDOObjectNotFoundException notFound) {
       return null;
     }
-
+    
     return attachUsersToChannelMembers(c);
   }
   

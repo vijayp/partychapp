@@ -1,5 +1,8 @@
 package com.imjasonh.partychapp;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,56 +10,32 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.NotPersistent;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
-
-import com.google.appengine.api.datastore.Key;
-import com.google.common.collect.Lists;
-
-@PersistenceCapable
 public class Member implements Serializable {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 8243978327905416562L;
 
   private static final Logger LOG = Logger.getLogger(Member.class.getName());
 
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  @PrimaryKey
+  // TODO: can this be removed without breaking serialization?
   private Key key;
 
-  @Persistent
   private String jid;
 
-  @Persistent
   private String alias;
 
-  @Persistent
   private Date snoozeUntil;
   
-  @Persistent(serialized = "true")
   private List<String> lastMessages = Lists.newArrayList();
 
-  @Persistent(serialized = "true")
   private DebuggingOptions debugOptions = new DebuggingOptions();
   
-  //@Persistent
-  @NotPersistent
-  private Channel channel;
+  transient private Channel channel;
   
-  @Persistent
   String phoneNumber;
   
-  @Persistent
   String carrier;
   
-  @NotPersistent
-  User user;
+  transient User user;
 
   public enum SnoozeStatus {
     SNOOZING,

@@ -41,8 +41,10 @@ public abstract class Datastore {
     List<User> users = getUsersByChannel(c);
     for (Member m : c.getMembers()) {
       if (m.user() != null) {
+        logger.severe(m.getJID() + " already had a User in " + c.getName());
         continue;
       }
+      
       for (User u : users) {
         if (u.getJID().equals(m.getJID())) {
           m.setUser(u);
