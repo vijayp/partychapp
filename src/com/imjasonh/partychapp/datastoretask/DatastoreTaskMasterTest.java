@@ -13,8 +13,8 @@ import com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.WebRequest;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class DatastoreTaskMasterTest extends TestCase {
   FakeDatastore fd;

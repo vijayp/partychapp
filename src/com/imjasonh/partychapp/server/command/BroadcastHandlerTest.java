@@ -1,14 +1,17 @@
 package com.imjasonh.partychapp.server.command;
 
-import java.util.Date;
-import java.util.List;
-
 import com.google.appengine.api.xmpp.JID;
+import com.google.apphosting.api.ApiProxy;
 import com.google.common.collect.Lists;
 
-import com.imjasonh.partychapp.FakeDatastore;
+import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.testing.FakeDatastore;
+import com.imjasonh.partychapp.testing.ReadOnlyFakeDatastore;
+
+import java.util.Date;
+import java.util.List;
 
 public class BroadcastHandlerTest extends CommandHandlerTest {
   BroadcastHandler handler = new BroadcastHandler();
@@ -36,7 +39,6 @@ public class BroadcastHandlerTest extends CommandHandlerTest {
     for (JID j : xmpp.messages.get(0).getRecipientJids()) {
       testJids.add(j.getId());
     }
-    System.out.println(testJids);
     assertFalse(testJids.contains("jason@gmail.com"));
     
     xmpp.messages.clear();
@@ -58,5 +60,31 @@ public class BroadcastHandlerTest extends CommandHandlerTest {
       jids.add(j.getId());
     }
     assertTrue(jids.contains("jason@gmail.com"));
+  }
+  
+  /**
+   * Tests that message still get broadcast even when writes fail.
+   */
+  public void testWritesFail() {
+    ReadOnlyFakeDatastore datastore = new ReadOnlyFakeDatastore();
+    Datastore.setInstance(datastore);
+    datastore.setUp();
+    
+    // Ideally we wouldn't need to run Message.createForTests with read-only
+    // disabled, but that ends up invoking fixUp/attachUsersToChannel code,
+    // which tries to do put()s too.
+    datastore.setReadOnly(false);
+    Message message = Message.createForTests("test");
+    datastore.setReadOnly(true);
+    
+    try {
+      handler.doCommand(message);
+      fail("Shold have gotten an exception");
+    } catch (ApiProxy.CapabilityDisabledException err) {
+      // Expected
+    }
+    
+    // The message should still have been sent out.
+    assertEquals(1, xmpp.messages.size());
   }
 }

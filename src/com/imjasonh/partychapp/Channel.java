@@ -282,12 +282,13 @@ public class Channel implements Serializable {
         String message, List<JID> withSequenceId, List<JID> noSequenceId) {
     incrementSequenceId();
     awakenSnoozers();
-    put();
 
     String messageWithSequenceId = message + " (" + sequenceId + ")";
 
     SendUtil.sendMessage(message, serverJID(), noSequenceId);
     SendUtil.sendMessage(messageWithSequenceId, serverJID(), withSequenceId);
+    
+    put();
   }
   
   public void sendDirect(String message, Member recipient) {

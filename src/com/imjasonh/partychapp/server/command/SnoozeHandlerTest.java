@@ -5,8 +5,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class SnoozeHandlerTest extends CommandHandlerTest {
   SnoozeHandler handler = new SnoozeHandler();

@@ -54,8 +54,10 @@ public abstract class Datastore {
       if (m.user() == null) {
         User u = getOrCreateUser(m.getJID());
         m.setUser(u);
-        m.user().addChannel(c.getName());
-        m.user().put();
+        if (!m.user().channelNames().contains(c.getName())) {
+          m.user().addChannel(c.getName());
+          m.user().put();
+        }
       }
     }
     return c;

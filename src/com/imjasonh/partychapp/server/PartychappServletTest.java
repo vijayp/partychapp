@@ -13,9 +13,9 @@ import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.MockXMPPService;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class PartychappServletTest extends TestCase {
   private static final Logger logger = 

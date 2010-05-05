@@ -1,8 +1,8 @@
 package com.imjasonh.partychapp.server.command;
 
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class StatusHandlerTest extends CommandHandlerTest {
   StatusHandler handler = new StatusHandler();

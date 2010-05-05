@@ -6,9 +6,9 @@ import junit.framework.TestCase;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class PlusPlusBotTest extends TestCase {
   private PlusPlusBot ppb = new PlusPlusBot();

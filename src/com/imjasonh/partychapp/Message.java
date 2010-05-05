@@ -2,6 +2,8 @@ package com.imjasonh.partychapp;
 
 import com.google.appengine.api.xmpp.JID;
 
+import com.imjasonh.partychapp.testing.FakeDatastore;
+
 public class Message {
   public enum MessageType { EMAIL, XMPP, SMS }
   

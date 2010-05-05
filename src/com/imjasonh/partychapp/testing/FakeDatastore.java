@@ -1,4 +1,16 @@
-package com.imjasonh.partychapp;
+package com.imjasonh.partychapp.testing;
+
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.User;
+import com.imjasonh.partychapp.ppb.Reason;
+import com.imjasonh.partychapp.ppb.Target;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,14 +20,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.xmpp.JID;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.imjasonh.partychapp.ppb.Reason;
-import com.imjasonh.partychapp.ppb.Target;
 
 public class FakeDatastore extends Datastore {
   private Map<String, Channel> channels = Maps.newHashMap();
@@ -81,7 +85,7 @@ public class FakeDatastore extends Datastore {
     List<User> ret = Lists.newArrayList();
     for (User u : users.values()) {
       if (u.channelNames().contains(c.getName())) {
-        ret.add(new User(u));
+        ret.add(u);
       }
     }
     return ret;

@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp;
 
+import com.imjasonh.partychapp.testing.FakeDatastore;
+
 import junit.framework.TestCase;
 
 public class MemberTest extends TestCase {

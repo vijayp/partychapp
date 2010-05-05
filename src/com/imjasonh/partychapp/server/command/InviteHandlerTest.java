@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-import com.imjasonh.partychapp.FakeDatastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.server.MailUtil;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class InviteHandlerTest extends CommandHandlerTest {
   InviteHandler handler = new InviteHandler();
