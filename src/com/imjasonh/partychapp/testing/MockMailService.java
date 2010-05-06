@@ -1,4 +1,4 @@
-package com.imjasonh.partychapp;
+package com.imjasonh.partychapp.testing;
 
 import java.io.IOException;
 import java.util.List;

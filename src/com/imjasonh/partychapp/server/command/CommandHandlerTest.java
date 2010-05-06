@@ -3,9 +3,9 @@ package com.imjasonh.partychapp.server.command;
 import junit.framework.TestCase;
 
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.testing.FakeDatastore;
+import com.imjasonh.partychapp.testing.MockXMPPService;
 
 public class CommandHandlerTest extends TestCase {
   MockXMPPService xmpp = new MockXMPPService();

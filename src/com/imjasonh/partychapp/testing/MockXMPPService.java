@@ -1,4 +1,4 @@
-package com.imjasonh.partychapp;
+package com.imjasonh.partychapp.testing;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;

@@ -2,9 +2,9 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.MockMailService;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.testing.FakeDatastore;
+import com.imjasonh.partychapp.testing.MockMailService;
 
 public class SummonHandlerTest extends CommandHandlerTest {
   SummonHandler handler = new SummonHandler();
