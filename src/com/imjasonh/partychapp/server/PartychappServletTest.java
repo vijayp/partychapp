@@ -13,9 +13,9 @@ import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.MockMailService;
-import com.imjasonh.partychapp.MockXMPPService;
 import com.imjasonh.partychapp.testing.FakeDatastore;
+import com.imjasonh.partychapp.testing.MockMailService;
+import com.imjasonh.partychapp.testing.MockXMPPService;
 
 public class PartychappServletTest extends TestCase {
   private static final Logger logger = 
@@ -148,7 +148,7 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(false, "david@gmail.com", "You must be invited to this room."),
 
       new TestMessage(true, "kushal@kushaldave.com", "/invite david@gmail.com"),
-      new TestMessage(false, "#3", "_kushal invited david@gmail.com_"),
+      new TestMessage(false, "#4", "_kushal invited david@gmail.com_"),
 
       new TestMessage(true, "david@gmail.com", "yay, now i can join"),
       new TestMessage(false, "david@gmail.com", "You have joined 'pancake' with the alias 'david'"),
@@ -198,7 +198,7 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(false, "#4", "_sanchito summoned jason--_"),
 
       new TestMessage(true, "neil@gmail.com", "/invite CAPS@gmail.com"),
-      new TestMessage(false, "#4", "_sanchito invited CAPS@gmail.com_"),
+      new TestMessage(false, "#5", "_sanchito invited CAPS@gmail.com_"),
       
       new TestMessage(true, "CAPS@gmail.com", "foo"),
       new TestMessage(false, "caps@gmail.com", "You have joined 'pancake' with the alias 'caps'"),
