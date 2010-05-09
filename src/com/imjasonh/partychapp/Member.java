@@ -15,6 +15,12 @@ public class Member implements Serializable {
 
   private static final Logger LOG = Logger.getLogger(Member.class.getName());
 
+  /**
+   * Maximum length of the message that we'll persist for s/r (the full message
+   * is still broadcast).
+   */
+  private static final int MAX_PERSISTED_MESSAGE_LENGTH = 512;
+
   private String jid;
 
   private String alias;
@@ -131,6 +137,9 @@ public class Member implements Serializable {
   }
   
   public void addToLastMessages(String toAdd) {
+    if (toAdd.length() > MAX_PERSISTED_MESSAGE_LENGTH) {
+      toAdd = toAdd.substring(0, MAX_PERSISTED_MESSAGE_LENGTH);
+    }
     setSnoozeUntil(null);
     List<String> messages = mutableLastMessages();
     messages.add(0, toAdd);
@@ -189,5 +198,12 @@ public class Member implements Serializable {
       // TODO: sort by online/offline, snoozing
       return first.getAlias().compareTo(second.getAlias());
     }
+  }
+
+  /**
+   * Meant for admin UI use only.
+   */
+  public void clearLastMessages() {
+    lastMessages.clear();
   }
 }
