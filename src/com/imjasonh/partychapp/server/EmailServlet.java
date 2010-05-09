@@ -128,13 +128,14 @@ public class EmailServlet extends HttpServlet {
         content += " / Body: " + email.body;
       }
       
-      return new Message(content,
-                         new JID(member.getJID()),
-                         channel.serverJID(),
-                         member,
-                         channel,
-                         null,
-                         MessageType.EMAIL);
+      return new Message.Builder()
+          .setContent(content)
+          .setUserJID(new JID(member.getJID()))
+          .setServerJID(channel.serverJID())
+          .setChannel(channel)
+          .setMember(member)
+          .setMessageType(MessageType.EMAIL)
+          .build();
     } else {
       // member might be null if we don't know the phone number
       Member member = channel.getMemberByPhoneNumber(memberPhoneNumber);
@@ -153,13 +154,14 @@ public class EmailServlet extends HttpServlet {
         content = email.body;
       }
       
-      return new Message(content,
-                         member != null ? new JID(member.getJID()) : null,
-                         channel.serverJID(),
-                         member,
-                         channel,
-                         memberPhoneNumber,
-                         MessageType.SMS);
+      return new Message.Builder()
+          .setContent(content)
+          .setUserJID(member != null ? new JID(member.getJID()) : null)
+          .setServerJID(channel.serverJID())
+          .setChannel(channel)
+          .setMember(member)
+          .setMessageType(MessageType.SMS)
+          .build();      
     }
   }
 

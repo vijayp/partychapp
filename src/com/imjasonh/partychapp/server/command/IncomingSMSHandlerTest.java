@@ -7,9 +7,8 @@ public class IncomingSMSHandlerTest extends CommandHandlerTest {
   IncomingSMSHandler handler = new IncomingSMSHandler();
 
   public void testSimple() {
-    Message m = Message.createForTests("this is a text message");
-    m.messageType = MessageType.SMS;
-    m.phoneNumber = "16464623000";
+    Message m =
+        Message.createForTests("this is a text message", MessageType.SMS);
     
     handler.doCommand(m);
     

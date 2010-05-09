@@ -7,8 +7,8 @@ public class IncomingEmailHandlerTest extends CommandHandlerTest {
   IncomingEmailHandler handler = new IncomingEmailHandler();
 
   public void testSimple() {
-    Message m = Message.createForTests("Subject: x / Body: blah blah");
-    m.messageType = MessageType.EMAIL;
+    Message m = Message.createForTests(
+        "Subject: x / Body: blah blah", MessageType.EMAIL);
     
     handler.doCommand(m);
     

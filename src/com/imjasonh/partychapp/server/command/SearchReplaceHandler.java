@@ -2,14 +2,13 @@ package com.imjasonh.partychapp.server.command;
 
 import com.google.common.collect.Lists;
 
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.ppb.PlusPlusBot;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.imjasonh.partychapp.Member;
-import com.imjasonh.partychapp.Message;
-import com.imjasonh.partychapp.Message.MessageType;
-import com.imjasonh.partychapp.ppb.PlusPlusBot;
 
 public class SearchReplaceHandler implements CommandHandler {
   private static Pattern pattern =
@@ -84,12 +83,13 @@ public class SearchReplaceHandler implements CommandHandler {
     }
 
     if (!isSuggestion) {
-      Message originalMsg = new Message(messageToChange, msg.userJID,
-                                        msg.serverJID, msg.member, msg.channel, null, MessageType.XMPP);
+      Message originalMsg =
+          Message.Builder.basedOn(msg).setContent(messageToChange).build();
       if (ppbHandler.matches(originalMsg)) {
         ppbHandler.undoEarlierMessage(originalMsg);
       }
-      Message afterMsg = new Message(after, msg.userJID, msg.serverJID, msg.member, msg.channel, null, MessageType.XMPP);
+      Message afterMsg =
+          Message.Builder.basedOn(msg).setContent(after).build();
       if (ppbHandler.matches(afterMsg)) {
         ppbHandler.doCommandAsCorrection(afterMsg);
       } else {

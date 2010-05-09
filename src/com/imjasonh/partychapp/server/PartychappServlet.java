@@ -1,22 +1,24 @@
 package com.imjasonh.partychapp.server;
 
+import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.api.xmpp.Message;
+import com.google.appengine.api.xmpp.XMPPService;
+import com.google.appengine.api.xmpp.XMPPServiceFactory;
+
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.Message.MessageType;
+import com.imjasonh.partychapp.server.command.Command;
+
 import java.io.IOException;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.api.xmpp.Message;
-import com.google.appengine.api.xmpp.XMPPService;
-import com.google.appengine.api.xmpp.XMPPServiceFactory;
-import com.google.common.collect.Lists;
-
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.Message.MessageType;
-import com.imjasonh.partychapp.server.command.Command;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
@@ -63,19 +65,26 @@ public class PartychappServlet extends HttpServlet {
   
       String body = xmppMessage.getBody().trim();
   
-      com.imjasonh.partychapp.Message message =
-          new com.imjasonh.partychapp.Message(
-              body, userJID, serverJID, null, null, null, MessageType.XMPP);
-  
       if (channelName.equalsIgnoreCase("echo")) {
-        handleEcho(message);
+        handleEcho(xmppMessage);
         return;
       }
   
-      message.channel = Datastore.instance().getChannelByName(channelName);
-      if (message.channel != null) {
-        message.member = message.channel.getMemberByJID(userJID);
+      Channel channel = Datastore.instance().getChannelByName(channelName);
+      Member member = null; 
+      if (channel != null) {
+        member = channel.getMemberByJID(userJID);
       }
+      
+      com.imjasonh.partychapp.Message message =
+        new com.imjasonh.partychapp.Message.Builder()
+          .setContent(body)
+          .setUserJID(userJID)
+          .setServerJID(serverJID)
+          .setChannel(channel)
+          .setMember(member)
+          .setMessageType(MessageType.XMPP)
+          .build();
   
       Command.getCommandHandler(message).doCommand(message);
     } finally {    
@@ -83,10 +92,11 @@ public class PartychappServlet extends HttpServlet {
     }
   }
 
-  private void handleEcho(com.imjasonh.partychapp.Message message) {
-    logger.severe("Body of message sent to echo@ is: " + message.content);
-    SendUtil.sendMessage("echo: " + message.content,
-                         message.serverJID,
-                         Lists.newArrayList(message.userJID));
+  private void handleEcho(Message xmppMessage) {
+    logger.severe("Body of message sent to echo@ is: " + xmppMessage.getBody());
+    SendUtil.sendMessage(
+        "echo: " + xmppMessage.getBody(),
+        xmppMessage.getRecipientJids()[0],
+        Collections.singletonList(xmppMessage.getFromJid()));
   }
 }
