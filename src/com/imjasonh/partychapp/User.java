@@ -21,6 +21,14 @@ public class User implements Serializable {
 
   private static final Logger logger = Logger.getLogger(User.class.getName());
 
+  /**
+   * How often the lastSeen field should be updated (it's only used for
+   * computing daily active stats, so it's wasteful to cause writes for every
+   * single message received). For now only update it every 12 hours.
+   */
+  public static final long LAST_SEEN_UPDATE_INTERNAL_MS =
+      12L * 60L * 60L * 1000L;
+
   @Persistent
   @PrimaryKey
   private String jid;

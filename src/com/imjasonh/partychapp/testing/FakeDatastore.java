@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp.testing;
 
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,7 +22,6 @@ import java.util.Map;
 
 public class FakeDatastore extends Datastore {
   private Map<String, Channel> channels = Maps.newHashMap();
-  private Map<Key, Member> members = Maps.newHashMap();
   private Map<String, Target> targets = Maps.newHashMap();
   private Map<String, List<Reason> > reasons = Maps.newHashMap();
   private Map<String, User> users = Maps.newHashMap();
@@ -161,8 +159,9 @@ public class FakeDatastore extends Datastore {
         reasons.put(t.key(), Lists.<Reason>newArrayList());
       }
     } else if (s instanceof Member) {
-      Member m = (Member)s;
-      members.put(m.key(), m);
+      throw new RuntimeException(
+          "put() should never be called on Member, it is persisted via " +
+          "serialization inside of Channel");
     } else if (s instanceof User) {
       User u = (User)s;
       users.put(u.getJID(), u);

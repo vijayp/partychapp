@@ -54,31 +54,33 @@ public class PartychappServlet extends HttpServlet {
   public void doXmpp(Message xmppMessage) {
     Datastore.instance().startRequest();
     
-    JID userJID = jidToLowerCase(xmppMessage.getFromJid());
-
-    // should only be "to" one JID, right?
-    JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
-    String channelName = serverJID.getId().split("@")[0];
-
-    String body = xmppMessage.getBody().trim();
-
-    com.imjasonh.partychapp.Message message =
-        new com.imjasonh.partychapp.Message(
-            body, userJID, serverJID, null, null, null, MessageType.XMPP);
-
-    if (channelName.equalsIgnoreCase("echo")) {
-      handleEcho(message);
-      return;
+    try {
+      JID userJID = jidToLowerCase(xmppMessage.getFromJid());
+  
+      // should only be "to" one JID, right?
+      JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
+      String channelName = serverJID.getId().split("@")[0];
+  
+      String body = xmppMessage.getBody().trim();
+  
+      com.imjasonh.partychapp.Message message =
+          new com.imjasonh.partychapp.Message(
+              body, userJID, serverJID, null, null, null, MessageType.XMPP);
+  
+      if (channelName.equalsIgnoreCase("echo")) {
+        handleEcho(message);
+        return;
+      }
+  
+      message.channel = Datastore.instance().getChannelByName(channelName);
+      if (message.channel != null) {
+        message.member = message.channel.getMemberByJID(userJID);
+      }
+  
+      Command.getCommandHandler(message).doCommand(message);
+    } finally {    
+      Datastore.instance().endRequest();
     }
-
-    message.channel = Datastore.instance().getChannelByName(channelName);
-    if (message.channel != null) {
-      message.member = message.channel.getMemberByJID(userJID);
-    }
-
-    Command.getCommandHandler(message).doCommand(message);
-    
-    Datastore.instance().endRequest();
   }
 
   private void handleEcho(com.imjasonh.partychapp.Message message) {

@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp;
 
-import com.google.appengine.api.datastore.Key;
 import com.google.common.collect.Lists;
 
 import java.io.Serializable;
@@ -15,9 +14,6 @@ public class Member implements Serializable {
   private static final long serialVersionUID = 8243978327905416562L;
 
   private static final Logger LOG = Logger.getLogger(Member.class.getName());
-
-  // TODO: can this be removed without breaking serialization?
-  private Key key;
 
   private String jid;
 
@@ -52,7 +48,6 @@ public class Member implements Serializable {
   }
   
   public Member(Member other) {
-    this.key = other.key;
     this.jid = other.jid;
     this.alias = other.alias;
     this.snoozeUntil = other.snoozeUntil;
@@ -142,8 +137,13 @@ public class Member implements Serializable {
     if (messages.size() > 10) {
       messages.remove(10);
     }
-    user().markSeen();
-    user().put();
+    
+    if (user.lastSeen() == null ||
+        (new Date().getTime() - user.lastSeen().getTime() > 
+            User.LAST_SEEN_UPDATE_INTERNAL_MS)) {
+      user().markSeen();
+      user().put();
+    }
   }
 
   public DebuggingOptions debugOptions() {
@@ -184,10 +184,6 @@ public class Member implements Serializable {
     user.put();
   }
 
-  public Key key() {
-    return key;
-  }
-  
   public static class SortMembersForListComparator implements Comparator<Member> {
     public int compare(Member first, Member second) {
       // TODO: sort by online/offline, snoozing
