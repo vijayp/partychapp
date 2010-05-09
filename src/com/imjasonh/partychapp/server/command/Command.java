@@ -2,6 +2,8 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
+import java.util.logging.Logger;
+
 public enum Command {
   // just to avoid craziness, let's assume we only let people broadcast from
   // email and sms, so let's steal these and never let the slash-commands see
@@ -44,6 +46,9 @@ public enum Command {
   BROADCAST(new BroadcastHandler()),
   ;
 
+  private static final Logger logger =
+      Logger.getLogger(Command.class.getName());
+  
   public final CommandHandler commandHandler;
 
   private Command(CommandHandler commandHandler) {
@@ -51,8 +56,18 @@ public enum Command {
   }
 
   public static CommandHandler getCommandHandler(Message msg) {
+    long start = System.currentTimeMillis();
     for (Command command : Command.values()) {
       if (command.commandHandler.matches(msg)) {
+        long matchTime = System.currentTimeMillis() - start;
+        String channelInfo = "";
+        if (msg.channel != null) {
+          channelInfo = " for channel " + msg.channel.getName();
+        }
+        // Not actually a warning, but INFO logging doesn't seem to show up
+        // in the Appengine console
+        logger.warning(
+            "Matched to " + command + channelInfo + " in " + matchTime + "ms");
         return command.commandHandler;
       }
     }
