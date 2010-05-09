@@ -18,10 +18,15 @@ public class SummonHandler extends SlashCommand {
   @Override
   public void doCommand(Message msg, String argument) {
     bcast.doCommand(msg);
+    
+    if (argument == null) {
+      return;
+    }
+    
     String[] arguments = argument.split(" ", 2);
     
     if (arguments.length == 0) {
-    	return;
+      return;
     }
     
     String userArg = arguments[0].trim();
