@@ -12,6 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Removes transient/non-essential information stored in a {@link Channel}.
+ * 
+ * @author mihai.parparita@gmail.com (Mihai Parparita)
+ */
 public class ChannelCleanupServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -56,5 +61,4 @@ public class ChannelCleanupServlet extends HttpServlet {
       datastore.endRequest();
     }
   }
-
 }
