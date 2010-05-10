@@ -2,8 +2,10 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.logging.Logger;
 
+import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.User;
 
 public class SummonHandler extends SlashCommand {
   @SuppressWarnings("unused")
@@ -36,6 +38,14 @@ public class SummonHandler extends SlashCommand {
       msg.channel.broadcastIncludingSender(didYouMean.toString());
       return;
     }
+    
+    User toSummonUser = Datastore.instance().getUserByJID(toSummon.getJID());
+    if (toSummonUser == null) {
+      msg.channel.sendDirect(
+            "Could not find email address for user to summon", msg.member);
+      return;
+    }
+    
     String emailBody = String.format("%s has summoned you to '%s'.",
     		msg.member.getAlias(), msg.channel.getName());
     if (arguments.length == 2) {
@@ -47,9 +57,8 @@ public class SummonHandler extends SlashCommand {
     String emailTitle = String.format("You have been summoned to '%s'",
     		msg.channel.getName());
 
-    String error = msg.channel.sendMail(emailTitle,
-                      emailBody,
-                      toSummon.getEmail());
+    String error = msg.channel.sendMail(
+        emailTitle, emailBody, toSummonUser.getEmail());
     if (error != null) {
       reply = error;
     }
@@ -57,7 +66,7 @@ public class SummonHandler extends SlashCommand {
 
     if (toSummon.getSnoozeUntil() != null) {
       toSummon.setSnoozeUntil(null);
-      toSummon.put();
+      msg.channel.put();
       msg.channel.broadcastIncludingSender("_" + toSummon.getAlias() + " is no longer snoozing_");
     }
   }

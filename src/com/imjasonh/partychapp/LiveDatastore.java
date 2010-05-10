@@ -7,8 +7,6 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.xmpp.JID;
-import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
@@ -41,27 +39,12 @@ public class LiveDatastore extends Datastore {
   
   @Override
   public Channel getChannelByName(String name) {
-    Channel c = null;
     try {
-      c = manager.getObjectById(Channel.class, name);
+      return manager.getObjectById(Channel.class, name);
     } catch (JDOObjectNotFoundException notFound) {
       return null;
     }
-    
-    return attachUsersToChannelMembers(c);
   }
-  
-  @Override
-  public boolean isJIDInChannel(String channelName, String jid) {
-    Channel c = null;
-    try {
-      c = manager.getObjectById(Channel.class, channelName);
-    } catch (JDOObjectNotFoundException notFound) {
-      return false;
-    }    
-    
-    return c.getMemberByJID(new JID(jid)) != null;
-  }  
   
   @Override
   public User getUserByJID(String jid) {
@@ -88,21 +71,6 @@ public class LiveDatastore extends Datastore {
     return null;
   }
   
-  @Override
-  public List<User> getUsersByChannel(Channel c) {
-    Query query = manager.newQuery(User.class);
-    query.setFilter("channelNames.contains(channelNameParam)");
-    query.declareParameters("String channelNameParam");
-
-    @SuppressWarnings("unchecked")
-    List<User> users = (List<User>) query.execute(c.getName());
-    query.closeAll();
-    if (users == null) {
-      return Lists.newArrayList();
-    }
-    return users;
-  }
-
   @Override
   public Target getTargetByID(String key) {
     try {

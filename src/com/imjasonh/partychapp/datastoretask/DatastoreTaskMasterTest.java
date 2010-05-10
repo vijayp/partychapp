@@ -13,6 +13,7 @@ import com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.WebRequest;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 
@@ -31,10 +32,11 @@ public class DatastoreTaskMasterTest extends TestCase {
     String[] numbers = new String[]{ "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
             "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
     };
+    User user = Datastore.instance().getOrCreateUser("neil@gmail.com");
     for (int i = 0; i < n; ++i) {
       String name = "pancake" + numbers[i];
       Channel c = new Channel(new JID(name + "@" + Configuration.chatDomain));
-      c.addMember(new JID("neil@gmail.com"));
+      c.addMember(user);
       c.put();
     }
   }

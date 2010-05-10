@@ -131,6 +131,8 @@ public class EmailServlet extends HttpServlet {
       return new Message.Builder()
           .setContent(content)
           .setUserJID(new JID(member.getJID()))
+          .setUser(
+              Datastore.instance().getOrCreateUser(email.from.getAddress()))
           .setServerJID(channel.serverJID())
           .setChannel(channel)
           .setMember(member)
@@ -157,6 +159,7 @@ public class EmailServlet extends HttpServlet {
       return new Message.Builder()
           .setContent(content)
           .setUserJID(member != null ? new JID(member.getJID()) : null)
+          .setUser(Datastore.instance().getUserByPhoneNumber(memberPhoneNumber))
           .setServerJID(channel.serverJID())
           .setChannel(channel)
           .setMember(member)
@@ -189,6 +192,7 @@ public class EmailServlet extends HttpServlet {
         Message msg = extractPchappMessageFromEmail(email, ia);
         if (msg != null) {
           Command.getCommandHandler(msg).doCommand(msg);
+          msg.user.maybeMarkAsSeen();
         }
       }
     } finally {

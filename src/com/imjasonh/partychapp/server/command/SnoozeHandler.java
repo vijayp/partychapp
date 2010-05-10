@@ -70,7 +70,7 @@ public class SnoozeHandler extends SlashCommand {
     }
 
     msg.member.setSnoozeUntil(new Date(now() + 1000*seconds));
-    msg.member.put();
+    msg.channel.put();
     String reply = "Okay, snoozing for " + num + " " + unitToPrint +
         " (" + seconds + " seconds), until " +
         df.format(msg.member.getSnoozeUntil());

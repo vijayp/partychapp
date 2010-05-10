@@ -1,5 +1,13 @@
 package com.imjasonh.partychapp;
 
+import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import com.imjasonh.partychapp.Member.SnoozeStatus;
+import com.imjasonh.partychapp.server.MailUtil;
+import com.imjasonh.partychapp.server.SendUtil;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,14 +20,6 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
-import com.google.appengine.api.xmpp.JID;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import com.imjasonh.partychapp.Member.SnoozeStatus;
-import com.imjasonh.partychapp.server.MailUtil;
-import com.imjasonh.partychapp.server.SendUtil;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
@@ -90,15 +90,15 @@ public class Channel implements Serializable {
    * prepending a _ if the channel already has a member with that alias. Removes
    * from invite list if invite-only room.
    */
-  public Member addMember(JID jidToAdd) {
-    String jidNoResource = jidToAdd.getId().split("/")[0];
+  public Member addMember(User userToAdd) {
+    String jidNoResource = userToAdd.getJID().split("/")[0];
     String email = jidNoResource;
     if (invitedIds == null || !invitedIds.remove(email.toLowerCase())) {
       if (isInviteOnly()) {
         throw new IllegalArgumentException("Not invited to this room");
       }
     }
-    Member addedMember = new Member(this, Datastore.instance().getOrCreateUser(jidNoResource));
+    Member addedMember = new Member(this, jidNoResource);
     String dedupedAlias = addedMember.getAlias();
     while (null != getMemberByAlias(dedupedAlias)) {
       dedupedAlias = "_" + dedupedAlias;
@@ -110,8 +110,8 @@ public class Channel implements Serializable {
     // this not save.
     JDOHelper.makeDirty(this, "members");
     
-    addedMember.user().addChannel(getName());
-    addedMember.user().put();
+    userToAdd.addChannel(getName());
+    userToAdd.put();
     
     return addedMember;    
   }
@@ -120,14 +120,19 @@ public class Channel implements Serializable {
     return members;
   }
 
-  public void removeMember(Member member) {
-    mutableMembers().remove(member);
+  public void removeMember(User userToRemove) {
+    Member memberToRemove = getMemberByJID(userToRemove.getJID());
+    if (!mutableMembers().remove(memberToRemove)) {
+      logger.warning(
+          userToRemove.getJID() + " was not actually in channel " +
+          getName() + " when removing");
+    }
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
     
-    member.user().removeChannel(getName());
-    member.user().put();    
+    userToRemove.removeChannel(getName());
+    userToRemove.put();
   }
 
   private List<Member> getMembersToSendTo() {
@@ -160,7 +165,11 @@ public class Channel implements Serializable {
   }
 
   public Member getMemberByJID(JID jid) {
-    String shortJID = jid.getId().split("/")[0];
+    return getMemberByJID(jid.getId());
+  }
+  
+  public Member getMemberByJID(String jid) {
+    String shortJID = jid.split("/")[0];
     for (Member member : getMembers()) {
       if (member.getJID().equals(shortJID)) {
         return member;
@@ -209,7 +218,8 @@ public class Channel implements Serializable {
   
   public Member getMemberByPhoneNumber(String phoneNumber) {
     for (Member member : getMembers()) {
-      String memberPhone = member.user().phoneNumber();
+      User memberUser = Datastore.instance().getUserByJID(member.getJID());
+      String memberPhone = memberUser.phoneNumber();
       if ((memberPhone != null) && memberPhone.equals(phoneNumber)) {
         return member;
       }
@@ -231,7 +241,7 @@ public class Channel implements Serializable {
       member = getMemberByJID(new JID(id));
     }
     if (member != null) {
-      removeMember(member);
+      removeMember(Datastore.instance().getUserByJID(member.getJID()));
       return true;
     }
     if (invitedIds.remove(id)) {
@@ -317,8 +327,10 @@ public class Channel implements Serializable {
     List<Member> realRecipients = Lists.newArrayList();
     List<String> addresses = Lists.newArrayList();
     for (Member m : recipients) {
-      if (m.user().canReceiveSMS()) {
-        addresses.add(m.user().carrier().emailAddress(m.user().phoneNumber()));
+      User memberUser = Datastore.instance().getUserByJID(m.getJID());
+      if (memberUser.canReceiveSMS()) {
+        addresses.add(
+            memberUser.carrier().emailAddress(memberUser.phoneNumber()));
         realRecipients.add(m);
       }
     }

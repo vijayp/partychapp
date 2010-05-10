@@ -11,7 +11,7 @@ public class LeaveHandler extends SlashCommand {
   @Override
   public void doCommand(Message msg, String argument) {
     // TODO: Reject or act on non-null argument
-    msg.channel.removeMember(msg.member);
+    msg.channel.removeMember(msg.user);
     msg.channel.put();
     
     String youMsg = "You have left the room '" + msg.channel.getName() + "'";

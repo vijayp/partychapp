@@ -39,8 +39,8 @@ public class SetCarrierHandler extends SlashCommand {
       return;
     }
     
-    msg.member.user().setCarrier(carrier);
-    msg.member.put();
+    msg.user.setCarrier(carrier);
+    msg.user.put();
     
     msg.channel.sendDirect("okay, set your carrier to " + carrier.shortName,
                            msg.member);

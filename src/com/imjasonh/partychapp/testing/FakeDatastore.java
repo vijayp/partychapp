@@ -32,32 +32,18 @@ public class FakeDatastore extends Datastore {
   public void setUp() {
     Channel channel = new Channel(new JID("pancake@partychat.appspotchat.com"));
     // using fake addresses to avoid leaking our email addresses publicly
-    channel.addMember(new JID("neil@gmail.com"));
-    channel.addMember(new JID("jason@gmail.com"));
-    channel.addMember(new JID("kushal@kushaldave.com"));
-    channel.addMember(new JID("david@gmail.com"));
-    channel.addMember(new JID("akshay@q00p.net"));
+    channel.addMember(getOrCreateUser("neil@gmail.com"));
+    channel.addMember(getOrCreateUser("jason@gmail.com"));
+    channel.addMember(getOrCreateUser("kushal@kushaldave.com"));
+    channel.addMember(getOrCreateUser("david@gmail.com"));
+    channel.addMember(getOrCreateUser("akshay@q00p.net"));
     put(channel);
   }
 
   @Override
   public Channel getChannelByName(String name) {
-    Channel c = channels.get(name);
-    if (c == null) {
-      return null;
-    }
-    return attachUsersToChannelMembers(new Channel(c));
+    return channels.get(name);
   }
-  
-  @Override
-  public boolean isJIDInChannel(String channelName, String jid) {
-    Channel c = channels.get(channelName);
-    if (c == null) {
-      return false;
-    }
-    
-    return c.getMemberByJID(new JID(jid)) != null;
-  }    
   
   @Override
   public User getUserByJID(String jid) {
@@ -76,17 +62,6 @@ public class FakeDatastore extends Datastore {
       }
     }
     return null;
-  }
-
-  @Override
-  public List<User> getUsersByChannel(Channel c) {
-    List<User> ret = Lists.newArrayList();
-    for (User u : users.values()) {
-      if (u.channelNames().contains(c.getName())) {
-        ret.add(u);
-      }
-    }
-    return ret;
   }
 
   @Override

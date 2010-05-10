@@ -16,6 +16,7 @@ public class Message {
     
     this.member = builder.member;
     this.channel = builder.channel;
+    this.user = Preconditions.checkNotNull(builder.user);
   }
   
   public final String content;
@@ -24,6 +25,7 @@ public class Message {
   public final MessageType messageType;
   public Member member;
   public Channel channel;
+  public final User user;
   
   public static class Builder {
     private String content;
@@ -32,6 +34,7 @@ public class Message {
     private MessageType messageType;
     private Member member;
     private Channel channel;
+    private User user;
 
     /**
      * Creates a new Builder that is pre-populated with all of the fields from
@@ -40,6 +43,7 @@ public class Message {
     public static Builder basedOn(Message other) {
       return new Builder()
           .setUserJID(other.userJID)
+          .setUser(other.user)
           .setServerJID(other.serverJID)
           .setMember(other.member)
           .setChannel(other.channel)
@@ -75,6 +79,11 @@ public class Message {
       this.channel = channel;
       return this;
     }
+    
+    public Builder setUser(User user) {
+      this.user = user;
+      return this;
+    }
 
     public Message build() {
       return new Message(this);
@@ -106,6 +115,7 @@ public class Message {
       .setMessageType(messageType)
       .setMember(c.getMemberByJID(userJID))
       .setChannel(c)
+      .setUser(new User(userJID.getId()))
       .build();
   }  
 }

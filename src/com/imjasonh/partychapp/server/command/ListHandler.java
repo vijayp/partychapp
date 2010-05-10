@@ -1,8 +1,5 @@
 package com.imjasonh.partychapp.server.command;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.collect.Lists;
 
@@ -10,6 +7,9 @@ import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.SendUtil;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ListHandler extends SlashCommand {
   
@@ -39,14 +39,6 @@ public class ListHandler extends SlashCommand {
       }
       if (m.getSnoozeStatus() == SnoozeStatus.SNOOZING) {
         sb.append(" _snoozing_");
-      }
-      if (m.user().phoneNumber() != null) {
-        sb.append(" (");
-        sb.append(m.user().phoneNumber());
-        if (m.user().carrier() != null) {
-          sb.append(" @ " + m.user().carrier().shortName);
-        }
-        sb.append(")");
       }
     }
 

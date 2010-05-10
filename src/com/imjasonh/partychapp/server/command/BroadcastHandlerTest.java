@@ -30,7 +30,7 @@ public class BroadcastHandlerTest extends CommandHandlerTest {
     jason = FakeDatastore.fakeChannel().getMemberByAlias("jason");
     // set jason to snooze for a minute
     jason.setSnoozeUntil(new Date(System.currentTimeMillis() + 1000*60));
-    jason.put();
+    FakeDatastore.fakeChannel().put();
     
     handler.doCommand(Message.createForTests("test"));
     
@@ -45,7 +45,7 @@ public class BroadcastHandlerTest extends CommandHandlerTest {
     // wake him up
     jason = FakeDatastore.fakeChannel().getMemberByAlias("jason");
     jason.setSnoozeUntil(new Date(System.currentTimeMillis() - 100));
-    jason.put();
+    FakeDatastore.fakeChannel().put();
     handler.doCommand(Message.createForTests("test 2"));
 
     assertEquals(2, xmpp.messages.size());

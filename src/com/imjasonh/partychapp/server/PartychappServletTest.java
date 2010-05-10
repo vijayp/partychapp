@@ -11,8 +11,10 @@ import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.common.collect.Lists;
 
+import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 import com.imjasonh.partychapp.testing.MockMailService;
 import com.imjasonh.partychapp.testing.MockXMPPService;
@@ -233,5 +235,89 @@ public class PartychappServletTest extends TestCase {
       }
       xmpp.messages.clear();
     }
+  }
+  
+  public void testFixUp() {
+    // Initially the channel and the user don't exist
+    assertNull(Datastore.instance().getUserByJID("neil@gmail.com"));
+    assertNull(Datastore.instance().getChannelByName("pancake"));
+
+    // Channel and user creation based on the incoming message
+    sendMessage("neil@gmail.com", "hi partychat");
+  
+    assertTrue(userInChannel("neil@gmail.com", "pancake"));
+    assertTrue(channelHasMember("pancake", "neil@gmail.com"));
+    
+    // Regular leaving should put things in a consistent state
+    sendMessage("neil@gmail.com", "/leave");
+
+    assertFalse(userInChannel("neil@gmail.com", "pancake"));
+    assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
+    
+    // Simulate the User object being in a channel isn't not supposed to be
+    // in
+    Datastore.instance().getUserByJID("neil@gmail.com").addChannel("pancake");
+    
+    // Things are inconsistent
+    assertTrue(userInChannel("neil@gmail.com", "pancake"));
+    assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
+    
+    // If they IM the room now, they're auto-join, and things will be consistent
+    // again.
+    sendMessage("neil@gmail.com", "hi partychat");
+
+    assertTrue(userInChannel("neil@gmail.com", "pancake"));
+    assertTrue(channelHasMember("pancake", "neil@gmail.com"));
+    
+    // If we make the room invite-only, leave, and simulate the same 
+    // inconsistency...
+    sendMessage("neil@gmail.com", "/inviteonly");
+    sendMessage("neil@gmail.com", "/leave");
+    assertFalse(userInChannel("neil@gmail.com", "pancake"));
+    assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
+    Datastore.instance().getUserByJID("neil@gmail.com").addChannel("pancake");
+    assertTrue(userInChannel("neil@gmail.com", "pancake"));
+    assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
+
+    // Then the next time they IM the room, the inconsistency will still be 
+    // fixed (they're not in room)
+    sendMessage("neil@gmail.com", "hi partychat");
+    assertFalse(userInChannel("neil@gmail.com", "pancake"));
+    assertFalse(channelHasMember("pancake", "neil@gmail.com"));
+    
+    // Make the room not be invite-only and rejoin, and then make it invite-only
+    // again.
+    Datastore.instance().getChannelByName("pancake").setInviteOnly(false);
+    sendMessage("neil@gmail.com", "hi partychat");
+    assertTrue(userInChannel("neil@gmail.com", "pancake"));
+    assertTrue(channelHasMember("pancake", "neil@gmail.com"));
+    sendMessage("neil@gmail.com", "/inviteonly");
+    
+    // Simulate the other inconsistency, where we're supposed to be in the room
+    // but we're not
+    Datastore.instance().getUserByJID("neil@gmail.com").removeChannel("pancake");
+    assertFalse(userInChannel("neil@gmail.com", "pancake"));
+    assertTrue(channelHasMember("pancake", "neil@gmail.com"));
+    
+    // It should get fixed up (we rejoin, even if the room is invite only)
+    sendMessage("neil@gmail.com", "hi partychat");
+    assertTrue(userInChannel("neil@gmail.com", "pancake"));
+    assertTrue(channelHasMember("pancake", "neil@gmail.com"));    
+  }
+  
+  private void sendMessage(String userJid, String message) {
+    servlet.doXmpp(new TestMessage(true, userJid, message).toIncomingMessage());
+  }
+  
+  private boolean userInChannel(String userJid, String channelName) {
+    User user = Datastore.instance().getUserByJID(userJid);
+    assertNotNull(user);
+    return user.channelNames().contains(channelName);
+  }
+  
+  private boolean channelHasMember(String channelName, String userJid) {
+    Channel channel = Datastore.instance().getChannelByName(channelName);
+    assertNotNull(channel);
+    return channel.getMemberByJID(userJid) != null;
   }
 }

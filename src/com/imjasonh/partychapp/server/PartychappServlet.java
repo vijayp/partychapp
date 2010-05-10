@@ -8,6 +8,7 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
 
@@ -54,7 +55,8 @@ public class PartychappServlet extends HttpServlet {
   }
   
   public void doXmpp(Message xmppMessage) {
-    Datastore.instance().startRequest();
+    Datastore datastore = Datastore.instance();
+    datastore.startRequest();
     
     try {
       JID userJID = jidToLowerCase(xmppMessage.getFromJid());
@@ -70,11 +72,12 @@ public class PartychappServlet extends HttpServlet {
         return;
       }
   
-      Channel channel = Datastore.instance().getChannelByName(channelName);
+      Channel channel = datastore.getChannelByName(channelName);
       Member member = null; 
       if (channel != null) {
         member = channel.getMemberByJID(userJID);
       }
+      User user = datastore.getOrCreateUser(userJID.getId().split("/")[0]);
       
       com.imjasonh.partychapp.Message message =
         new com.imjasonh.partychapp.Message.Builder()
@@ -83,12 +86,19 @@ public class PartychappServlet extends HttpServlet {
           .setServerJID(serverJID)
           .setChannel(channel)
           .setMember(member)
+          .setUser(user)
           .setMessageType(MessageType.XMPP)
           .build();
   
       Command.getCommandHandler(message).doCommand(message);
+      
+      // {@link User#fixUp} can't be called by {@link FixingDatastore}, since
+      // it can't know what channel the user is currently messaging, so we have
+      // to do it ourselves.
+      user.fixUp(message.channel);
+      user.maybeMarkAsSeen();
     } finally {    
-      Datastore.instance().endRequest();
+      datastore.endRequest();
     }
   }
 

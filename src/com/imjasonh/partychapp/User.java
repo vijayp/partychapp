@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class User implements Serializable {
 
   private static final long serialVersionUID = 89437432538532985L;
 
+  @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(User.class.getName());
 
   /**
@@ -26,7 +28,7 @@ public class User implements Serializable {
    * computing daily active stats, so it's wasteful to cause writes for every
    * single message received). For now only update it every 12 hours.
    */
-  public static final long LAST_SEEN_UPDATE_INTERNAL_MS =
+  private static final long LAST_SEEN_UPDATE_INTERNAL_MS =
       12L * 60L * 60L * 1000L;
 
   @Persistent
@@ -131,14 +133,23 @@ public class User implements Serializable {
   public Date lastSeen() {
     return lastSeen;
   }
-
-  void markSeen() {
-    lastSeen = new Date();
-  }
   
+  public void maybeMarkAsSeen() {
+    if (lastSeen == null ||
+        (new Date().getTime() - lastSeen().getTime() > 
+            User.LAST_SEEN_UPDATE_INTERNAL_MS)) {
+      lastSeen = new Date();
+      put();
+    }    
+  }  
+
   public List<String> channelNames() {
     return Collections.unmodifiableList(channelNames);
   }
+  
+  public void put() {
+    Datastore.instance().put(this);
+  }  
   
   @Override public String toString() {
     return "[User: jid: " + jid + ", phoneNumber: " + phoneNumber +
@@ -146,11 +157,43 @@ public class User implements Serializable {
       "]";
   }  
   
+  /**
+   * Makes sure that the user <-> channel relationship is consistent.
+   * 
+   * @param channel channel that the user is IM-ing (and may be in). It is
+   * considered the source of truth, the user object will be updated based on
+   * its members list.
+   */
+  public void fixUp(Channel channel) {
+    boolean shouldPut = false;
+    
+    String channelName = channel.getName();
+    if (channel.getMemberByJID(jid) == null &&
+        channelNames.contains(channelName)) {
+      logger.warning(
+          "User " + jid + " wasn't actually in " + channelName + ", removing");
+      removeChannel(channelName);
+      shouldPut = true;
+    }
+    
+    if (channel.getMemberByJID(jid) != null &&
+        !channelNames.contains(channelName)) {
+      logger.warning(
+          "User " + jid + " was supposed to be in " + channelName + ", adding");
+      addChannel(channelName);
+      shouldPut = true;
+    }
+    
+    if (shouldPut) {
+      put();
+    }
+  }  
+  
   // The remaining methods deal with manipulation of the User/Channel 
-  // relationship and are intentionally package and should called by {@link 
-  // Channel} and {@link Datastore} implementations only.
+  // relationship and should called by {@link Channel} and {@link Datastore} 
+  // implementations only.
    
-  void addChannel(String c) {
+  @VisibleForTesting public void addChannel(String c) {
     if (!channelNames.contains(c)) {
       channelNames.add(c);
       
@@ -160,37 +203,12 @@ public class User implements Serializable {
     }
   }
   
-  void removeChannel(String c) {
+  @VisibleForTesting public void removeChannel(String c) {
     if (channelNames.contains(c)) {
       channelNames.remove(c);
       
       // Similar to the dirty hack in {@link #addChannel}
       JDOHelper.makeDirty(this, "channelNames");
     }
-  }
-
-  void fixUp() {
-    boolean shouldPut = false;
-    for (String channelName : channelNames) {
-      if (!Datastore.instance().isJIDInChannel(channelName, jid)) {
-        logger.warning("User " + jid + " wasn't actually in " +
-            channelName + ", removing");
-        removeChannel(channelName);
-        shouldPut = true;
-      }      
-    }
-    
-    if (shouldPut) {
-      put();
-      // Ending this request and starting a new one so that the edit gets 
-      // immediately applied in a transaction, to make sure that we're in our
-      // own entity group.
-      Datastore.instance().endRequest();
-      Datastore.instance().startRequest();
-    }
-  }
-  
-  void put() {
-    Datastore.instance().put(this);
   }
 }

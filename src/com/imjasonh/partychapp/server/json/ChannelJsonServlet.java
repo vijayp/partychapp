@@ -40,7 +40,7 @@ public class ChannelJsonServlet  extends JsonServlet {
 		for (Member m : members) {
 			JSONObject memberJson = new JSONObject();
 			memberJson.put("alias", m.getAlias());
-			memberJson.put("email", m.getEmail());
+			memberJson.put("jid", m.getJID());
 			memberList.put(memberJson);
 		}
 		returnObject.put("members", memberList);

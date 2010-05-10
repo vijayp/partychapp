@@ -17,7 +17,7 @@ public class CreateAndJoinCommand implements CommandHandler {
     assert msg.member == null;
 
     msg.channel = new Channel(msg.serverJID);
-    msg.member = msg.channel.addMember(msg.userJID);
+    msg.member = msg.channel.addMember(msg.user);
     msg.channel.put();
     
     String reply = "The channel '" + msg.channel.getName() + "' has been created, " +

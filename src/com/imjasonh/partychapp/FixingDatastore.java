@@ -36,37 +36,15 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
-  public boolean isJIDInChannel(String channelName, String jid) {
-    return wrapped.isJIDInChannel(channelName, jid);
-  }  
-  
-  @Override
   public User getUserByJID(String jid) {
-    User u = wrapped.getUserByJID(jid);
-    if (u != null) {
-      u.fixUp();
-    }
-    return u;
+    return wrapped.getUserByJID(jid);
   }
 
   @Override
   public User getUserByPhoneNumber(String phoneNumber) {
-    User u = wrapped.getUserByPhoneNumber(phoneNumber);
-    if (u != null) {
-      u.fixUp();
-    }
-    return u;
+    return wrapped.getUserByPhoneNumber(phoneNumber);
   }
   
-  @Override
-  public List<User> getUsersByChannel(Channel c) {
-    List<User> users = wrapped.getUsersByChannel(c);
-    for (User u : users) {
-      u.fixUp();
-    }
-    return users;
-  }
-
   @Override
   public Target getOrCreateTarget(Channel channel, String name) {
     Target t = wrapped.getOrCreateTarget(channel, name);

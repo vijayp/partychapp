@@ -11,7 +11,7 @@ public class StatusHandler extends SlashCommand {
   @Override
   public void doCommand(Message msg, String argument) {
     String reply = "You are currently in '" + msg.channel.getName() + "' as '" + msg.member.getAlias() + ".'";
-    User u = msg.member.user();
+    User u = msg.user;
     if (u.phoneNumber() != null) {
       reply += " Your phone number is " + u.phoneNumber() + ".";
     }

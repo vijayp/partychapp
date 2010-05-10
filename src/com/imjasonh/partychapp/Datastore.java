@@ -35,37 +35,8 @@ public abstract class Datastore {
   
   public abstract Channel getChannelByName(String name);
   
-  public abstract boolean isJIDInChannel(String channelName, String jid);
-  
-  protected Channel attachUsersToChannelMembers(Channel c) {
-    List<User> users = getUsersByChannel(c);
-    for (Member m : c.getMembers()) {
-      if (m.user() != null) {
-        logger.severe(m.getJID() + " already had a User in " + c.getName());
-        continue;
-      }
-      
-      for (User u : users) {
-        if (u.getJID().equals(m.getJID())) {
-          m.setUser(u);
-          break;
-        }
-      }
-      if (m.user() == null) {
-        User u = getOrCreateUser(m.getJID());
-        m.setUser(u);
-        if (!m.user().channelNames().contains(c.getName())) {
-          m.user().addChannel(c.getName());
-          m.user().put();
-        }
-      }
-    }
-    return c;
-  }
-
   public abstract User getUserByJID(String jid);
   public abstract User getUserByPhoneNumber(String phoneNumber);
-  public abstract List<User> getUsersByChannel(Channel c);
   
   public User getOrCreateUser(String jid) {
     User u = getUserByJID(jid);
