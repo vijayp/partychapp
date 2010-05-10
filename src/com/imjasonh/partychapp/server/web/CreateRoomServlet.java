@@ -47,7 +47,6 @@ public class CreateRoomServlet extends HttpServlet {
     JID serverJID = new JID(name + "@" + Configuration.chatDomain);
     channel = new Channel(serverJID);
     Member member = channel.addMember(new JID(user.getEmail())); // need / ?
-    member.user().put();    
     member.put();
     
     SendUtil.invite(user.getEmail(), serverJID);

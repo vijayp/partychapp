@@ -22,7 +22,6 @@ public class StatusHandlerTest extends CommandHandlerTest {
     User u = FakeDatastore.fakeChannel().getMemberByAlias("neil").user();
     u.setPhoneNumber("16464623000");
     u.setCarrier(User.Carrier.TMOBILE);
-    u.put();
 
     handler.doCommand(Message.createForTests("/status"));
     assertEquals(1, xmpp.messages.size());

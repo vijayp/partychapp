@@ -13,8 +13,6 @@ public class LeaveHandler extends SlashCommand {
     // TODO: Reject or act on non-null argument
     msg.channel.removeMember(msg.member);
     msg.channel.put();
-    msg.member.user().removeChannel(msg.channel.getName());
-    msg.member.user().put();
     
     String youMsg = "You have left the room '" + msg.channel.getName() + "'";
     msg.channel.sendDirect(youMsg, msg.member);

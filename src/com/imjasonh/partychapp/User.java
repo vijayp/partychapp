@@ -127,12 +127,12 @@ public class User implements Serializable {
   public boolean canReceiveSMS() {
     return carrier != null && phoneNumber != null;
   }
-  
+
   public Date lastSeen() {
     return lastSeen;
   }
-  
-  public void markSeen() {
+
+  void markSeen() {
     lastSeen = new Date();
   }
   
@@ -140,7 +140,17 @@ public class User implements Serializable {
     return Collections.unmodifiableList(channelNames);
   }
   
-  public void addChannel(String c) {
+  @Override public String toString() {
+    return "[User: jid: " + jid + ", phoneNumber: " + phoneNumber +
+      ", carrier: " + carrier + ", channelNames: " + channelNames +
+      "]";
+  }  
+  
+  // The remaining methods deal with manipulation of the User/Channel 
+  // relationship and are intentionally package and should called by {@link 
+  // Channel} and {@link Datastore} implementations only.
+   
+  void addChannel(String c) {
     if (!channelNames.contains(c)) {
       channelNames.add(c);
       
@@ -150,7 +160,7 @@ public class User implements Serializable {
     }
   }
   
-  public void removeChannel(String c) {
+  void removeChannel(String c) {
     if (channelNames.contains(c)) {
       channelNames.remove(c);
       
@@ -159,7 +169,7 @@ public class User implements Serializable {
     }
   }
 
-  public void fixUp() {
+  void fixUp() {
     boolean shouldPut = false;
     for (String channelName : channelNames) {
       if (!Datastore.instance().isJIDInChannel(channelName, jid)) {
@@ -180,13 +190,7 @@ public class User implements Serializable {
     }
   }
   
-  public void put() {
+  void put() {
     Datastore.instance().put(this);
-  }
-
-  @Override public String toString() {
-    return "[User: jid: " + jid + ", phoneNumber: " + phoneNumber +
-      ", carrier: " + carrier + ", channelNames: " + channelNames +
-      "]";
   }
 }

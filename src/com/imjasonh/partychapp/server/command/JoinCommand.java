@@ -28,8 +28,6 @@ public class JoinCommand implements CommandHandler {
     }
 
     msg.member = msg.channel.addMember(msg.userJID);
-    msg.member.user().addChannel(msg.channel.getName());
-    msg.member.user().put();
     msg.channel.put();
 
     String reply = "You have joined '" + msg.channel.getName() + "' with the alias '"

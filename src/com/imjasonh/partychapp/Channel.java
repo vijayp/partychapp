@@ -111,6 +111,7 @@ public class Channel implements Serializable {
     JDOHelper.makeDirty(this, "members");
     
     addedMember.user().addChannel(getName());
+    addedMember.user().put();
     
     return addedMember;    
   }
@@ -124,6 +125,9 @@ public class Channel implements Serializable {
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
+    
+    member.user().removeChannel(getName());
+    member.user().put();    
   }
 
   private List<Member> getMembersToSendTo() {
@@ -228,8 +232,6 @@ public class Channel implements Serializable {
     }
     if (member != null) {
       removeMember(member);
-      member.user().removeChannel(getName());
-      member.user().put();
       return true;
     }
     if (invitedIds.remove(id)) {
