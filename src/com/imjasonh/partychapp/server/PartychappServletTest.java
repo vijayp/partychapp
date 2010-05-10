@@ -303,6 +303,13 @@ public class PartychappServletTest extends TestCase {
     sendMessage("neil@gmail.com", "hi partychat");
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
     assertTrue(channelHasMember("pancake", "neil@gmail.com"));    
+    
+    // Also check that resources in JIDs are dropped when creating the user 
+    // object
+    sendMessage("neil@gmail.com", "/inviteonly");
+    sendMessage("mihai@gmail.com/Adium", "hi partychat");
+    assertTrue(userInChannel("mihai@gmail.com", "pancake"));
+    assertTrue(channelHasMember("pancake", "mihai@gmail.com"));    
   }
   
   private void sendMessage(String userJid, String message) {
