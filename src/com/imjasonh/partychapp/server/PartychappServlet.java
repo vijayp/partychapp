@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,9 +29,7 @@ public class PartychappServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    super.doPost(req, resp);
-
+      throws IOException {
     XMPP = XMPPServiceFactory.getXMPPService();
 
     Message xmppMessage = null;
@@ -55,6 +52,7 @@ public class PartychappServlet extends HttpServlet {
   }
   
   public void doXmpp(Message xmppMessage) {
+    long startTime = System.currentTimeMillis();
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
     
@@ -97,6 +95,17 @@ public class PartychappServlet extends HttpServlet {
       // to do it ourselves.
       user.fixUp(message.channel);
       user.maybeMarkAsSeen();
+      
+      long requestTime = System.currentTimeMillis() - startTime;
+      if (requestTime > 300) {
+        if (channel != null) {
+          logger.warning("Request for channel " + channel.getName() + 
+              " (" + channel.getMembers().size() + " members) took " +
+              requestTime + "ms");
+        } else {
+          logger.warning("Request took " + requestTime + "ms");
+        }
+      }
     } finally {    
       datastore.endRequest();
     }

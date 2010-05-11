@@ -46,6 +46,7 @@ public enum Command {
   BROADCAST(new BroadcastHandler()),
   ;
 
+  @SuppressWarnings("unused")
   private static final Logger logger =
       Logger.getLogger(Command.class.getName());
   
@@ -56,18 +57,8 @@ public enum Command {
   }
 
   public static CommandHandler getCommandHandler(Message msg) {
-    long start = System.currentTimeMillis();
     for (Command command : Command.values()) {
       if (command.commandHandler.matches(msg)) {
-        long matchTime = System.currentTimeMillis() - start;
-        String channelInfo = "";
-        if (msg.channel != null) {
-          channelInfo = " for channel " + msg.channel.getName();
-        }
-        // Not actually a warning, but INFO logging doesn't seem to show up
-        // in the Appengine console
-        logger.warning(
-            "Matched to " + command + channelInfo + " in " + matchTime + "ms");
         return command.commandHandler;
       }
     }
