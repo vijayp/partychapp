@@ -55,7 +55,7 @@ public class CreateRoomServlet extends HttpServlet {
       SendUtil.invite(user.getEmail(), serverJID);
       
       // works for "true" ignoring case
-      if (Boolean.parseBoolean(req.getParameter("inviteOnly"))) {
+      if (Boolean.parseBoolean(req.getParameter("inviteonly"))) {
         channel.setInviteOnly(true);
       }
   
