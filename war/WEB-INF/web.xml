@@ -90,6 +90,21 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>userinfojsonhandler</servlet-name>
     <url-pattern>/userinfo</url-pattern>
   </servlet-mapping>
+  
+  <!-- Redirects -->
+  <servlet>
+    <servlet-name>logoredirecthandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.RedirectServlet</servlet-class>
+    <init-param> 
+      <param-name>target</param-name> 
+      <param-value>/images/logo.png</param-value> 
+    </init-param>     
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>logoredirecthandler</servlet-name>
+    <url-pattern>/logo.png</url-pattern>
+  </servlet-mapping> 
 
   <!-- Admin UI -->
   <servlet>
@@ -202,7 +217,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     </auth-constraint>
   </security-constraint>
 
-  <!-- Apstats -->
+  <!-- Appstats -->
   <filter>
     <filter-name>appstats</filter-name>
     <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
