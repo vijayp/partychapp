@@ -4,6 +4,10 @@ body {
   line-height: 130%;
 }
 
+.hidden {
+  display: none;
+}
+
 #main {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
@@ -17,6 +21,47 @@ body {
 
 #header {
   text-align: center;
+}
+
+#create-table td {
+  padding: 5px 2px;
+}
+
+#create-table #room-name,
+#create-table #invitees {
+  width: 250px;
+}
+
+#create-table .label {
+  text-align: right;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+#create-table .description {
+  color: #999;
+  font-size: smaller;
+  font-weight: normal;
+  line-height: 100%;
+}
+
+#create-table .buttons {
+  text-align: right;
+}
+
+#create-table .inviteonly-table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+#create-table .inviteonly-table td {
+  padding: 0;
+}
+
+#create-result {
+  border: solid 1px #999;
+  padding: 5px;
+  background: #ff9;
 }
 
 .channelName {
@@ -107,5 +152,20 @@ body {
 
 .target-details .reasons .date {
   color: #999;
-  font-size: smaller;  
+  font-size: smaller;
+}
+
+.channel-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.channel-list li {
+  padding: 2px 0;
+  margin: 0;
+}
+
+.channel-list .description {
+  color: #666;
 }

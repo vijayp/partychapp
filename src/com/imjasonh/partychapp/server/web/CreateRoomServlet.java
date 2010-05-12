@@ -39,8 +39,8 @@ public class CreateRoomServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
   
-    resp.getWriter().write("<style>body { font-family: Helvetica, sans-serif }</style>");
-    String name = ILLEGAL_JID_CHARACTERS.matcher(req.getParameter("name")).replaceAll(".");
+    String name = ILLEGAL_JID_CHARACTERS.matcher(
+            req.getParameter("name")).replaceAll(".");
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
     try {
@@ -70,14 +70,13 @@ public class CreateRoomServlet extends HttpServlet {
   
       List<String> invitees = Lists.newArrayList();
       if (!req.getParameter("invitees").isEmpty()) {
-      	String error = InviteHandler.parseEmailAddresses(req.getParameter("invitees"), invitees);
+      	String error = InviteHandler.parseEmailAddresses(
+      	    req.getParameter("invitees"), invitees);
       	for (String invitee : invitees) {
       		channel.invite(invitee);
       		SendUtil.invite(invitee, serverJID);
       	}
   	    resp.getWriter().write(error);
-      } else {
-      	resp.getWriter().write("You're the only person in this room for now.<P>");
       }
   
       channel.put();
@@ -86,8 +85,9 @@ public class CreateRoomServlet extends HttpServlet {
       		"To add users later, type '/invite user@whatever.com'.");
       
       resp.getWriter().write(
-      		"<P>Try messaging <a href=im:" + serverJID.getId() + ">"
-      		+ serverJID.getId() + "</a>");
+      		"<P>Try messaging <a href=\"im:" + serverJID.getId() + "\">"
+      		+ serverJID.getId() + "</a> or visit <a href=\"/channel/" + name
+      		+ "\">the channel page</a> for more information.");
     } finally {
       datastore.endRequest();      
     }

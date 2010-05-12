@@ -36,6 +36,7 @@ public class UserInfoJsonServlet extends JsonServlet {
       JSONObject channelJson = new JSONObject();
       channelJson.put("name", channel.getName());
       channelJson.put("alias", member.getAlias());
+      channelJson.put("memberCount", channel.getMembers().size());
       list.put(channelJson);
     }
 

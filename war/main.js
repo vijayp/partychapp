@@ -3,9 +3,35 @@ goog.require('goog.dom.classes');
 goog.require('goog.net.XhrIo');
 goog.require('goog.string');
 
-function show(elt) {
-  document.getElementById('actionOptions').style.display = 'none';
-  document.getElementById(elt).style.display = '';
+function showCreateForm() {
+  goog.dom.classes.add(goog.dom.$('create-button-container'), 'hidden');
+  goog.dom.classes.remove(goog.dom.$('create-table'), 'hidden');
+}
+
+function submitCreateRoom() {
+  var roomName = goog.dom.$('room-name').value;
+  var inviteOnly = goog.dom.$('inviteonly-true').checked;
+  var invitees = goog.dom.$('invitees').value;
+
+  if (goog.string.isEmptySafe(roomName)) {
+    alert('Please enter a room name.');
+    return false;
+  }
+
+  goog.net.XhrIo.send(
+      '/room',
+      function(e) {
+        var resultNode = goog.dom.$('create-result');
+        goog.dom.classes.remove(resultNode, 'hidden');
+        var xhr = e.target;
+        resultNode.innerHTML = xhr.getResponseText();
+      },
+      'POST',
+      'name=' + encodeURIComponent(roomName) +
+          '&inviteonly=' + inviteOnly +
+          '&invitees=' + encodeURIComponent(invitees));
+
+  return false;
 }
 
 function formatDate(date) {
@@ -88,4 +114,35 @@ function toggleTargetDetails(targetNameNode, channelName, targetName) {
     var xhr = e.target;
     addTargetDetails(targetName, targetCellNode, xhr.getResponseJson());
   });
+}
+
+function displayChannels(userInfo, targetNode) {
+  targetNode.setAttribute('style', 'display: block');
+  if (userInfo.error) {
+    targetDiv.innerHTML = "ERROR: " + userInfo.error;
+    return;
+  }
+
+  var channelListNode = goog.dom.$dom('ul', 'channel-list');
+
+  var channels = userInfo['channels'];
+  for (var i = 0, channel; channel = channels[i]; i++) {
+    var linkNode = goog.dom.$dom(
+        'a',
+        {'href': '/channel/' + channel.name},
+        channel.name);
+    var descriptionNode = goog.dom.$dom(
+        'span',
+        'description',
+        ' as ',
+        goog.dom.$dom('b', {}, channel.alias),
+        channel.memberCount > 1
+            ? ' with ' + (channel.memberCount - 1) +
+                (channel.memberCount == 2 ? ' other' : ' others')
+            : '');
+    var channelNode = goog.dom.$dom('li', {}, linkNode, descriptionNode);
+    channelListNode.appendChild(channelNode);
+  }
+
+  targetNode.appendChild(channelListNode);
 }

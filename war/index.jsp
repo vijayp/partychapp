@@ -38,30 +38,59 @@ stays safe. <%
 
 	if (user != null) {
 %>
-<div id="actionOptions">
-  <input type="button" value="Create a new room" onclick="show('create')" />
+<div id="create-button-container">
+  <input type="button" value="Create a new room" onclick="showCreateForm()" />
 </div>
-<div id="create" style="display: none; border: 1px solid #ccc">
-  <table cellpadding=10>
-    <tr>
-      <td>
-      <form action="/room" method="post" target="createResults">Pick
-      a room name<br>
-      <input type="text" name="name"> <br>
-      <br>
-      Do you only want people who are invited to be able to join?<br>
-      <input type="radio" name="inviteonly" value="true" checked="yes">
-      yes <input type="radio" name="inviteonly" value="false"> no <br>
-      <br>
-      Email addresses you would like to invite? (separated by commas)<br>
-      <textarea name="invitees"></textarea> <br>
-      <br>
-      <input type="submit" value="Create!"></form>
-      </td>
-      <td><iframe frameborder=0 name="createResults"> </iframe></td>
-    </tr>
-  </table>
-</div>
+<form onsubmit="return submitCreateRoom()">
+<table id="create-table" class="hidden">
+  <tr>
+    <td class="label">Room name:</td>
+    <td><input type="text" size="40" id="room-name"></td>
+  </tr>
+  <tr>
+    <td class="label">Room type:</td>
+    <td>
+      <table class="inviteonly-table">
+        <tr>
+          <td><input type="radio" name="inviteonly" value="true" checked="yes" id="inviteonly-true"></td>
+          <td><label for="inviteonly-true">Invite-only</label></td>
+        </tr>
+        <tr class="description">
+          <td></td>
+          <td>Only invited people may join</td>
+        </tr>
+      </table>
+
+      <table class="inviteonly-table">
+        <tr>
+          <td><input type="radio" name="inviteonly" value="false" id="inviteonly-false"></td>
+          <td><label for="inviteonly-false">Open</label></td>
+        </tr>
+        <tr class="description">
+          <td></td>
+          <td>Anyone may join</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td class="label">
+      Others to invite:
+      <div class="description">Email addresses,<br>separated by commas</div>
+    </td>
+    <td>
+      <textarea id="invitees" rows="4"></textarea>
+    </td>
+  </tr>
+  <tr>
+    <td class="buttons" colspan="2">
+      <input type="submit" value="Create!">
+    </td>
+  </tr>
+</table>
+
+<div id="create-result" class="hidden"></div>
+</form>
 
 <jsp:include page="include/userinfo.jsp"/>
 
@@ -122,7 +151,7 @@ to the room. Some key ones:
 </ul>
 
 <h3>Tell me more about this "partychat"</h3>
-Partychat was started by <a href=http://www.q00p.net />Akshay</a> and is
+Partychat was started by <a href=http://www.q00p.net>Akshay</a> and is
 maintained by a motley, ragtag group of current and former Googlers with
 names like Neil, Jason, Kushal, Vijay, and Mihai, although <i>this is not in
 any way associated with Google</i>. You can find the source code on <a
@@ -130,7 +159,7 @@ any way associated with Google</i>. You can find the source code on <a
 <br>
 For updates, please subscribe to our <a
 	href="http://techwalla.blogspot.com/">blog</a> or <a
-	href="http://twitter.com/partychat">follow us on Twitter</a>. </div>
+	href="http://twitter.com/partychat">follow us on Twitter</a>.
 
 <jsp:include page="include/footer.jsp"/>
 </body>

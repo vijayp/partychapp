@@ -92,7 +92,7 @@
     <form action="/invite" method="post" target="inviteResults">
     <input type="hidden" name="name" value="<%=channel.getName()%>"/>
     Email addresses you would like to invite? (separated by commas)<br>
-    <textarea name="invitees"></textarea> <br>
+    <textarea name="invitees" rows="4" cols="40"></textarea> <br>
     <br>
     <input type="submit" value="Invite!"></form>
     </td>

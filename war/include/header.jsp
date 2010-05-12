@@ -20,5 +20,5 @@
      %>
   </div>
   <div id="header">
-    <img src="/images/logo.png" width="310" height="150" alt="Partychat">
+    <a href="/"><img src="/images/logo.png" width="310" height="150" alt="Partychat" border="0"></a>
   </div>
