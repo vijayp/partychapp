@@ -47,7 +47,7 @@ public class CreateRoomServlet extends HttpServlet {
       // TODO: Generate server JID and use it immediately (to send the chat 
       // invite). If we somehow end up with an invalid JID, the request will
       // be aborted now, before we commit anything to the datastore and end up
-      // in an inconsitent state.
+      // in an inconsistent state.
       JID serverJID = new JID(name + "@" + Configuration.chatDomain);
       SendUtil.invite(user.getEmail(), serverJID);
 
