@@ -34,7 +34,7 @@ public class CreateRoomServlet extends HttpServlet {
     User user = userService.getCurrentUser();
   
     resp.getWriter().write("<style>body { font-family: Helvetica, sans-serif }</style>");
-    String name = req.getParameter("name");
+    String name = req.getParameter("name").replaceAll(" ", ".");
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
     try {
@@ -43,16 +43,19 @@ public class CreateRoomServlet extends HttpServlet {
         resp.getWriter().write("Sorry, room name is taken");
         return;
       }
-      
+
+      // TODO: Generate server JID and use it immediately (to send the chat 
+      // invite). If we somehow end up with an invalid JID, the request will
+      // be aborted now, before we commit anything to the datastore and end up
+      // in an inconsitent state.
+      JID serverJID = new JID(name + "@" + Configuration.chatDomain);
+      SendUtil.invite(user.getEmail(), serverJID);
+
       com.imjasonh.partychapp.User pchapUser =
           datastore.getOrCreateUser(user.getEmail());
       
-      // TODO: Get this programatically
-      JID serverJID = new JID(name + "@" + Configuration.chatDomain);
       channel = new Channel(serverJID);
       channel.addMember(pchapUser);
-      
-      SendUtil.invite(user.getEmail(), serverJID);
       
       // works for "true" ignoring case
       if (Boolean.parseBoolean(req.getParameter("inviteonly"))) {

@@ -147,6 +147,43 @@ public class User implements Serializable {
     return Collections.unmodifiableList(channelNames);
   }
   
+  /**
+   * Gets all of the channels the user is actually in (and which exist).
+   */
+  public List<Channel> getChannels() {
+    boolean shouldPut = false;
+    
+    List<Channel> channels =
+        Lists.newArrayListWithExpectedSize(channelNames.size());
+    
+    for (String channelName : channelNames) {
+      Channel channel = Datastore.instance().getChannelByName(channelName);
+      if (channel != null) {
+        if (channel.getMemberByJID(jid) != null) {
+          channels.add(channel);
+        }
+      } else {
+        logger.warning(
+            "User " + jid + " was in non-existent channel " + channelName +
+            ", removing");
+        removeChannel(channelName);
+        shouldPut = true;
+      }
+    }
+    
+    // While we have all these channels loaded, also take the opportunity to
+    // to do other fixUps
+    for (Channel channel : channels) {
+      fixUp(channel);
+    }
+    
+    if (shouldPut) {
+      put();
+    }
+    
+    return channels;
+  }
+  
   public void put() {
     Datastore.instance().put(this);
   }  

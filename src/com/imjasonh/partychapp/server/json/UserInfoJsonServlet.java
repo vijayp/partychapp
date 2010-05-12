@@ -25,17 +25,16 @@ public class UserInfoJsonServlet extends JsonServlet {
   static public JSONObject getJsonFromUser(User user,
       Datastore datastore) throws JSONException {
     JSONArray list = new JSONArray();
-    for (String channelName : user.channelNames()) {
-      Channel channel = datastore.getChannelByName(channelName);
+    for (Channel channel : user.getChannels()) {
       Member member = channel.getMemberByJID(new JID(user.getJID()));
       if (member == null) {
         logger.warning("Could not actually find member " + 
-            user.getJID() + " in channel " + channelName);
+            user.getJID() + " in channel " + channel.getName());
         continue;
       }
       
       JSONObject channelJson = new JSONObject();
-      channelJson.put("name", channelName);
+      channelJson.put("name", channel.getName());
       channelJson.put("alias", member.getAlias());
       list.put(channelJson);
     }
