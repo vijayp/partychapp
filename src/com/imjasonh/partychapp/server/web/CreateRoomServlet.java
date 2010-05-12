@@ -15,6 +15,7 @@ import com.imjasonh.partychapp.server.command.InviteHandler;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,11 @@ public class CreateRoomServlet extends HttpServlet {
   @SuppressWarnings("unused")
   private static final Logger logger =
       Logger.getLogger(CreateRoomServlet.class.getName());
+  
+  // See http://tools.ietf.org/html/rfc3920#appendix-A.5 for the list of
+  // characters that are not allowed in JIDs
+  private static final Pattern ILLEGAL_JID_CHARACTERS =
+      Pattern.compile("[ \"&'/:<>@]");
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -34,7 +40,7 @@ public class CreateRoomServlet extends HttpServlet {
     User user = userService.getCurrentUser();
   
     resp.getWriter().write("<style>body { font-family: Helvetica, sans-serif }</style>");
-    String name = req.getParameter("name").replaceAll(" ", ".");
+    String name = ILLEGAL_JID_CHARACTERS.matcher(req.getParameter("name")).replaceAll(".");
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
     try {
@@ -44,10 +50,10 @@ public class CreateRoomServlet extends HttpServlet {
         return;
       }
 
-      // TODO: Generate server JID and use it immediately (to send the chat 
-      // invite). If we somehow end up with an invalid JID, the request will
-      // be aborted now, before we commit anything to the datastore and end up
-      // in an inconsistent state.
+      // Generate server JID and use it immediately (to send the chat invite). 
+      // If we somehow end up with an invalid JID (despite sanitizing above), 
+      // the request will be aborted now, before we commit anything to the
+      // datastore and end up in an inconsistent state.
       JID serverJID = new JID(name + "@" + Configuration.chatDomain);
       SendUtil.invite(user.getEmail(), serverJID);
 
