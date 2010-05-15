@@ -146,3 +146,16 @@ function displayChannels(userInfo, targetNode) {
 
   targetNode.appendChild(channelListNode);
 }
+
+function printEmail(opt_anchorText) {
+  var a = [112, 97, 114, 116, 121, 99, 104, 97, 112, 112, 64, 103, 111, 111,
+      103, 108, 101, 103, 114, 111, 117, 112, 115, 46, 99, 111, 109];
+  var b = [];
+  for (var i = 0; i < a.length; i++) {
+    b.push(String.fromCharCode(a[i]));
+  }
+  b = b.join('');
+  document.write('<' + 'a href="mailto:' + b + '">' +
+                 (opt_anchorText || b) +
+                 '<' + '/a>');
+}

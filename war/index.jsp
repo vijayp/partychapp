@@ -131,16 +131,17 @@ the room. <br>
 Alternatively, if a room is not invite-only, you can just add <tt>[roomname]@<%=Configuration.chatDomain%></tt>
 to your buddy list and send it a message. <a name="nowwhat">
 <h3>Okay, I'm in a room, now what?</h3>
-Besides just sending messages and having everyone see them, most of the
+<p>Besides just sending messages and having everyone see them, most of the
 things you can do take the form of commands you type as special chat
-messages starting with a /.<br>
-<br>
+messages starting with a /.</p>
+<p style="text-align: center">
 <img
-	src="http://1.bp.blogspot.com/_qxrodbRnu8Q/SyL57yANfsI/AAAAAAAAD4w/pRdYP3wI_a4/s400/pchapp-shot.png">
-<br>
-<br>
-You can get a full list of commands by sending the chat message <tt>/help</tt>
-to the room. Some key ones:
+	src="http://1.bp.blogspot.com/_qxrodbRnu8Q/SyL57yANfsI/AAAAAAAAD4w/pRdYP3wI_a4/s400/pchapp-shot.png"
+  width="399" height="256" alt="Partychat demo">
+</p>
+
+<p>You can get a full list of commands by sending the chat message <tt>/help</tt>
+to the room. Some key ones:</p>
 <ul>
 	<li><tt>/leave</tt> Leave this chat room. You can rejoin by
 	sending another message to the room. If the room is invite-only, you
@@ -158,8 +159,7 @@ to the room. Some key ones:
 	in your message. For example, you might say <tt>partychat++ for
 	being so handy</tt>. This adds one to the score for partychat, which you can
 	see by typing <tt>/score partychat</tt>. Or you can take points away
-	from things you dislike, such as <tt>kushal-- for another bad pun</tt>.
-
+	from things you dislike, such as <tt>kushal-- for another bad pun</tt>.</li>
 </ul>
 
 <h3>Does anyone use this thing?</h3>
@@ -181,15 +181,20 @@ to the room. Some key ones:
 %>
 
 <h3>Tell me more about this "partychat"</h3>
-Partychat was started by <a href=http://www.q00p.net>Akshay</a> and is
+
+<p>Partychat was started by <a href=http://www.q00p.net>Akshay</a> and is
 maintained by a motley, ragtag group of current and former Googlers with
 names like Neil, Jason, Kushal, Vijay, and Mihai, although <i>this is not in
 any way associated with Google</i>. You can find the source code on <a
-	href="http://code.google.com/p/partychapp/">Google Code</a>. <br>
-<br>
-For updates, please subscribe to our <a
+	href="http://code.google.com/p/partychapp/">Google Code</a>.</p>
+
+<p>For updates, please subscribe to our <a
 	href="http://techwalla.blogspot.com/">blog</a> or <a
-	href="http://twitter.com/partychat">follow us on Twitter</a>.
+	href="http://twitter.com/partychat">follow us on Twitter</a>. You can report
+	bugs <a href="http://code.google.com/p/partychapp/issues/entry">on Google
+	Code</a> and send feedback to the developers at
+	<script type="text/javascript">printEmail()</script>.
+</p>
 
 <jsp:include page="include/footer.jsp"/>
 </body>
