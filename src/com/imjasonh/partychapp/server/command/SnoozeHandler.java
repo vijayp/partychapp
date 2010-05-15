@@ -1,11 +1,18 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.base.Strings;
+
 import java.text.DateFormat;
 import java.util.Date;
 
 import com.imjasonh.partychapp.Message;
 
 public class SnoozeHandler extends SlashCommand {
+  private static final String DETAILED_USAGE = 
+      "You must specify a number and a unit of time to snooze " +
+      "for -- for example, 20s for 20 seconds, 45m for 45 minutes, 1h for 1 " +
+      "hour, or 2d for 2 days.";  
+  
   public SnoozeHandler() {
     super("snooze");
   }
@@ -26,22 +33,28 @@ public class SnoozeHandler extends SlashCommand {
 
   @Override
   void doCommand(Message msg, String argument) {
+    if (Strings.isNullOrEmpty(argument)) {
+      msg.channel.sendDirect(
+          "No snooze time period given. " + DETAILED_USAGE, msg.member);
+      return;       
+    }
+    
     argument = argument.trim();
     char unit = argument.charAt(argument.length() - 1);
     int num = 0;
-    String usage = "You must specify a number and a unit of time to snooze " +
-      "for -- for example, 20s for 20 seconds, 45m for 45 minutes, 1h for 1 hour," +
-      "or 2d for 2 days.";
     try {
       num = Integer.valueOf(argument.substring(0, argument.length() - 1));
     } catch (NumberFormatException e) {
-      msg.channel.sendDirect("Sorry, couldn't understand the time period you asked for. " + usage,
-                             msg.member);
+      msg.channel.sendDirect(
+          "Sorry, couldn't understand the time period you asked for. " + 
+              DETAILED_USAGE,
+          msg.member);
       return;
     }
     if (num < 0) {
-      msg.channel.sendDirect("You can't snooze for a negative number of seconds! " + usage,
-                             msg.member);
+      msg.channel.sendDirect(
+          "You can't snooze for a negative number of seconds! " + DETAILED_USAGE,
+          msg.member);
       return;
     }
 
@@ -65,7 +78,7 @@ public class SnoozeHandler extends SlashCommand {
       seconds = num*60*60*24;
       break;
     default:
-      msg.channel.sendDirect(usage, msg.member);
+      msg.channel.sendDirect(DETAILED_USAGE, msg.member);
       return;
     }
 

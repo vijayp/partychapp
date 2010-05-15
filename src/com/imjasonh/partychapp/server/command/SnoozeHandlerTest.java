@@ -23,23 +23,12 @@ public class SnoozeHandlerTest extends CommandHandlerTestCase {
     assertTrue(handler.matches(Message.createForTests(" /snooze 392s")));
   }
   
-  public void snoozeAndGetDate(String cmd, String reply, String date) {
-    handler.doCommand(Message.createForTests(cmd));
-    assertEquals(1, xmpp.messages.size());
-    String msg = xmpp.messages.get(0).getBody();
-    assertTrue("expected to find \"" + reply + " in \"" + msg + "\"",
-               msg.contains(reply));
-    Date actual = FakeDatastore.fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
-    assertNotNull(actual);
-    DateFormat format = DateFormat.getDateTimeInstance(
-        DateFormat.LONG, DateFormat.LONG, Locale.US);
-    try {
-      // divide by 1000 because the expected values are only accurate to the
-      // second, not to the millisecond.
-      assertEquals(format.parse(date).getTime() / 1000, actual.getTime() / 1000);
-    } catch (ParseException e) { fail("bad expected value " + date); }
+  public void testBadInput() {
+    snoozeAndCheckReply("/snooze", "You must specify a number");
+    snoozeAndCheckReply("/snooze onethousandyears", "You must specify a number");
+    snoozeAndCheckReply("/snooze 10mm", "You must specify a number");
   }
-
+  
   public void testSimple1() {
     snoozeAndGetDate("/snooze 60s",
                      "Okay, snoozing for 60 seconds (60 seconds)",
@@ -63,4 +52,26 @@ public class SnoozeHandlerTest extends CommandHandlerTestCase {
                      "Okay, snoozing for 4 days (345600 seconds)",
                      "October 25, 2009 10:21:10 AM EDT");
   }
+  
+  private void snoozeAndCheckReply(String cmd, String reply) {
+    xmpp.messages.clear();
+    handler.doCommand(Message.createForTests(cmd));
+    assertEquals(1, xmpp.messages.size());
+    String msg = xmpp.messages.get(0).getBody();
+    assertTrue("expected to find \"" + reply + " in \"" + msg + "\"",
+               msg.contains(reply));    
+  }
+  
+  private void snoozeAndGetDate(String cmd, String reply, String date) {
+    snoozeAndCheckReply(cmd, reply);
+    Date actual = FakeDatastore.fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
+    assertNotNull(actual);
+    DateFormat format = DateFormat.getDateTimeInstance(
+        DateFormat.LONG, DateFormat.LONG, Locale.US);
+    try {
+      // divide by 1000 because the expected values are only accurate to the
+      // second, not to the millisecond.
+      assertEquals(format.parse(date).getTime() / 1000, actual.getTime() / 1000);
+    } catch (ParseException e) { fail("bad expected value " + date); }
+  }  
 }
