@@ -26,11 +26,13 @@ public class ReasonsHandler extends SlashCommand {
       List<Reason> reasons = Datastore.instance().getReasons(target, 10);
       for (Reason r : reasons) {
         sb.append(r.action().ifPlusPlusElse("increment by ", "decrement by "));
-        sb.append(r.sender().getJID());
+        sb.append(r.senderAlias());
         sb.append(" (" + r.reason() + ")\n");
       }
       
-      sb.append("More reasons may be visible at " + msg.channel.webUrl());
+      if (reasons.size() == 10) {
+        sb.append("More reasons may be visible at " + msg.channel.webUrl());
+      }
     }
     msg.channel.sendDirect(sb.toString().trim(), msg.member);    
   }

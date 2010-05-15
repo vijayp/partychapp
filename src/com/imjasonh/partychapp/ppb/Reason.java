@@ -15,6 +15,8 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.annotations.VisibleForTesting;
+
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
@@ -93,6 +95,14 @@ public class Reason implements Serializable {
     return sender;
   }
   
+  public String senderAlias() {
+    if (sender() != null) {
+      return sender().getAlias();
+    } else {
+      return senderJID;
+    }
+  }
+  
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -123,5 +133,13 @@ public class Reason implements Serializable {
   public void fixUp(int rightScore) {
     scoreAfter = rightScore;
     put();
+  }
+  
+  /**
+   * For tests, where we re-use objects in the in-memory fake datastore, this
+   * method may be used to simulate the non-persistence of the sender field.
+   */
+  @VisibleForTesting public void clearSender() {
+    sender = null;
   }
 }

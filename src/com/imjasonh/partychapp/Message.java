@@ -104,8 +104,13 @@ public class Message {
   }
   
   public static Message createForTests(
-          String content, MessageType messageType) {
-    JID userJID = new JID("neil@gmail.com");
+      String content, MessageType messageType) {
+    return createForTests(content, messageType, "neil@gmail.com");
+  }
+  
+  public static Message createForTests(
+          String content, MessageType messageType, String jid) {
+    JID userJID = new JID(jid);
     Channel c = FakeDatastore.fakeChannel();
     
     return new Builder()

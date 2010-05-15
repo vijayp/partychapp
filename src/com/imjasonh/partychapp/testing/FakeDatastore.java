@@ -92,6 +92,11 @@ public class FakeDatastore extends Datastore {
     } else if ((limit > 0) && (list.size() > limit)) {
       list = list.subList(0, limit-1);
     }
+    
+    for (Reason reason : list) {
+      reason.clearSender();
+    }
+    
     return list;
   }
   

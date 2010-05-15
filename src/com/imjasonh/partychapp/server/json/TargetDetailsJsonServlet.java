@@ -44,7 +44,7 @@ public class TargetDetailsJsonServlet extends JsonServlet {
       JSONObject reasonJson = new JSONObject();
       reasonJson.put("action", r.action());
       reasonJson.put("reason", r.reason());
-      reasonJson.put("sender", r.sender().getAlias());
+      reasonJson.put("sender", r.senderAlias());
       reasonJson.put("timestampMsec", r.timestamp().getTime());
       reasonsJson.put(reasonJson);
     }
