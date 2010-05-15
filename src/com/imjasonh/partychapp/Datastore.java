@@ -7,10 +7,12 @@ import com.imjasonh.partychapp.ppb.Target;
 
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 public abstract class Datastore {
@@ -68,7 +70,7 @@ public abstract class Datastore {
 
   public abstract List<Reason> getReasons(Target target, int limit);
 
-  public static class Stats {
+  public static class Stats implements Serializable {
     public int numChannels;
     public int numUsers;
     public Date timestamp;
@@ -76,12 +78,25 @@ public abstract class Datastore {
     public int sevenDayActiveUsers;
     public int thirtyDayActiveUsers;
 
-    private static final DateFormat df =
-      DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    private static final DateFormat dateFormat =
+        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    
+    private static final NumberFormat numberFormat =
+        NumberFormat.getIntegerInstance(Locale.US);
+    
+    public String getFormattedNumChannels() {
+      return numberFormat.format(numChannels); 
+    }
+    
+    public String getFormattedSevenDayActiveUsers() {
+      return numberFormat.format(sevenDayActiveUsers); 
+    }    
     
     @Override
     public String toString() {
-      String reply = "Number of channels (as of " + df.format(timestamp) + "): " + numChannels + "\n";
+      String reply = "Number of channels (as of " + 
+          (timestamp != null ? dateFormat.format(timestamp) : "unknown") + 
+          "): " + numChannels + "\n";
       reply += "1-day active users: " + oneDayActiveUsers + "\n";
       reply += "7-day active users: " + sevenDayActiveUsers + "\n";
       reply += "30-day active users: " + thirtyDayActiveUsers + "\n";
@@ -89,7 +104,8 @@ public abstract class Datastore {
       return reply;
     }
   }
-  public abstract Stats getStats();
+  
+  public abstract Stats getStats(boolean useCache);
   
   public abstract void putAll(Collection<? extends Serializable> objects);
   public abstract void put(Serializable s);

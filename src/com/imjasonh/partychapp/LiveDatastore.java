@@ -7,15 +7,23 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.memcache.InvalidValueException;
+import com.google.appengine.api.memcache.jsr107cache.GCacheFactory;
+import com.google.common.collect.ImmutableMap;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
+
+import net.sf.jsr107cache.Cache;
+import net.sf.jsr107cache.CacheException;
+import net.sf.jsr107cache.CacheManager;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
@@ -27,12 +35,24 @@ import javax.jdo.Query;
 // NOT thread-safe
 public class LiveDatastore extends Datastore {
 
-  @SuppressWarnings("unused")
   private static final Logger logger =
       Logger.getLogger(LiveDatastore.class.getName());
   
   private static final PersistenceManagerFactory PERSISTENCE_FACTORY = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
+
+  private static final String STATS_CACHE_KEY = "stats";
+  
+  private static Cache STATS_CACHE = null;
+  
+  static {
+    try {
+      STATS_CACHE = CacheManager.getInstance().getCacheFactory().createCache(
+              ImmutableMap.of(GCacheFactory.EXPIRATION_DELTA, 24 * 60 * 60L));
+    } catch (CacheException err) {
+      logger.log(Level.SEVERE, "Could not initialize STATS_CACHE", err);
+    }
+  }
 
   // Created transiently for each request.
   private PersistenceManager manager;
@@ -168,8 +188,20 @@ public class LiveDatastore extends Datastore {
 
 
   @Override
-  public Datastore.Stats getStats() {
-    Datastore.Stats ret = new Datastore.Stats();
+  public Datastore.Stats getStats(boolean useCache) {
+    if (useCache) {
+      try {
+        Stats cachedStats = (Stats) STATS_CACHE.get(STATS_CACHE_KEY);
+        if (cachedStats != null) {
+          return cachedStats;
+        }
+        logger.info("Stats not in cache, re-computing");
+      } catch (InvalidValueException err) {
+        logger.log(Level.WARNING, "Could not load data from memcache", err);
+      }
+    }
+    
+    Stats ret = new Stats();
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery pq = datastore.prepare(new com.google.appengine.api.datastore.Query("__Stat_Kind__"));
     for (Entity kindStat : pq.asIterable()) {
@@ -184,6 +216,8 @@ public class LiveDatastore extends Datastore {
     ret.oneDayActiveUsers = countUsersActiveInLastNDays(datastore, 1);
     ret.sevenDayActiveUsers = countUsersActiveInLastNDays(datastore, 7);
     ret.thirtyDayActiveUsers = countUsersActiveInLastNDays(datastore, 30);
+    
+    STATS_CACHE.put(STATS_CACHE_KEY, ret);
     
     return ret;
   }

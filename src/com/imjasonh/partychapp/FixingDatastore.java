@@ -71,8 +71,8 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
-  public Datastore.Stats getStats() {
-    return wrapped.getStats();
+  public Datastore.Stats getStats(boolean useCache) {
+    return wrapped.getStats(useCache);
   }
   
   @Override

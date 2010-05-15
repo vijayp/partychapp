@@ -3,6 +3,8 @@
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.imjasonh.partychapp.Configuration" %>
+<%@ page import="com.imjasonh.partychapp.Datastore"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,10 +18,20 @@ Talk or XMPP.</p>
 
 <h3>Why use Partychat?</h3>
 <ul>
-	<li>Use whatever you use to chat already: GMail, Adium,...</li>
+	<li>
+	  Use whatever you use to chat already:
+    <a href="http://mail.google.com/mail/help/chat.html">Gmail</a>,
+    <a href="http://adium.im/">Adium</a>,
+    <a href="http://www.google.com/talk/">Google Talk</a>,
+    <a href="http://www.pidgin.im/">Pidgin</a>,
+    or any other XMPP/Jabber-aware client.
+  </li>
 	<li>Catch up on messages you miss while offline.</li>
 	<li>Don't have to re-join rooms when you log-out.</li>
-	<li>Built on reliable Google App Engine.</li>
+	<li>
+	  Built on the reliable, safe
+	  <a href="http://code.google.com/appengine/">Google App Engine</a>
+	</li>
 	<li>Easy to use, lots of <a href="#nowwhat">silly features</a>.</li>
 </ul>
 <%
@@ -149,6 +161,24 @@ to the room. Some key ones:
 	from things you dislike, such as <tt>kushal-- for another bad pun</tt>.
 
 </ul>
+
+<h3>Does anyone use this thing?</h3>
+
+<%
+  Datastore datastore = Datastore.instance();
+  datastore.startRequest();
+  Datastore.Stats stats = datastore.getStats(true);
+%>
+
+<p>
+  It looks like it. <b><%=stats.getFormattedNumChannels()%> rooms</b> have been
+  created, and in the past week <b><%=stats.getFormattedSevenDayActiveUsers()%>
+  people</b> have used them.
+</p>
+
+<%
+  datastore.endRequest();
+%>
 
 <h3>Tell me more about this "partychat"</h3>
 Partychat was started by <a href=http://www.q00p.net>Akshay</a> and is

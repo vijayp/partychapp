@@ -90,7 +90,7 @@ public class FakeDatastore extends Datastore {
   }
   
   @Override
-  public Datastore.Stats getStats() {
+  public Datastore.Stats getStats(boolean useCache) {
     Datastore.Stats ret = new Datastore.Stats();
     ret.numChannels = channels.size();
     ret.numUsers = users.size();
