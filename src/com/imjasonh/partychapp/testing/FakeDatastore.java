@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.PersistentConfiguration;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
@@ -38,6 +39,11 @@ public class FakeDatastore extends Datastore {
     channel.addMember(getOrCreateUser("david@gmail.com"));
     channel.addMember(getOrCreateUser("akshay@q00p.net"));
     put(channel);
+  }
+
+  @Override
+  public PersistentConfiguration getPersistentConfig() {
+    return null;
   }
 
   @Override

@@ -67,6 +67,16 @@ public class LiveDatastore extends Datastore {
   }
   
   @Override
+  public PersistentConfiguration getPersistentConfig() {
+    try {
+      return manager.getObjectById(PersistentConfiguration.class,
+                                   "config");
+    } catch (JDOObjectNotFoundException e) {
+      return null;
+    }
+  }
+  
+  @Override
   public User getUserByJID(String jid) {
     try {
       User user = manager.getObjectById(User.class, jid);

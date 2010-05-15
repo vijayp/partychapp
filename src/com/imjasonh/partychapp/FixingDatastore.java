@@ -94,4 +94,9 @@ public class FixingDatastore extends Datastore {
   public Iterator<String> getAllChannelKeys(String lastKey) {
     return wrapped.getAllChannelKeys(lastKey);
   }
+
+  @Override
+  public PersistentConfiguration getPersistentConfig() {
+    return wrapped.getPersistentConfig();
+  }
 }

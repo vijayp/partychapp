@@ -16,4 +16,13 @@ public class Configuration {
   
   //public static final String chatDomain = "partych.at";
   //public static final String webDomain = "partych.at";
+  
+  private static PersistentConfiguration pc;
+  
+  public static PersistentConfiguration persistentConfig() {
+    if (pc == null) {
+      pc = Datastore.instance().getPersistentConfig();
+    }
+    return pc;
+  }
 }

@@ -35,6 +35,8 @@ public abstract class Datastore {
     instance = new FixingDatastore(ds);
   }
   
+  public abstract PersistentConfiguration getPersistentConfig();
+  
   public abstract Channel getChannelByName(String name);
   
   public abstract User getUserByJID(String jid);
