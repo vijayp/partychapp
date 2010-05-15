@@ -20,7 +20,6 @@ public class User implements Serializable {
 
   private static final long serialVersionUID = 89437432538532985L;
 
-  @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(User.class.getName());
 
   /**

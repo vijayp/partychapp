@@ -27,7 +27,6 @@ public class BugHandler extends SlashCommand {
     }
   }
 
-  @Override
   public String documentation() {
     return "/bug - returns a link to a pre-populated form to file a bug.";
   }
