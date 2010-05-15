@@ -71,10 +71,15 @@ public class InviteHandler extends SlashCommand {
   public static String parseEmailAddresses(String invitees, List<String> output) {
     StringBuilder error = new StringBuilder();
     for (String invitee : invitees.split(",")) {
+      invitee = invitee.trim();
       InternetAddress address = null;
       try {
         address = new InternetAddress(invitee);
         address.validate();
+        if (!address.toString().contains("@")) {
+          error.append("Could not invite " + invitee + ". Did you mean " + invitee + "@gmail.com?\n");
+          continue;
+        }
       } catch (AddressException e) {
         error.append("Could not invite " + invitee + ". Is it a valid email address?\n");
         continue;

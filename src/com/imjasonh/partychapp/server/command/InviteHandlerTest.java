@@ -62,13 +62,21 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
   public void testParseInvitees() {
     List<String> parsed = Lists.newArrayList();
     String error = InviteHandler.parseEmailAddresses(
-        " neil@gmail.com , jason@gmail.com, bad thing at foo dot com, x <foo@bar.com>",
+        "neil@gmail.com , " +
+        "jason@gmail.com, " +
+        "bad thing at foo dot com, " +
+        "x <foo@bar.com>, " + 
+        "foo",
         parsed);
 
     assertEquals(3, parsed.size());
     assertEquals("neil@gmail.com", parsed.get(0));
     assertEquals("jason@gmail.com", parsed.get(1));
     assertEquals("foo@bar.com", parsed.get(2));
-    assertEquals("Could not invite  bad thing at foo dot com. Is it a valid email address?\n", error);
+    assertEquals(
+        "Could not invite bad thing at foo dot com. " +
+            "Is it a valid email address?\n" +
+        "Could not invite foo. Did you mean foo@gmail.com?\n",
+        error);
   }
 }
