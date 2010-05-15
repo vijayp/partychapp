@@ -6,7 +6,7 @@ import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 import com.imjasonh.partychapp.testing.MockMailService;
 
-public class SummonHandlerTest extends CommandHandlerTest {
+public class SummonHandlerTest extends CommandHandlerTestCase {
   SummonHandler handler = new SummonHandler();
   MockMailService mailer = new MockMailService();
   

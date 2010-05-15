@@ -67,6 +67,10 @@ public class Channel implements Serializable {
   public String mailingAddress() {
     return name + "@" + Configuration.mailDomain;
   }
+  
+  public String webUrl() {
+    return "http://" + Configuration.webDomain + "/channel/" + name;
+  }
 
   public void invite(String email) {
     // Need to be robust b/c invitees was added after v1 of this class.

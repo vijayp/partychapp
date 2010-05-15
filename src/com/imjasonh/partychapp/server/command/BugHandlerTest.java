@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
-public class BugHandlerTest extends CommandHandlerTest {
+public class BugHandlerTest extends CommandHandlerTestCase {
   BugHandler handler = new BugHandler();
 
   public void testFileBug() {

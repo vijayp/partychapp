@@ -13,7 +13,7 @@ import com.imjasonh.partychapp.testing.ReadOnlyFakeDatastore;
 import java.util.Date;
 import java.util.List;
 
-public class BroadcastHandlerTest extends CommandHandlerTest {
+public class BroadcastHandlerTest extends CommandHandlerTestCase {
   BroadcastHandler handler = new BroadcastHandler();
 
   public void testAddToLastMessages() {

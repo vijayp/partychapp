@@ -5,7 +5,7 @@ import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.Target;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 
-public class UndoHandlerTest extends CommandHandlerTest {
+public class UndoHandlerTest extends CommandHandlerTestCase {
   private PPBHandler ppbHandler = new PPBHandler();
   private UndoHandler handler = new UndoHandler();
   

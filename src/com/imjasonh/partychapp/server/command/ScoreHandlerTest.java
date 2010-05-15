@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
-public class ScoreHandlerTest extends CommandHandlerTest {
+public class ScoreHandlerTest extends CommandHandlerTestCase {
   ScoreHandler handler = new ScoreHandler();
   
   public void testMatches() {
@@ -21,5 +21,10 @@ public class ScoreHandlerTest extends CommandHandlerTest {
     handler.doCommand(Message.createForTests("/score x"));
     assertEquals(1, xmpp.messages.size());
     assertEquals("x: 1", xmpp.messages.get(0).getBody());
+    
+    xmpp.messages.clear();
+    handler.doCommand(Message.createForTests("/score doesnotexit"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals("no scores found", xmpp.messages.get(0).getBody());    
   }
 }

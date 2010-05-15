@@ -3,7 +3,7 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 
-public class IncomingSMSHandlerTest extends CommandHandlerTest {
+public class IncomingSMSHandlerTest extends CommandHandlerTestCase {
   IncomingSMSHandler handler = new IncomingSMSHandler();
 
   public void testSimple() {

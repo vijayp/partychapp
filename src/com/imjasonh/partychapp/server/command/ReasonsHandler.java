@@ -18,14 +18,21 @@ public class ReasonsHandler extends SlashCommand {
     // TODO: Validate target pattern
     Target target = Datastore.instance().getTarget(msg.channel, name);
     StringBuilder sb = new StringBuilder();
-    sb.append(name + ": " + target.score() + "\n");
-    List<Reason> reasons = Datastore.instance().getReasons(target, 10);
-    for (Reason r : reasons) {
-      sb.append(r.action().ifPlusPlusElse("increment by ", "decrement by "));
-      sb.append(r.sender().getJID());
-      sb.append(" (" + r.reason() + ")\n");
+    
+    if (target == null ) {
+      sb.append("No reasons found");
+    } else {
+      sb.append(name + ": " + target.score() + "\n");
+      List<Reason> reasons = Datastore.instance().getReasons(target, 10);
+      for (Reason r : reasons) {
+        sb.append(r.action().ifPlusPlusElse("increment by ", "decrement by "));
+        sb.append(r.sender().getJID());
+        sb.append(" (" + r.reason() + ")\n");
+      }
+      
+      sb.append("More reasons may be visible at " + msg.channel.webUrl());
     }
-    msg.channel.sendDirect(sb.toString().trim(), msg.member);
+    msg.channel.sendDirect(sb.toString().trim(), msg.member);    
   }
 
   public String documentation() {

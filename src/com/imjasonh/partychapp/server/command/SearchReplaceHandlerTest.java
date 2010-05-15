@@ -4,7 +4,7 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 
-public class SearchReplaceHandlerTest extends CommandHandlerTest {
+public class SearchReplaceHandlerTest extends CommandHandlerTestCase {
   SearchReplaceHandler handler = new SearchReplaceHandler();
   BroadcastHandler bcast = new BroadcastHandler();
   PPBHandler ppbHandler = new PPBHandler();

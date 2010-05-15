@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.appengine.api.xmpp.JID;
 import com.imjasonh.partychapp.Message;
 
-public class PPBHandlerTest extends CommandHandlerTest {
+public class PPBHandlerTest extends CommandHandlerTestCase {
   PPBHandler ppb = new PPBHandler();
   
   public boolean hasJID(String jid) {

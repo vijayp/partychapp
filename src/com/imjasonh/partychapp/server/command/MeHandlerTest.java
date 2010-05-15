@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
-public class MeHandlerTest extends CommandHandlerTest {
+public class MeHandlerTest extends CommandHandlerTestCase {
   MeHandler handler = new MeHandler();
   
   public void testMatches() {

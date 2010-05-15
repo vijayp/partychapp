@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
-public class ReasonsHandlerTest extends CommandHandlerTest {
+public class ReasonsHandlerTest extends CommandHandlerTestCase {
   ReasonsHandler handler = new ReasonsHandler();
   PPBHandler ppb = new PPBHandler();
 
@@ -27,7 +27,14 @@ public class ReasonsHandlerTest extends CommandHandlerTest {
     assertEquals(1, xmpp.messages.size());
     assertEquals("x: 0\n" +
                  "decrement by neil@gmail.com (" + content2 + ")\n" +
-                 "increment by neil@gmail.com (" + content1 + ")",
+                 "increment by neil@gmail.com (" + content1 + ")\n" +
+                 "More reasons may be visible at " +
+                     "http://partychapp.appspot.com/channel/pancake",
                  xmpp.messages.get(0).getBody());
+    
+    xmpp.messages.clear();
+    handler.doCommand(Message.createForTests("/reasons doesnotexit"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals("No reasons found", xmpp.messages.get(0).getBody());        
   }
 }

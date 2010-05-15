@@ -3,7 +3,7 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
 
-public class StatusHandlerTest extends CommandHandlerTest {
+public class StatusHandlerTest extends CommandHandlerTestCase {
   StatusHandler handler = new StatusHandler();
 
   public void testMatches() {

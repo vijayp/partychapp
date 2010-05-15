@@ -3,7 +3,7 @@ package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 
-public class DebugHandlerTest extends CommandHandlerTest {
+public class DebugHandlerTest extends CommandHandlerTestCase {
   DebugHandler handler = new DebugHandler();
   
   public void testMatches() {

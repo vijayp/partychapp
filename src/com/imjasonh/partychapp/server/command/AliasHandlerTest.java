@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
-public class AliasHandlerTest extends CommandHandlerTest {
+public class AliasHandlerTest extends CommandHandlerTestCase {
   public void testAliasMatches() {
     AliasHandler handler = new AliasHandler();
 

@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 
-public class StatsHandlerTest extends CommandHandlerTest {
+public class StatsHandlerTest extends CommandHandlerTestCase {
   StatsHandler handler = new StatsHandler();
   
   public void testStats() {

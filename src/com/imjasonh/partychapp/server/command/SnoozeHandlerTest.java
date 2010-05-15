@@ -8,7 +8,7 @@ import java.util.Locale;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 
-public class SnoozeHandlerTest extends CommandHandlerTest {
+public class SnoozeHandlerTest extends CommandHandlerTestCase {
   SnoozeHandler handler = new SnoozeHandler();
   
   @Override

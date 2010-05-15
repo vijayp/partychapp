@@ -9,7 +9,7 @@ import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 import com.imjasonh.partychapp.testing.MockMailService;
 
-public class InviteHandlerTest extends CommandHandlerTest {
+public class InviteHandlerTest extends CommandHandlerTestCase {
   InviteHandler handler = new InviteHandler();
   MockMailService mailer = new MockMailService();
   
