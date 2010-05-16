@@ -4,7 +4,6 @@ import com.google.apphosting.api.ApiProxy;
 
 import com.imjasonh.partychapp.Datastore;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -27,17 +26,17 @@ public class ReadOnlyFakeDatastore extends FakeDatastore {
     isReadOnly = wasReadOnly;
   }
   
-  @Override public void put(Serializable s) {
+  @Override public void put(Object o) {
     if (isReadOnly) {
       // Per http://code.google.com/appengine/docs/java/howto/maintenance.html
       // this is the exception that's thrown in read-only mode
       throw new ApiProxy.CapabilityDisabledException("", "");
     } else {
-      super.put(s);
+      super.put(o);
     }
   }
   
-  @Override public void putAll(Collection<? extends Serializable> objects) {
+  @Override public void putAll(Collection<Object> objects) {
     if (isReadOnly) {
       throw new ApiProxy.CapabilityDisabledException("", "");
     } else {
@@ -45,11 +44,11 @@ public class ReadOnlyFakeDatastore extends FakeDatastore {
     }
   }
   
-  @Override public void delete(Serializable s) {
+  @Override public void delete(Object o) {
     if (isReadOnly) {
       throw new ApiProxy.CapabilityDisabledException("", "");
     } else {
-      super.delete(s);
+      super.delete(o);
     }
   }  
 }

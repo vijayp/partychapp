@@ -18,7 +18,6 @@ import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -125,7 +124,6 @@ public class LiveDatastore extends Datastore {
   public List<Target> getTargetsByChannel(String channelName) {
     Query query = manager.newQuery(Target.class);
     query.setFilter("channelName == channelNameParam");
-    //	query.setOrdering("hireDate desc");
     query.declareParameters("String channelNameParam");
 
     try {
@@ -152,18 +150,18 @@ public class LiveDatastore extends Datastore {
   }
 
   @Override
-  public void put(Serializable s) {
-    manager.makePersistent(s);
+  public void put(Object o) {
+    manager.makePersistent(o);
   }
 
   @Override
-  public void putAll(Collection<? extends Serializable> objects) {
+  public void putAll(Collection<Object> objects) {
     manager.makePersistentAll(objects);
   }
 
   @Override
-  public void delete(Serializable s) {
-    manager.deletePersistent(s);
+  public void delete(Object o) {
+    manager.deletePersistent(o);
   }
 
   @Override

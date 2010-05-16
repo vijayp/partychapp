@@ -109,9 +109,9 @@ public abstract class Datastore {
   
   public abstract Stats getStats(boolean useCache);
   
-  public abstract void putAll(Collection<? extends Serializable> objects);
-  public abstract void put(Serializable s);
-  public abstract void delete(Serializable s);
+  public abstract void putAll(Collection<Object> objects);
+  public abstract void put(Object o);
+  public abstract void delete(Object o);
 
   public abstract void startRequest();
   public abstract void endRequest();

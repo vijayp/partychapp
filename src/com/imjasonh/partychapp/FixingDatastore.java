@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -17,8 +16,8 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
-  public void delete(Serializable s) {
-    wrapped.delete(s);
+  public void delete(Object o) {
+    wrapped.delete(o);
   }
 
   @Override
@@ -76,12 +75,12 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
-  public void put(Serializable s) {
-    wrapped.put(s);
+  public void put(Object o) {
+    wrapped.put(o);
   }
 
   @Override
-  public void putAll(Collection<? extends Serializable> objects) {
+  public void putAll(Collection<Object> objects) {
     wrapped.putAll(objects);
   }
 

@@ -4,10 +4,12 @@ import java.net.URL;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import com.google.common.base.Strings;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.spreadsheet.ListEntry;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.PersistentConfiguration;
 import com.imjasonh.partychapp.WebRequest;
 import com.imjasonh.partychapp.server.MailUtil;
 
@@ -23,7 +25,10 @@ public class StatsCronJob extends DatastoreTask {
                       "statscronjob@" + Configuration.mailDomain,
                       Configuration.statsEmailAddress);
 
-    if (Configuration.persistentConfig() == null) {
+    PersistentConfiguration pc = Configuration.persistentConfig();
+    if (pc == null ||
+        Strings.isNullOrEmpty(pc.sessionToken()) ||
+        Strings.isNullOrEmpty(pc.listFeedUrl())) {
       return;
     }
     

@@ -1,7 +1,5 @@
 package com.imjasonh.partychapp;
 
-import java.io.Serializable;
-
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -19,7 +17,7 @@ import javax.jdo.annotations.PrimaryKey;
  * @author nsanch
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class PersistentConfiguration implements Serializable {
+public class PersistentConfiguration {
   private static final long serialVersionUID = 7984372525340987L;
 
   @SuppressWarnings("unused")

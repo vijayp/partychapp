@@ -1,10 +1,5 @@
 package com.imjasonh.partychapp.ppb;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +7,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
@@ -121,7 +119,7 @@ public class PlusPlusBot {
       }
     }
     if (mutateObjects) {
-      List<Serializable> toSave = Lists.newArrayList();
+      List<Object> toSave = Lists.newArrayList();
       toSave.addAll(targets);
       toSave.addAll(reasons);
       Datastore.instance().putAll(toSave);
@@ -132,7 +130,7 @@ public class PlusPlusBot {
   public List<Reason> undoEarlierMessage(Message msg) {
     List<Reason> reasonsBefore = extractReasonsNoCommit(msg);
 
-    List<Serializable> toSave = Lists.newArrayList();
+    List<Object> toSave = Lists.newArrayList();
     List<Reason> allUndos = Lists.newArrayList();
     for (Reason r : reasonsBefore) {
       Reason undone = r.undo();

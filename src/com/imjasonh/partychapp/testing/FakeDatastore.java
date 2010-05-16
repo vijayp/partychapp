@@ -1,18 +1,5 @@
 package com.imjasonh.partychapp.testing;
 
-import com.google.appengine.api.xmpp.JID;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.Member;
-import com.imjasonh.partychapp.PersistentConfiguration;
-import com.imjasonh.partychapp.User;
-import com.imjasonh.partychapp.ppb.Reason;
-import com.imjasonh.partychapp.ppb.Target;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +7,17 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.PersistentConfiguration;
+import com.imjasonh.partychapp.User;
+import com.imjasonh.partychapp.ppb.Reason;
+import com.imjasonh.partychapp.ppb.Target;
 
 public class FakeDatastore extends Datastore {
   private Map<String, Channel> channels = Maps.newHashMap();
@@ -115,44 +113,44 @@ public class FakeDatastore extends Datastore {
   }
   
   @Override
-  public void delete(Serializable s) {
-    if (s instanceof Channel) {
-      channels.remove(((Channel)s).getName());
+  public void delete(Object o) {
+    if (o instanceof Channel) {
+      channels.remove(((Channel)o).getName());
     } else {
       throw new RuntimeException("delete not implemented");
     }
   }
   
   @Override
-  public void putAll(Collection<? extends Serializable> objects) {
-    for (Serializable s : objects) {
-      put(s);
+  public void putAll(Collection<Object> objects) {
+    for (Object o : objects) {
+      put(o);
     }
   }
 
   @Override
-  public void put(Serializable s) {
-    if (s instanceof Channel) {
-      Channel c = (Channel)s;
+  public void put(Object o) {
+    if (o instanceof Channel) {
+      Channel c = (Channel)o;
       channels.put(c.getName(), c);
-    } else if (s instanceof Reason) {
-      Reason r = (Reason)s;
+    } else if (o instanceof Reason) {
+      Reason r = (Reason)o;
       reasons.get(r.target().key()).add(0, r);
-    } else if (s instanceof Target) {
-      Target t = (Target)s;
+    } else if (o instanceof Target) {
+      Target t = (Target)o;
       targets.put(t.key(), t);
       if (!reasons.containsKey(t.key())) {
         reasons.put(t.key(), Lists.<Reason>newArrayList());
       }
-    } else if (s instanceof Member) {
+    } else if (o instanceof Member) {
       throw new RuntimeException(
           "put() should never be called on Member, it is persisted via " +
           "serialization inside of Channel");
-    } else if (s instanceof User) {
-      User u = (User)s;
+    } else if (o instanceof User) {
+      User u = (User)o;
       users.put(u.getJID(), u);
     } else {
-      throw new RuntimeException("put not implemented for " + s);
+      throw new RuntimeException("put not implemented for " + o);
     }
   }
 
