@@ -27,7 +27,7 @@ public class ChannelServlet extends HttpServlet {
       return;
     }
     
-    // Strip trailing slash to get channel name
+    // Strip leading slash to get channel name
     String channelName = req.getPathInfo().substring(1);
     
     Datastore datastore = Datastore.instance();

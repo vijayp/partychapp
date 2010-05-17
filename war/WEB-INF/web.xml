@@ -127,6 +127,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <url-pattern>/admin/channelcleanup/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>adminuserhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.UserServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>adminuserhandler</servlet-name>
+    <url-pattern>/admin/user/*</url-pattern>
+  </servlet-mapping>
+
+
   <security-constraint>
     <web-resource-collection>
       <url-pattern>/admin/*</url-pattern>
