@@ -15,7 +15,7 @@
 %>
 
 <div id="channels" style="display: none">
-  <h3>My Channels</h3>
+  <h3>My Rooms</h3>
 </div>
 
 <script>

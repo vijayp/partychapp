@@ -20,7 +20,7 @@ function submitCreateRoom() {
   }
 
   goog.net.XhrIo.send(
-      '/room',
+      '/channel/create',
       function(e) {
         var resultNode = goog.dom.$('create-result');
         goog.dom.classes.remove(resultNode, 'hidden');

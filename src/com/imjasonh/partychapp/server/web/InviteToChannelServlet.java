@@ -19,22 +19,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class InviteToRoomServlet extends HttpServlet {
+public class InviteToChannelServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
   private static final Logger logger =
-      Logger.getLogger(InviteToRoomServlet.class.getName());
+      Logger.getLogger(InviteToChannelServlet.class.getName());
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
-    
-    if (user == null) {
-    	resp.getWriter().write("not logged in");
-    	return;
-    }
     
     String channelName = req.getParameter("name");
     Datastore datastore = Datastore.instance();

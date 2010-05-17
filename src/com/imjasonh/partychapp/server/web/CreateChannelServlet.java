@@ -22,11 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class CreateRoomServlet extends HttpServlet {
+public class CreateChannelServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
   private static final Logger logger =
-      Logger.getLogger(CreateRoomServlet.class.getName());
+      Logger.getLogger(CreateChannelServlet.class.getName());
   
   // See http://tools.ietf.org/html/rfc3920#appendix-A.5 for the list of
   // characters that are not allowed in JIDs
@@ -87,7 +87,7 @@ public class CreateRoomServlet extends HttpServlet {
       resp.getWriter().write(
       		"<P>Try messaging <a href=\"im:" + serverJID.getId() + "\">"
       		+ serverJID.getId() + "</a> or visit <a href=\"/channel/" + name
-      		+ "\">the channel page</a> for more information.");
+      		+ "\">the room's page</a> for more information.");
     } finally {
       datastore.endRequest();      
     }
