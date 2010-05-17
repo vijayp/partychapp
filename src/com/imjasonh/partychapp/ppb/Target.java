@@ -5,7 +5,11 @@ package com.imjasonh.partychapp.ppb;
 
 import com.google.common.collect.Lists;
 
-import java.io.Serializable;
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -15,15 +19,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.Member;
-import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
-
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Target implements Serializable {
-  private static final long serialVersionUID = 32874987598375313L;
-     
+public class Target {
   @Persistent
   @PrimaryKey
   private String key; 

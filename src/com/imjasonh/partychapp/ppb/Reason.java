@@ -3,7 +3,14 @@
  */
 package com.imjasonh.partychapp.ppb;
 
-import java.io.Serializable;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.xmpp.JID;
+import com.google.common.annotations.VisibleForTesting;
+
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
+
 import java.util.Date;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -13,19 +20,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.xmpp.JID;
-import com.google.common.annotations.VisibleForTesting;
-
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.Member;
-import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
-
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Reason implements Serializable {
-  // TODO(nsanch): where is this number supposed to come from? I just mashed my keys.
-  private static final long serialVersionUID = 1874329879824724L;
-  
+public class Reason {
   @SuppressWarnings("unused")
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   @PrimaryKey
