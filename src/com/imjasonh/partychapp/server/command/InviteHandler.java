@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -25,6 +26,12 @@ public class InviteHandler extends SlashCommand {
   public void doCommand(Message msg, String jids) {
     assert msg.channel != null;
     assert msg.member != null;
+    
+    if (Strings.isNullOrEmpty(jids)) {
+      msg.channel.sendDirect(
+          "Please list some email addresses to invite", msg.member);
+      return;
+    }
     
     List<String> jidsToInvite = Lists.newArrayList();
     String error = parseEmailAddresses(jids, jidsToInvite);

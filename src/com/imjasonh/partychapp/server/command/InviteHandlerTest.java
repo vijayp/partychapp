@@ -40,6 +40,13 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
     assertEquals("pancake@partychapp.appspotmail.com",
                  mailer.sentMessages.get(0).getSender());
   }
+  
+  public void testNoInput() {
+    handler.doCommand(Message.createForTests("/invite"));
+    assertEquals(
+        "Please list some email addresses to invite",
+        xmpp.messages.get(0).getBody());
+  }
 
   public void testMultipleInvitees() {
     handler.doCommand(Message.createForTests("/invite dan@gmail.com, roro@gmail.com"));
