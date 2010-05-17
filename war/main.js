@@ -1,7 +1,8 @@
-goog.require('goog.dom');
-goog.require('goog.dom.classes');
-goog.require('goog.net.XhrIo');
-goog.require('goog.string');
+//goog.require('goog.dom');
+//goog.require('goog.dom.classes');
+//goog.require('goog.net.XhrIo');
+//goog.require('goog.string');
+//goog.require('partychapp.templates');
 
 function showCreateForm() {
   goog.dom.classes.add(goog.dom.$('create-button-container'), 'hidden');
@@ -158,4 +159,81 @@ function printEmail(opt_anchorText) {
   document.write('<' + 'a href="mailto:' + b + '">' +
                  (opt_anchorText || b) +
                  '<' + '/a>');
+}
+
+/**
+ * @enum
+ */
+var SortOrder = {
+  BY_NAME: 1,
+  BY_SCORE: 2
+};
+
+var UP_ARROW = '&#8679;';
+var DOWN_ARROW = '&#8681;';
+
+/**
+ * @constructor
+ * @param {string} channelName
+ * @param {Array.<object>} targetList
+ */
+function ScoreTable(channelName, targetList) {
+  this.channelName = channelName;
+  this.targetList = targetList;
+  this.sortOrder = undefined;
+  this.sortByName();
+}
+
+ScoreTable.prototype.sortByName = function() {
+  if (this.sortOrder == SortOrder.BY_NAME) {
+    this.targetList.reverse();
+    this.toggleArrow();
+  } else {
+    this.sortOrder = SortOrder.BY_NAME;
+    this.arrow = UP_ARROW;
+    this.targetList.sort(function(a, b) { return a['name'].localeCompare(b['name']); });
+  }
+
+  this.draw();
+}
+
+ScoreTable.prototype.toggleArrow = function() {
+  if (this.arrow == DOWN_ARROW) {
+    this.arrow = UP_ARROW;
+  } else {
+    this.arrow = DOWN_ARROW;
+  }
+}
+
+ScoreTable.prototype.sortByScore = function() {
+  if (this.sortOrder == SortOrder.BY_SCORE) {
+    this.targetList.reverse();
+    this.toggleArrow();
+  } else {
+    this.sortOrder = SortOrder.BY_SCORE;
+    this.arrow = DOWN_ARROW;
+    this.targetList.sort(function(a, b) { return b['score'] - a['score']; });
+  }
+
+  this.draw();
+}
+
+ScoreTable.prototype.draw = function() {
+  soy.renderElement(
+      goog.dom.$('score-table'),
+      partychapp.templates.scoreTable,
+      { 'channelName': this.channelName,
+        'targets': this.targetList });
+
+  var nameHeader = goog.dom.$('target-name-header');
+  var scoreHeader = goog.dom.$('target-score-header');
+
+  nameHeader.onclick = goog.bind(this.sortByName, this);
+  scoreHeader.onclick = goog.bind(this.sortByScore, this);
+  
+  if (this.sortOrder == SortOrder.BY_NAME) {
+    nameHeader.innerHTML = this.arrow + nameHeader.innerHTML;
+  } else {
+    scoreHeader.innerHTML = this.arrow + scoreHeader.innerHTML;
+  }
 }

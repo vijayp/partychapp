@@ -1,0 +1,23 @@
+<project default="compile-js">
+  <target name="compile-soy">
+    <java jar="soy/SoyToJsSrcCompiler.jar" fork="true">
+      <arg line="--shouldGenerateJsdoc" />
+<!--      <arg line="shouldProvideRequireSoyNamespaces" /> -->
+      <arg line="--codeStyle CONCAT" />
+      <arg line="soy-templates/partychapp.soy" />
+      	
+      <arg line="--outputPathFormat soy-compiled/{INPUT_FILE_NAME_NO_EXT}_template.js" />
+    </java>
+  </target>
+
+  <target name="compile-js" depends="compile-soy">
+	<java jar="closure-compiler/compiler.jar" fork="true">
+      <arg line="--js main.js" />
+      <arg line="--js closure-lite.js" />
+      <arg line="--js soy/soyutils.js" />
+      <arg line="--js soy-compiled/partychapp_template.js" />
+      <arg line="--formatting=PRETTY_PRINT" />
+      <arg line="--js_output_file partychapp_compiled.js" />
+    </java>
+  </target>
+</project>

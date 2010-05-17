@@ -27,26 +27,7 @@
 
 <h3>PlusPlusBot</h3>
 
-<table class="channel-table">
-  <tr>
-    <th class="target-cell">Target</th>
-    <th class="score-cell">Score</th>
-  </tr>
-  <%
-    List<Target> targets = datastore.getTargetsByChannel(channel);
-    for (Target t : targets) {
-  %>
-
-  <tr>
-    <td class="target-cell">
-      <div class="target-name" onclick="toggleTargetDetails(this, '<%=channel.getName()%>', '<%=t.name()%>')">
-        <%=t.name()%>
-      </div>
-    </td>
-    <td class="score-cell"><%=t.score()%></td>
-  </tr>
-<% } %>
-</table>
+<div id="score-table"></div>
 
 <h3>Members</h3>
 <table class="channel-table">
@@ -99,6 +80,10 @@
     <td><iframe frameborder=0 name="inviteResults"> </iframe></td>
   </tr>
 </table>
+<script>
+  new ScoreTable('<%= channel.getName() %>',
+                 <%= (String) request.getAttribute("targetInfo") %>);
+</script>
 
 <jsp:include page="include/footer.jsp"/>
 </body>

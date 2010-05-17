@@ -14,5 +14,4 @@
   var _sf_startpt=(new Date()).getTime();
 </script>
 <link type="text/css" rel="stylesheet" href="/main.css">
-<script type="text/javascript" src="/closure-lite.js"></script>
-<script type="text/javascript" src="/main.js"></script>
+<script type="text/javascript" src="/partychapp_compiled.js"></script>
