@@ -8,7 +8,7 @@ function submitCreateRoom() {
     alert("Please enter a room name.");
     return false
   }
-  goog.net.XhrIo.send("/room", function(o) {
+  goog.net.XhrIo.send("/channel/create", function(o) {
     var q = goog.dom.$("create-result");
     goog.dom.classes.remove(q, "hidden");
     q.innerHTML = o.target.getResponseText()

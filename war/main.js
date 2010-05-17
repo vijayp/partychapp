@@ -1,3 +1,4 @@
+// TODO: figure out if we can still use goog.require
 //goog.require('goog.dom');
 //goog.require('goog.dom.classes');
 //goog.require('goog.net.XhrIo');
@@ -162,7 +163,7 @@ function printEmail(opt_anchorText) {
 }
 
 /**
- * @enum
+ * @enum {number}
  */
 var SortOrder = {
   BY_NAME: 1,
@@ -230,7 +231,7 @@ ScoreTable.prototype.draw = function() {
 
   nameHeader.onclick = goog.bind(this.sortByName, this);
   scoreHeader.onclick = goog.bind(this.sortByScore, this);
-  
+
   if (this.sortOrder == SortOrder.BY_NAME) {
     nameHeader.innerHTML = this.arrow + nameHeader.innerHTML;
   } else {
