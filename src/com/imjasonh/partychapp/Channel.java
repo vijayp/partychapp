@@ -4,6 +4,7 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
@@ -273,7 +274,7 @@ public class Channel {
     List<JID> withSequenceId = Lists.newArrayList();
     List<JID> noSequenceId = Lists.newArrayList();
     for (Member m : recipients) {
-      if (m.debugOptions().isEnabled("sequenceIds")) {
+      if (m.debugOptions().isEnabled(Option.SEQUENCE_IDS)) {
         withSequenceId.add(new JID(m.getJID()));
       } else {
         noSequenceId.add(new JID(m.getJID()));
@@ -287,26 +288,39 @@ public class Channel {
       noSequenceId.add(new JID(invitee));
     }
 
-    sendMessage(message, withSequenceId, noSequenceId);
+    Set<JID> errorJIDs = sendMessage(message, withSequenceId, noSequenceId);
+    
+    for (JID errorJID : errorJIDs) {
+      Member member = getMemberByJID(errorJID);
+      if (member.debugOptions().isEnabled(Option.ERROR_NOTIFICATIONS)) {
+        sendDirect(
+            "Attempted to send \"" + message + "\" to you but got an error",
+            member);
+      }
+    }
   }
   
-  private void sendMessage(
+  private Set<JID> sendMessage(
         String message, List<JID> withSequenceId, List<JID> noSequenceId) {
     incrementSequenceId();
     awakenSnoozers();
 
     String messageWithSequenceId = message + " (" + sequenceId + ")";
 
-    SendUtil.sendMessage(message, serverJID(), noSequenceId);
-    SendUtil.sendMessage(messageWithSequenceId, serverJID(), withSequenceId);
+    Set<JID> errorJIDs = Sets.newHashSet();
+    errorJIDs.addAll(SendUtil.sendMessage(message, serverJID(), noSequenceId));
+    errorJIDs.addAll(
+        SendUtil.sendMessage(messageWithSequenceId, serverJID(), withSequenceId));
     
     put();
+    
+    return errorJIDs;
   }
   
   public void sendDirect(String message, Member recipient) {
     SendUtil.sendMessage(message,
                          serverJID(),
-                         Lists.newArrayList(new JID(recipient.getJID())));
+                         Collections.singletonList(new JID(recipient.getJID())));
   }
   
   public void broadcast(String message, Member sender) {

@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Message;
 
 
@@ -14,10 +15,13 @@ public class DebugHandler extends SlashCommand {
     if (argument == null) {
       argument = "";
     }
-    if (argument.equals("sequenceIds")) {
-      msg.member.debugOptions().add("sequenceIds");
+    
+    Option option = Option.fromString(argument);
+    
+    if (option != null) {
+      msg.member.debugOptions().add(option);
       msg.channel.put();
-      reply = "enabling sequenceIds for you";
+      reply = "enabling " + argument + " for you";
     } else if (argument.equals("clear")) {
       msg.member.debugOptions().clear();
       msg.channel.put();

@@ -1,6 +1,8 @@
 package com.imjasonh.partychapp.server;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +14,7 @@ import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.google.appengine.api.xmpp.SendResponse.Status;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
@@ -43,16 +46,17 @@ public abstract class SendUtil {
   }
 
   /**
-   * Sends a message, logs unsuccessful sends.
+   * Sends a message. Unsuccessful sends are logged, and the JIDs they were 
+   * meant for are returned.
    */
-  public static void sendMessage(String msg, JID fromJID, List<JID> toJIDs) {
+  public static Set<JID> sendMessage(String msg, JID fromJID, List<JID> toJIDs) {
     if (!fromJID.getId().contains(Configuration.chatDomain)) {
       throw new RuntimeException(fromJID
         + " is not a server JID but is being used as the from");
     }
 
     if (toJIDs == null || toJIDs.isEmpty()) {
-      return;
+      return Collections.emptySet();
     }
 
     SendResponse response = null;
@@ -65,17 +69,19 @@ public abstract class SendUtil {
     } catch (RuntimeException e) {
       LOG.log(Level.SEVERE, "Got exception while sending msg '" + msg
         + "' from " + fromJID + " to " + toJIDs.toString(), e);
-      return;
+      return Collections.emptySet();
     }
 
     if (response == null) {
       LOG.severe("XMPP.sendMessage() response is null!");
-      return;
+      return Collections.emptySet();
     }
 
+    Set<JID> errorJIDs = Sets.newHashSet();
     for (JID jid : toJIDs) {
       Status status = response.getStatusMap().get(jid);
       if (status != Status.SUCCESS) {
+        errorJIDs.add(jid);
         StringBuilder sb =
           new StringBuilder().append("sendMessage unsuccessful! ")
                   .append("status: ")
@@ -87,5 +93,7 @@ public abstract class SendUtil {
         LOG.severe(sb.toString());
       }
     }
+    
+    return errorJIDs;
   }
 }
