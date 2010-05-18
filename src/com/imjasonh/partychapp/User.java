@@ -1,6 +1,8 @@
 package com.imjasonh.partychapp;
 
-import java.io.Serializable;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -12,13 +14,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class User implements Serializable {
-
-  private static final long serialVersionUID = 89437432538532985L;
+public class User {
   
   private static final Logger logger = Logger.getLogger(User.class.getName());
 

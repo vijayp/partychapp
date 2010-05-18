@@ -1,6 +1,13 @@
 package com.imjasonh.partychapp;
 
-import java.io.Serializable;
+import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import com.imjasonh.partychapp.Member.SnoozeStatus;
+import com.imjasonh.partychapp.server.MailUtil;
+import com.imjasonh.partychapp.server.SendUtil;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -13,17 +20,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.xmpp.JID;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.imjasonh.partychapp.Member.SnoozeStatus;
-import com.imjasonh.partychapp.server.MailUtil;
-import com.imjasonh.partychapp.server.SendUtil;
-
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Channel implements Serializable {
-  private static final long serialVersionUID = 3860339764413214817L;
-  
+public class Channel {
   private static final Logger logger = 
       Logger.getLogger(Channel.class.getName());
 
