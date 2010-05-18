@@ -418,7 +418,21 @@ public class Channel {
       invitedIds = Lists.newArrayList();
       shouldPut = true;
     }
+    
+    List<String> membersToRemove = Lists.newArrayList();
+    
     for (Member m : mutableMembers()) {
+      // Don't allow channels to be in other channels {@link InviteHandler#
+      // parseEmailAddresses} should be forbidding this, but just in case,
+      // also fix this at read time.
+      if (m.getJID().endsWith(Configuration.chatDomain) ||
+          m.getJID().endsWith(Configuration.mailDomain)) {
+        logger.warning(
+            "Remove " + m.getJID() + " from " + name + " since it's a " +
+            "possible infinite loop");
+        membersToRemove.add(m.getJID());
+        continue;
+      }
       String jid = m.getJID().toLowerCase();
       if (invitedIds.contains(jid)) {
         invitedIds.remove(jid);
@@ -426,6 +440,23 @@ public class Channel {
       if (m.fixUp(this)) {
         shouldPut = true;
       }
+    }
+    
+    if (!membersToRemove.isEmpty()) {
+      for (String jid : membersToRemove) {
+        User user = Datastore.instance().getUserByJID(jid);
+        if (user != null) {
+          removeMember(user);
+        } else {
+          // If we can't find a matching User, we should still remove the
+          // member from the channel
+          logger.warning("Could not find a User object for " + jid);
+          Member memberToRemove = getMemberByJID(jid);
+          mutableMembers().remove(memberToRemove);
+          JDOHelper.makeDirty(this, "members");
+        }
+      }
+      shouldPut = true;
     }
     
     if (shouldPut) {

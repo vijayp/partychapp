@@ -8,6 +8,7 @@ import java.util.List;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.SendUtil;
 
@@ -84,11 +85,20 @@ public class InviteHandler extends SlashCommand {
         address = new InternetAddress(invitee);
         address.validate();
         if (!address.toString().contains("@")) {
-          error.append("Could not invite " + invitee + ". Did you mean " + invitee + "@gmail.com?\n");
+          error.append(
+              "Could not invite " + invitee + ". Did you mean " + invitee +
+              "@gmail.com?\n");
+          continue;
+        }
+        if (address.toString().endsWith(Configuration.chatDomain) ||
+            address.toString().endsWith(Configuration.mailDomain)) {
+          error.append(
+              "Could not invite " + invitee + " (cannot invite other rooms)\n");
           continue;
         }
       } catch (AddressException e) {
-        error.append("Could not invite " + invitee + ". Is it a valid email address?\n");
+        error.append(
+            "Could not invite " + invitee + ". Is it a valid email address?\n");
         continue;
       }
       output.add(address.getAddress());

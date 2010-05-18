@@ -73,7 +73,9 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
         "jason@gmail.com, " +
         "bad thing at foo dot com, " +
         "x <foo@bar.com>, " + 
-        "foo",
+        "foo," +
+        "foo@partychapp.appspotchat.com," +
+        "foo@40.latest.partychapp.appspotchat.com",
         parsed);
 
     assertEquals(3, parsed.size());
@@ -83,7 +85,11 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
     assertEquals(
         "Could not invite bad thing at foo dot com. " +
             "Is it a valid email address?\n" +
-        "Could not invite foo. Did you mean foo@gmail.com?\n",
+        "Could not invite foo. Did you mean foo@gmail.com?\n" +
+        "Could not invite foo@partychapp.appspotchat.com " +
+            "(cannot invite other rooms)\n" +
+        "Could not invite foo@40.latest.partychapp.appspotchat.com " +
+            "(cannot invite other rooms)\n",
         error);
   }
 }
