@@ -291,7 +291,16 @@ public class Channel {
     Set<JID> errorJIDs = sendMessage(message, withSequenceId, noSequenceId);
     
     for (JID errorJID : errorJIDs) {
+      // Skip over invitees, they're not members and so don't have debug options
+      if (invitedIds.contains(errorJID.getId())) {
+        continue;
+      }
       Member member = getMemberByJID(errorJID);
+      if (member == null) {
+        logger.warning(
+            "Could not find member " + errorJID.getId() + " in channel" + name);
+        continue;
+      }
       if (member.debugOptions().isEnabled(Option.ERROR_NOTIFICATIONS)) {
         sendDirect(
             "Attempted to send \"" + message + "\" to you but got an error",

@@ -33,7 +33,8 @@ public class DebugHandler extends SlashCommand {
   }
 
   public String documentation() {
-    return "/debug [sequenceIds|clear] - if you don't know what this does, you probably shouldn't use it";
+    return "/debug [sequenceIds|errorNotifications|clear] - " +
+        "if you don't know what this does, you probably shouldn't use it";
   }
 
 }
