@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Strings;
+
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.ppb.Target;
@@ -26,35 +28,31 @@ public class ChannelServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+    if (Strings.isNullOrEmpty(req.getPathInfo())) {
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
+    
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
 
-    String[] paths = req.getRequestURI().split("/");
-    String channelName = paths[paths.length - 1];
+    // Strip leading slash to get channel name
+    String channelName = req.getPathInfo().substring(1);
 
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
     try {
-      Channel channel =
-          datastore.getChannelIfUserPresent(channelName, user.getEmail());
-      if (channel != null) {
-        RequestDispatcher disp;
-        disp = getServletContext().getRequestDispatcher("/channel.jsp");
-        JSONArray targetsJson = new JSONArray();
-        try {
-          List<Target> targets = datastore.getTargetsByChannel(channel);
-          for (Target t : targets) {
-            JSONObject target = new JSONObject();
-            target.put("name", t.name());
-            target.put("score", t.score());
-            targetsJson.put(target);
-          }
-        } catch (JSONException e) {
-          throw new RuntimeException(e);
-        }
-        req.setAttribute("targetInfo", targetsJson.toString());
-        req.setAttribute("channel", channel);
-        disp.forward(req, resp);
+      Channel channel = datastore.getChannelByName(channelName);
+      
+      if (channel == null) {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        return;
+      }
+      
+      if (channel.getMemberByJID(user.getEmail()) != null) {
+        handleChannelWithMember(req, resp, channel);
+      } else  if (channel.getInvitees().contains(user.getEmail())) {
+        handleChannelWithInvitee(req, resp, channel);
       } else {
         resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         resp.getWriter().write("Access denied");
@@ -62,5 +60,40 @@ public class ChannelServlet extends HttpServlet {
     } finally {
       datastore.endRequest();
     }
+  }
+  
+  private void handleChannelWithMember(
+      HttpServletRequest req,
+      HttpServletResponse resp,
+      Channel channel) throws ServletException, IOException {
+    RequestDispatcher disp =
+        getServletContext().getRequestDispatcher("/channel.jsp");
+    
+    JSONArray targetsJson = new JSONArray();
+    try {
+      List<Target> targets = Datastore.instance().getTargetsByChannel(channel);
+      for (Target t : targets) {
+        JSONObject target = new JSONObject();
+        target.put("name", t.name());
+        target.put("score", t.score());
+        targetsJson.put(target);
+      }
+    } catch (JSONException e) {
+      throw new RuntimeException(e);
+    }
+    
+    req.setAttribute("targetInfo", targetsJson.toString());
+    req.setAttribute("channel", channel);
+    disp.forward(req, resp);    
+  }
+  
+  private void handleChannelWithInvitee(
+      HttpServletRequest req,
+      HttpServletResponse resp,
+      Channel channel) throws ServletException, IOException { 
+    RequestDispatcher disp =
+      getServletContext().getRequestDispatcher("/channel-invitee.jsp");
+    req.setAttribute("channel", channel);
+    disp.forward(req, resp);        
   }
 }

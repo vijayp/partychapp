@@ -41,6 +41,10 @@ public abstract class SendUtil {
     }
   }
 
+  /**
+   * If inviting from the web or XMPP UIs, use {@link InviteUtil#invite} (which
+   * sends both XMPP and email invitations).
+   */
   public static void invite(String email, JID serverJID) {
     XMPP.sendInvitation(new JID(email), serverJID);
   }

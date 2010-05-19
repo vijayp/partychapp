@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.server.InviteUtil;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.command.InviteHandler;
 
@@ -55,6 +56,7 @@ public class CreateChannelServlet extends HttpServlet {
       // the request will be aborted now, before we commit anything to the
       // datastore and end up in an inconsistent state.
       JID serverJID = new JID(name + "@" + Configuration.chatDomain);
+      // The creator only gets an XMPP invite, not an email one.
       SendUtil.invite(user.getEmail(), serverJID);
 
       com.imjasonh.partychapp.User pchapUser =
@@ -74,7 +76,11 @@ public class CreateChannelServlet extends HttpServlet {
       	    req.getParameter("invitees"), invitees);
       	for (String invitee : invitees) {
       		channel.invite(invitee);
-      		SendUtil.invite(invitee, serverJID);
+      		InviteUtil.invite(
+      		    invitee,
+      		    channel,
+      		    user.getEmail(),
+      		    user.getEmail());
       	}
   	    resp.getWriter().write(error);
       }

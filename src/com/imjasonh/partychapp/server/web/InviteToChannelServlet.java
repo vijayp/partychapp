@@ -3,11 +3,12 @@ package com.imjasonh.partychapp.server.web;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.server.SendUtil;
+import com.imjasonh.partychapp.server.InviteUtil;
 import com.imjasonh.partychapp.server.command.InviteHandler;
 
 import java.io.IOException;
@@ -50,8 +51,16 @@ public class InviteToChannelServlet extends HttpServlet {
             req.getParameter("invitees"), invitees);
         for (String invitee : invitees) {
           channel.invite(invitee);
-          SendUtil.invite(invitee, channel.serverJID());
-          error += "Invited " + invitee + "<br>";
+          String inviteError = InviteUtil.invite(
+              invitee,
+              channel,
+              user.getEmail(),
+              user.getEmail()); 
+          if (Strings.isNullOrEmpty(inviteError)) {
+            error += "Invited " + invitee + "<br>";
+          } else {
+            error += inviteError + "<br>";            
+          }
         }
         resp.getWriter().write(error);
 
