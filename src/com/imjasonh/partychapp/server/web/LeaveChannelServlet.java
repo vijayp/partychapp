@@ -3,15 +3,11 @@ package com.imjasonh.partychapp.server.web;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.server.SendUtil;
-import com.imjasonh.partychapp.server.command.InviteHandler;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -19,14 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class InviteToChannelServlet extends HttpServlet {
+public class LeaveChannelServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
   private static final Logger logger =
       Logger.getLogger(InviteToChannelServlet.class.getName());
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
@@ -41,25 +37,11 @@ public class InviteToChannelServlet extends HttpServlet {
         resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         return;
       }
-
-      resp.getWriter().write(
-          "<style>body { font-family: Helvetica, sans-serif }</style>");
-      List<String> invitees = Lists.newArrayList();
-      if (!req.getParameter("invitees").isEmpty()) {
-        String error = InviteHandler.parseEmailAddresses(
-            req.getParameter("invitees"), invitees);
-        for (String invitee : invitees) {
-          channel.invite(invitee);
-          SendUtil.invite(invitee, channel.serverJID());
-          error += "Invited " + invitee + "<br>";
-        }
-        resp.getWriter().write(error);
-
-        channel.put();
-      } else {
-        resp.getWriter().write("No one to invite.<P>");
-      }
-
+      
+      channel.removeMember(datastore.getUserByJID(user.getEmail()));
+      channel.put();
+      
+      resp.sendRedirect("/");
     } finally {
       datastore.endRequest();
     }

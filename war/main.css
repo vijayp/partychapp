@@ -12,15 +12,34 @@ body {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   background-color: white;
-  padding: 30px 40px;
+  padding: 20px 30px;
   border: 1px solid #aaa;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   width: 600px;
 }
 
 #header {
   text-align: center;
+}
+
+#subtitle-header {
+  margin-top: 1em;
+  border-bottom: dashed 1px #ccc;
+  overflow: hidden;
+  height: 50px;
+  position: relative;
+}
+
+#subtitle {
+  position: absolute;
+  bottom: .15em;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+#subtitle-header img {
+  position: absolute;
+  right: 0;
 }
 
 #create-table td {
@@ -64,9 +83,10 @@ body {
   background: #ff9;
 }
 
-.channelName {
+h2 {
   text-align: center;
-  font-size: 150%;
+  padding-bottom: .1em;
+  border-bottom: solid 1px #ccc;
 }
 
 .channel-table {

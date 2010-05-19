@@ -16,18 +16,19 @@
   Datastore datastore = Datastore.instance();
 %>
 <jsp:include page="include/head.jsp">
-  <jsp:param name="subtitle" value="<%="Channel Stats: " + channel.getName()%>"/>
+  <jsp:param name="subtitle" value="<%="Room " + channel.getName()%>"/>
 </jsp:include>
 </head>
 <body>
-  <jsp:include page="include/header.jsp"/>
+  <jsp:include page="include/header.jsp">
+    <jsp:param name="subtitle" value="<%=channel.getName()%>"/>
+  </jsp:include>
 
-<div class="channelName">Channel stats for:
-<span style="font-weight:bold"><%=channel.getName()%></span></div>
-
-<h3>PlusPlusBot</h3>
-
-<div id="score-table"></div>
+<p>
+  You're in the room <b><%=channel.getName()%></b> along with the people below.
+  You can  <a href="#invite-section">invite more people</a> or
+  <a href="/channel/leave?name=<%=channel.getName()%>">leave</a> the room.
+</p>
 
 <h3>Members</h3>
 <table class="channel-table">
@@ -65,7 +66,11 @@
   </table>
 <% } %>
 
-<h3>Invite People!</h3>
+<h3>PlusPlusBot</h3>
+
+<div id="score-table"></div>
+
+<h3 id="invite-section">Invite People!</h3>
 
 <table>
   <tr>
