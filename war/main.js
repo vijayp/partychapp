@@ -46,6 +46,11 @@ function declineInvitation(channelName) {
       '/channel/invitation/decline?name=' + encodeURIComponent(channelName);
 }
 
+function requestInvitation(channelName) {
+  window.location.href =
+      '/channel/invitation/request?name=' + encodeURIComponent(channelName);
+}
+
 function formatDate(date) {
  function pad(n) {return n < 10 ? '0' + n : n}
  return pad(date.getMonth() + 1) + '/' +

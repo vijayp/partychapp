@@ -42,6 +42,12 @@ public class Channel {
   @Persistent
   private Integer sequenceId = 0;
   
+  /** 
+   * Email addresses of users that have requested invitations.
+   */
+  @Persistent
+  private List<String> requestedInvitations = Lists.newArrayList();
+    
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
   }
@@ -75,6 +81,7 @@ public class Channel {
     if (!invitedIds.contains(cleanedUp)) {
       invitedIds.add(cleanedUp);
     }
+    requestedInvitations.remove(cleanedUp);
   }
 
   public boolean canJoin(String email) {
@@ -248,6 +255,9 @@ public class Channel {
     if (invitedIds.remove(id)) {
       return true;
     }
+    if (requestedInvitations.remove(id)) {
+      return true;
+    }
     return false;
   }
 
@@ -271,8 +281,19 @@ public class Channel {
   }
   
   public void removeInvitee(String invitee) {
-    invitedIds.remove(invitee);
+    invitedIds.remove(invitee.toLowerCase().trim());
   }  
+  
+  public boolean hasRequestedInvitation(String email) {
+    return requestedInvitations.contains(email.toLowerCase().trim());
+  }
+  
+  public void addRequestedInvitation(String email) {
+    String cleanedUp = email.toLowerCase().trim();
+    if (!requestedInvitations.contains(cleanedUp)) {
+      requestedInvitations.add(cleanedUp);
+    }
+  }    
   
   private void sendMessage(String message, List<Member> recipients) {
     List<JID> withSequenceId = Lists.newArrayList();
@@ -422,7 +443,11 @@ public class Channel {
       invitedIds = Lists.newArrayList();
       shouldPut = true;
     }
-    
+    if (requestedInvitations == null) {
+      requestedInvitations = Lists.newArrayList();
+      shouldPut = true;
+    }
+
     List<String> membersToRemove = Lists.newArrayList();
     
     for (Member m : mutableMembers()) {

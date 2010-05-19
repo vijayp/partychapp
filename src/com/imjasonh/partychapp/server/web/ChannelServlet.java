@@ -51,11 +51,11 @@ public class ChannelServlet extends HttpServlet {
       
       if (channel.getMemberByJID(user.getEmail()) != null) {
         handleChannelWithMember(req, resp, channel);
-      } else  if (channel.getInvitees().contains(user.getEmail())) {
+      } else if (channel.getInvitees().contains(user.getEmail())) {
         handleChannelWithInvitee(req, resp, channel);
+      } if (channel.isInviteOnly()) {
+        handleChannelRequestInvitation(req, resp, channel);
       } else {
-        resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-        resp.getWriter().write("Access denied");
       }
     } finally {
       datastore.endRequest();
@@ -96,4 +96,15 @@ public class ChannelServlet extends HttpServlet {
     req.setAttribute("channel", channel);
     disp.forward(req, resp);        
   }
+  
+  private void handleChannelRequestInvitation(
+      HttpServletRequest req,
+      HttpServletResponse resp,
+      Channel channel) throws ServletException, IOException { 
+    RequestDispatcher disp =
+      getServletContext().getRequestDispatcher(
+          "/channel-request-invitation.jsp");
+    req.setAttribute("channel", channel);
+    disp.forward(req, resp);        
+  }  
 }
