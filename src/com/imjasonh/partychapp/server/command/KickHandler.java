@@ -1,9 +1,12 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.base.Strings;
+
 import com.imjasonh.partychapp.Message;
 
 /**
- * Action taken when the user
+ * Allows current members to remove other members, invitees, or those who have
+ * requested invitations.
  * 
  * @author kushaldave@gmail.com
  */
@@ -17,6 +20,11 @@ public class KickHandler extends SlashCommand {
   public void doCommand(Message msg, String action) {
     assert msg.channel != null;
     assert msg.member != null;
+    
+    if (Strings.isNullOrEmpty(action)) {
+      msg.channel.sendDirect("You must specify someone to kick", msg.member);
+      return;
+    }
     
     if (msg.channel.kick(action)) {
       String broadcast = "_" + msg.member.getAlias() + " kicked " +

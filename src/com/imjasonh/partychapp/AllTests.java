@@ -14,6 +14,7 @@ import com.imjasonh.partychapp.server.command.GraphScoreHandlerTest;
 import com.imjasonh.partychapp.server.command.IncomingEmailHandlerTest;
 import com.imjasonh.partychapp.server.command.IncomingSMSHandlerTest;
 import com.imjasonh.partychapp.server.command.InviteHandlerTest;
+import com.imjasonh.partychapp.server.command.KickHandlerTest;
 import com.imjasonh.partychapp.server.command.LeaveHandlerTest;
 import com.imjasonh.partychapp.server.command.ListHandlerTest;
 import com.imjasonh.partychapp.server.command.MeHandlerTest;
@@ -60,6 +61,7 @@ public class AllTests {
     suite.addTestSuite(DatastoreTaskMasterTest.class);
     suite.addTestSuite(BugHandlerTest.class);
     suite.addTestSuite(ShareHandlerTest.class);
+    suite.addTestSuite(KickHandlerTest.class);    
     // $JUnit-END$
     return suite;
   }

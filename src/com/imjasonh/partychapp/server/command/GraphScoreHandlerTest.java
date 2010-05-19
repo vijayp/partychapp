@@ -19,4 +19,12 @@ public class GraphScoreHandlerTest extends CommandHandlerTestCase {
     // I don't really care about the URL contents.
     assertTrue(url.startsWith("http://"));
   }
+  
+  public void testNoArgs() {
+    handler.doCommand(Message.createForTests("/graph-score"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals(
+        "You must provide at least one target to graph",
+        xmpp.messages.get(0).getBody());        
+  }
 }

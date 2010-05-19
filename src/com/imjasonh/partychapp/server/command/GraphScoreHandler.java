@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Datastore;
@@ -16,6 +17,12 @@ public class GraphScoreHandler extends SlashCommand {
 
   @Override
   public void doCommand(Message msg, String argument) {
+    if (Strings.isNullOrEmpty(argument)) {
+      msg.channel.sendDirect(
+          "You must provide at least one target to graph", msg.member);
+      return;
+    }
+    
     String[] targetNames = argument.split(" ");
     List<Target> targets = Lists.newArrayList();
     for (String targetName : targetNames) {
