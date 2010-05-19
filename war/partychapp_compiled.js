@@ -15,6 +15,12 @@ function submitCreateRoom() {
   }, "POST", "name=" + encodeURIComponent(i) + "&inviteonly=" + k + "&invitees=" + encodeURIComponent(m));
   return false
 }
+function acceptInvitation(i) {
+  window.location.href = "/channel/invitation/accept?name=" + encodeURIComponent(i)
+}
+function declineInvitation(i) {
+  window.location.href = "/channel/invitation/decline?name=" + encodeURIComponent(i)
+}
 function formatDate(i) {
   function k(m) {
     return m < 10 ? "0" + m : m

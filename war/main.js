@@ -36,6 +36,16 @@ function submitCreateRoom() {
   return false;
 }
 
+function acceptInvitation(channelName) {
+  window.location.href =
+      '/channel/invitation/accept?name=' + encodeURIComponent(channelName);
+}
+
+function declineInvitation(channelName) {
+  window.location.href =
+      '/channel/invitation/decline?name=' + encodeURIComponent(channelName);
+}
+
 function formatDate(date) {
  function pad(n) {return n < 10 ? '0' + n : n}
  return pad(date.getMonth() + 1) + '/' +

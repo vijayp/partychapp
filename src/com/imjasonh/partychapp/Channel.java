@@ -270,6 +270,10 @@ public class Channel {
     return invitedIds;
   }
   
+  public void removeInvitee(String invitee) {
+    invitedIds.remove(invitee);
+  }  
+  
   private void sendMessage(String message, List<Member> recipients) {
     List<JID> withSequenceId = Lists.newArrayList();
     List<JID> noSequenceId = Lists.newArrayList();

@@ -51,6 +51,26 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>acceptChannelInvitationServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.AcceptChannelInvitationServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>acceptChannelInvitationServlet</servlet-name>
+    <url-pattern>/channel/invitation/accept</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>declineChannelInvitationServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.DeclineChannelInvitationServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>declineChannelInvitationServlet</servlet-name>
+    <url-pattern>/channel/invitation/decline</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>webchannelhandler</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.web.ChannelServlet</servlet-class>
   </servlet>

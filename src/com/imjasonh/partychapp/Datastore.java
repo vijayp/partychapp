@@ -119,12 +119,10 @@ public abstract class Datastore {
   public Channel getChannelIfUserPresent(String channelName, String email) {
     Channel channel = getChannelByName(channelName);
     if (channel == null) {
-      System.out.println("Sorry room name is not there: " + channelName);
       return null;
     }
 
     if (channel.getMemberByJID(new JID(email)) == null) {
-      System.out.println("Sorry you're not in that room: " + email);
       return null;
     }
     return channel;
