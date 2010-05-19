@@ -51,6 +51,11 @@ function requestInvitation(channelName) {
       '/channel/invitation/request?name=' + encodeURIComponent(channelName);
 }
 
+function getInvitation(channelName) {
+  window.location.href =
+      '/channel/invitation/get?name=' + encodeURIComponent(channelName);
+}
+
 function formatDate(date) {
  function pad(n) {return n < 10 ? '0' + n : n}
  return pad(date.getMonth() + 1) + '/' +

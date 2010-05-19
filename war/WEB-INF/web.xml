@@ -81,6 +81,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>getChannelInvitationServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.GetChannelInvitationServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>getChannelInvitationServlet</servlet-name>
+    <url-pattern>/channel/invitation/get</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>webchannelhandler</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.web.ChannelServlet</servlet-class>
   </servlet>

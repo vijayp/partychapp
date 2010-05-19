@@ -24,6 +24,9 @@ function declineInvitation(i) {
 function requestInvitation(i) {
   window.location.href = "/channel/invitation/request?name=" + encodeURIComponent(i)
 }
+function getInvitation(i) {
+  window.location.href = "/channel/invitation/get?name=" + encodeURIComponent(i)
+}
 function formatDate(i) {
   function k(m) {
     return m < 10 ? "0" + m : m

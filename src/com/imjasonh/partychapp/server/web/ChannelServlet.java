@@ -56,6 +56,7 @@ public class ChannelServlet extends HttpServlet {
       } if (channel.isInviteOnly()) {
         handleChannelRequestInvitation(req, resp, channel);
       } else {
+        handleChannelGetInvitation(req, resp, channel);
       }
     } finally {
       datastore.endRequest();
@@ -107,4 +108,15 @@ public class ChannelServlet extends HttpServlet {
     req.setAttribute("channel", channel);
     disp.forward(req, resp);        
   }  
+  
+  private void handleChannelGetInvitation(
+      HttpServletRequest req,
+      HttpServletResponse resp,
+      Channel channel) throws ServletException, IOException { 
+    RequestDispatcher disp =
+      getServletContext().getRequestDispatcher(
+          "/channel-get-invitation.jsp");
+    req.setAttribute("channel", channel);
+    disp.forward(req, resp);        
+  }
 }
