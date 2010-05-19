@@ -37,6 +37,7 @@ public enum Command {
   SET_CARRIER(new SetCarrierHandler()),
   BROADCAST_SMS(new SendBroadcastSMSHandler()),
   BUG(new BugHandler()),
+  SHARE(new ShareHandler()),
 
   // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
