@@ -6,6 +6,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -19,7 +20,7 @@ public class LeaveChannelServlet extends HttpServlet {
 
   @SuppressWarnings("unused")
   private static final Logger logger =
-      Logger.getLogger(InviteToChannelServlet.class.getName());
+      Logger.getLogger(LeaveChannelServlet.class.getName());
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -37,7 +38,12 @@ public class LeaveChannelServlet extends HttpServlet {
         resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         return;
       }
-      
+
+      Member member = channel.getMemberByJID(user.getEmail());
+      String broadcast =
+          member.getAlias() + " has left the room (" + member.getJID() + ")";
+      channel.broadcast(broadcast, member);
+
       channel.removeMember(datastore.getUserByJID(user.getEmail()));
       channel.put();
       
