@@ -61,9 +61,13 @@ public class InviteToChannelServlet extends HttpServlet {
           } else {
             error += inviteError + "<br>";            
           }
+
+          channel.broadcastIncludingSender(
+              "_" + user.getEmail() +
+              " invited " + invitee + " (via the web UI)_");        
         }
         resp.getWriter().write(error);
-
+        
         channel.put();
       } else {
         resp.getWriter().write("No one to invite.<P>");
