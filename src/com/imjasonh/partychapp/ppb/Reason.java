@@ -22,6 +22,9 @@ import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Reason {
+  /** 500 is the maximum length of text fields in AppEngine */
+  private static final int MAX_REASON_LENGTH = 500;
+
   @SuppressWarnings("unused")
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   @PrimaryKey
@@ -56,7 +59,11 @@ public class Reason {
     this.sender = sender;
     this.senderJID = sender.getJID();
     this.action = act.name();
-    this.reason = reason;
+    if (reason.length() > MAX_REASON_LENGTH) {
+      this.reason = reason.substring(0, MAX_REASON_LENGTH);
+    } else {
+      this.reason = reason;
+    }
     this.timestamp = new Date();
     this.scoreAfter = scoreAfter;
   }
