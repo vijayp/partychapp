@@ -4,6 +4,7 @@
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.imjasonh.partychapp.Configuration" %>
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
+<%@ page import="com.imjasonh.partychapp.server.HttpUtil"%>
 
 <!DOCTYPE html>
 <html>
@@ -109,7 +110,7 @@ stays safe. <%
 <%
 	} else {
 %> The easiest way to create a room is to <a style="font-weight: bold"
-	href="<%=userService.createLoginURL(request.getRequestURI())%>">sign
+	href="<%=userService.createLoginURL(HttpUtil.getRequestUri(request))%>">sign
 in</a> and do it right here. <br />
 <br />
 Or you can add <tt>[roomname]@<%=Configuration.chatDomain%></tt> to your

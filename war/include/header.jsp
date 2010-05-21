@@ -4,6 +4,7 @@
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
+<%@ page import="com.imjasonh.partychapp.server.HttpUtil"%>
 
 <div id="main"> <!-- closed in footer.jsp -->
   <div id="loginlogout" style="text-align: right">
@@ -12,10 +13,10 @@
       User user = userService.getCurrentUser();
 
       if (user != null) {
-    %> <a href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign
+    %> <a href="<%=userService.createLogoutURL(HttpUtil.getRequestUri(request))%>">sign
     out of <%=user.getEmail()%></a> <%
       } else {
-     %> <a href="<%=userService.createLoginURL(request.getRequestURI())%>">sign
+     %> <a href="<%=userService.createLoginURL(HttpUtil.getRequestUri(request))%>">sign
     in</a> <%
       }
      %>
