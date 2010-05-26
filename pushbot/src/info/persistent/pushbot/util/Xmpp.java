@@ -20,15 +20,10 @@ public class Xmpp {
     
     XMPPService xmpp = XMPPServiceFactory.getXMPPService();
     
-    if (!xmpp.getPresence(toJid).isAvailable()) {
-      logger.warning(
-          "Don't have presence, might not be able to send reply to " + toJid);
-    }
-  
-    Message reply =
+    Message message =
         new MessageBuilder().withRecipientJids(toJid).withBody(body).build();
   
-    SendResponse sendResponse = xmpp.sendMessage(reply);
+    SendResponse sendResponse = xmpp.sendMessage(message);
     SendResponse.Status sendStatus = sendResponse.getStatusMap().get(toJid); 
     
     if (sendStatus != SendResponse.Status.SUCCESS) {
