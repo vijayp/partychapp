@@ -112,6 +112,12 @@ public class PushSubscriberServlet extends HttpServlet {
     // first few
     Collections.sort(entries, new Comparator<SyndEntry>() {
       @Override public int compare(SyndEntry o1, SyndEntry o2) {
+        if (o1.getPublishedDate() == null) {
+          return 1;
+        }
+        if (o2.getPublishedDate() == null) {
+          return -1;
+        }
         return o2.getPublishedDate().compareTo(o1.getPublishedDate());
       }
     });

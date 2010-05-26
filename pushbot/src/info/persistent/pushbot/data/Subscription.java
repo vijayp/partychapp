@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -25,6 +26,11 @@ import javax.jdo.annotations.PrimaryKey;
 @PersistenceCapable(
     identityType = IdentityType.APPLICATION, detachable = "true")
 public class Subscription {
+  private static final int MAX_SEEN_ENTRY_SIZE = 1000;
+  
+  private static final Logger logger =
+      Logger.getLogger(Subscription.class.getName());
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;
@@ -92,6 +98,13 @@ public class Subscription {
   public void addSeenEntryId(String entryId) {
     if (seenEntryIds == null) {
       seenEntryIds = Sets.newHashSet();
+    }
+    if (seenEntryIds.size() >= MAX_SEEN_ENTRY_SIZE - 1) {
+      logger.warning("Subscription " + feedUrl.getValue() + " for " + user + 
+          " had " + seenEntryIds.size() + " entries, dropping some");
+      // Ideally we'd drop the oldest entries, but we don't store timestamps...
+      seenEntryIds = Sets.newHashSet(
+          Lists.newArrayList(seenEntryIds).subList(0, MAX_SEEN_ENTRY_SIZE - 1));
     }
     seenEntryIds.add(entryId);
   }
