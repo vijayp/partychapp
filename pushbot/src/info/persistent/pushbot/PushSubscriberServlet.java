@@ -132,10 +132,18 @@ public class PushSubscriberServlet extends HttpServlet {
     StringBuilder message = new StringBuilder("Update from ")
         .append(StringUtil.unescapeHTML(feed.getTitle())).append(":");
     for (SyndEntry displayEntry : displayEntries) {
-      message.append("\n  ")
-          .append(StringUtil.unescapeHTML(displayEntry.getTitle()))
-          .append(": ")
-          .append(displayEntry.getLink());
+      String title = displayEntry.getTitle();
+      if (StringUtil.isEmptyOrWhitespace(title)) {
+        title = "(title unknown)";
+      } else {
+        title = StringUtil.unescapeHTML(title);
+      }
+      String link = displayEntry.getLink();
+      if (StringUtil.isEmptyOrWhitespace(link)) {
+        link = "<no link>";
+      }
+      
+      message.append("\n  ").append(title).append(": ").append(link);
     }
     
     if (displayEntries.size() != entries.size()) {

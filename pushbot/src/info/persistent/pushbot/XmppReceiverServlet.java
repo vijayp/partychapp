@@ -28,7 +28,17 @@ public class XmppReceiverServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
     XMPPService xmpp = XMPPServiceFactory.getXMPPService();
-    Message message = xmpp.parseMessage(req);
+    Message message;
+    
+    try {
+      message = xmpp.parseMessage(req);
+    } catch (IllegalArgumentException err) {
+      // These exceptions are apparently caused by a bug in the Google Talk 
+      // Flash gadget, so let's just ignore them.
+      // http://code.google.com/p/googleappengine/issues/detail?id=2082
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
 
     JID fromJid = message.getFromJid();
     String body = message.getBody().trim();
