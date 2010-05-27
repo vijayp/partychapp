@@ -62,6 +62,7 @@ public class AllTests {
     suite.addTestSuite(BugHandlerTest.class);
     suite.addTestSuite(ShareHandlerTest.class);
     suite.addTestSuite(KickHandlerTest.class);    
+    suite.addTestSuite(UserTest.class);        
     // $JUnit-END$
     return suite;
   }

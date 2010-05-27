@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.Collections;
@@ -243,5 +244,47 @@ public class User {
       // Similar to the dirty hack in {@link #addChannel}
       JDOHelper.makeDirty(this, "channelNames");
     }
+  }
+  
+  /**
+   * Merge {@code src} into this user by adding them to all the channels that
+   * src is in, and removing src from them. src will also be deleted from the
+   * datastore. Can only merge if src is not the same as this user and if src is
+   * just a differently capitalized variant of this user.
+   */
+  void merge(User src) {
+    Preconditions.checkArgument(
+        !src.jid.equals(jid), "Can't merge into the same user (%s)", jid);
+    Preconditions.checkArgument(
+        src.jid.toLowerCase().equals(jid.toLowerCase()),
+        "Can't merge non-equivalent users (%s vs. %s)",
+        jid, src.jid);
+    
+    List<Channel> channelsToRemoveSrcFrom = Lists.newArrayList();
+    
+    for (String srcChannelName : src.channelNames) {
+      Channel srcChannel =
+          Datastore.instance().getChannelIfUserPresent(srcChannelName, src.jid);
+      
+      // The source user wasn't actually in the channel. We don't need to do
+      // any fixing up, since we're going to delete the source user anyway.
+      if (srcChannel == null) {
+        logger.warning(src.jid + " was supposed to be in " + srcChannelName + 
+            " but wasn't, ignored during merge");
+        continue;
+      }
+      
+      if (!channelNames.contains(srcChannelName)) {
+        srcChannel.addMember(this);
+      }
+      
+      channelsToRemoveSrcFrom.add(srcChannel);
+    }
+
+    for (Channel srcChannel : channelsToRemoveSrcFrom) {
+      srcChannel.removeMember(src);
+    }
+    
+    Datastore.instance().delete(src);
   }
 }

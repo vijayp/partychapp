@@ -115,7 +115,9 @@ public class FakeDatastore extends Datastore {
   @Override
   public void delete(Object o) {
     if (o instanceof Channel) {
-      channels.remove(((Channel)o).getName());
+      channels.remove(((Channel) o).getName());
+    } if (o instanceof User) {
+      users.remove(((User) o).getJID());
     } else {
       throw new RuntimeException("delete not implemented");
     }
