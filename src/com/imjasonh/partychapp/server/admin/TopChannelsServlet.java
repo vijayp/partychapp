@@ -36,7 +36,8 @@ public class TopChannelsServlet extends HttpServlet {
 
     writer.write("Since: " + stats.getCreationDate() + "<br>");
     writer.write("As of: " + stats.getLastUpdateDate() + "<br>");
-    writer.write("Total byte count: " + stats.getTotalByteCount() + "<br>");
+    writer.write("Total byte count: " + 
+        NUMBER_FORMAT.format(stats.getTotalByteCount()) + "<br>");
     
     writer.write("<table>");
     writer.write("<tr>");
