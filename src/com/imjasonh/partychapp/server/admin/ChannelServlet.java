@@ -1,13 +1,21 @@
 package com.imjasonh.partychapp.server.admin;
 
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.User;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -50,11 +58,46 @@ public class ChannelServlet extends HttpServlet {
         writer.write("\t" + invitee + "\n");
       }
       writer.write("Members:\n");
-      for (Member member : channel.getMembers()) {
+      
+      List<Member> members = Lists.newArrayList(channel.getMembers());
+      
+      // TODO(mihaip): stop looking up the User for each Member once issue 65
+      // is fixed.
+      final Map<String, Date> memberJidToLastSeen = Maps.newHashMap();
+      for (Member member : members) {
+        User memberUser = Datastore.instance().getUserByJID(member.getJID());
+        if (memberUser != null) {
+          memberJidToLastSeen.put(member.getJID(), memberUser.lastSeen());
+        }
+      }
+      
+      Collections.sort(members, new Comparator<Member>() {
+        @Override public int compare(Member member1, Member member2) {
+          Date lastSeen1 = memberJidToLastSeen.get(member1.getJID());
+          Date lastSeen2 = memberJidToLastSeen.get(member2.getJID());
+          
+          if (lastSeen1 == null) {
+            return 1;
+          }
+          if (lastSeen2 == null) {
+            return -1;
+          }
+          
+          return lastSeen2.compareTo(lastSeen1);
+       }});
+      
+      for (Member member : members) {
         writer.write("\t" + member.getJID() + "\n");
-        writer.write("\t\talias:" + member.getAlias() + "\n");
-        writer.write("\t\tsnooze:" + member.getSnoozeStatus() + "\n");
-        writer.write("\t\tlast messages:\n");
+        writer.write("\t\tlast seen: ");
+        if (memberJidToLastSeen.containsKey(member.getJID())) {
+          writer.write(memberJidToLastSeen.get(member.getJID()).toString());
+        } else {
+          writer.write("unknown");
+        }
+        writer.write("\n");
+        writer.write("\t\talias: " + member.getAlias() + "\n");
+        writer.write("\t\tsnooze: " + member.getSnoozeStatus() + "\n");
+        writer.write("\t\tlast messages :\n");
         for (String message : member.getLastMessages()) {
           writer.write("\t\t\t" + message + "\n");
         }
