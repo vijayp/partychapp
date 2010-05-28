@@ -64,8 +64,6 @@ public abstract class SendUtil {
       return Collections.emptySet();
     }
     
-    ChannelStats.increment(fromJID, msg, toJIDs);
-
     SendResponse response = null;
     try {
       response =
@@ -100,6 +98,8 @@ public abstract class SendUtil {
         LOG.severe(sb.toString());
       }
     }
+    
+    ChannelStats.increment(fromJID, msg, toJIDs);
     
     return errorJIDs;
   }

@@ -5,6 +5,8 @@ import com.imjasonh.partychapp.ChannelStats.ChannelStat;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
 public class TopChannelsServlet extends HttpServlet {
+  private static final NumberFormat NUMBER_FORMAT =
+      NumberFormat.getIntegerInstance(Locale.US);
+  
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
@@ -34,7 +39,11 @@ public class TopChannelsServlet extends HttpServlet {
     writer.write("Total byte count: " + stats.getTotalByteCount() + "<br>");
     
     writer.write("<table>");
-    writer.write("<tr><th>Channel Name</th><th>Outgoing byte count</th></tr>");
+    writer.write("<tr>");
+    writer.write("<th>Channel Name</th>");
+    writer.write("<th>Outgoing byte count</th>");
+    writer.write("<th>Member count</th>");
+    writer.write("</tr>");
     
     for (ChannelStat stat : stats.getTopChannels()) {
       String htmlChannelName = stat.getChannelName()
@@ -48,8 +57,12 @@ public class TopChannelsServlet extends HttpServlet {
           htmlChannelName + "\">" + htmlChannelName + "</a>");
       writer.write("</td>");
       
-      writer.write("<td>");
-      writer.write(Integer.toString(stat.getByteCount()));
+      writer.write("<td style=\"text-align: right\">");
+      writer.write(NUMBER_FORMAT.format(stat.getByteCount()));
+      writer.write("</td>");
+      
+      writer.write("<td style=\"text-align: right\">");
+      writer.write(NUMBER_FORMAT.format(stat.getMemberCount()));
       writer.write("</td>");
       
       writer.write("</tr>");

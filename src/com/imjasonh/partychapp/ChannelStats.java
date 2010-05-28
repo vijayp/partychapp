@@ -1,9 +1,8 @@
 package com.imjasonh.partychapp;
 
 import com.google.appengine.api.xmpp.JID;
-import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multiset;
+import com.google.common.collect.Maps;
 
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
@@ -14,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -22,13 +22,13 @@ import java.util.logging.Logger;
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
 public class ChannelStats implements Serializable {
-  public class ChannelStat {
+  public class ChannelStat implements Serializable {
     private final String channelName;
-    private final int byteCount;
+    private int byteCount = 0;
+    private int memberCount = 0;
     
-    private ChannelStat(String channelName, int byteCount) {
+    private ChannelStat(String channelName) {
       this.channelName = channelName;
-      this.byteCount = byteCount;
     }
     
     public String getChannelName() {
@@ -37,6 +37,18 @@ public class ChannelStats implements Serializable {
     
     public int getByteCount() {
       return byteCount;
+    }
+    
+    public int getMemberCount() {
+      return memberCount;
+    }
+    
+    private void incrementByteCount(int incBy) {
+      byteCount += incBy;
+    }
+    
+    private void setMemberCount(int memberCount) {
+      this.memberCount = memberCount;
     }
   }
   
@@ -53,13 +65,14 @@ public class ChannelStats implements Serializable {
     }
   }
   
-  private static final String STATS_CACHE_KEY = "channel-stats";
+  private static final String STATS_CACHE_KEY = "channel-stats2";
 
   private static final int TOP_CHANNEL_COUNT = 50;  
   
   private final Date creationDate = new Date();
   private Date lastUpdateDate = new Date();
-  private final Multiset<String> channelByteCounts = HashMultiset.create();
+  private int totalByteCount = 0;
+  private final Map<String, ChannelStat> channelStats = Maps.newHashMap();
   
   /**
    * Only {@link #increment} should be creating instances.
@@ -71,16 +84,28 @@ public class ChannelStats implements Serializable {
   private void incrementImpl(JID fromJID, String msg, List<JID> toJIDs) {
     int byteCount = 0;
     
-    byteCount += fromJID.toString().length();
-    byteCount += msg.length() * toJIDs.size();
+    byteCount += (fromJID.toString().length() + msg.length()) * toJIDs.size();
     for (JID toJID : toJIDs) {
       byteCount += toJID.toString().length();
     }
     
     String channelName = fromJID.getId().split("@")[0];
-    channelByteCounts.add(channelName, byteCount);
+    ChannelStat stat = channelStats.get(channelName);
+    if (stat == null) {
+      stat = new ChannelStat(channelName);
+      channelStats.put(channelName, stat);
+    }
+    
+    stat.incrementByteCount(byteCount);
+    // Approximate member count by storing the largest number of recipients seen
+    // (we don't have the Channel object on hand, and we don't want to always
+    // use recipients, since some messsages are sent just to a single member)
+    if (toJIDs.size() > stat.getMemberCount()) {
+      stat.setMemberCount(toJIDs.size());
+    }
     
     lastUpdateDate = new Date();
+    totalByteCount += byteCount;
   }
   
   public Date getCreationDate() {
@@ -93,31 +118,32 @@ public class ChannelStats implements Serializable {
   
   public List<ChannelStat> getTopChannels() {
     // TODO(mihaip): can be more efficient by using a heap
-    List<String> channelNames =
-        Lists.newArrayList(channelByteCounts.elementSet());
+    List<String> channelNames = Lists.newArrayList(channelStats.keySet());
     Collections.sort(channelNames, new Comparator<String>() {
-      @Override public int compare(String o1, String o2) {
-        return Integer.valueOf(channelByteCounts.count(o2))
-            .compareTo(channelByteCounts.count(o1));
+      @Override public int compare(String channelName1, String channelName2) {
+        ChannelStat stat1 = channelStats.get(channelName1);
+        ChannelStat stat2 = channelStats.get(channelName2);
+        
+        return Integer.valueOf(stat2.getByteCount())
+            .compareTo(stat1.getByteCount());
       }
     });
     
-    List<ChannelStat> stats =
+    List<ChannelStat> topChannelStats =
           Lists.newArrayListWithExpectedSize(TOP_CHANNEL_COUNT);
     
     for (String channelName : channelNames) {
-      stats.add(
-          new ChannelStat(channelName, channelByteCounts.count(channelName)));
-      if (stats.size() == TOP_CHANNEL_COUNT) {
+      topChannelStats.add(channelStats.get(channelName));
+      if (topChannelStats.size() == TOP_CHANNEL_COUNT) {
         break;
       }
     }
     
-    return stats;
+    return topChannelStats;
   }
   
   public int getTotalByteCount() {
-    return channelByteCounts.size();
+    return totalByteCount;
   }
 
   public static void increment(JID fromJID, String msg, List<JID> toJIDs) {
