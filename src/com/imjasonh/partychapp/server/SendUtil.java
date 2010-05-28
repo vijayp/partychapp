@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.ChannelStats;
 import com.imjasonh.partychapp.Configuration;
 
 public abstract class SendUtil {
@@ -62,6 +63,8 @@ public abstract class SendUtil {
     if (toJIDs == null || toJIDs.isEmpty()) {
       return Collections.emptySet();
     }
+    
+    ChannelStats.increment(fromJID, msg, toJIDs);
 
     SendResponse response = null;
     try {

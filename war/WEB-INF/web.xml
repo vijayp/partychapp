@@ -187,6 +187,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <url-pattern>/admin/user/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>admintopchannelshandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.TopChannelsServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>admintopchannelshandler</servlet-name>
+    <url-pattern>/admin/topchannels</url-pattern>
+  </servlet-mapping>
+
 
   <security-constraint>
     <web-resource-collection>
