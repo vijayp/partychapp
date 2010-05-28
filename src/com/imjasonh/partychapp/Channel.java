@@ -25,6 +25,12 @@ import javax.jdo.annotations.PrimaryKey;
 public class Channel {
   private static final Logger logger = 
       Logger.getLogger(Channel.class.getName());
+  
+  /**
+   * Channels with more than this many members may have slightly different
+   * behavior.
+   */
+  private static final int LARGE_CHANNEL_THRESHOLD = 50;
 
   @PrimaryKey
   @Persistent
@@ -306,11 +312,13 @@ public class Channel {
       }
     }
     
-    // Also send messages to all invitees. That way as soon as they accept the
-    // chat request, they'll start getting messages, even before they message
-    // the bot and are added to the room in JoinCommand.
-    for (String invitee : getInvitees()) {
-      noSequenceId.add(new JID(invitee));
+    // For small channels, also send messages to all invitees. That way as soon 
+    // as they accept the chat request, they'll start getting messages, even 
+    // before they message the bot and are added to the room in JoinCommand.
+    if (members.size() < LARGE_CHANNEL_THRESHOLD) {
+      for (String invitee : getInvitees()) {
+        noSequenceId.add(new JID(invitee));
+      }
     }
 
     Set<JID> errorJIDs = sendMessage(message, withSequenceId, noSequenceId);
