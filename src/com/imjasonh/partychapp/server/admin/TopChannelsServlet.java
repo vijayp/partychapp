@@ -38,12 +38,18 @@ public class TopChannelsServlet extends HttpServlet {
     writer.write("As of: " + stats.getLastUpdateDate() + "<br>");
     writer.write("Total byte count: " + 
         NUMBER_FORMAT.format(stats.getTotalByteCount()) + "<br>");
-    
+    writer.write("Total message count (pre-fanout): " + 
+        NUMBER_FORMAT.format(stats.getTotalMessagePreFanoutCount()) + "<br>");
+    writer.write("Total message count (post-fanout): " + 
+        NUMBER_FORMAT.format(stats.getTotalMessagePostFanoutCount()) + "<br>");
+
     writer.write("<table>");
     writer.write("<tr>");
     writer.write("<th>Channel Name</th>");
     writer.write("<th>Outgoing byte count</th>");
     writer.write("<th>Member count</th>");
+    writer.write("<th>Message count<br>(pre-fanout)</th>");
+    writer.write("<th>Message count<br>(post-fanout)</th>");
     writer.write("</tr>");
     
     for (ChannelStat stat : stats.getTopChannels()) {
@@ -64,6 +70,14 @@ public class TopChannelsServlet extends HttpServlet {
       
       writer.write("<td style=\"text-align: right\">");
       writer.write(NUMBER_FORMAT.format(stat.getMemberCount()));
+      writer.write("</td>");
+      
+      writer.write("<td style=\"text-align: right\">");
+      writer.write(NUMBER_FORMAT.format(stat.getMessagePreFanoutCount()));
+      writer.write("</td>");
+            
+      writer.write("<td style=\"text-align: right\">");
+      writer.write(NUMBER_FORMAT.format(stat.getMessagePostFanoutCount()));
       writer.write("</td>");
       
       writer.write("</tr>");

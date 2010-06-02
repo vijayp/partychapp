@@ -1,6 +1,8 @@
 package com.imjasonh.partychapp;
 
+import com.google.appengine.api.memcache.jsr107cache.GCacheFactory;
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -26,6 +28,8 @@ public class ChannelStats implements Serializable {
     private final String channelName;
     private int byteCount = 0;
     private int memberCount = 0;
+    private int messagePreFanoutCount = 0;
+    private int messagePostFanoutCount = 0;
     
     private ChannelStat(String channelName) {
       this.channelName = channelName;
@@ -43,12 +47,25 @@ public class ChannelStats implements Serializable {
       return memberCount;
     }
     
+    public int getMessagePreFanoutCount() {
+      return messagePreFanoutCount;
+    }
+    
+    public int getMessagePostFanoutCount() {
+      return messagePostFanoutCount;
+    }
+
     private void incrementByteCount(int incBy) {
       byteCount += incBy;
     }
     
     private void setMemberCount(int memberCount) {
       this.memberCount = memberCount;
+    }
+    
+    private void incrementMessageCount(int recipientCount) {
+      messagePreFanoutCount++;
+      messagePostFanoutCount += recipientCount;
     }
   }
   
@@ -58,20 +75,22 @@ public class ChannelStats implements Serializable {
   private static Cache CACHE = null;
   static {
     try {
-      CACHE = CacheManager.getInstance().getCacheFactory()
-          .createCache(Collections.emptyMap());
+      CACHE = CacheManager.getInstance().getCacheFactory().createCache(
+          ImmutableMap.of(GCacheFactory.EXPIRATION_DELTA, 24 * 60 * 60L));
     } catch (CacheException err) {
       logger.warning("Could not initialize ChannelStats cache");
     }
   }
   
-  private static final String STATS_CACHE_KEY = "channel-stats2";
+  private static final String STATS_CACHE_KEY = "channel-stats3";
 
   private static final int TOP_CHANNEL_COUNT = 50;  
   
   private final Date creationDate = new Date();
   private Date lastUpdateDate = new Date();
   private int totalByteCount = 0;
+  private int totalMessagePreFanoutCount = 0;
+  private int totalMessagePostFanoutCount = 0;
   private final Map<String, ChannelStat> channelStats = Maps.newHashMap();
   
   /**
@@ -104,8 +123,12 @@ public class ChannelStats implements Serializable {
       stat.setMemberCount(toJIDs.size());
     }
     
+    stat.incrementMessageCount(toJIDs.size());
+    
     lastUpdateDate = new Date();
     totalByteCount += byteCount;
+    totalMessagePreFanoutCount++;
+    totalMessagePostFanoutCount += toJIDs.size();
   }
   
   public Date getCreationDate() {
@@ -144,6 +167,14 @@ public class ChannelStats implements Serializable {
   
   public int getTotalByteCount() {
     return totalByteCount;
+  }
+  
+  public int getTotalMessagePreFanoutCount() {
+    return totalMessagePreFanoutCount;
+  }
+
+  public int getTotalMessagePostFanoutCount() {
+    return totalMessagePostFanoutCount;
   }
 
   public static void increment(JID fromJID, String msg, List<JID> toJIDs) {
