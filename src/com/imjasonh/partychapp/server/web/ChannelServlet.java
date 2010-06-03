@@ -53,7 +53,7 @@ public class ChannelServlet extends HttpServlet {
         handleChannelWithMember(req, resp, channel);
       } else if (channel.getInvitees().contains(user.getEmail())) {
         handleChannelWithInvitee(req, resp, channel);
-      } if (channel.isInviteOnly()) {
+      } else if (channel.isInviteOnly()) {
         handleChannelRequestInvitation(req, resp, channel);
       } else {
         handleChannelGetInvitation(req, resp, channel);
