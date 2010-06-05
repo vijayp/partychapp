@@ -4,8 +4,10 @@ import com.google.appengine.api.labs.taskqueue.QueueFactory;
 
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.WebRequest;
-import com.imjasonh.partychapp.datastoretask.DatastoreTaskMaster;
+import com.imjasonh.partychapp.datastoretask.DatastoreTask;
 import com.imjasonh.partychapp.datastoretask.TestableQueue;
+
+import java.io.IOException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,19 +17,23 @@ public class CronAndTasksServlet  extends HttpServlet {
   public static final long serialVersionUID = 985749740983755L;
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException {
     try {
       Datastore.instance().startRequest();
       
       String[] paths = req.getRequestURI().split("/");
       String taskName = paths[paths.length - 1];
       
-      DatastoreTaskMaster.Action act = DatastoreTaskMaster.Action.valueOf(taskName);
+      DatastoreTask.Action act = DatastoreTask.Action.valueOf(taskName);
       if (act != null) {
-        act.datastoreTask.handle(new WebRequest(req),
-                                 new TestableQueue(QueueFactory.getDefaultQueue()));
+        act.datastoreTask.handle(
+              new WebRequest(req), 
+              new TestableQueue(QueueFactory.getDefaultQueue()));
       } else {
-        throw new RuntimeException("unknown task type " + taskName);
+        resp.sendError(
+            HttpServletResponse.SC_BAD_REQUEST,
+            "unknown task type " + taskName);
       }
     } finally {
       Datastore.instance().endRequest();

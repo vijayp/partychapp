@@ -252,9 +252,11 @@ public class LiveDatastore extends Datastore {
   }
   
   @Override
-  public Iterator<String> getAllChannelKeys(String lastKey) {
+  public Iterator<String> getAllEntityKeys(
+      Class<?> entityClass, String lastKey) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Channel");
+    com.google.appengine.api.datastore.Query q = 
+        new com.google.appengine.api.datastore.Query(entityClass.getName());
     q.setKeysOnly();
     if (lastKey != null) {
       q.addFilter("name", FilterOperator.GREATER_THAN, lastKey);

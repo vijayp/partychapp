@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.collect.Lists;
@@ -162,20 +163,34 @@ public class FakeDatastore extends Datastore {
 
   @Override
   public void endRequest() {
-    // TODO Auto-generated method stub
-    
+    // Not necessary
   }
 
   @Override
   public void startRequest() {
-    // TODO Auto-generated method stub
-
+    // Not necessary
   }
   
   @Override  
-  public Iterator<String> getAllChannelKeys(String lastKey) {
+  public Iterator<String> getAllEntityKeys(
+      Class<?> entityClass, String lastKey) {
     List<String> ret = Lists.newArrayList();
-    for (String s : channels.keySet()) {
+    Set<String> keySet;
+    
+    if (entityClass.equals(Channel.class)) {
+      keySet = channels.keySet();
+    } else if (entityClass.equals(User.class)) {
+      keySet = users.keySet();
+    } else if (entityClass.equals(Target.class)) {
+      keySet = targets.keySet();
+    } else if (entityClass.equals(Reason.class)) {
+      keySet = reasons.keySet();
+    } else {
+      throw new RuntimeException(
+          "Unexpected entity class" + entityClass.getName());
+    }
+    
+    for (String s : keySet) {
       if ((lastKey == null) || s.compareTo(lastKey) > 0) {
         ret.add(s);
       }

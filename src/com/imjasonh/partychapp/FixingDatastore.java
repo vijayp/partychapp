@@ -90,8 +90,9 @@ public class FixingDatastore extends Datastore {
   }
   
   @Override
-  public Iterator<String> getAllChannelKeys(String lastKey) {
-    return wrapped.getAllChannelKeys(lastKey);
+  public Iterator<String> getAllEntityKeys(
+      Class<?> entityClass, String lastKey) {
+    return wrapped.getAllEntityKeys(entityClass, lastKey);
   }
 
   @Override

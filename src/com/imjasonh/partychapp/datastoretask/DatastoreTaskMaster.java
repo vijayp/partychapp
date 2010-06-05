@@ -1,14 +1,16 @@
 package com.imjasonh.partychapp.datastoretask;
 
+import com.google.common.collect.Iterators;
+
+import com.imjasonh.partychapp.WebRequest;
+
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.WebRequest;
-
 public class DatastoreTaskMaster extends DatastoreTask {
-  private static final Logger LOG = Logger.getLogger(DatastoreTaskMaster.class.getName());
+  private static final Logger logger =
+        Logger.getLogger(DatastoreTaskMaster.class.getName());
   
   public static final int kNumPerBatch = 10;
   
@@ -19,7 +21,16 @@ public class DatastoreTaskMaster extends DatastoreTask {
     // get a JDO extent. this only works with LiveDatastore, so cast away.
     // grab N items, get their keys and make a JSON array of their names
     // add a task with that array as an arg
-    Action act = Action.valueOf(req.getParameter("act"));
+    Action act;
+    try {
+      act = Action.valueOf(req.getParameter("act"));
+    } catch (IllegalArgumentException err) {
+      logger.warning("Could not find action " + req.getParameter("act"));
+      return;
+    } catch (NullPointerException err) {
+      logger.warning("Missing action parameter");
+      return;
+    }
 
     // This is only passed if we break and resume.
     String lastKeyHandled = req.getParameter("lastKeyHandled");
@@ -27,7 +38,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
     String maxParam = req.getParameter("max");
     int max = maxParam != null ? Integer.parseInt(maxParam) : -1;
     
-    Iterator<String> keys = Datastore.instance().getAllChannelKeys(lastKeyHandled);
+    Iterator<String> keys = act.datastoreTask.getKeyIterator(lastKeyHandled);
           
     int count = 0;
     boolean suppressContinuation = false;
@@ -62,7 +73,7 @@ public class DatastoreTaskMaster extends DatastoreTask {
     }
     if (count != 0) {
       if (!suppressContinuation) {
-        LOG.log(Level.INFO,
+        logger.log(Level.INFO,
                 "created sub-tasks for " + count + " objects. creating " +
                 "replacement task for remaining objects. lastKeyHandled = " +
                 lastKeyHandled);
@@ -71,13 +82,21 @@ public class DatastoreTaskMaster extends DatastoreTask {
         q.add(replacement.param("act", act.name())
                          .param("lastKeyHandled", lastKeyHandled));          
       } else {
-        LOG.log(Level.INFO,
+        logger.log(Level.INFO,
                 "created sub-tasks for " + count + " objects. suppressing replacement. " +
                 "lastKeyHandled = " + lastKeyHandled);
       }
     } else {
-      LOG.log(Level.INFO,
+      logger.log(Level.INFO,
               "all done! lastKeyHandled = " + lastKeyHandled);
     }
+  }
+
+  /**
+   * The master task doesn't need to iterate over any keys.
+   */
+  @Override
+  public Iterator<String> getKeyIterator(String lastKeyHandled) {
+    return Iterators.emptyIterator();
   }
 }

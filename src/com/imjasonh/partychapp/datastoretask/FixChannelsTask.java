@@ -4,6 +4,7 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.WebRequest;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,5 +28,10 @@ public class FixChannelsTask extends DatastoreTask {
     logger.warning(
         "Handled " + keys.size() + " keys. " +
         "Modified " + dirtyCount + " objects");
+  }
+
+  @Override
+  public Iterator<String> getKeyIterator(String lastKeyHandled) {
+    return Datastore.instance().getAllEntityKeys(Channel.class, lastKeyHandled);
   }
 }

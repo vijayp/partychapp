@@ -2,9 +2,11 @@ package com.imjasonh.partychapp.datastoretask;
 
 import java.net.URL;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterators;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.spreadsheet.ListEntry;
 import com.imjasonh.partychapp.Configuration;
@@ -55,5 +57,13 @@ public class StatsCronJob extends DatastoreTask {
     } catch (Exception e) {
       logger.warning("Failure writing stats back to docs: " + e);
     }
+  }
+
+  /**
+   * The cron task doesn't need to iterate over any keys.
+   */
+  @Override
+  public Iterator<String> getKeyIterator(String lastKeyHandled) {
+    return Iterators.emptyIterator();
   }
 }

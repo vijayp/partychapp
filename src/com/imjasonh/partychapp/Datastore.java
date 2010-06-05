@@ -129,5 +129,6 @@ public abstract class Datastore {
   }
   
   
-  public abstract Iterator<String> getAllChannelKeys(String lastKey);
+  public abstract Iterator<String> getAllEntityKeys(
+      Class<?> entityClass, String lastKey);
 }
