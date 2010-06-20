@@ -17,8 +17,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.ChannelStats;
 import com.imjasonh.partychapp.Configuration;
+import com.imjasonh.partychapp.stats.ChannelStats;
 
 public abstract class SendUtil {
   private static XMPPService XMPP = XMPPServiceFactory.getXMPPService();
@@ -99,7 +99,7 @@ public abstract class SendUtil {
       }
     }
     
-    ChannelStats.increment(fromJID, msg, toJIDs);
+    ChannelStats.recordMessageSend(fromJID, msg, toJIDs);
     
     return errorJIDs;
   }

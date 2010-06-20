@@ -1,7 +1,10 @@
 package com.imjasonh.partychapp.server.admin;
 
-import com.imjasonh.partychapp.ChannelStats;
-import com.imjasonh.partychapp.ChannelStats.ChannelStat;
+import com.google.appengine.api.quota.QuotaService;
+import com.google.appengine.api.quota.QuotaServiceFactory;
+
+import com.imjasonh.partychapp.stats.ChannelStats;
+import com.imjasonh.partychapp.stats.ChannelStats.ChannelStat;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -20,12 +23,21 @@ import javax.servlet.http.HttpServletResponse;
 public class TopChannelsServlet extends HttpServlet {
   private static final NumberFormat NUMBER_FORMAT =
       NumberFormat.getIntegerInstance(Locale.US);
+
+  private static final NumberFormat CPU_FORMAT =
+    NumberFormat.getNumberInstance(Locale.US);
   
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
+    QuotaService qs = QuotaServiceFactory.getQuotaService();
+    
     resp.setContentType("text/html");
     Writer writer = resp.getWriter();
+    
+    if ("true".equals(req.getParameter("reset"))) {
+      ChannelStats.reset();
+    }
 
     ChannelStats stats = ChannelStats.getCurrentStats();
     
@@ -42,6 +54,9 @@ public class TopChannelsServlet extends HttpServlet {
         NUMBER_FORMAT.format(stats.getTotalMessagePreFanoutCount()) + "<br>");
     writer.write("Total message count (post-fanout): " + 
         NUMBER_FORMAT.format(stats.getTotalMessagePostFanoutCount()) + "<br>");
+    writer.write("Total CPU seconds used: " +
+        CPU_FORMAT.format(
+            qs.convertMegacyclesToCpuSeconds(stats.getTotalCpuMegaCycles())));
 
     writer.write("<table>");
     writer.write("<tr>");
@@ -50,6 +65,7 @@ public class TopChannelsServlet extends HttpServlet {
     writer.write("<th>Member count</th>");
     writer.write("<th>Message count<br>(pre-fanout)</th>");
     writer.write("<th>Message count<br>(post-fanout)</th>");
+    writer.write("<th>CPU seconds</th>");
     writer.write("</tr>");
     
     for (ChannelStat stat : stats.getTopChannels()) {
@@ -78,6 +94,11 @@ public class TopChannelsServlet extends HttpServlet {
             
       writer.write("<td style=\"text-align: right\">");
       writer.write(NUMBER_FORMAT.format(stat.getMessagePostFanoutCount()));
+      writer.write("</td>");
+      
+      writer.write("<td style=\"text-align: right\">");
+      writer.write(CPU_FORMAT.format(
+          qs.convertMegacyclesToCpuSeconds(stat.getCpuMegaCycles())));
       writer.write("</td>");
       
       writer.write("</tr>");

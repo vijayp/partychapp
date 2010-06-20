@@ -1,5 +1,8 @@
 package com.imjasonh.partychapp.server;
 
+import com.google.appengine.api.quota.QuotaService;
+import com.google.appengine.api.quota.QuotaServiceFactory;
+import com.google.appengine.api.quota.QuotaService.DataType;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.XMPPService;
@@ -11,6 +14,7 @@ import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
+import com.imjasonh.partychapp.stats.ChannelStats;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -30,21 +34,37 @@ public class PartychappServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
-    XMPP = XMPPServiceFactory.getXMPPService();
-
-    Message xmppMessage = null;
-    try {
-      xmppMessage = XMPP.parseMessage(req);
-    } catch (IllegalArgumentException e) {
-      // These exceptions are apparently caused by a bug in the gtalk flash
-      // gadget, so let's just ignore them.
-      // http://code.google.com/p/googleappengine/issues/detail?id=2082
-      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      return;
+    QuotaService qs = QuotaServiceFactory.getQuotaService();
+    long startCpu = -1;
+    if (qs.supports(DataType.CPU_TIME_IN_MEGACYCLES)) {
+      startCpu = qs.getCpuTimeInMegaCycles();
     }
-    doXmpp(xmppMessage);
+    Message xmppMessage = null;
     
-    resp.setStatus(HttpServletResponse.SC_OK);
+    try {
+      XMPP = XMPPServiceFactory.getXMPPService();
+  
+      xmppMessage = null;
+      try {
+        xmppMessage = XMPP.parseMessage(req);
+      } catch (IllegalArgumentException e) {
+        // These exceptions are apparently caused by a bug in the gtalk flash
+        // gadget, so let's just ignore them.
+        // http://code.google.com/p/googleappengine/issues/detail?id=2082
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+      doXmpp(xmppMessage);
+      
+      resp.setStatus(HttpServletResponse.SC_OK);
+    } finally {
+      if (qs.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
+        long endCpu = qs.getCpuTimeInMegaCycles();
+        JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
+        String channelName = serverJID.getId().split("@")[0];
+        ChannelStats.recordChannelCpu(channelName, endCpu - startCpu);
+      }
+    }
   }
 
   JID jidToLowerCase(JID in) {
