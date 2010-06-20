@@ -38,6 +38,11 @@ public class ChannelServlet extends HttpServlet {
 
     // Strip leading slash to get channel name
     String channelName = req.getPathInfo().substring(1);
+    
+    if (Strings.isNullOrEmpty(channelName)) {
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
 
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
