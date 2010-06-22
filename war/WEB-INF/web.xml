@@ -285,7 +285,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     </auth-constraint>
   </security-constraint>
 
-  <!-- Appstats -->
+  <!-- Appstats 
   <filter>
     <filter-name>appstats</filter-name>
     <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
@@ -297,7 +297,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   <filter-mapping>
     <filter-name>appstats</filter-name>
     <url-pattern>/*</url-pattern>
-  </filter-mapping>
+  </filter-mapping>-->
 
   <servlet>
     <servlet-name>appstats</servlet-name>
