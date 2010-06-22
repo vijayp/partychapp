@@ -158,6 +158,18 @@ public class SearchReplaceHandlerTest extends CommandHandlerTestCase {
                  xmpp.messages.get(1).getBody());
   }
   
+  public void testMalformedRegexReplacement() {
+    String firstMessage = "hello, world";
+    ppbHandler.doCommand(Message.createForTests(firstMessage));
+    xmpp.messages.clear();
+
+    handler.doCommand(Message.createForTests("s/++,//"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[neil] s/++,//", xmpp.messages.get(0).getBody());
+    assertEquals("malformed search pattern",
+                 xmpp.messages.get(1).getBody());
+  }  
+  
   public void testSuggestReplacementForSelfIgnoresAlias() {
     ppbHandler.doCommand(Message.createForTests("hlleo world"));
     xmpp.messages.clear();

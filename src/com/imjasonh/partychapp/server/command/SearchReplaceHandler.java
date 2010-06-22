@@ -9,6 +9,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class SearchReplaceHandler implements CommandHandler {
   private static Pattern pattern =
@@ -62,8 +63,13 @@ public class SearchReplaceHandler implements CommandHandler {
     }
 
     String messageToChange = null;
-    // TODO(nsanch): should I do anything special since this is user-supplied?
-    Pattern p = Pattern.compile(toReplace);
+    Pattern p;
+    try {
+      p = Pattern.compile(toReplace);
+    } catch (PatternSyntaxException err) {
+      msg.channel.sendDirect("malformed search pattern", msg.member);
+      return;
+    }
     for (String curr : lastMessages) {
       if (p.matcher(curr).find()) {
         messageToChange = curr;
