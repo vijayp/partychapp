@@ -89,7 +89,7 @@ public class ChannelServlet extends HttpServlet {
       for (Member member : members) {
         writer.write("\t" + member.getJID() + "\n");
         writer.write("\t\tlast seen: ");
-        if (memberJidToLastSeen.containsKey(member.getJID())) {
+        if (memberJidToLastSeen.get(member.getJID()) != null) {
           writer.write(memberJidToLastSeen.get(member.getJID()).toString());
         } else {
           writer.write("unknown");
