@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.testing.FakeDatastore;
@@ -33,7 +34,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
                  mailer.sentMessages.get(0).getTextBody());
     assertEquals("You have been summoned to 'pancake'",
                  mailer.sentMessages.get(0).getSubject());
-    assertEquals("pancake@partychapp.appspotmail.com",
+    assertEquals("pancake@" + Configuration.mailDomain,
                  mailer.sentMessages.get(0).getSender());
   }
 
@@ -48,7 +49,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
 			  mailer.sentMessages.get(0).getTextBody());
 	  assertEquals("You have been summoned to 'pancake'",
 			  mailer.sentMessages.get(0).getSubject());
-	  assertEquals("pancake@partychapp.appspotmail.com",
+	  assertEquals("pancake@" + Configuration.mailDomain,
 			  mailer.sentMessages.get(0).getSender());
   }
 

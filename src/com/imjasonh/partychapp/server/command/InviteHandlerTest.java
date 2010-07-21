@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
+import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.testing.FakeDatastore;
@@ -37,7 +38,7 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
     assertTrue("Actual Message: " + mailer.sentMessages.get(0).getTextBody(),
                mailer.sentMessages.get(0).getTextBody().startsWith(
                    "neil (neil@gmail.com) invited you to a chatroom named 'pancake'"));
-    assertEquals("pancake@partychapp.appspotmail.com",
+    assertEquals("pancake@" + Configuration.mailDomain,
                  mailer.sentMessages.get(0).getSender());
   }
   
@@ -74,8 +75,8 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
         "bad thing at foo dot com, " +
         "x <foo@bar.com>, " + 
         "foo," +
-        "foo@partychapp.appspotchat.com," +
-        "foo@40.latest.partychapp.appspotchat.com," +
+        "foo@" + Configuration.chatDomain + "," +
+        "foo@40.latest." + Configuration.chatDomain + "," +
         "neil@gmail.com?",
         parsed);
 
@@ -87,9 +88,9 @@ public class InviteHandlerTest extends CommandHandlerTestCase {
         "Could not invite \"bad thing at foo dot com\". " +
             "Is it a valid email address?\n" +
         "Could not invite \"foo\". Did you mean \"foo@gmail.com\"?\n" +
-        "Could not invite \"foo@partychapp.appspotchat.com\" " +
+        "Could not invite \"foo@" + Configuration.chatDomain + "\" " +
             "(cannot invite other rooms)\n" +
-        "Could not invite \"foo@40.latest.partychapp.appspotchat.com\" " +
+        "Could not invite \"foo@40.latest." + Configuration.chatDomain + "\" " +
             "(cannot invite other rooms)\n" +
         "Could not invite \"neil@gmail.com?\". " +
             "Is it a valid email address?\n",
