@@ -1,4 +1,4 @@
-// TODO: figure out if we can still use goog.require
+// TODO(mihaip): figure out if we can still use goog.require
 //goog.require('goog.dom');
 //goog.require('goog.dom.classes');
 //goog.require('goog.net.XhrIo');
