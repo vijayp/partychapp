@@ -49,8 +49,8 @@
   </tr>
 </table>
 <script>
-  new ScoreTable('<%= channel.getName() %>',
-                 <%= (String) request.getAttribute("targetInfo") %>);
+  new partychapp.ScoreTable('<%= channel.getName() %>',
+                            <%= (String) request.getAttribute("targetInfo") %>);
 </script>
 
 <jsp:include page="include/footer.jsp"/>
