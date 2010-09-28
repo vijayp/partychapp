@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='partychapp'>
+  <inherits name='com.google.gwt.user.User'/>
+
+  <entry-point class='com.imjasonh.partychapp.gwt.client.PartychappEntryPoint'/>
+
+  <source path='client'/>
+</module>
