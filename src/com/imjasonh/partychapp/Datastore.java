@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public abstract class Datastore {
@@ -82,6 +83,9 @@ public abstract class Datastore {
 
     private static final DateFormat dateFormat =
         DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    static {
+      dateFormat.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+    }
     
     private static final NumberFormat numberFormat =
         NumberFormat.getIntegerInstance(Locale.US);
