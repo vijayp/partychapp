@@ -162,7 +162,7 @@ function pa(a, b) {
   b.unshift(a);
   ha.call(this, ia.apply(null, b));
   b.shift();
-  this.Ya = a
+  this.Wa = a
 }
 y(qa, ha);
 qa.prototype.name = "AssertionError";
@@ -488,7 +488,7 @@ i.ctrlKey = false;
 i.altKey = false;
 i.shiftKey = false;
 i.metaKey = false;
-i.Pa = false;
+i.Oa = false;
 i.oa = null;
 i.M = function(a, b) {
   var c = this.type = a.type;
@@ -526,7 +526,7 @@ i.M = function(a, b) {
   this.altKey = a.altKey;
   this.shiftKey = a.shiftKey;
   this.metaKey = a.metaKey;
-  this.Pa = Pa ? a.metaKey : a.ctrlKey;
+  this.Oa = Pa ? a.metaKey : a.ctrlKey;
   this.oa = a;
   delete this.P;
   delete this.n
@@ -553,7 +553,7 @@ i.M = function(a, b, c, d, f, e) {
     }
   }
   this.C = a;
-  this.za = b;
+  this.ya = b;
   this.src = c;
   this.type = d;
   this.capture = !!f;
@@ -790,7 +790,7 @@ function ub(a) {
   if(b.o) {
     return false
   }
-  var c = b.src, d = b.type, f = b.za, e = b.capture;
+  var c = b.src, d = b.type, f = b.ya, e = b.capture;
   if(c.removeEventListener) {
     if(c == m || !c.ka) {
       c.removeEventListener(d, f, e)
@@ -806,17 +806,17 @@ function ub(a) {
     g.length == 0 && delete S[c]
   }
   b.o = true;
-  f.xa = true;
+  f.wa = true;
   vb(d, e, c, f);
   delete Q[a];
   return true
 }
 function vb(a, b, c, d) {
   if(!d.N) {
-    if(d.xa) {
+    if(d.wa) {
       for(var f = 0, e = 0;f < d.length;f++) {
         if(d[f].o) {
-          var g = d[f].za;
+          var g = d[f].ya;
           g.src = null;
           lb(g);
           nb(d[f])
@@ -828,7 +828,7 @@ function vb(a, b, c, d) {
         }
       }
       d.length = e;
-      d.xa = false;
+      d.wa = false;
       if(e == 0) {
         ib(d);
         delete R[a][b][c];
@@ -990,7 +990,7 @@ function zb(a, b) {
 }
 kb(zb);
 $a[$a.length] = function(a) {
-  zb = a.Ua(zb);
+  zb = a.Ta(zb);
   kb(zb)
 };function Ab() {
 }
@@ -1327,23 +1327,23 @@ function Nb(a) {
 var Ob = {};function U(a, b, c, d, f) {
   this.reset(a, b, c, d, f)
 }
-U.prototype.Qa = 0;
+U.prototype.Pa = 0;
 U.prototype.qa = null;
 U.prototype.pa = null;
 var Pb = 0;
 U.prototype.reset = function(a, b, c, d, f) {
-  this.Qa = typeof f == "number" ? f : Pb++;
-  this.ab = d || ga();
+  this.Pa = typeof f == "number" ? f : Pb++;
+  this.Za = d || ga();
   this.B = a;
-  this.Za = b;
-  this.Xa = c;
+  this.Xa = b;
+  this.Va = c;
   delete this.qa;
   delete this.pa
 };
-U.prototype.Aa = function(a) {
+U.prototype.za = function(a) {
   this.B = a
 };function V(a) {
-  this.Na = a
+  this.Ma = a
 }
 V.prototype.O = null;
 V.prototype.B = null;
@@ -1357,7 +1357,7 @@ W.prototype.toString = function() {
   return this.name
 };
 var Qb = new W("SEVERE", 1E3), Rb = new W("WARNING", 900), Sb = new W("CONFIG", 700), Tb = new W("FINE", 500), Ub = new W("FINEST", 300);
-V.prototype.Aa = function(a) {
+V.prototype.za = function(a) {
   this.B = a
 };
 function Vb(a) {
@@ -1372,7 +1372,7 @@ function Vb(a) {
 }
 V.prototype.log = function(a, b, c) {
   if(a.value >= Vb(this).value) {
-    a = this.Ma(a, b, c);
+    a = this.La(a, b, c);
     for(b = this;b;) {
       c = b;
       if(c.ra) {
@@ -1384,15 +1384,15 @@ V.prototype.log = function(a, b, c) {
     }
   }
 };
-V.prototype.Ma = function(a, b, c) {
-  var d = new U(a, String(b), this.Na);
+V.prototype.La = function(a, b, c) {
+  var d = new U(a, String(b), this.Ma);
   if(c) {
     d.qa = c;
     var f;
     var e = arguments.callee.caller;
     try {
       var g, h = ba("window.location.href");
-      g = typeof c == "string" ? {message:c, name:"Unknown error", lineNumber:"Not available", fileName:h, stack:"Not available"} : !c.lineNumber || !c.fileName || !c.stack ? {message:c.message, name:c.name, lineNumber:c.lineNumber || c.Wa || "Not available", fileName:c.fileName || c.filename || c.sourceURL || h, stack:c.stack || "Not available"} : c;
+      g = typeof c == "string" ? {message:c, name:"Unknown error", lineNumber:"Not available", fileName:h, stack:"Not available"} : !c.lineNumber || !c.fileName || !c.stack ? {message:c.message, name:c.name, lineNumber:c.lineNumber || c.Ua || "Not available", fileName:c.fileName || c.filename || c.sourceURL || h, stack:c.stack || "Not available"} : c;
       f = "Message: " + z(g.message) + '\nUrl: <a href="view-source:' + g.fileName + '" target="_new">' + g.fileName + "</a>\nLine: " + g.lineNumber + "\n\nBrowser stack:\n" + z(g.stack + "-> ") + "[end]\n\nJS stack traversal:\n" + z(Lb(e) + "-> ")
     }catch(j) {
       f = "Exception trying to expose exception! You win, we lose. " + j
@@ -1409,7 +1409,7 @@ function Yb(a) {
   if(!Xb) {
     Xb = new V("");
     Wb[""] = Xb;
-    Xb.Aa(Sb)
+    Xb.za(Sb)
   }
   var b;
   if(!(b = Wb[a])) {
@@ -1560,7 +1560,7 @@ i.send = function(a, b, c, d) {
   this.a = this.q ? ac(this.q) : new $b;
   this.S = this.q ? this.q.I || (this.q.I = ec(this.q)) : bc.I || (bc.I = ec(bc));
   jc(Y, this.a);
-  this.a.onreadystatechange = v(this.ya, this);
+  this.a.onreadystatechange = v(this.xa, this);
   try {
     X(this.b, $(this, "Opening Xhr"));
     this.da = true;
@@ -1587,7 +1587,7 @@ i.send = function(a, b, c, d) {
     }
     if(this.H > 0) {
       X(this.b, $(this, "Will abort after " + this.H + "ms if incomplete"));
-      this.m = Bb.setTimeout(v(this.Sa, this), this.H)
+      this.m = Bb.setTimeout(v(this.Ra, this), this.H)
     }
     X(this.b, $(this, "Sending request"));
     this.L = true;
@@ -1610,7 +1610,7 @@ i.dispatchEvent = function(a) {
     return Z.p.dispatchEvent.call(this, a)
   }
 };
-i.Sa = function() {
+i.Ra = function() {
   if(typeof aa != "undefined") {
     if(this.a) {
       this.A = "Timed out after " + this.H + "ms, aborting";
@@ -1665,7 +1665,7 @@ Z.prototype.f = function() {
   }
   Z.p.f.call(this)
 };
-Z.prototype.ya = function() {
+Z.prototype.xa = function() {
   !this.da && !this.L && !this.l ? this.ea() : rc(this)
 };
 Z.prototype.ea = function() {
@@ -1678,7 +1678,7 @@ function rc(a) {
         X(a.b, $(a, "Local request error detected and ignored"))
       }else {
         if(a.L && sc(a) == 4) {
-          Bb.setTimeout(v(a.ya, a), 0)
+          Bb.setTimeout(v(a.xa, a), 0)
         }else {
           a.dispatchEvent("readystatechange");
           if(sc(a) == 4) {
@@ -1765,7 +1765,7 @@ function $(a, b) {
   return b + " [" + a.ta + " " + a.ua + " " + tc(a) + "]"
 }
 $a[$a.length] = function(a) {
-  Z.prototype.ea = a.Ua(Z.prototype.ea)
+  Z.prototype.ea = a.Ta(Z.prototype.ea)
 };function uc(a, b, c) {
   for(var d = J("ul", "reasons"), f = 0, e;e = c.reasons[f];f++) {
     var g = J("li"), h = J("span", "action");
@@ -1825,9 +1825,9 @@ function vc(a, b) {
   this.s = a;
   this.G = b;
   this.D = 1;
-  this.Ba()
+  this.Aa()
 }
-vc.prototype.Ba = function() {
+vc.prototype.Aa = function() {
   if(this.D == 1) {
     this.G.reverse();
     wc(this)
@@ -1843,7 +1843,7 @@ vc.prototype.Ba = function() {
 function wc(a) {
   a.r = a.r == "&#8681;" ? "&#8679;" : "&#8681;"
 }
-vc.prototype.Ra = function() {
+vc.prototype.Qa = function() {
   if(this.D == 2) {
     this.G.reverse();
     wc(this)
@@ -1857,11 +1857,11 @@ vc.prototype.Ra = function() {
   xc(this)
 };
 function xc(a) {
-  var b = I("score-table"), c = {s:a.s, Ea:a.G}, d = '<table class="channel-table"><tr><th class="target-cell" id="target-name-header" style="cursor: pointer; cursor: hand">Target</th><th class="score-cell" id="target-score-header" style="cursor: pointer; cursor: hand">Score</th></tr>';
-  if(c.Ea.length == 0) {
+  var b = I("score-table"), c = {s:a.s, Da:a.G}, d = '<table class="channel-table"><tr><th class="target-cell" id="target-name-header" style="cursor: pointer; cursor: hand">Target</th><th class="score-cell" id="target-score-header" style="cursor: pointer; cursor: hand">Score</th></tr>';
+  if(c.Da.length == 0) {
     d += "<tr><td>No scores yet! Start ++'ing and --'ing stuff!</td></tr>"
   }else {
-    for(var f = c.Ea, e = f.length, g = 0;g < e;g++) {
+    for(var f = c.Da, e = f.length, g = 0;g < e;g++) {
       d = d;
       var h;
       h = {s:c.s, target:f[g]};
@@ -1873,8 +1873,8 @@ function xc(a) {
   b.innerHTML = d;
   b = I("target-name-header");
   c = I("target-score-header");
-  b.onclick = v(a.Ba, a);
-  c.onclick = v(a.Ra, a);
+  b.onclick = v(a.Aa, a);
+  c.onclick = v(a.Qa, a);
   if(a.D == 1) {
     b.innerHTML = a.r + b.innerHTML
   }else {
@@ -1884,34 +1884,34 @@ function xc(a) {
 o("partychapp.ScoreTable", vc, void 0);function yc() {
   this.v = [];
   this.fa = new T;
-  this.Ha = this.Ia = this.Ja = this.Ca = 0;
+  this.Ga = this.Ha = this.Ia = this.Ba = 0;
   this.F = new T;
-  this.ja = this.Ga = 0;
-  this.Oa = 1;
+  this.ja = this.Fa = 0;
+  this.Na = 1;
   this.Z = new N(0, 4E3);
   this.Z.t = function() {
     return new zc
   };
-  this.Da = new N(0, 50);
-  this.Da.t = function() {
+  this.Ca = new N(0, 50);
+  this.Ca.t = function() {
     return new Ac
   };
   var a = this;
   this.ba = new N(0, 2E3);
   this.ba.t = function() {
-    return String(a.Oa++)
+    return String(a.Na++)
   };
   this.ba.X = function() {
   };
-  this.La = 3
+  this.Ka = 3
 }
 yc.prototype.b = Yb("goog.debug.Trace");
 function Ac() {
-  this.ha = this.Fa = this.W = 0
+  this.ha = this.Ea = this.W = 0
 }
 Ac.prototype.toString = function() {
   var a = [];
-  a.push(this.type, " ", this.W, " (", Math.round(this.Fa * 10) / 10, " ms)");
+  a.push(this.type, " ", this.W, " (", Math.round(this.Ea * 10) / 10, " ms)");
   this.ha && a.push(" [VarAlloc = ", this.ha, "]");
   return a.join("")
 };
@@ -1926,20 +1926,20 @@ function Bc(a, b, c, d) {
   }else {
     if(a.$ == 1) {
       f.push(" Done ");
-      f.push(Cc(a.$a - a.startTime), " ms ")
+      f.push(Cc(a.Ya - a.startTime), " ms ")
     }else {
       f.push(" Comment      ")
     }
   }
   f.push(d, a);
-  a.Ta > 0 && f.push("[VarAlloc ", a.Ta, "] ");
+  a.Sa > 0 && f.push("[VarAlloc ", a.Sa, "] ");
   return f.join("")
 }
 zc.prototype.toString = function() {
-  return this.type == null ? this.Ka : "[" + this.type + "] " + this.Ka
+  return this.type == null ? this.Ja : "[" + this.type + "] " + this.Ja
 };
 yc.prototype.reset = function(a) {
-  this.La = a;
+  this.Ka = a;
   for(a = 0;a < this.v.length;a++) {
     var b = this.Z.id;
     b && P(this.ba, b);
@@ -1947,15 +1947,15 @@ yc.prototype.reset = function(a) {
   }
   this.v.length = 0;
   this.fa.clear();
-  this.Ca = ga();
-  this.ja = this.Ga = this.Ha = this.Ia = this.Ja = 0;
+  this.Ba = ga();
+  this.ja = this.Fa = this.Ga = this.Ha = this.Ia = 0;
   b = this.F.w();
   for(a = 0;a < b.length;a++) {
     var c = Kb(this.F, b[a]);
     c.W = 0;
-    c.Fa = 0;
+    c.Ea = 0;
     c.ha = 0;
-    P(this.Da, c)
+    P(this.Ca, c)
   }
   this.F.clear()
 };
@@ -1963,7 +1963,7 @@ yc.prototype.toString = function() {
   for(var a = [], b = -1, c = [], d = 0;d < this.v.length;d++) {
     var f = this.v[d];
     f.$ == 1 && c.pop();
-    a.push(" ", Bc(f, this.Ca, b, c.join("")));
+    a.push(" ", Bc(f, this.Ba, b, c.join("")));
     b = f.na;
     a.push("\n");
     f.$ == 0 && c.push("|  ")
@@ -1980,7 +1980,7 @@ yc.prototype.toString = function() {
     c = Kb(this.F, b[d]);
     c.W > 1 && a.push(" TOTAL ", c, "\n")
   }
-  a.push("Total tracers created ", this.Ga, "\n", "Total comments created ", this.ja, "\n", "Overhead start: ", this.Ja, " ms\n", "Overhead end: ", this.Ia, " ms\n", "Overhead comment: ", this.Ha, " ms\n");
+  a.push("Total tracers created ", this.Fa, "\n", "Total comments created ", this.ja, "\n", "Overhead start: ", this.Ia, " ms\n", "Overhead end: ", this.Ha, " ms\n", "Overhead comment: ", this.Ga, " ms\n");
   return a.join("")
 };
 function Cc(a) {
@@ -2037,7 +2037,7 @@ o("displayChannels", function(a, b) {
   }else {
     for(var c = J("ul", "channel-list"), d = a.channels, f = 0, e;e = d[f];f++) {
       var g = J("a", {href:"/channel/" + e.name}, e.name);
-      e = J("span", "description", " as ", J("b", {}, e.Va), e.wa > 1 ? " with " + (e.wa - 1) + (e.wa == 2 ? " other" : " others") : "");
+      e = J("span", "description", " as ", J("b", {}, e.alias), e.memberCount > 1 ? " with " + (e.memberCount - 1) + (e.memberCount == 2 ? " other" : " others") : "");
       g = J("li", {}, g, e);
       c.appendChild(g)
     }

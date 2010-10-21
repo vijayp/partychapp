@@ -95,16 +95,16 @@ function displayChannels(userInfo, targetNode) {
   for (var i = 0, channel; channel = channels[i]; i++) {
     var linkNode = goog.dom.$dom(
         'a',
-        {'href': '/channel/' + channel.name},
-        channel.name);
+        {'href': '/channel/' + channel['name']},
+        channel['name']);
     var descriptionNode = goog.dom.$dom(
         'span',
         'description',
         ' as ',
-        goog.dom.$dom('b', {}, channel.alias),
-        channel.memberCount > 1
-            ? ' with ' + (channel.memberCount - 1) +
-                (channel.memberCount == 2 ? ' other' : ' others')
+        goog.dom.$dom('b', {}, channel['alias']),
+        channel['memberCount'] > 1
+            ? ' with ' + (channel['memberCount'] - 1) +
+                (channel['memberCount'] == 2 ? ' other' : ' others')
             : '');
     var channelNode = goog.dom.$dom('li', {}, linkNode, descriptionNode);
     channelListNode.appendChild(channelNode);
