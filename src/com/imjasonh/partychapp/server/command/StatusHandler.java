@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
+import com.imjasonh.partychapp.DebuggingOptions.Option;
 
 public class StatusHandler extends SlashCommand {
   
@@ -17,6 +18,9 @@ public class StatusHandler extends SlashCommand {
     }
     if (u.carrier() != null) {
       reply += " Your carrier is " + u.carrier().shortName + ".";
+    }
+    if (msg.member.debugOptions().isEnabled(Option.SEQUENCE_IDS)) {
+      reply += "\nCurrent sequence ID: " + msg.channel.getSequenceId();
     }
     msg.channel.sendDirect(reply, msg.member);
   }

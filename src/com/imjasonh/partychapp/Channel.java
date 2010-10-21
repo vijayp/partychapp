@@ -426,11 +426,15 @@ public class Channel {
     }
   }
 
-  public void incrementSequenceId() {
+  private void incrementSequenceId() {
     ++sequenceId;
     if (sequenceId >= 100) {
       sequenceId = 0;
     }
+  }
+  
+  public int getSequenceId() {
+    return sequenceId;
   }
   
   public void fixUp() {

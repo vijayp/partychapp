@@ -1,7 +1,10 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.imjasonh.partychapp.DebuggingOptions;
+import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
+import com.imjasonh.partychapp.testing.FakeDatastore;
 
 public class StatusHandlerTest extends CommandHandlerTestCase {
   StatusHandler handler = new StatusHandler();
@@ -29,4 +32,14 @@ public class StatusHandlerTest extends CommandHandlerTestCase {
                  "is 16464623000. Your carrier is tmobile.",
                  xmpp.messages.get(0).getBody());    
   }
+  
+  public void testSequenceId() {
+    Member member = FakeDatastore.fakeChannel().getMemberByAlias("neil");
+    member.debugOptions().add(DebuggingOptions.Option.SEQUENCE_IDS);
+    handler.doCommand(Message.createForTests("/status"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals("You are currently in 'pancake' as 'neil.'\n" +
+        "Current sequence ID: 0", xmpp.messages.get(0).getBody());
+    member.debugOptions().clear();
+  }  
 }
