@@ -128,6 +128,7 @@ public class Member implements Serializable {
     if (messages.size() > 10) {
       messages.remove(10);
     }    
+    channel.put();
   }
 
   public DebuggingOptions debugOptions() {

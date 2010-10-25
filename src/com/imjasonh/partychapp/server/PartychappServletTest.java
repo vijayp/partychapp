@@ -257,7 +257,9 @@ public class PartychappServletTest extends TestCase {
     
     // Simulate the User object being in a channel isn't not supposed to be
     // in
-    Datastore.instance().getUserByJID("neil@gmail.com").addChannel("pancake");
+    User u = Datastore.instance().getUserByJID("neil@gmail.com");
+    u.addChannel("pancake");
+    u.put();
     
     // Things are inconsistent
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
@@ -276,7 +278,9 @@ public class PartychappServletTest extends TestCase {
     sendMessage("neil@gmail.com", "/leave");
     assertFalse(userInChannel("neil@gmail.com", "pancake"));
     assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
-    Datastore.instance().getUserByJID("neil@gmail.com").addChannel("pancake");
+    u = Datastore.instance().getUserByJID("neil@gmail.com");
+    u.addChannel("pancake");
+    u.put();
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
     assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
 
@@ -288,7 +292,9 @@ public class PartychappServletTest extends TestCase {
     
     // Make the room not be invite-only and rejoin, and then make it invite-only
     // again.
-    Datastore.instance().getChannelByName("pancake").setInviteOnly(false);
+    Channel c = Datastore.instance().getChannelByName("pancake");
+    c.setInviteOnly(false);
+    c.put();
     sendMessage("neil@gmail.com", "hi partychat");
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
     assertTrue(channelHasMember("pancake", "neil@gmail.com"));
@@ -296,7 +302,9 @@ public class PartychappServletTest extends TestCase {
     
     // Simulate the other inconsistency, where we're supposed to be in the room
     // but we're not
-    Datastore.instance().getUserByJID("neil@gmail.com").removeChannel("pancake");
+    u = Datastore.instance().getUserByJID("neil@gmail.com");
+    u.removeChannel("pancake");
+    u.put();
     assertFalse(userInChannel("neil@gmail.com", "pancake"));
     assertTrue(channelHasMember("pancake", "neil@gmail.com"));
     
