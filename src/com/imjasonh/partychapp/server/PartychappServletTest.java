@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.InMemoryCachingDatastore;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.testing.FakeDatastore;
 import com.imjasonh.partychapp.testing.MockMailService;
@@ -28,7 +29,7 @@ public class PartychappServletTest extends TestCase {
   
   @Override
   public void setUp() {
-    FakeDatastore datastore = new FakeDatastore();
+    Datastore datastore = new InMemoryCachingDatastore(new FakeDatastore());
     Datastore.setInstance(datastore);
     SendUtil.setXMPP(xmpp);
     MailUtil.setMailService(new MockMailService());

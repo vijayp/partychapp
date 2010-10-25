@@ -9,6 +9,7 @@ import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Channel {
+public class Channel implements Serializable {
   private static final Logger logger = 
       Logger.getLogger(Channel.class.getName());
   

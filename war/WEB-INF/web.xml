@@ -207,6 +207,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <url-pattern>/admin/topchannels</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>datastorecachestatistics</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.DatastoreCacheStatisticsServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>datastorecachestatistics</servlet-name>
+    <url-pattern>/admin/datastore-cache-statistics</url-pattern>
+  </servlet-mapping>
+
   <security-constraint>
     <web-resource-collection>
       <url-pattern>/admin/*</url-pattern>
@@ -295,8 +305,8 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     </auth-constraint>
   </security-constraint>
 
-  <!-- Appstats 
-  <filter>
+  <!-- Appstats -->
+<!--  <filter>
     <filter-name>appstats</filter-name>
     <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
     <init-param>
@@ -307,7 +317,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   <filter-mapping>
     <filter-name>appstats</filter-name>
     <url-pattern>/*</url-pattern>
-  </filter-mapping>-->
+  </filter-mapping>
 
   <servlet>
     <servlet-name>appstats</servlet-name>
@@ -325,7 +335,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <auth-constraint>
       <role-name>admin</role-name>
     </auth-constraint>
-  </security-constraint>
+  </security-constraint>-->
   
   <!-- Channel stats -->
   <filter>

@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.annotations.VisibleForTesting;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
@@ -27,12 +28,14 @@ public abstract class Datastore {
     if (instance == null) {
       // We have to do this lazily because tests won't have the
       // live datastore dependencies set up
-      instance = new FixingDatastore(new LiveDatastore());
+      instance = new MemcacheCachingDatastore(
+          new FixingDatastore(new LiveDatastore()));
     }
     return instance;
   }
   
-  public static void setInstance(Datastore ds) {
+
+  @VisibleForTesting public static void setInstance(Datastore ds) {
     instance = new FixingDatastore(ds);
   }
   
