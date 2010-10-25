@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import com.imjasonh.partychapp.Member;
@@ -14,7 +15,7 @@ import java.util.List;
 public class ListHandler extends SlashCommand {
   
   public ListHandler() {
-    super("list", "names");
+    super("list", "names", "who");
   }
 	
   @Override
@@ -22,11 +23,26 @@ public class ListHandler extends SlashCommand {
     // TODO: Reject or act on non-null argument
     
     List<Member> members = Lists.newArrayList(msg.channel.getMembers());
+     
+    if (!Strings.isNullOrEmpty(argument)) {
+      List<Member> filteredMembers = Lists.newArrayList();
+      for (Member m : members) {
+        if (m.getAlias().contains(argument) ||
+            m.getJID().contains(argument)) {
+          filteredMembers.add(m);
+        }
+      }
+      members = filteredMembers;
+    }
+    
     Collections.sort(members, new Member.SortMembersForListComparator());
     StringBuilder sb = new StringBuilder()
         .append("Listing members of '")
         .append(msg.channel.getName())
         .append("'");
+    if (!Strings.isNullOrEmpty(argument)) {
+      sb.append(" that match '" + argument + "'");
+    }
     for (Member m : members) {
       sb.append('\n')
           .append("* ")
@@ -52,6 +68,7 @@ public class ListHandler extends SlashCommand {
   }
   
   public String documentation() {
-	  return "/list - show members of room";
+	  return "/list [filter] - show members of room, optionally filtered " +
+	      "to only matching members";
   }
 }
