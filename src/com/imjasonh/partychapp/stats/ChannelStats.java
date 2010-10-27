@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.imjasonh.partychapp.Configuration;
+
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheManager;
@@ -138,14 +140,14 @@ public class ChannelStats implements Serializable {
   private final Map<String, ChannelStat> channelStats = Maps.newHashMap();
   
   /**
-   * Only {@link ChannelStatsFilter} should be creating instances.
+   * Only {@link #recordStats} should be creating instances.
    */
   ChannelStats() {
     // No further initialization needed
   }
   
   public static void recordStats(List<ChannelStat> requestStats) {
-    if (cache == null) {
+    if (cache == null || !areChannelStatsEnabled()) {
       return;
     }
     
@@ -192,6 +194,9 @@ public class ChannelStats implements Serializable {
   }
   
   public List<ChannelStat> getTopChannels() {
+    if (!areChannelStatsEnabled()) {
+      return Collections.emptyList();
+    }
     // TODO(mihaip): can be more efficient by using a heap
     List<String> channelNames = Lists.newArrayList(channelStats.keySet());
     Collections.sort(channelNames, new Comparator<String>() {
@@ -235,6 +240,7 @@ public class ChannelStats implements Serializable {
 
   public static void recordMessageSend(
       JID fromJID, String msg, List<JID> toJIDs) {
+    if (!areChannelStatsEnabled()) return;
     String channelName = fromJID.getId().split("@")[0];
     ChannelStat stat = new ChannelStat(channelName);
         
@@ -253,6 +259,7 @@ public class ChannelStats implements Serializable {
   }
   
   public static void recordChannelCpu(String channelName, long cpuMegaCycles) {
+    if (!areChannelStatsEnabled()) return;
     ChannelStat stat = new ChannelStat(channelName);
     stat.incrementCpuMegaCycles(cpuMegaCycles);
     
@@ -261,7 +268,7 @@ public class ChannelStats implements Serializable {
   
   
   public static ChannelStats getCurrentStats() {
-    if (cache == null) {
+    if (cache == null || !areChannelStatsEnabled()) {
       return null;
     }
     
@@ -269,8 +276,12 @@ public class ChannelStats implements Serializable {
   }
 
   public static void reset() {
-    if (cache != null) {
+    if (cache != null || !areChannelStatsEnabled()) {
       cache.remove(STATS_CACHE_KEY);
     }
+  }
+  
+  private static boolean areChannelStatsEnabled() {
+    return Configuration.persistentConfig().areChannelStatsEnabled(); 
   }
 }

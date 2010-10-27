@@ -3,6 +3,7 @@ package com.imjasonh.partychapp.server.admin;
 import com.google.appengine.api.quota.QuotaService;
 import com.google.appengine.api.quota.QuotaServiceFactory;
 
+import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.stats.ChannelStats;
 import com.imjasonh.partychapp.stats.ChannelStats.ChannelStat;
 
@@ -30,10 +31,15 @@ public class TopChannelsServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
-    QuotaService qs = QuotaServiceFactory.getQuotaService();
-    
     resp.setContentType("text/html");
     Writer writer = resp.getWriter();
+
+    if (!Configuration.persistentConfig().areChannelStatsEnabled()) {
+      writer.write("Channel stats are not enabled");
+      return;
+    }
+    QuotaService qs = QuotaServiceFactory.getQuotaService();
+    
     
     if ("true".equals(req.getParameter("reset"))) {
       ChannelStats.reset();

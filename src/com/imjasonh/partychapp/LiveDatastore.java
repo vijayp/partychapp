@@ -68,8 +68,16 @@ public class LiveDatastore extends Datastore {
   @Override
   public PersistentConfiguration getPersistentConfig() {
     try {
-      return manager.getObjectById(PersistentConfiguration.class,
-                                   "config");
+      // We often get the PersistentConfiguration before starting the request,
+      // manager is not populated yet. Create a one-off manager just for getting
+      // the configuration. Since the result is cached by {@link Configuration},
+      // it doesn't matter, efficiency-wise.
+      PersistenceManager tempManager =
+          PERSISTENCE_FACTORY.getPersistenceManager();
+      PersistentConfiguration persistentConfig = 
+          tempManager.getObjectById(PersistentConfiguration.class, "config");
+      tempManager.close();
+      return persistentConfig;
     } catch (JDOObjectNotFoundException e) {
       return null;
     }

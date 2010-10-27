@@ -18,10 +18,23 @@ public class Configuration {
   //public static final String webDomain = "partych.at";
   
   private static PersistentConfiguration pc;
+  private static long pcLoadTimeMillis = 0;
+  private static final long MAX_PC_AGE_MILLIS = 60 * 60 * 1000L;
+  
+  public static void reloadPersistentConfig() {
+    pc = null;
+    persistentConfig();
+  }
   
   public static PersistentConfiguration persistentConfig() {
-    if (pc == null) {
+    long now = System.currentTimeMillis();
+    long pcAge = now - pcLoadTimeMillis;
+    if (pc == null || pcAge > MAX_PC_AGE_MILLIS) {
+      pcLoadTimeMillis = now;
       pc = Datastore.instance().getPersistentConfig();
+      if (pc == null) {
+        pc = new PersistentConfiguration();
+      }
     }
     return pc;
   }

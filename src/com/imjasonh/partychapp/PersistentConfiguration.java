@@ -31,6 +31,10 @@ public class PersistentConfiguration {
   @Persistent
   private String listFeedUrl;
   
+  @Persistent
+  private boolean areChannelStatsEnabled;
+  
   public String sessionToken() { return sessionToken; }
   public String listFeedUrl() { return listFeedUrl; }
+  public boolean areChannelStatsEnabled() {return areChannelStatsEnabled; }
 }

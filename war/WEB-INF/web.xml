@@ -216,6 +216,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>datastorecachestatistics</servlet-name>
     <url-pattern>/admin/datastore-cache-statistics</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>reloadpersistentconfighandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.ReloadPersistentConfigServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>reloadpersistentconfighandler</servlet-name>
+    <url-pattern>/admin/reload-persistent-config</url-pattern>
+  </servlet-mapping>  
 
   <security-constraint>
     <web-resource-collection>
@@ -306,7 +316,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </security-constraint>
 
   <!-- Appstats -->
-<!--  <filter>
+  <filter>
     <filter-name>appstats</filter-name>
     <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
     <init-param>
@@ -335,7 +345,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <auth-constraint>
       <role-name>admin</role-name>
     </auth-constraint>
-  </security-constraint>-->
+  </security-constraint>
   
   <!-- Channel stats -->
   <filter>
