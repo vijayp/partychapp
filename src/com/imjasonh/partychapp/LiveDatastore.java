@@ -54,12 +54,13 @@ public class LiveDatastore extends Datastore {
   }
 
   // Created transiently for each request.
-  private PersistenceManager manager;
+  private ThreadLocal<PersistenceManager> manager =
+        new ThreadLocal<PersistenceManager>();
   
   @Override
   public Channel getChannelByName(String name) {
     try {
-      return manager.getObjectById(Channel.class, name);
+      return manager.get().getObjectById(Channel.class, name);
     } catch (JDOObjectNotFoundException notFound) {
       return null;
     }
@@ -86,7 +87,7 @@ public class LiveDatastore extends Datastore {
   @Override
   public User getUserByJID(String jid) {
     try {
-      User user = manager.getObjectById(User.class, jid);
+      User user = manager.get().getObjectById(User.class, jid);
       return user;
     } catch (JDOObjectNotFoundException notFound) {
       return null;
@@ -95,7 +96,7 @@ public class LiveDatastore extends Datastore {
 
   @Override
   public User getUserByPhoneNumber(String phoneNumber) {
-    Query query = manager.newQuery(User.class);
+    Query query = manager.get().newQuery(User.class);
     query.setFilter("phoneNumber == phoneNumberParam");
     query.declareParameters("String phoneNumberParam");
 
@@ -111,7 +112,7 @@ public class LiveDatastore extends Datastore {
   @Override
   public Target getTargetByID(String key) {
     try {
-      return manager.getObjectById(Target.class, key);
+      return manager.get().getObjectById(Target.class, key);
     } catch (JDOObjectNotFoundException e) {
       // TODO(nsanch): there has to be a better way
       return null;
@@ -130,7 +131,7 @@ public class LiveDatastore extends Datastore {
   @SuppressWarnings("unchecked")
   @Override
   public List<Target> getTargetsByChannel(String channelName) {
-    Query query = manager.newQuery(Target.class);
+    Query query = manager.get().newQuery(Target.class);
     query.setFilter("channelName == channelNameParam");
     query.declareParameters("String channelNameParam");
 
@@ -143,7 +144,7 @@ public class LiveDatastore extends Datastore {
 
   @Override
   public List<Reason> getReasons(Target target, int limit) {
-    Query query = manager.newQuery(Reason.class);
+    Query query = manager.get().newQuery(Reason.class);
     query.setFilter("targetId == targetIdParam");
     query.setOrdering("timestamp desc");
     query.declareParameters("String targetIdParam");
@@ -159,27 +160,28 @@ public class LiveDatastore extends Datastore {
 
   @Override
   public void put(Object o) {
-    manager.makePersistent(o);
+    manager.get().makePersistent(o);
   }
 
   @Override
   public void putAll(Collection<Object> objects) {
-    manager.makePersistentAll(objects);
+    manager.get().makePersistentAll(objects);
   }
 
   @Override
   public void delete(Object o) {
-    manager.deletePersistent(o);
+    manager.get().deletePersistent(o);
   }
 
   @Override
   public void endRequest() {
-    manager.close();
+    manager.get().close();
+    manager.remove();
   }
 
   @Override
   public void startRequest() {
-    manager = PERSISTENCE_FACTORY.getPersistenceManager();
+    manager.set(PERSISTENCE_FACTORY.getPersistenceManager());
   }
 
   int countUsersActiveInLastNDays(DatastoreService ds, int numDays) {

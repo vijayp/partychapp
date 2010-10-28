@@ -226,6 +226,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>reloadpersistentconfighandler</servlet-name>
     <url-pattern>/admin/reload-persistent-config</url-pattern>
   </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>concurrencytesthandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.ConcurrencyTestServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>concurrencytesthandler</servlet-name>
+    <url-pattern>/admin/concurrency-test</url-pattern>
+  </servlet-mapping>  
+  
 
   <security-constraint>
     <web-resource-collection>
