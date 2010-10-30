@@ -27,6 +27,7 @@ public class KickHandler extends SlashCommand {
     }
     
     if (msg.channel.kick(action)) {
+      msg.channel.put();
       String broadcast = "_" + msg.member.getAlias() + " kicked " +
           action + "_";
       msg.channel.broadcastIncludingSender(broadcast);

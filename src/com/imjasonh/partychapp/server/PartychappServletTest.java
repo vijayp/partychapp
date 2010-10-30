@@ -213,6 +213,26 @@ public class PartychappServletTest extends TestCase {
       
       new TestMessage(true, "neil@gmail.com", "/bug I don't like this behavior"),
       new TestMessage(false, "neil@gmail.com", "http://code.google.com/p/partychapp/issues/entry?summary=I+don%27t+like+this+behavior&comment=Filed+by+user+sanchito+from+channel+pancake"),
+      
+      new TestMessage(true, "neil@gmail.com", "/list"),
+      new TestMessage(false, "neil@gmail.com", "Listing members of 'pancake'\n" +
+          "* caps (caps@gmail.com)\n" +
+          "* david (david@gmail.com)\n" +
+          "* jason-- (jason@gmail.com)\n" +
+          "* kushal (kushal@kushaldave.com)\n" +
+          "* sanchito (neil@gmail.com)\n" +
+          "Room is invite-only."),      
+      
+      new TestMessage(true, "neil@gmail.com", "/kick caps"),
+      new TestMessage(false, "#4", "_sanchito kicked caps_"),
+
+      new TestMessage(true, "neil@gmail.com", "/list"),
+      new TestMessage(false, "neil@gmail.com", "Listing members of 'pancake'\n" +
+          "* david (david@gmail.com)\n" +
+          "* jason-- (jason@gmail.com)\n" +
+          "* kushal (kushal@kushaldave.com)\n" +
+          "* sanchito (neil@gmail.com)\n" +
+          "Room is invite-only.")
     };
 
     for (int i = 0; i < script.length;) {
