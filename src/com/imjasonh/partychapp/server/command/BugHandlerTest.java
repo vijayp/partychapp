@@ -12,4 +12,11 @@ public class BugHandlerTest extends CommandHandlerTestCase {
     assertEquals("http://code.google.com/p/partychapp/issues/entry?summary=I+don%27t+like+this+behavior&comment=Filed+by+user+neil+from+channel+pancake",
                  xmpp.messages.get(0).getBody());
   }
+  
+  public void testFileBugNoArgs() {
+    handler.doCommand(Message.createForTests("/bug"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals(
+        "You must specify a bug summary", xmpp.messages.get(0).getBody());
+  }  
 }

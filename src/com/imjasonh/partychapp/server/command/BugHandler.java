@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.common.base.Strings;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.logging.Level;
@@ -16,6 +18,11 @@ public class BugHandler extends SlashCommand {
   
   @Override
   void doCommand(Message msg, String argument) {
+    if (Strings.isNullOrEmpty(argument)) {
+      msg.channel.sendDirect("You must specify a bug summary", msg.member);
+      return;
+    }    
+    
     String summary = argument.trim();
     String comment = "Filed by user " + msg.member.getAlias() + " from channel " + msg.channel.getName();
     try {
@@ -28,6 +35,6 @@ public class BugHandler extends SlashCommand {
   }
 
   public String documentation() {
-    return "/bug - returns a link to a pre-populated form to file a bug.";
+    return "/bug <summary> - returns a link to a pre-populated form to file a bug.";
   }
 }
