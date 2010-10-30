@@ -32,9 +32,12 @@ public class PersistentConfiguration {
   private String listFeedUrl;
   
   @Persistent
-  private boolean areChannelStatsEnabled;
+  private Boolean areChannelStatsEnabled;
   
   public String sessionToken() { return sessionToken; }
   public String listFeedUrl() { return listFeedUrl; }
-  public boolean areChannelStatsEnabled() {return areChannelStatsEnabled; }
+  public boolean areChannelStatsEnabled() {
+    return areChannelStatsEnabled != null &&
+        areChannelStatsEnabled.booleanValue(); 
+  }
 }

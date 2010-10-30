@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.server.admin;
 
 import com.imjasonh.partychapp.Configuration;
+import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.PersistentConfiguration;
 
 import java.io.IOException;
@@ -20,11 +21,22 @@ public class ReloadPersistentConfigServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
-    resp.setContentType("text/html");
+    resp.setContentType("text/plain");
     Writer writer = resp.getWriter();
     
     Configuration.reloadPersistentConfig();
     
-    resp.getWriter().write("Reloaded");
+    resp.getWriter().write("Reloaded\n");
+    
+    // We also re-save the configuration, so that new fields that were added
+    // get reflected in the datastore, so they can be edited by the admin
+    // UI.
+    Datastore datastore = Datastore.instance();
+    
+    datastore.startRequest();
+    datastore.put(Configuration.persistentConfig());
+    datastore.endRequest();
+    
+    resp.getWriter().write("Re-saved configuration");
   }
 }
