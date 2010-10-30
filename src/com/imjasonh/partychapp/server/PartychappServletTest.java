@@ -259,9 +259,10 @@ public class PartychappServletTest extends TestCase {
   }
   
   public void testFixUp() {
+    Datastore datastore = Datastore.instance();
     // Initially the channel and the user don't exist
-    assertNull(Datastore.instance().getUserByJID("neil@gmail.com"));
-    assertNull(Datastore.instance().getChannelByName("pancake"));
+    assertNull(datastore.getUserByJID("neil@gmail.com"));
+    assertNull(datastore.getChannelByName("pancake"));
 
     // Channel and user creation based on the incoming message
     sendMessage("neil@gmail.com", "hi partychat");
@@ -277,9 +278,11 @@ public class PartychappServletTest extends TestCase {
     
     // Simulate the User object being in a channel isn't not supposed to be
     // in
-    User u = Datastore.instance().getUserByJID("neil@gmail.com");
+    datastore.startRequest();
+    User u = datastore.getUserByJID("neil@gmail.com");
     u.addChannel("pancake");
     u.put();
+    datastore.endRequest();
     
     // Things are inconsistent
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
@@ -298,9 +301,11 @@ public class PartychappServletTest extends TestCase {
     sendMessage("neil@gmail.com", "/leave");
     assertFalse(userInChannel("neil@gmail.com", "pancake"));
     assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
-    u = Datastore.instance().getUserByJID("neil@gmail.com");
+    datastore.startRequest();
+    u = datastore.getUserByJID("neil@gmail.com");
     u.addChannel("pancake");
     u.put();
+    datastore.endRequest();
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
     assertFalse(channelHasMember("pancake", "neil@gmail.com"));  
 
@@ -312,9 +317,11 @@ public class PartychappServletTest extends TestCase {
     
     // Make the room not be invite-only and rejoin, and then make it invite-only
     // again.
-    Channel c = Datastore.instance().getChannelByName("pancake");
+    datastore.startRequest();
+    Channel c = datastore.getChannelByName("pancake");
     c.setInviteOnly(false);
     c.put();
+    datastore.endRequest();
     sendMessage("neil@gmail.com", "hi partychat");
     assertTrue(userInChannel("neil@gmail.com", "pancake"));
     assertTrue(channelHasMember("pancake", "neil@gmail.com"));
@@ -322,9 +329,11 @@ public class PartychappServletTest extends TestCase {
     
     // Simulate the other inconsistency, where we're supposed to be in the room
     // but we're not
-    u = Datastore.instance().getUserByJID("neil@gmail.com");
+    datastore.startRequest();
+    u = datastore.getUserByJID("neil@gmail.com");
     u.removeChannel("pancake");
     u.put();
+    datastore.endRequest();
     assertFalse(userInChannel("neil@gmail.com", "pancake"));
     assertTrue(channelHasMember("pancake", "neil@gmail.com"));
     
