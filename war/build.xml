@@ -1,32 +1,8 @@
 <project default="compile-js">
-  <property name="closure_library_root" value="../third_party/closure-library" />
-  <property name="python_path" value="/usr/bin/python" />
-  <property name="compiler_root" value="../third_party/closure-compiler" />
-  <property name="soy_to_js_root" value="../third_party/closure-templates/soy-to-js" />
-
-  <target name="compile-soy">
-    <java jar="${soy_to_js_root}/SoyToJsSrcCompiler.jar" fork="true">
-      <arg line="--outputPathFormat soy-compiled/{INPUT_FILE_NAME_NO_EXT}_template.js" />
-      <arg line="--shouldProvideRequireSoyNamespaces" />
-      <arg line="--shouldGenerateJsdoc" />
-      <arg line="--codeStyle CONCAT" />
-      <arg line="soy-templates/partychapp.soy" />
-    </java>
-  </target>
-
-  <target name="compile-js" depends="compile-soy">
-    <exec executable="${python_path}" output="partychapp_compiled.js" logError="true">
-      <arg line="&quot;${closure_library_root}/closure/bin/calcdeps.py&quot;" />
-      <arg line="-o compiled" />
-      <arg line="-c ${compiler_root}/compiler.jar" />
-      <arg line="-f --compilation_level=ADVANCED_OPTIMIZATIONS" />
-      <arg line="-f --warning_level=VERBOSE" />
-      <arg line="-f --formatting=PRETTY_PRINT " />
-      <arg line="-i js/main.js" />
-      <arg line="-p js/" />
-      <arg line="-p ${closure_library_root}" />
-      <arg line="-p ${soy_to_js_root}" />
-      <arg line="-p soy-compiled" />
-    </exec>
+  <target name="compile-js">
+  	<java jar="../third_party/plovr.jar" output="partychapp_compiled.js" logError="true" fork="true">
+  	  <arg value="build"/>
+  	  <arg value="js/main-config.json"/>
+  	</java>
   </target>
 </project>

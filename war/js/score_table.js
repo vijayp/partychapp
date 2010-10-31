@@ -130,12 +130,13 @@ partychapp.ScoreTable = function(channelName, targetList) {
    */
   this.targetList = targetList;
   
-  /**
-   * @type {SortOrder}
-   */
-  this.sortOrder = SortOrder.BY_NAME;
   this.sortByName();
 }
+
+/**
+ * @type {SortOrder}
+ */
+partychapp.ScoreTable.prototype.sortOrder;
 
 partychapp.ScoreTable.prototype.sortByName = function() {
   if (this.sortOrder == SortOrder.BY_NAME) {

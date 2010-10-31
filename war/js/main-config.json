@@ -1,0 +1,7 @@
+{
+  "id": "main",
+  "paths": ".",
+  "inputs": "main.js",
+  "mode": "ADVANCED",
+  "level": "VERBOSE"
+}
