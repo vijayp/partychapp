@@ -4,6 +4,7 @@ import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+import com.imjasonh.partychapp.CachingDatastore;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
@@ -52,11 +53,20 @@ public class ChannelServlet extends HttpServlet {
       
       Writer writer = resp.getWriter();
       writer.write("Name: " + channel.getName() + "\n");
+      if (datastore instanceof CachingDatastore) {
+        CachingDatastore cachingDatastore = (CachingDatastore) datastore;
+        writer.write("Cache key: " + cachingDatastore.getKey(channel) + "\n");
+      }
       writer.write("Invite only: " + channel.isInviteOnly() + "\n");
       writer.write("Invitees:\n");
       for (String invitee : channel.getInvitees()) {
         writer.write("\t" + invitee + "\n");
       }
+      writer.write("Requested invitations:\n");
+      for (String requestedInvitation : channel.getRequestedInvitations()) {
+        writer.write("\t" + requestedInvitation + "\n");
+      }
+
       writer.write("Members:\n");
       
       List<Member> members = Lists.newArrayList(channel.getMembers());

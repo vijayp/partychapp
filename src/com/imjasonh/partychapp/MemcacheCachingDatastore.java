@@ -33,6 +33,12 @@ public class MemcacheCachingDatastore extends CachingDatastore {
   private static String applicationVersion;
   static {
     applicationVersion = SystemProperty.applicationVersion.get();
+    // Strip off timestamp from version, so that only major versions cause
+    // cache invalidations.
+    int periodPosition = applicationVersion.indexOf(".");
+    if (periodPosition != -1) {
+      applicationVersion = applicationVersion.substring(0, periodPosition);
+    }
     try {
       cache = CacheManager.getInstance().getCacheFactory().createCache(
           ImmutableMap.of(GCacheFactory.EXPIRATION_DELTA, EXPIRATION_SEC));
@@ -54,7 +60,7 @@ public class MemcacheCachingDatastore extends CachingDatastore {
     return applicationVersion + "." + super.getKey(cls, id);
   }    
   
-  @Override public void addToCache(String key, Object o) {
+  @Override protected void addToCache(String key, Object o) {
     if (cache == null) return;
     
     if (!(o instanceof Serializable)) {
@@ -75,7 +81,7 @@ public class MemcacheCachingDatastore extends CachingDatastore {
     }
   }
 
-  @Override public Object getFromCache(String key) {
+  @Override protected Object getFromCache(String key) {
     if (cache == null) return null;
     try {
       return cache.get(key);
@@ -85,7 +91,7 @@ public class MemcacheCachingDatastore extends CachingDatastore {
     }
   }
 
-  @Override public void invalidateCache(String key) {
+  @Override protected void invalidateCache(String key) {
     if (cache == null) return;
     try {
       cache.remove(key);

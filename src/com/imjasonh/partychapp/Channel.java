@@ -291,6 +291,10 @@ public class Channel implements Serializable {
     invitedIds.remove(invitee.toLowerCase().trim());
   }  
   
+  public List<String> getRequestedInvitations() {
+    return requestedInvitations;
+  }
+  
   public boolean hasRequestedInvitation(String email) {
     return requestedInvitations.contains(email.toLowerCase().trim());
   }

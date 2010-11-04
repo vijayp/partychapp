@@ -1,14 +1,16 @@
 package com.imjasonh.partychapp.server.admin;
 
+import com.google.appengine.api.xmpp.JID;
 import com.google.common.base.Strings;
 
+import com.imjasonh.partychapp.CachingDatastore;
+import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.User;
-import com.imjasonh.partychapp.server.json.UserInfoJsonServlet;
-
-import org.json.JSONException;
 
 import java.io.IOException;
+import java.io.Writer;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -43,15 +45,19 @@ public class UserServlet extends HttpServlet {
       
       resp.setContentType("text/plain; charset=utf-8");
       
-      // For now, easiest to reuse the JSON output
-      try {
-        resp.getWriter().write(
-            UserInfoJsonServlet.getJsonFromUser(user, datastore).toString());
-      } catch (JSONException err) {
-        // Shouldn't happen.
-        throw new RuntimeException(err);
+      Writer writer = resp.getWriter();
+      
+      writer.write("JID: " + user.getJID() + "\n");
+      if (datastore instanceof CachingDatastore) {
+        CachingDatastore cachingDatastore = (CachingDatastore) datastore;
+        writer.write("Cache key: " + cachingDatastore.getKey(user) + "\n");
       }      
-
+      writer.write("Email: " + user.getEmail() + "\n");
+      writer.write("Channels:\n");
+      for (Channel channel : user.getChannels()) {
+        Member member = channel.getMemberByJID(new JID(user.getJID()));
+        writer.write("  " + channel.getName() + " as " + (member != null ? member.getAlias() : "N/A") + "\n");
+      }
     } finally {
       datastore.endRequest();
     }

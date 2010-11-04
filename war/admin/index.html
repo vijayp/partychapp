@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Partychapp Admin UI</title>
+  <style>
+  p, form {
+    margin: 1em 0;
+  }
+  </style>
+  <script>
+    function inspectChannel() {
+      window.location.href = '/admin/channel/' + document.getElementById('channel-inspect-name').value;
+    }
+
+    function invalidateChannel() {
+      window.location.href = '/admin/channelinvalidate/' + document.getElementById('channel-invalidate-name').value;
+    }
+
+    function cleanupChannel() {
+      window.location.href = '/admin/channelcleanup/' + document.getElementById('channel-cleanup-name').value;
+    }
+
+    function inspectUser() {
+      window.location.href = '/admin/user/' + document.getElementById('user-inspect-name').value;
+    }
+  </script>
+</head>
+<body>
+
+<form onsubmit="inspectChannel(); return false;">
+  <label>
+    Inspect channel:
+    <input type="text" value="dogfood" id="channel-inspect-name">
+    <input type="submit">
+  </label>
+</form>
+
+<form onsubmit="invalidateChannel(); return false;">
+  <label>
+    Invalidate cached channel:
+    <input type="text" value="" id="channel-invalidate-name">
+    <input type="submit">
+  </label>
+</form>
+
+
+<form onsubmit="cleanupChannel(); return false;">
+  <label>
+    Clear channel transient/non-essential data:
+    <input type="text" value="" id="channel-cleanup-name">
+    <input type="submit">
+  </label>
+</form>
+
+<form onsubmit="inspectUser(); return false;">
+  <label>
+    Inspect user:
+    <input type="text" value="" id="user-inspect-name">
+    <input type="submit">
+  </label>
+</form>
+
+<p>
+  <a href="/admin/topchannels">Top channels</a> (requires channel stats to be enabled)
+</p>
+
+<p>
+  <a href="/admin/memcache-statistics">Memcache statistics</a>
+</p>
+
+<p>
+  <a href="/admin/reload-persistent-config">Reload <code>PersistentConfig</code></a>
+  (refresh a few times to hit all instances)
+</p>
+
+</body>
+</html>

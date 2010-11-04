@@ -5,6 +5,9 @@ import com.google.common.collect.Maps;
 
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
+import com.imjasonh.partychapp.server.admin.ChannelInvalidateServlet;
+import com.imjasonh.partychapp.server.admin.ChannelServlet;
+import com.imjasonh.partychapp.server.admin.UserServlet;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,9 +45,9 @@ public abstract class CachingDatastore extends Datastore {
     this.wrapped = wrapped;
   }
   
-  public abstract void invalidateCache(String key);
-  public abstract void addToCache(String key, Object o);
-  public abstract Object getFromCache(String key);
+  protected abstract void invalidateCache(String key);
+  protected abstract void addToCache(String key, Object o);
+  protected abstract Object getFromCache(String key);
   
   protected String getKey(Class<?> cls, String id) {
     return cls.getCanonicalName() + "#" + id;
@@ -53,9 +56,9 @@ public abstract class CachingDatastore extends Datastore {
   private boolean addToRequestCacheIfNecessary(Object o) {
     String key = null;
     if (o instanceof Channel) {
-      key = getKey(Channel.class, ((Channel) o).getName());
+      key = getKey((Channel) o);
     } else if (o instanceof User) {
-      key = getKey(User.class, ((User) o).getJID());
+      key = getKey((User) o);
     }
     
     if (key != null) {
@@ -77,14 +80,29 @@ public abstract class CachingDatastore extends Datastore {
    
     return getFromCache(key);
   }
+
+  /**
+   * Should be private, but is also used by {@link ChannelServlet}.
+   */
+  public String getKey(Channel channel) {
+    return getKey(Channel.class, channel.getName());
+  }
   
-  private void invalidateCacheIfNecessary(Object o) {
+  /**
+   * Should be private, but is also used by {@link UserServlet}.
+   */  
+  public String getKey(User user) {
+    return getKey(User.class, user.getJID());
+  }
+  
+  /**
+   * Should be private, but is also used by {@link ChannelInvalidateServlet}.
+   */
+  public void invalidateCacheIfNecessary(Object o) {
     if (o instanceof Channel) {
-      Channel c = (Channel) o;
-      invalidateCache(getKey(Channel.class, c.getName()));
+      invalidateCache(getKey((Channel) o));
     } else if (o instanceof User) {
-      User u = (User) o;      
-      invalidateCache(getKey(User.class, u.getJID()));
+      invalidateCache(getKey((User) o));
     }
   }
   

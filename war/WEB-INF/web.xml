@@ -165,8 +165,26 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>logoredirecthandler</servlet-name>
     <url-pattern>/logo.png</url-pattern>
   </servlet-mapping>
-
+  
   <!-- Admin UI -->
+  <servlet>
+    <servlet-name>adminredirecthandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.RedirectServlet</servlet-class>
+    <init-param>
+      <param-name>target</param-name>
+      <param-value>/admin/index.html</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>adminredirecthandler</servlet-name>
+    <url-pattern>/admin</url-pattern>
+  </servlet-mapping>  
+  <servlet-mapping>
+    <servlet-name>adminredirecthandler</servlet-name>
+    <url-pattern>/admin/</url-pattern>
+  </servlet-mapping>  
+
   <servlet>
     <servlet-name>adminchannelhandler</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.admin.ChannelServlet</servlet-class>
@@ -186,7 +204,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>adminchannelcleanuphandler</servlet-name>
     <url-pattern>/admin/channelcleanup/*</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>adminchannelinvalidatehandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.ChannelInvalidateServlet</servlet-class>
+  </servlet>
 
+  <servlet-mapping>
+    <servlet-name>adminchannelinvalidatehandler</servlet-name>
+    <url-pattern>/admin/channelinvalidate/*</url-pattern>
+  </servlet-mapping>
+ 
   <servlet>
     <servlet-name>adminuserhandler</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.admin.UserServlet</servlet-class>
@@ -208,13 +236,13 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
 
   <servlet>
-    <servlet-name>datastorecachestatistics</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.server.admin.DatastoreCacheStatisticsServlet</servlet-class>
+    <servlet-name>memcachestatistics</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.MemcacheStatisticsServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>datastorecachestatistics</servlet-name>
-    <url-pattern>/admin/datastore-cache-statistics</url-pattern>
+    <servlet-name>memcachestatistics</servlet-name>
+    <url-pattern>/admin/memcache-statistics</url-pattern>
   </servlet-mapping>
   
   <servlet>
@@ -327,7 +355,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </security-constraint>
 
   <!-- Appstats -->
-  <filter>
+<!--  <filter>
     <filter-name>appstats</filter-name>
     <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
     <init-param>
@@ -356,7 +384,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <auth-constraint>
       <role-name>admin</role-name>
     </auth-constraint>
-  </security-constraint>
+  </security-constraint>-->
   
   <!-- Channel stats -->
   <filter>

@@ -24,7 +24,7 @@ public class InMemoryCachingDatastore extends CachingDatastore {
     super(wrapped);
   }
   
-  @Override public void addToCache(String key, Object o) {
+  @Override protected void addToCache(String key, Object o) {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     try {
       ObjectOutputStream out = new ObjectOutputStream(bytes);
@@ -35,7 +35,7 @@ public class InMemoryCachingDatastore extends CachingDatastore {
     cache.put(key, bytes.toByteArray());
   }
 
-  @Override public Object getFromCache(String key) {
+  @Override protected Object getFromCache(String key) {
     byte[] bytes = cache.get(key);
     if (bytes == null) {
       return null;
@@ -51,7 +51,7 @@ public class InMemoryCachingDatastore extends CachingDatastore {
     }
   }
 
-  @Override public void invalidateCache(String key) {
+  @Override protected void invalidateCache(String key) {
     cache.remove(key);
   }    
 }
