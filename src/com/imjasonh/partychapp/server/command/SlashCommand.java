@@ -12,7 +12,7 @@ import com.imjasonh.partychapp.Message;
  */
 abstract class SlashCommand implements CommandHandler {
 
-  private Pattern pattern;
+  private final Pattern pattern;
 
   SlashCommand(String name, String... otherNames) {
     StringBuilder sb = new StringBuilder("^/(?:");

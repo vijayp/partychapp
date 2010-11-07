@@ -4,8 +4,8 @@ import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 
 public class AliasHandler extends SlashCommand {
-  
-  public static final String ALIAS_REGEX = "[a-zA-Z0-9\\-_'\\*]+";
+  // Letters, symbols, numbers and some punctuation
+  public static final String ALIAS_REGEX = "[\\pL\\pS\\pN\\-_'\\*]+";
   
   AliasHandler() {
     super("alias", "rename");
@@ -13,7 +13,6 @@ public class AliasHandler extends SlashCommand {
 
   @Override
   public void doCommand(Message msg, String alias) {
-    String oldAlias = msg.member.getAlias();
     if (alias == null || !alias.matches(ALIAS_REGEX)) {
       String reply = "That alias contains invalid characters";
       msg.channel.sendDirect(reply, msg.member);
@@ -28,6 +27,7 @@ public class AliasHandler extends SlashCommand {
       }
     }
 
+    String oldAlias = msg.member.getAlias();
     msg.member.setAlias(alias);
     msg.channel.put();
     
