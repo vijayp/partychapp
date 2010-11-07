@@ -1,19 +1,26 @@
 package com.imjasonh.partychapp.server.command;
 
+import com.google.appengine.api.urlfetch.FetchOptions;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.ResponseTooLargeException;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 
 import com.imjasonh.partychapp.Message;
 
-import java.io.BufferedReader;
+import org.apache.commons.lang.StringEscapeUtils;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -22,15 +29,8 @@ import java.util.regex.Pattern;
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
 public class ShareHandler extends SlashCommand {
-  private static final String TITLE_START = "<title>";
+  private static final Pattern TITLE_START = Pattern.compile("<title[^>]*>");
   private static final String TITLE_END = "</title>";
-  
-  // TODO(mihaip): do we care about other HTML entities?
-  private static final Map<Pattern, String> HTML_ENTITIES = ImmutableMap.of(
-      Pattern.compile(Pattern.quote("&lt;")), "<",
-      Pattern.compile(Pattern.quote("&gt;")), ">",
-      Pattern.compile(Pattern.quote("&amp;")), "&"
-  );
   
   private static final Logger logger = Logger.getLogger(BugHandler.class.getName());
 
@@ -87,14 +87,14 @@ public class ShareHandler extends SlashCommand {
       return null;
     }
     String contentLower = content.toLowerCase();
-
-    int titleStart = contentLower.indexOf(TITLE_START);
-    if (titleStart != -1) {
-      int titleEnd = contentLower.indexOf(TITLE_END, titleStart);
+    
+    Matcher titleStartMatcher = TITLE_START.matcher(contentLower);
+    if (titleStartMatcher.find()) {
+      int titleEnd = contentLower.indexOf(TITLE_END, titleStartMatcher.end());
       if (titleEnd != -1) {
         String title =
-            content.substring(titleStart + TITLE_START.length(), titleEnd);
-        title = unescapeHtml(title);
+            content.substring(titleStartMatcher.end(), titleEnd);
+        title = StringEscapeUtils.unescapeHtml(title);
         // Normalize newlines and other whitespace
         title = title.replaceAll("\\s+", " ").trim();
         return title;
@@ -104,30 +104,25 @@ public class ShareHandler extends SlashCommand {
     return null;
   }
   
-  @VisibleForTesting static String unescapeHtml(String html) {
-    for (Map.Entry<Pattern, String> entry : HTML_ENTITIES.entrySet()) {
-      html = entry.getKey().matcher(html).replaceAll(entry.getValue());
-    }
-    
-    return html;
-  }
-  
   @VisibleForTesting protected String getUriContents(URI uri) {
     try {
-      BufferedReader reader = 
-        new BufferedReader(new InputStreamReader(uri.toURL().openStream()));
-      String content = "";
-      String line;
-      while ((line = reader.readLine()) != null) {
-        content += line + "\n";
-      }
-      reader.close();
-      return content;
+      URLFetchService urlFetchService = 
+          URLFetchServiceFactory.getURLFetchService();
+      FetchOptions fetchOptions = FetchOptions.Builder
+          .allowTruncate()
+          .followRedirects()
+          .setDeadline(5.0);
+      HTTPRequest request =
+          new HTTPRequest(uri.toURL(), HTTPMethod.GET, fetchOptions);
+      HTTPResponse response = urlFetchService.fetch(request);
+      return new String(response.getContent(), Charset.forName("UTF-8"));
     } catch (MalformedURLException err) {
       // Ignore, but all URIs should be URLs
       logger.warning("Malformed URL in share: " + uri);
     } catch (IOException err) {
       // Ignore, don't care if we can't fetch the URL
+    } catch (ResponseTooLargeException err) {
+      // Shouldn't happen, since we allow truncation, but just in case.
     }
     
     // Fallthrough

@@ -81,13 +81,23 @@ public class ShareHandlerTest extends CommandHandlerTestCase {
     assertEquals(
         "_neil is sharing http://example.com (title foo bar)_",
         xmpp.messages.get(0).getBody());        
+
+    // Title with attributes
+    xmpp.messages.clear();
+    handler.setUriContents("foo<title id=\"the-title\">title</title>bar");
+    handler.doCommand(Message.createForTests("/share http://example.com"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals(
+        "_neil is sharing http://example.com (title)_",
+        xmpp.messages.get(0).getBody());        
+
+    // Title with escaped HTML
+    xmpp.messages.clear();
+    handler.setUriContents("<title>Python quiz &laquo; Vijay Pandurangan&#039;s blog</title>");
+    handler.doCommand(Message.createForTests("/share http://example.com"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals(
+        "_neil is sharing http://example.com (Python quiz \u00AB Vijay Pandurangan's blog)_",
+        xmpp.messages.get(0).getBody());
   }
-  
-  public void testUnescapeHtml() {
-    assertEquals("foo", ShareHandler.unescapeHtml("foo"));
-    assertEquals("foo&bar", ShareHandler.unescapeHtml("foo&amp;bar"));
-    assertEquals("foo&amp;bar", ShareHandler.unescapeHtml("foo&amp;amp;bar"));
-    assertEquals("foo<bar>", ShareHandler.unescapeHtml("foo&lt;bar&gt;"));
-    }
- 
 }
