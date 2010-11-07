@@ -20,11 +20,12 @@ public class ListHandler extends SlashCommand {
 	
   @Override
   public void doCommand(Message msg, String argument) {
-    // TODO: Reject or act on non-null argument
+    boolean isFiltering = !Strings.isNullOrEmpty(argument);
     
     List<Member> members = Lists.newArrayList(msg.channel.getMembers());
+    List<String> invitees = Lists.newArrayList(msg.channel.getInvitees());
      
-    if (!Strings.isNullOrEmpty(argument)) {
+    if (isFiltering) {
       List<Member> filteredMembers = Lists.newArrayList();
       for (Member m : members) {
         if (m.getAlias().contains(argument) ||
@@ -33,6 +34,14 @@ public class ListHandler extends SlashCommand {
         }
       }
       members = filteredMembers;
+      
+      List<String> filteredInvitees = Lists.newArrayList();
+      for (String invitee : invitees) {
+        if (invitee.contains(argument)) {
+          filteredInvitees.add(invitee);
+        }
+      }
+      invitees = filteredInvitees;
     }
     
     Collections.sort(members, new Member.SortMembersForListComparator());
@@ -40,7 +49,7 @@ public class ListHandler extends SlashCommand {
         .append("Listing members of '")
         .append(msg.channel.getName())
         .append("'");
-    if (!Strings.isNullOrEmpty(argument)) {
+    if (isFiltering) {
       sb.append(" that match '" + argument + "'");
     }
     for (Member m : members) {
@@ -58,10 +67,10 @@ public class ListHandler extends SlashCommand {
       }
     }
 
-    if (msg.channel.isInviteOnly()) {
+    if (msg.channel.isInviteOnly() && !isFiltering) {
       sb.append("\nRoom is invite-only.");
     }
-    for (String invitee : msg.channel.getInvitees()) {
+    for (String invitee : invitees) {
       sb.append("\nInvited: ").append(invitee);
     }
     msg.channel.sendDirect(sb.toString(), msg.member);
