@@ -110,9 +110,9 @@ var SortOrder = {
 };
 
 /** @const */
-var UP_ARROW = '&#8679;';
+var UP_ARROW = '&#9650;';
 /** @const */
-var DOWN_ARROW = '&#8681;';
+var DOWN_ARROW = '&#9660;';
 
 /**
  * @constructor
