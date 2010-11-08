@@ -15,7 +15,7 @@ import java.util.List;
 public class ListHandler extends SlashCommand {
   
   public ListHandler() {
-    super("list", "names", "who");
+    super("list", "names", "who", "members");
   }
 	
   @Override
