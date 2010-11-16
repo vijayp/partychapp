@@ -28,8 +28,8 @@ public abstract class Datastore {
     if (instance == null) {
       // We have to do this lazily because tests won't have the
       // live datastore dependencies set up
-      instance = new MemcacheCachingDatastore(
-          new FixingDatastore(new LiveDatastore()));
+      instance = new FixingDatastore(new MemcacheCachingDatastore(
+          new LiveDatastore()));
     }
     return instance;
   }

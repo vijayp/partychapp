@@ -28,6 +28,7 @@ import com.imjasonh.partychapp.server.command.SnoozeHandlerTest;
 import com.imjasonh.partychapp.server.command.StatsHandlerTest;
 import com.imjasonh.partychapp.server.command.StatusHandlerTest;
 import com.imjasonh.partychapp.server.command.SummonHandlerTest;
+import com.imjasonh.partychapp.server.command.ToggleLoggingHandlerTest;
 import com.imjasonh.partychapp.server.command.UndoHandlerTest;
 
 public class AllTests {
@@ -42,6 +43,7 @@ public class AllTests {
     suite.addTestSuite(LeaveHandlerTest.class);
     suite.addTestSuite(ReasonsHandlerTest.class);
     suite.addTestSuite(ScoreHandlerTest.class);
+    suite.addTestSuite(ToggleLoggingHandlerTest.class);
     suite.addTestSuite(MeHandlerTest.class);
     suite.addTestSuite(SearchReplaceHandlerTest.class);
     suite.addTestSuite(PartychappServletTest.class);

@@ -119,6 +119,9 @@ public class Member implements Serializable {
   }
   
   public void addToLastMessages(String toAdd) {
+    if (channel != null && channel.isLoggingDisabled()) {
+      return;
+    }
     if (toAdd.length() > MAX_PERSISTED_MESSAGE_LENGTH) {
       toAdd = toAdd.substring(0, MAX_PERSISTED_MESSAGE_LENGTH);
     }
@@ -147,6 +150,11 @@ public class Member implements Serializable {
       lastMessages = Lists.newArrayList();
       shouldPut = true;
     }
+    if (channel.isLoggingDisabled() && !lastMessages.isEmpty()) {
+      clearLastMessages();
+      shouldPut = true;
+    }
+    
     return shouldPut;
   }
   

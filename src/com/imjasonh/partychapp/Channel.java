@@ -54,6 +54,12 @@ public class Channel implements Serializable {
    */
   @Persistent
   private List<String> requestedInvitations = Lists.newArrayList();
+  
+  /**
+   * Turns off storing of recent messages for the room. 
+   */
+  @Persistent
+  private Boolean loggingDisabled = false;
     
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
@@ -68,6 +74,7 @@ public class Channel implements Serializable {
       this.members.add(new Member(m));
     }
     this.sequenceId = other.sequenceId;
+    this.loggingDisabled = other.loggingDisabled;
   }
   
   public JID serverJID() {
@@ -98,6 +105,14 @@ public class Channel implements Serializable {
 
   public void setInviteOnly(boolean inviteOnly) {
     this.inviteOnly = inviteOnly;
+  }
+  
+  public void setLoggingDisabled(boolean loggingDisabled) {
+    this.loggingDisabled = loggingDisabled;
+    if (loggingDisabled) {
+      // Clear currently logged messages if we're disabling logging.
+      fixUp();
+    }
   }
   
   /**
@@ -278,6 +293,10 @@ public class Channel implements Serializable {
   public void delete() {
     Datastore.instance().delete(this);
   }
+  
+  public boolean isLoggingDisabled() {
+    return loggingDisabled;
+  }
 
   public boolean isInviteOnly() {
     return inviteOnly;
@@ -454,6 +473,12 @@ public class Channel implements Serializable {
     }
     if (inviteOnly == null) {
       inviteOnly = false;  
+      shouldPut = true;
+    }
+    if (loggingDisabled == null) {
+      // Default large rooms to disabled logging, so that their Channel entities
+      // are smaller.
+      loggingDisabled = members.size() > LARGE_CHANNEL_THRESHOLD;
       shouldPut = true;
     }
     if (invitedIds == null) {

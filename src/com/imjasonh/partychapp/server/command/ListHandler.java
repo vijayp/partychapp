@@ -67,8 +67,13 @@ public class ListHandler extends SlashCommand {
       }
     }
 
-    if (msg.channel.isInviteOnly() && !isFiltering) {
-      sb.append("\nRoom is invite-only.");
+    if (!isFiltering) {
+      if (msg.channel.isInviteOnly()) {
+        sb.append("\nRoom is invite-only.");
+      }
+      if (msg.channel.isLoggingDisabled()) {
+        sb.append("\nLogging is disabled.");
+      }      
     }
     for (String invitee : invitees) {
       sb.append("\nInvited: ").append(invitee);

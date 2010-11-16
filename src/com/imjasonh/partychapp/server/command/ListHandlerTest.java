@@ -25,7 +25,22 @@ public class ListHandlerTest extends CommandHandlerTestCase {
                  "* kushal (kushal@kushaldave.com)\n" +
                  "* neil (neil@gmail.com)",
                  xmpp.messages.get(0).getBody());
-
+  }
+  
+  public void testRoomInfo() {
+    FakeDatastore.fakeChannel().setInviteOnly(true);
+    FakeDatastore.fakeChannel().setLoggingDisabled(true);
+    handler.doCommand(Message.createForTests("/list"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals("Listing members of 'pancake'\n" +
+                 "* akshay (akshay@q00p.net)\n" +
+                 "* david (david@gmail.com)\n" +
+                 "* jason (jason@gmail.com)\n" +
+                 "* kushal (kushal@kushaldave.com)\n" +
+                 "* neil (neil@gmail.com)\n" +
+                 "Room is invite-only.\n" +
+                 "Logging is disabled.",
+                 xmpp.messages.get(0).getBody());
   }
   
   public void testFilteringByAlias() {
