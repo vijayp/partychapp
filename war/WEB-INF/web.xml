@@ -113,7 +113,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 
   <servlet>
     <servlet-name>webuserhandler</servlet-name>
-    <jsp-file>user.jsp</jsp-file>
+    <jsp-file>/user.jsp</jsp-file>
   </servlet>
 
   <servlet-mapping>
@@ -123,7 +123,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   
   <servlet>
     <servlet-name>faqhandler</servlet-name>
-    <jsp-file>faq.jsp</jsp-file>
+    <jsp-file>/faq.jsp</jsp-file>
   </servlet>
 
   <servlet-mapping>
