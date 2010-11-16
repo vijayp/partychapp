@@ -25,7 +25,7 @@ public class SearchReplaceHandler implements CommandHandler {
   public void doCommand(Message msg) {
     boolean isSuggestion = false;
     List<String> lastMessages = Lists.newArrayList(msg.member.getLastMessages()); 
-    String correctionPrefix = "_" + msg.member.getAlias() + " meant ";
+    String correctionPrefix = msg.member.getAlias() + " meant _";
 
     msg.member.addToLastMessages(msg.content);
     msg.channel.put();
@@ -56,8 +56,8 @@ public class SearchReplaceHandler implements CommandHandler {
         return;
       } else if (other != msg.member) {
         lastMessages = other.getLastMessages();
-        correctionPrefix = "_" + msg.member.getAlias() + " thinks " + otherAlias +
-            " meant ";
+        correctionPrefix = msg.member.getAlias() + " thinks " + otherAlias +
+            " meant _";
         isSuggestion = true;
       }
     }

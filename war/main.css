@@ -42,39 +42,43 @@ body {
   right: 0;
 }
 
-#create-table td {
+#channel-settings-table td {
   padding: 5px 2px;
 }
 
-#create-table #room-name,
-#create-table #invitees {
+#channel-settings-table #room-name,
+#channel-settings-table #invitees {
   width: 250px;
 }
 
-#create-table .label {
+#channel-settings-table .label {
   text-align: right;
   font-weight: bold;
   vertical-align: top;
 }
 
-#create-table .description {
+#channel-settings-table .description {
   color: #999;
   font-size: smaller;
   font-weight: normal;
   line-height: 100%;
 }
 
-#create-table .buttons {
+#channel-settings-table .buttons {
   text-align: right;
 }
 
-#create-table .inviteonly-table {
+#channel-settings-table .radio-option-table {
   border-spacing: 0;
   border-collapse: collapse;
 }
 
-#create-table .inviteonly-table td {
+#channel-settings-table .radio-option-table td {
   padding: 0;
+}
+
+#channel-settings-table .radio-option-table td a {
+  text-decoration: none;
 }
 
 #create-result {
@@ -89,7 +93,17 @@ h2 {
   border-bottom: solid 1px #ccc;
 }
 
+.channel h3 {
+  border-bottom: solid 1px #ccc;
+  margin-bottom: 0;
+}
+
+.channel #channel-settings-table {
+  width: 100%;
+}
+
 .channel-table {
+  margin-top: 0;
   border-spacing: 0;
   border-collapse: collapse;
   width: 600px;
@@ -103,7 +117,7 @@ h2 {
 
 .channel-table th {
   text-align: left;
-  border-bottom: solid 1px #ccc;
+  background: #eee;
 }
 
 .target-loading {

@@ -55,7 +55,7 @@ stays safe. <%
   <input type="button" value="Create a new room" onclick="showCreateForm()" />
 </div>
 <form onsubmit="return submitCreateRoom()">
-<table id="create-table" class="hidden">
+<table id="channel-settings-table" class="hidden">
   <tr>
     <td class="label">Room name:</td>
     <td><input type="text" size="40" id="room-name"></td>
@@ -63,7 +63,7 @@ stays safe. <%
   <tr>
     <td class="label">Room type:</td>
     <td>
-      <table class="inviteonly-table">
+      <table class="radio-option-table">
         <tr>
           <td><input type="radio" name="inviteonly" value="true" checked="yes" id="inviteonly-true"></td>
           <td><label for="inviteonly-true">Invite-only</label></td>
@@ -74,7 +74,7 @@ stays safe. <%
         </tr>
       </table>
 
-      <table class="inviteonly-table">
+      <table class="radio-option-table">
         <tr>
           <td><input type="radio" name="inviteonly" value="false" id="inviteonly-false"></td>
           <td><label for="inviteonly-false">Open</label></td>
@@ -130,8 +130,9 @@ message to your new buddy</b>, such as "hi." This will finish adding you to
 the room. <br>
 <br>
 Alternatively, if a room is not invite-only, you can just add <tt>[roomname]@<%=Configuration.chatDomain%></tt>
-to your buddy list and send it a message. <a name="nowwhat">
-<h3>Okay, I'm in a room, now what?</h3>
+to your buddy list and send it a message.
+
+<h3 id="nowwhat">Okay, I'm in a room, now what?</h3>
 <p>Besides just sending messages and having everyone see them, most of the
 things you can do take the form of commands you type as special chat
 messages starting with a /.</p>
@@ -142,7 +143,7 @@ messages starting with a /.</p>
 </p>
 
 <p>You can get a full list of commands by sending the chat message <tt>/help</tt>
-to the room. Some key ones:</p>
+to the room, or <a href="/about/faq#commands">on this page</a>. Some key ones:</p>
 <ul>
 	<li><tt>/leave</tt> Leave this chat room. You can rejoin by
 	sending another message to the room. If the room is invite-only, you
@@ -155,13 +156,9 @@ to the room. Some key ones:</p>
 	<li><tt>/me <i>someaction</i></tt> Tell the room what you're up
 	to. If you type <tt>/me is rolling his eyes</tt>, everyone sees <tt>[youralias]
 	is rolling his eyes</tt>.</li>
-	<li><tt>/score <i>something</i></tt> This one's a bit complicated.
-	You can give points to things you like by typing ++ at the end of them
-	in your message. For example, you might say <tt>partychat++ for
-	being so handy</tt>. This adds one to the score for partychat, which you can
-	see by typing <tt>/score partychat</tt>. Or you can take points away
-	from things you dislike, such as <tt>kushal-- for another bad pun</tt>.</li>
 </ul>
+
+<p>There are also more advanced things like <a href="/about/faq#search-and-replace">search-and-replace</a> and <a href="/about/faq#plusplusbot">the PlusPlusBot</a> that you may want to <a href="/about/faq">read about</a>.</p>
 
 <h3>Does anyone use this thing?</h3>
 

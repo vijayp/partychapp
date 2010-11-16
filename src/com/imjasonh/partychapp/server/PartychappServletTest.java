@@ -110,14 +110,14 @@ public class PartychappServletTest extends TestCase {
       new TestMessage(true, "neil@gmail.com", "s/jason/intern/"),
       new TestMessage(false, "-neil@gmail.com", "[neil] s/jason/intern/"),
       new TestMessage(false, "#2", "Undoing original actions: jason++ [back to 0]"),
-      new TestMessage(false, "#2", "_neil meant intern++ [woot! now at 1] for joining_"),
+      new TestMessage(false, "#2", "neil meant _intern++ [woot! now at 1] for joining_"),
 
       new TestMessage(true, "neil@gmail.com", "blah blah blah"),      
       new TestMessage(false, "-neil@gmail.com", "[neil] blah blah blah"),
 
       new TestMessage(true, "neil@gmail.com", "s/blah/whee/"),
       new TestMessage(false, "-neil@gmail.com", "[neil] s/blah/whee/"),
-      new TestMessage(false, "#2", "_neil meant whee blah blah_"),
+      new TestMessage(false, "#2", "neil meant _whee blah blah_"),
 
       new TestMessage(true, "neil@gmail.com", "/alias sanchito"),
       new TestMessage(false, "neil@gmail.com", "You are now known as 'sanchito'"),

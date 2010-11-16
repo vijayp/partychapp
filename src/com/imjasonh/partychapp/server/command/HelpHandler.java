@@ -15,7 +15,7 @@ public class HelpHandler extends SlashCommand {
     StringBuilder sb = new StringBuilder().append("List of commands:").append('\n');
     for (Command command : Command.values()) {
       String docs = command.commandHandler.documentation();
-      if (docs != null) {
+      if (docs != null && command.category != Command.Category.HIDDEN) {
         sb.append("* ")
             .append(command.commandHandler.documentation())
             .append('\n');

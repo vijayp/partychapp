@@ -59,8 +59,8 @@ public class PPBHandler implements CommandHandler {
   }
   
   public void doCommandAsCorrection(Message msg) {
-    doCommandWithCustomizedReply(msg, "_" + msg.member.getAlias() + 
-                                 " meant ", "_");
+    doCommandWithCustomizedReply(msg, msg.member.getAlias() + 
+                                 " meant _", "_");
   }
   
   public void doCommand(Message msg) {

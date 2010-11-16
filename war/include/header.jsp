@@ -20,6 +20,8 @@
     in</a> <%
       }
      %>
+     |
+     <a href="/about/faq">FAQ</a>
   </div>
   <% if (Strings.isNullOrEmpty(request.getParameter("subtitle"))) { %>
     <div id="header">

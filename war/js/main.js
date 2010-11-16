@@ -15,7 +15,7 @@ goog.require('goog.Uri');
 
 function showCreateForm() {
   goog.dom.classes.add(goog.dom.$('create-button-container'), 'hidden');
-  goog.dom.classes.remove(goog.dom.$('create-table'), 'hidden');
+  goog.dom.classes.remove(goog.dom.$('channel-settings-table'), 'hidden');
 }
 goog.exportSymbol('showCreateForm', showCreateForm);
 

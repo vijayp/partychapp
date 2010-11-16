@@ -23,22 +23,23 @@ public enum Command {
   SCORE(new ScoreHandler()),
   REASONS(new ReasonsHandler()),
   ME(new MeHandler()),
-  INVITE(new InviteHandler()),
+  SHARE(new ShareHandler()),
   INVITE_ONLY(new InviteOnlyHandler()),
+  TOGGLE_LOGGING(new ToggleLoggingHandler()),
+  INVITE(new InviteHandler()),
   KICK(new KickHandler()),
   STATUS(new StatusHandler()),
   SUMMON(new SummonHandler()),
   UNDO(new UndoHandler()),
-  DEBUG(new DebugHandler()),
-  STATS(new StatsHandler()),
+  DEBUG(new DebugHandler(), Category.HIDDEN),
+  STATS(new StatsHandler(), Category.HIDDEN),
   GRAPH_SCORES(new GraphScoreHandler()),
   SNOOZE(new SnoozeHandler()),
-  SET_PHONE_NUMBER(new SetPhoneNumberHandler()),
-  SET_CARRIER(new SetCarrierHandler()),
-  BROADCAST_SMS(new SendBroadcastSMSHandler()),
+  SET_PHONE_NUMBER(new SetPhoneNumberHandler(), Category.HIDDEN),
+  SET_CARRIER(new SetCarrierHandler(), Category.HIDDEN),
+  BROADCAST_SMS(new SendBroadcastSMSHandler(), Category.HIDDEN),
   BUG(new BugHandler()),
-  SHARE(new ShareHandler()),
-
+  
   // these have to be after the slash-commands
   SEARCHREPLACE(new SearchReplaceHandler()),
   PLUSPLUSBOT(new PPBHandler()),
@@ -46,15 +47,26 @@ public enum Command {
   // this has to be last
   BROADCAST(new BroadcastHandler()),
   ;
+  
+  public enum Category {
+    DEFAULT,
+    HIDDEN
+  }
 
   @SuppressWarnings("unused")
   private static final Logger logger =
       Logger.getLogger(Command.class.getName());
   
   public final CommandHandler commandHandler;
+  public final Category category;
 
   private Command(CommandHandler commandHandler) {
+    this(commandHandler, Category.DEFAULT);
+  }
+
+  private Command(CommandHandler commandHandler, Category category) {
     this.commandHandler = commandHandler;
+    this.category = category;
   }
 
   public static CommandHandler getCommandHandler(Message msg) {
