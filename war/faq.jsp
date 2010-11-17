@@ -25,6 +25,7 @@
     <li><a href="#plusplusbot">How can I give and take away points?</a></li>
     <li><a href="#logging">What gets logged when I use Partychat?</a></li>
     <li><a href="#web-ui">Can I access Partychat from my browser?</a></li>
+    <li><a href="#feedback">How can I give feedback?</a></li>
     <li><a href="#name">Partychat or Partychapp?</a></li>
   </ul>
   
@@ -108,6 +109,11 @@
   <p>On the web page, you can change a room's <a href="#logging">loggging</a>
   settings, see <a href="#plusplusbot">PlusPlusBot</a> scores, and invite
   other users.</p>
+  
+  <h3 id="feedback">How can I give feedback?</h3>
+  
+  <p>You can give feedback to the developers at
+	<script type="text/javascript">printEmail()</script>.</p>
   
   <h3 id="name">Partychat or Partychapp?</h3>
   
