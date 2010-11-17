@@ -109,6 +109,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   <servlet-mapping>
     <servlet-name>webchannelhandler</servlet-name>
     <url-pattern>/channel/*</url-pattern>
+    <url-pattern>/room/*</url-pattern>
   </servlet-mapping>
 
   <servlet>

@@ -70,7 +70,7 @@
         </tr>
         <tr class="description">
           <td></td>
-          <td>Recent messages are recorded for <a href="/about/faq#search-and-replace">search-and-replace</a> and <a href="<a href="/about/faq#commands">/undo</a></td>
+          <td>Recent messages are recorded for <a href="/about/faq#search-and-replace">search-and-replace</a> and <a href="/about/faq#commands">/undo</a></td>
         </tr>
       </table>
 

@@ -103,7 +103,7 @@
   <a href="<%=UserServiceFactory.getUserService().createLoginURL("/")%>">sign
   in</a>, you'll see a list of the rooms you're in on the
   <a href="/">homepage</a>, with each room being a link. Alternatively, you
-  can visit <code>http://partychapp.appspot.com/channel/<i>&lt;room name&gt;</i></code>
+  can visit <code>http://partychapp.appspot.com/room/<i>&lt;room name&gt;</i></code>
   to go to a room's web page directly.</p>
   
   <p>On the web page, you can change a room's <a href="#logging">logging</a>
