@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.imjasonh.partychapp.CachingDatastore;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.WrappingDatastore;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -33,14 +34,14 @@ public class ChannelInvalidateServlet extends HttpServlet {
     // Strip leading slash to get channel name
     String channelName = req.getPathInfo().substring(1);
     
-    Datastore datastore = Datastore.instance();
+    CachingDatastore cachingDatastore = WrappingDatastore.findWrappedInstance(
+        Datastore.instance(), CachingDatastore.class);
     
-    if (!(datastore instanceof CachingDatastore)) {
+    if (cachingDatastore == null) {
       writer.write("Not using a CachingDastore");
       return;
     }
     
-    CachingDatastore cachingDatastore = (CachingDatastore) datastore;
     cachingDatastore.startRequest();
     Channel channel = cachingDatastore.getChannelByName(channelName);
     cachingDatastore.invalidateCacheIfNecessary(channel);
