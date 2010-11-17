@@ -57,7 +57,7 @@
   
   <blockquote><b>dolapo:</b> that's corny, kushal<br>
   <b class="alt">kushal:</b> dolapo: s/that's c/I'm h/<br>
-  <b class="alt2">partychat:</b> kushal thinks dolapo meant <i>I'm hony, kushal</i><br>
+  <b class="alt2">partychat:</b> kushal thinks dolapo meant <i>I'm horny, kushal</i><br>
   <b>dolapo:</b> seeya<br>
   <b class="alt">kushal:</b> dolapo: s/see/boo/<br>
   <b class="alt2">partychat:</b> kushal thinks dolapo meant <i>booya</i></blockquote>
@@ -83,8 +83,8 @@
   
   <p><b>By Partychat:</b> If you enable logging for a room (controlled by the
   <a href="#web-ui">web interface</a>), then recent messages (currently 10 for
-  each member) will be logged. This enable the <a href="#search-and-replace">search
-  and replace</a> feature and <code>/undo</code> command to work.</p>
+  each member) will be logged. This enables the <a href="#search-and-replace">search
+  and replace</a> feature and <code>/undo</code> commands to work.</p>
 
   <p><b>By Gmail/Google Talk:</b> If you use a Gmail/Google Talk account, chats
   may be archived by default (this is what enables messages that were sent
@@ -103,10 +103,10 @@
   <a href="<%=UserServiceFactory.getUserService().createLoginURL("/")%>">sign
   in</a>, you'll see a list of the rooms you're in on the
   <a href="/">homepage</a>, with each room being a link. Alternatively, you
-  can visit <code>http://partychatpp.appspot.com/channel/<i>&lt;room name&gt;</i></code>
+  can visit <code>http://partychapp.appspot.com/channel/<i>&lt;room name&gt;</i></code>
   to go to a room's web page directly.</p>
   
-  <p>On the web page, you can change a room's <a href="#logging">loggging</a>
+  <p>On the web page, you can change a room's <a href="#logging">logging</a>
   settings, see <a href="#plusplusbot">PlusPlusBot</a> scores, and invite
   other users.</p>
   
