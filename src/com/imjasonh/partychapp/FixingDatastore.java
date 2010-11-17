@@ -8,11 +8,9 @@ import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
 
-public class FixingDatastore extends Datastore {
-  private final Datastore wrapped;
-
+public class FixingDatastore extends WrappingDatastore {
   public FixingDatastore(Datastore wrapped) {
-    this.wrapped = wrapped;
+    super(wrapped);
   }
   
   @Override

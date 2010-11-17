@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
-public abstract class CachingDatastore extends Datastore {
+public abstract class CachingDatastore extends WrappingDatastore {
   
   private final ThreadLocal<Map<String, Object>> requestCache =
       new ThreadLocal<Map<String, Object>>() {
@@ -39,10 +39,8 @@ public abstract class CachingDatastore extends Datastore {
     }
   };
 
-  private final Datastore wrapped;
-
   protected CachingDatastore(Datastore wrapped) {
-    this.wrapped = wrapped;
+    super(wrapped);
   }
   
   protected abstract void invalidateCache(String key);
@@ -121,7 +119,9 @@ public abstract class CachingDatastore extends Datastore {
     Channel channel = (Channel) getFromRequestCacheOrCache(key);
     if (channel == null) {
       channel = wrapped.getChannelByName(name);
-      addToCache(key, channel);
+      if (channel != null) {
+        addToCache(key, channel);
+      }
     }
     return channel;
   }
@@ -151,7 +151,9 @@ public abstract class CachingDatastore extends Datastore {
     User user = (User) getFromRequestCacheOrCache(key);
     if (user == null) {
       user = wrapped.getUserByJID(jid);
-      addToCache(key, user);
+      if (user != null) {
+        addToCache(key, user);
+      }
     }
     return user;    
   }

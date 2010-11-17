@@ -8,6 +8,7 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.User;
+import com.imjasonh.partychapp.WrappingDatastore;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -48,8 +49,8 @@ public class UserServlet extends HttpServlet {
       Writer writer = resp.getWriter();
       
       writer.write("JID: " + user.getJID() + "\n");
-      if (datastore instanceof CachingDatastore) {
-        CachingDatastore cachingDatastore = (CachingDatastore) datastore;
+      CachingDatastore cachingDatastore = WrappingDatastore.findWrappedInstance(datastore, CachingDatastore.class);
+      if (cachingDatastore != null) {
         writer.write("Cache key: " + cachingDatastore.getKey(user) + "\n");
       }      
       writer.write("Email: " + user.getEmail() + "\n");

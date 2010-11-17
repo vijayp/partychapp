@@ -86,7 +86,7 @@ public class Channel implements Serializable {
   }
   
   public String webUrl() {
-    return "http://" + Configuration.webDomain + "/channel/" + name;
+    return "http://" + Configuration.webDomain + "/room/" + name;
   }
 
   public void invite(String email) {
@@ -531,7 +531,7 @@ public class Channel implements Serializable {
     }
     
     if (shouldPut) {
-      logger.warning("Channel " + name + "needed fixing up");
+      logger.warning("Channel " + name + " needed fixing up");
       put();
     }
   }
