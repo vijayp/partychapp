@@ -54,7 +54,7 @@ public class BroadcastHandlerTest extends CommandHandlerTestCase {
 
     assertEquals("_jason is no longer snoozing_", xmpp.messages.get(0).getBody());
 
-    assertEquals("[neil] test 2", xmpp.messages.get(1).getBody());
+    assertEquals("*neil:* test 2", xmpp.messages.get(1).getBody());
     List<String> jids = Lists.newArrayList();
     for (JID j : xmpp.messages.get(1).getRecipientJids()) {
       jids.add(j.getId());

@@ -13,6 +13,6 @@ public class IncomingSMSHandlerTest extends CommandHandlerTestCase {
     handler.doCommand(m);
     
     assertEquals(1, xmpp.messages.size());
-    assertEquals("*via SMS* [neil] this is a text message", xmpp.messages.get(0).getBody());
+    assertEquals("*via SMS* *neil:* this is a text message", xmpp.messages.get(0).getBody());
   }
 }
