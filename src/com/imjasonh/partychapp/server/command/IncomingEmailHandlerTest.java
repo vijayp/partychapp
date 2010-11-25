@@ -13,6 +13,6 @@ public class IncomingEmailHandlerTest extends CommandHandlerTestCase {
     handler.doCommand(m);
     
     assertEquals(1, xmpp.messages.size());
-    assertEquals("**via email** *neil:* Subject: x / Body: blah blah", xmpp.messages.get(0).getBody());
+    assertEquals("**via email** [neil] Subject: x / Body: blah blah", xmpp.messages.get(0).getBody());
   }
 }

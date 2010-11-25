@@ -26,7 +26,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
   public void testSummonSomeone() {
     handler.doCommand(Message.createForTests("/summon jason"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /summon jason", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] /summon jason", xmpp.messages.get(0).getBody());
     assertEquals("_neil summoned jason_", xmpp.messages.get(1).getBody());
     
     assertEquals(1, mailer.sentMessages.size());
@@ -41,7 +41,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
   public void testSummonSomeoneWithMessage() {
 	  handler.doCommand(Message.createForTests("/summon jason where is lauren?"));
 	  assertEquals(2, xmpp.messages.size());
-	  assertEquals("*neil:* /summon jason where is lauren?", xmpp.messages.get(0).getBody());
+	  assertEquals("[neil] /summon jason where is lauren?", xmpp.messages.get(0).getBody());
 	  assertEquals("_neil summoned jason_", xmpp.messages.get(1).getBody());
 
 	  assertEquals(1, mailer.sentMessages.size());
@@ -56,7 +56,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
   public void testSummonUnknownAlias() {
     handler.doCommand(Message.createForTests("/summon fdsakfj"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /summon fdsakfj", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] /summon fdsakfj", xmpp.messages.get(0).getBody());
     assertEquals("Could not find member with input 'fdsakfj.'", xmpp.messages.get(1).getBody());
     
     assertEquals(0, mailer.sentMessages.size());
@@ -65,7 +65,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
   public void testDidYouMean1() {
     handler.doCommand(Message.createForTests("/summon jaso"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /summon jaso", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] /summon jaso", xmpp.messages.get(0).getBody());
     assertEquals("Could not find member with input 'jaso.' Maybe you meant 'jason.'", xmpp.messages.get(1).getBody());
     
     assertEquals(0, mailer.sentMessages.size());
@@ -78,7 +78,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
     
     handler.doCommand(Message.createForTests("/summon jason"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /summon jason", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] /summon jason", xmpp.messages.get(0).getBody());
     assertEquals("_neil summoned intern_", xmpp.messages.get(1).getBody());
     
     assertEquals(1, mailer.sentMessages.size());
@@ -91,7 +91,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
     
     handler.doCommand(Message.createForTests("/summon jason@gmail.com"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /summon jason@gmail.com", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] /summon jason@gmail.com", xmpp.messages.get(0).getBody());
     assertEquals("_neil summoned intern_", xmpp.messages.get(1).getBody());
     
     assertEquals(1, mailer.sentMessages.size());
@@ -102,7 +102,7 @@ public class SummonHandlerTest extends CommandHandlerTestCase {
     mailer.setThrowException();
     handler.doCommand(Message.createForTests("/summon jason"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /summon jason", xmpp.messages.get(0).getBody());
+    assertEquals("[neil] /summon jason", xmpp.messages.get(0).getBody());
     assertEquals("Error while sending mail to 'jason@gmail.com'. Email may not have been sent.",
                  xmpp.messages.get(1).getBody());
   }

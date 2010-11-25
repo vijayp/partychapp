@@ -33,7 +33,7 @@ public class UndoHandlerTest extends CommandHandlerTestCase {
     assertEquals(0, getScore("y"));
     assertEquals(0, getScore("z"));
     assertEquals(2, xmpp.messages.size());
-    assertEquals("*neil:* /undo",
+    assertEquals("[neil] /undo",
                  xmpp.messages.get(0).getBody());
     assertEquals("Undoing original actions: x++ [back to 1], y-- [back to 0], z-- [back to 0], x++ [back to 0]",
                  xmpp.messages.get(1).getBody());
