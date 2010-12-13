@@ -1,6 +1,7 @@
 package info.persistent.pushbot.util;
 
 import com.google.appengine.repackaged.com.google.common.base.Hash;
+import com.google.appengine.repackaged.com.google.common.io.ByteStreams;
 import com.google.common.collect.Lists;
 
 import com.sun.syndication.feed.atom.Entry;
@@ -15,11 +16,13 @@ import com.sun.syndication.io.XmlReader;
 
 import org.jdom.Element;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,18 +42,31 @@ public class Feeds {
     SyndFeedInput input = new SyndFeedInput();
     // Methods like {@link #getEntryId} rely on having access to the wire data
     input.setPreserveWireFeed(true);
+    
+    byte[] inputBytes;
+    try {
+      inputBytes = ByteStreams.toByteArray(inputStream);
+    } catch (IOException err) {
+      logger.log(Level.WARNING, "Feed read error 1", err);
+      return null;
+   }    
+    
     try {
       try {
-        return input.build(new XmlReader(inputStream));
+        XmlReader xmlReader = new XmlReader(new ByteArrayInputStream(inputBytes));
+        return input.build(xmlReader);
       } catch (IOException err) {
-        logger.log(Level.INFO, "Feed parse error", err);
+        logger.log(Level.WARNING, "Feed read error 2", err);
+        logger.log(Level.WARNING, "Feed contents: " + new String(inputBytes, Charset.forName("UTF-8")));
         return null;
       }
     } catch (IllegalArgumentException err) {
-      logger.log(Level.INFO, "Feed parse error", err);
+      logger.log(Level.WARNING, "Feed parse error 1", err);
+      logger.log(Level.WARNING, "Feed contents: " + new String(inputBytes, Charset.forName("UTF-8")));
       return null;
     } catch (FeedException err) {
-      logger.log(Level.INFO, "Feed parse error", err);
+      logger.log(Level.WARNING, "Feed parse error 2", err);
+      logger.log(Level.WARNING, "Feed contents: " + new String(inputBytes, Charset.forName("UTF-8")));
       return null;
     }  
   }

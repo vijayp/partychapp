@@ -76,6 +76,9 @@ public abstract class FeedCommandHandler implements CommandHandler {
     }
 
     JSONObject responseData = (JSONObject) queryJson.get("responseData");
+    if (responseData == null) {
+      return null;
+    }
     String responseUrl = (String) responseData.get("url");
 
     try {
