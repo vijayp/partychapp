@@ -199,9 +199,9 @@ public class Channel implements Serializable {
   }
   
   public Member getMemberByJID(String jid) {
-    String shortJID = jid.split("/")[0];
+    String shortJID = jid.split("/")[0].toLowerCase();
     for (Member member : getMembers()) {
-      if (member.getJID().equals(shortJID)) {
+      if (member.getJID().toLowerCase().equals(shortJID)) {
         return member;
       }
     }
