@@ -82,6 +82,8 @@ public class PartychappServlet extends HttpServlet {
       // should only be "to" one JID, right?
       JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
       String channelName = serverJID.getId().split("@")[0];
+      
+      logger.info("Request by " + userJID.getId() + " for channel " + channelName);
   
       String body = xmppMessage.getBody().trim();
   
