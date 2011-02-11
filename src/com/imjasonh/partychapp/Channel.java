@@ -339,11 +339,13 @@ public class Channel implements Serializable {
     // For small channels, also send messages to all invitees. That way as soon 
     // as they accept the chat request, they'll start getting messages, even 
     // before they message the bot and are added to the room in JoinCommand.
-    if (members.size() < LARGE_CHANNEL_THRESHOLD) {
-      for (String invitee : getInvitees()) {
-        noSequenceId.add(new JID(invitee));
-      }
-    }
+    // TODO(mihaip): Disabled while we determine if this (partly) responsible
+    // for all the XMPP errors that we get.
+    // if (members.size() < LARGE_CHANNEL_THRESHOLD) {
+    //  for (String invitee : getInvitees()) {
+    //    noSequenceId.add(new JID(invitee));
+    //  }
+    // }
 
     Set<JID> errorJIDs = sendMessage(message, withSequenceId, noSequenceId);
     
