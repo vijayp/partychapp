@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp;
 
 import com.google.appengine.api.xmpp.JID;
+import com.google.common.base.Joiner;
 
 import com.imjasonh.partychapp.testing.FakeDatastore;
 
@@ -25,6 +26,7 @@ public class UserTest extends TestCase {
     
     userLowercase = datastore.getOrCreateUser("user@gmail.com");
     userUppercase = datastore.getOrCreateUser("USER@gmail.com");
+    assertNotSame(userLowercase, userUppercase);
     datastore.put(userLowercase);
     datastore.put(userUppercase);    
     
@@ -32,6 +34,10 @@ public class UserTest extends TestCase {
     channel2 = new Channel(new JID("channel2@partychat"));
     datastore.put(channel1);
     datastore.put(channel2);
+  }
+  
+  private static Member getChannelMemberForUser(Channel channel, User user) {
+    return channel.getMemberByLiteralJID(user.getJID());
   }
   
   public void testMergeNotAllowed() {
@@ -66,8 +72,8 @@ public class UserTest extends TestCase {
     channel1.addMember(userLowercase);
     channel2.addMember(userUppercase);
     
-    assertNotNull(channel1.getMemberByJID(userLowercase.getJID()));
-    assertNotNull(channel2.getMemberByJID(userUppercase.getJID()));
+    assertNotNull(getChannelMemberForUser(channel1, userLowercase));
+    assertNotNull(getChannelMemberForUser(channel2, userUppercase));
     assertEquals(1, userLowercase.channelNames().size());
     assertTrue(userLowercase.channelNames().contains("channel1"));
     assertEquals(1, userUppercase.channelNames().size());
@@ -78,10 +84,10 @@ public class UserTest extends TestCase {
     
     // The lower-case user should now be in both channels, and the upper-case
     // one should be in neither
-    assertNotNull(channel1.getMemberByJID(userLowercase.getJID()));
-    assertNotNull(channel2.getMemberByJID(userLowercase.getJID()));
-    assertNull(channel1.getMemberByJID(userUppercase.getJID()));
-    assertNull(channel2.getMemberByJID(userUppercase.getJID()));
+    assertNotNull(getChannelMemberForUser(channel1, userLowercase));
+    assertNotNull(getChannelMemberForUser(channel2, userLowercase));
+    assertNull(getChannelMemberForUser(channel1, userUppercase));
+    assertNull(getChannelMemberForUser(channel2, userUppercase));
     assertEquals(2, userLowercase.channelNames().size());
     assertTrue(userLowercase.channelNames().contains("channel1"));
     assertTrue(userLowercase.channelNames().contains("channel2"));    
@@ -103,21 +109,44 @@ public class UserTest extends TestCase {
     channel2.addMember(userLowercase);
     channel2.addMember(userUppercase);
     
-    assertNotNull(channel1.getMemberByJID(userLowercase.getJID()));
-    assertNotNull(channel2.getMemberByJID(userLowercase.getJID()));
-    assertNotNull(channel2.getMemberByJID(userUppercase.getJID()));
+    assertNotNull(getChannelMemberForUser(channel1, userLowercase));
+    assertNotNull(getChannelMemberForUser(channel2, userLowercase));
+    assertNotNull(getChannelMemberForUser(channel2, userUppercase));
     assertEquals(2, userLowercase.channelNames().size());
     assertTrue(userLowercase.channelNames().contains("channel1"));
     assertTrue(userLowercase.channelNames().contains("channel2"));
     assertEquals(1, userUppercase.channelNames().size());
     assertTrue(userUppercase.channelNames().contains("channel2"));
     
-    userLowercase.merge(userUppercase);
+    System.err.println("channel1 members before:");
+    for (Member m : channel1.getMembers()) {
+      System.err.println("  " + m.getJID());
+    }
+    System.err.println("channel2 members before:");
+    for (Member m : channel2.getMembers()) {
+      System.err.println("  " + m.getJID());
+    }
+    System.err.println("uppercase channels before merge: " + Joiner.on(", ").join(userUppercase.channelNames));
+    System.err.println("lowercase channels before merge: " + Joiner.on(", ").join(userLowercase.channelNames));
     
-    assertNotNull(channel1.getMemberByJID(userLowercase.getJID()));
-    assertNotNull(channel2.getMemberByJID(userLowercase.getJID()));
-    assertNull(channel1.getMemberByJID(userUppercase.getJID()));
-    assertNull(channel2.getMemberByJID(userUppercase.getJID()));
+    userLowercase.merge(userUppercase);
+
+    System.err.println("channel1 members after:");
+    for (Member m : channel1.getMembers()) {
+      System.err.println("  " + m.getJID());
+    }
+    System.err.println("channel2 members after:");
+    for (Member m : channel2.getMembers()) {
+      System.err.println("  " + m.getJID());
+    }    
+    System.err.println("uppercase channels after merge: " + Joiner.on(", ").join(userUppercase.channelNames));
+    System.err.println("lowercase channels after merge: " + Joiner.on(", ").join(userLowercase.channelNames));
+
+    
+    assertNotNull(getChannelMemberForUser(channel1, userLowercase));
+    assertNotNull(getChannelMemberForUser(channel2, userLowercase));
+    assertNull(getChannelMemberForUser(channel1, userUppercase));
+    assertNull(getChannelMemberForUser(channel2, userUppercase));
     assertEquals(2, userLowercase.channelNames().size());
     assertTrue(userLowercase.channelNames().contains("channel1"));
     assertTrue(userLowercase.channelNames().contains("channel2"));    

@@ -257,7 +257,7 @@ public class User implements Serializable {
     Preconditions.checkArgument(
         !src.jid.equals(jid), "Can't merge into the same user (%s)", jid);
     Preconditions.checkArgument(
-        src.jid.toLowerCase().equals(jid.toLowerCase()),
+        src.jid.equalsIgnoreCase(jid),
         "Can't merge non-equivalent users (%s vs. %s)",
         jid, src.jid);
     

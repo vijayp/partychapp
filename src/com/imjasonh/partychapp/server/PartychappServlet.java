@@ -29,37 +29,34 @@ public class PartychappServlet extends HttpServlet {
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
 
-  private XMPPService XMPP;
+  private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
+  private static final QuotaService QS = QuotaServiceFactory.getQuotaService();
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
-    QuotaService qs = QuotaServiceFactory.getQuotaService();
     long startCpu = -1;
-    if (qs.supports(DataType.CPU_TIME_IN_MEGACYCLES)) {
-      startCpu = qs.getCpuTimeInMegaCycles();
+    if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES)) {
+      startCpu = QS.getCpuTimeInMegaCycles();
     }
-    Message xmppMessage = null;
+
+    Message xmppMessage;
+    try {
+      xmppMessage = XMPP.parseMessage(req);
+    } catch (IllegalArgumentException e) {
+      // These exceptions are apparently caused by a bug in the gtalk flash
+      // gadget, so let's just ignore them.
+      // http://code.google.com/p/googleappengine/issues/detail?id=2082
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
     
     try {
-      XMPP = XMPPServiceFactory.getXMPPService();
-  
-      xmppMessage = null;
-      try {
-        xmppMessage = XMPP.parseMessage(req);
-      } catch (IllegalArgumentException e) {
-        // These exceptions are apparently caused by a bug in the gtalk flash
-        // gadget, so let's just ignore them.
-        // http://code.google.com/p/googleappengine/issues/detail?id=2082
-        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        return;
-      }
       doXmpp(xmppMessage);
-      
       resp.setStatus(HttpServletResponse.SC_OK);
     } finally {
-      if (qs.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
-        long endCpu = qs.getCpuTimeInMegaCycles();
+      if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
+        long endCpu = QS.getCpuTimeInMegaCycles();
         JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
         String channelName = serverJID.getId().split("@")[0];
         ChannelStats.recordChannelCpu(channelName, endCpu - startCpu);
@@ -67,7 +64,7 @@ public class PartychappServlet extends HttpServlet {
     }
   }
 
-  JID jidToLowerCase(JID in) {
+  private static JID jidToLowerCase(JID in) {
     return new JID(in.getId().toLowerCase());
   }
   
@@ -133,7 +130,7 @@ public class PartychappServlet extends HttpServlet {
     }
   }
 
-  private void handleEcho(Message xmppMessage) {
+  private static void handleEcho(Message xmppMessage) {
     logger.severe("Body of message sent to echo@ is: " + xmppMessage.getBody());
     SendUtil.sendMessage(
         "echo: " + xmppMessage.getBody(),

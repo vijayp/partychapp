@@ -151,7 +151,7 @@ public class Channel implements Serializable {
   }
 
   public void removeMember(User userToRemove) {
-    Member memberToRemove = getMemberByJID(userToRemove.getJID());
+    Member memberToRemove = getMemberByLiteralJID(userToRemove.getJID());
     if (!mutableMembers().remove(memberToRemove)) {
       logger.warning(
           userToRemove.getJID() + " was not actually in channel " +
@@ -199,14 +199,29 @@ public class Channel implements Serializable {
   }
   
   public Member getMemberByJID(String jid) {
-    String shortJID = jid.split("/")[0].toLowerCase();
+    String shortJID = jid.split("/")[0];
     for (Member member : getMembers()) {
-      if (member.getJID().toLowerCase().equals(shortJID)) {
+      if (member.getJID().equalsIgnoreCase(shortJID)) {
         return member;
       }
     }
     return null;
   }
+
+  /**
+   * Unlike {@link Channel#getMemberByJID(JID)}, does a literal (case-sensitive)
+   * comparison of JIDs. This should only be used when merging or removing users
+   * from channels.
+   */
+  Member getMemberByLiteralJID(String jid) {
+    String shortJID = jid.split("/")[0];
+    for (Member member : getMembers()) {
+      if (member.getJID().equals(shortJID)) {
+        return member;
+      }
+    }
+    return null;
+  }  
 
   public Member getMemberByAlias(String alias) {
     for (Member member : getMembers()) {
