@@ -15,16 +15,6 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <url-pattern>/_ah/xmpp/message/chat/</url-pattern>
   </servlet-mapping>
 
-  <servlet>
-    <servlet-name>xmpperrorreceiver</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.server.PartychappErrorServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>xmpperrorreceiver</servlet-name>
-    <url-pattern>/_ah/xmpp/message/error/</url-pattern>
-  </servlet-mapping>
-
   <!-- Web UI -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
