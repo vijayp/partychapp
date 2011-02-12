@@ -18,7 +18,7 @@
       channel.hasRequestedInvitation(user.getEmail());
 %>
 <jsp:include page="include/head.jsp">
-  <jsp:param name="subtitle" value="<%="Room " + channel.getName()%>"/>
+  <jsp:param name="subtitle" value="<%=&quot;Room &quot; + channel.getName()%>"/>
 </jsp:include>
 </head>
 <body>

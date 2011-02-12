@@ -30,7 +30,7 @@ public class ReadOnlyFakeDatastore extends FakeDatastore {
     if (isReadOnly) {
       // Per http://code.google.com/appengine/docs/java/howto/maintenance.html
       // this is the exception that's thrown in read-only mode
-      throw new ApiProxy.CapabilityDisabledException("", "");
+      throw new ApiProxy.CapabilityDisabledException("", "", "");
     } else {
       super.put(o);
     }
@@ -38,7 +38,7 @@ public class ReadOnlyFakeDatastore extends FakeDatastore {
   
   @Override public void putAll(Collection<Object> objects) {
     if (isReadOnly) {
-      throw new ApiProxy.CapabilityDisabledException("", "");
+      throw new ApiProxy.CapabilityDisabledException("", "", "");
     } else {
       super.putAll(objects);
     }
@@ -46,7 +46,7 @@ public class ReadOnlyFakeDatastore extends FakeDatastore {
   
   @Override public void delete(Object o) {
     if (isReadOnly) {
-      throw new ApiProxy.CapabilityDisabledException("", "");
+      throw new ApiProxy.CapabilityDisabledException("", "", "");
     } else {
       super.delete(o);
     }
