@@ -5,7 +5,7 @@ import com.imjasonh.partychapp.Message;
 
 public class AliasHandler extends SlashCommand {
   // Letters, symbols, numbers and some punctuation
-  public static final String ALIAS_REGEX = "[\\pL\\pS\\pN\\-_'\\*]+";
+  public static final String ALIAS_REGEX = "[\\pL\\pS\\pN\\-_'\\*.]+";
   
   AliasHandler() {
     super("alias", "rename");

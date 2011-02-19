@@ -20,6 +20,7 @@ public class AliasHandlerTest extends CommandHandlerTestCase {
     assertTrue(isAliasAllowed("\u2603")); // Snowman
     assertFalse(isAliasAllowed("nsa;nch;"));
     assertFalse(isAliasAllowed("<script>alert('xss');</script>"));
+    assertTrue(isAliasAllowed("mihai.parparita"));
 }
   
   private boolean isAliasAllowed(String alias) {
