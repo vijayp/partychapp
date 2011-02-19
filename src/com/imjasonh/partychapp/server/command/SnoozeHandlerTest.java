@@ -53,6 +53,12 @@ public class SnoozeHandlerTest extends CommandHandlerTestCase {
                      "October 25, 2009 10:21:10 AM EDT");
   }
   
+  public void testIntegerOverflow() {
+    snoozeAndGetDate("/snooze 36524d",
+                     "Okay, snoozing for 36524 days (3155673600 seconds)",
+                     "October 21, 2109 10:21:10 AM EDT");
+  }
+  
   private void snoozeAndCheckReply(String cmd, String reply) {
     xmpp.messages.clear();
     handler.doCommand(Message.createForTests(cmd));
@@ -65,13 +71,14 @@ public class SnoozeHandlerTest extends CommandHandlerTestCase {
   private void snoozeAndGetDate(String cmd, String reply, String date) {
     snoozeAndCheckReply(cmd, reply);
     Date actual = FakeDatastore.fakeChannel().getMemberByAlias("neil").getSnoozeUntil();
+    System.err.println("actual snooze: " + actual);
     assertNotNull(actual);
     DateFormat format = DateFormat.getDateTimeInstance(
         DateFormat.LONG, DateFormat.LONG, Locale.US);
     try {
       // divide by 1000 because the expected values are only accurate to the
       // second, not to the millisecond.
-      assertEquals(format.parse(date).getTime() / 1000, actual.getTime() / 1000);
+      assertEquals(format.parse(date).getTime() / 1000L, actual.getTime() / 1000L);
     } catch (ParseException e) { fail("bad expected value " + date); }
   }  
 }

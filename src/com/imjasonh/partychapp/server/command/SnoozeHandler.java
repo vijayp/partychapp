@@ -59,7 +59,7 @@ public class SnoozeHandler extends SlashCommand {
     }
 
     String unitToPrint = "";
-    int seconds = 0;
+    long seconds = 0;
     switch (unit) {
     case 's':
       unitToPrint = "seconds";
@@ -67,22 +67,22 @@ public class SnoozeHandler extends SlashCommand {
       break;
     case 'm':
       unitToPrint = "minutes";
-      seconds = num*60;
+      seconds = num * 60L;
       break;
     case 'h':
       unitToPrint = "hours";
-      seconds = num*60*60;
+      seconds = num * 60L * 60L;
       break;
     case 'd':
       unitToPrint = "days";
-      seconds = num*60*60*24;
+      seconds = num * 60L * 60L * 24L;
       break;
     default:
       msg.channel.sendDirect(DETAILED_USAGE, msg.member);
       return;
     }
 
-    msg.member.setSnoozeUntil(new Date(now() + 1000*seconds));
+    msg.member.setSnoozeUntil(new Date(now() + seconds * 1000L));
     msg.channel.put();
     String reply = "Okay, snoozing for " + num + " " + unitToPrint +
         " (" + seconds + " seconds), until " +
