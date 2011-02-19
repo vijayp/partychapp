@@ -30,6 +30,7 @@ import com.imjasonh.partychapp.server.command.StatusHandlerTest;
 import com.imjasonh.partychapp.server.command.SummonHandlerTest;
 import com.imjasonh.partychapp.server.command.ToggleLoggingHandlerTest;
 import com.imjasonh.partychapp.server.command.UndoHandlerTest;
+import com.imjasonh.partychapp.urlinfo.SimpleUrlInfoServiceTest;
 
 public class AllTests {
 
@@ -65,6 +66,7 @@ public class AllTests {
     suite.addTestSuite(ShareHandlerTest.class);
     suite.addTestSuite(KickHandlerTest.class);    
     suite.addTestSuite(UserTest.class);        
+    suite.addTestSuite(SimpleUrlInfoServiceTest.class);
     // $JUnit-END$
     return suite;
   }

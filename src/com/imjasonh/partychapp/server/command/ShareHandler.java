@@ -1,27 +1,13 @@
 package com.imjasonh.partychapp.server.command;
 
-import com.google.appengine.api.urlfetch.FetchOptions;
-import com.google.appengine.api.urlfetch.HTTPMethod;
-import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.ResponseTooLargeException;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 
 import com.imjasonh.partychapp.Message;
+import com.imjasonh.partychapp.urlinfo.UrlInfo;
+import com.imjasonh.partychapp.urlinfo.UrlInfoService;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Command that makes sharing of URLs slightly friendlier (looks up titles).
@@ -29,13 +15,11 @@ import java.util.regex.Pattern;
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
 public class ShareHandler extends SlashCommand {
-  private static final Pattern TITLE_START = Pattern.compile("<title[^>]*>");
-  private static final String TITLE_END = "</title>";
-  
-  private static final Logger logger = Logger.getLogger(BugHandler.class.getName());
+  private final UrlInfoService urlInfoService;
 
-  public ShareHandler() {
+  public ShareHandler(UrlInfoService urlInfoService) {
     super("share");
+    this.urlInfoService = urlInfoService;
   }
   
   @Override
@@ -65,12 +49,11 @@ public class ShareHandler extends SlashCommand {
       annotation = pieces[1];
     }
     
-    String title = extractPageTitle(uri);
-    
     String shareBroadcast = "_" + msg.member.getAlias() + " is sharing " + uri;
     
-    if (!Strings.isNullOrEmpty(title)) {
-      shareBroadcast += " (" + title + ")";
+    UrlInfo urlInfo = urlInfoService.getUrlInfo(uri);
+    if (urlInfo.hasTitle()) {
+      shareBroadcast += " (" + urlInfo.getTitle() + ")";
     }
     
     if (!Strings.isNullOrEmpty(annotation)) {
@@ -81,54 +64,6 @@ public class ShareHandler extends SlashCommand {
     msg.channel.broadcastIncludingSender(shareBroadcast);
   }
   
-  private String extractPageTitle(URI uri) {
-    String content = getUriContents(uri);
-    if (Strings.isNullOrEmpty(content)) {
-      return null;
-    }
-    String contentLower = content.toLowerCase();
-    
-    Matcher titleStartMatcher = TITLE_START.matcher(contentLower);
-    if (titleStartMatcher.find()) {
-      int titleEnd = contentLower.indexOf(TITLE_END, titleStartMatcher.end());
-      if (titleEnd != -1) {
-        String title =
-            content.substring(titleStartMatcher.end(), titleEnd);
-        title = StringEscapeUtils.unescapeHtml(title);
-        // Normalize newlines and other whitespace
-        title = title.replaceAll("\\s+", " ").trim();
-        return title;
-      }
-    }
-    
-    return null;
-  }
-  
-  @VisibleForTesting protected String getUriContents(URI uri) {
-    try {
-      URLFetchService urlFetchService = 
-          URLFetchServiceFactory.getURLFetchService();
-      FetchOptions fetchOptions = FetchOptions.Builder
-          .allowTruncate()
-          .followRedirects()
-          .setDeadline(5.0);
-      HTTPRequest request =
-          new HTTPRequest(uri.toURL(), HTTPMethod.GET, fetchOptions);
-      HTTPResponse response = urlFetchService.fetch(request);
-      return new String(response.getContent(), Charset.forName("UTF-8"));
-    } catch (MalformedURLException err) {
-      // Ignore, but all URIs should be URLs
-      logger.warning("Malformed URL in share: " + uri);
-    } catch (IOException err) {
-      // Ignore, don't care if we can't fetch the URL
-    } catch (ResponseTooLargeException err) {
-      // Shouldn't happen, since we allow truncation, but just in case.
-    }
-    
-    // Fallthrough
-    return null;
-  }
-
   public String documentation() {
     return "/share http://example.com/ [annotation] - " +
         "shares a URL with the room";
