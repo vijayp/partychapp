@@ -61,6 +61,11 @@ public class ShareHandler extends SlashCommand {
     }
     
     shareBroadcast += "_";
+
+    if (urlInfo.hasDescription()) {
+      shareBroadcast += "\n  " + urlInfo.getDescription();
+    }
+
     msg.channel.broadcastIncludingSender(shareBroadcast);
   }
   
