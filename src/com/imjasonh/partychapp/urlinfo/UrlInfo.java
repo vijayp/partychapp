@@ -12,7 +12,7 @@ public class UrlInfo {
   
   @VisibleForTesting public UrlInfo(String title, String description) {
     this.title = title;
-    this.description = description;
+    this.description = !description.equals(title) ? description : "";
   }
   
   public boolean hasTitle() {
