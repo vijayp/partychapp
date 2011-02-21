@@ -78,7 +78,11 @@ public class Channel implements Serializable {
   }
   
   public JID serverJID() {
-    return new JID(name + "@" + Configuration.chatDomain);
+    return new JID(serverJIDAsString());
+  }
+  
+  public String serverJIDAsString() {
+    return name + "@" + Configuration.chatDomain;
   }
   
   public String mailingAddress() {

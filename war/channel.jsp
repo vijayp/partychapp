@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ page import="com.imjasonh.partychapp.Configuration"%>
 <%@ page import="com.imjasonh.partychapp.Channel"%>
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
 <%@ page import="com.imjasonh.partychapp.Member"%>
@@ -8,6 +9,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script>if (window.name == 'partychat-share') window.close();</script>
 <%
   Channel channel = (Channel) request.getAttribute("channel");
   Datastore datastore = Datastore.instance();
@@ -28,6 +30,16 @@
 </p>
 
 <jsp:include page="include/channel-members.jsp"/>
+
+<h3>Helpful links</h3>
+
+<p>Send messages to this room by chatting with <a href="xmpp:<%=channel.serverJIDAsString()%>"><%=channel.serverJIDAsString()%></a>.</p>
+
+
+<p>If you're on the go, you can also email them to <a href="mailto:<%=channel.mailingAddress()%>"><%=channel.mailingAddress()%></a> (as long as the account you're emailing from is in the room).</p>
+
+<p>If you'd like to share links with this room, you can drag the <a href="javascript:window.open('http://<%=Configuration.webDomain%>/room/share?name=<%=channel.getName()%>&url='+escape(location.href),'partychat-share','scrollbars=no,width=700,height=315,top=175,left=75,status=yes,resizable=yes');void(0);
+" class="bookmarklet" onclick="alert('Drag this link to your bookmarks bar');return false;">Share with <%=channel.getName()%></a> link to your bookmarks bar and press it when you're on the page you want to share.</p>
 
 <h3>Settings</h3>
 

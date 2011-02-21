@@ -217,3 +217,10 @@ h2 {
   color: #999;
   font-size: 90%;
 }
+
+.bookmarklet {
+  background: #eee;
+  border-radius: 5px;
+  padding: 5px;
+  text-decoration: none;
+}
