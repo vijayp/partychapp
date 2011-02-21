@@ -33,7 +33,7 @@
 
 <form action="/channel/edit" method="POST">
 <input type="hidden" name="name" value="<%=channel.getName()%>"/>
-<table id="channel-settings-table">
+<table id="channel-settings-table" class="channel-form-table">
   <tr>
     <td class="label">Room type:</td>
     <td>

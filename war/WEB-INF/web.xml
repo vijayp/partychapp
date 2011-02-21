@@ -100,7 +100,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <url-pattern>/channel/edit</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>channelShareServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.ChannelShareServlet</servlet-class>
+  </servlet>
 
+  <servlet-mapping>
+    <servlet-name>channelShareServlet</servlet-name>
+    <url-pattern>/room/share</url-pattern>
+    <url-pattern>/channel/share</url-pattern>
+  </servlet-mapping>  
+  
   <servlet>
     <servlet-name>webchannelhandler</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.web.ChannelServlet</servlet-class>

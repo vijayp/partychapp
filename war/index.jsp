@@ -55,7 +55,7 @@ stays safe. <%
   <input type="button" value="Create a new room" onclick="showCreateForm()" />
 </div>
 <form onsubmit="return submitCreateRoom()">
-<table id="channel-settings-table" class="hidden">
+<table id="channel-settings-table" class="hidden channel-form-table">
   <tr>
     <td class="label">Room name:</td>
     <td><input type="text" size="40" id="room-name"></td>

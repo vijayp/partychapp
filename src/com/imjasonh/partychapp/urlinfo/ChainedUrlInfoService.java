@@ -12,6 +12,10 @@ import java.util.List;
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
 public class ChainedUrlInfoService implements UrlInfoService {
+  public static final UrlInfoService DEFAULT_SERVICE =
+      new ChainedUrlInfoService(
+          new EmbedlyUrlInfoService(), new SimpleUrlInfoService());
+  
   private final List<UrlInfoService> services;
   
   public ChainedUrlInfoService(UrlInfoService... services) {

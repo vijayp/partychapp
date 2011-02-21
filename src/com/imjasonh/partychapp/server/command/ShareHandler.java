@@ -2,6 +2,8 @@ package com.imjasonh.partychapp.server.command;
 
 import com.google.common.base.Strings;
 
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.urlinfo.UrlInfo;
 import com.imjasonh.partychapp.urlinfo.UrlInfoService;
@@ -48,12 +50,28 @@ public class ShareHandler extends SlashCommand {
     if (pieces.length == 2) {
       annotation = pieces[1];
     }
-    
-    String shareBroadcast = "_" + msg.member.getAlias() + " is sharing " + uri;
-    
+
     UrlInfo urlInfo = urlInfoService.getUrlInfo(uri);
-    if (urlInfo.hasTitle()) {
-      shareBroadcast += " (" + urlInfo.getTitle() + ")";
+    sendShareBroadcast(
+        msg.channel,
+        msg.member,
+        uri,
+        annotation,
+        urlInfo.getTitle(),
+        urlInfo.getDescription());
+  }
+  
+  public static void sendShareBroadcast(
+      Channel channel,
+      Member member,
+      URI url,
+      String annotation,
+      String title,
+      String description) {
+    String shareBroadcast = "_" + member.getAlias() + " is sharing " + url;
+    
+    if (!title.isEmpty()) {
+      shareBroadcast += " (" + title + ")";
     }
     
     if (!Strings.isNullOrEmpty(annotation)) {
@@ -62,13 +80,13 @@ public class ShareHandler extends SlashCommand {
     
     shareBroadcast += "_";
 
-    if (urlInfo.hasDescription()) {
-      shareBroadcast += "\n  " + urlInfo.getDescription();
+    if (!description.isEmpty()) {
+      shareBroadcast += "\n  " + description;
     }
 
-    msg.channel.broadcastIncludingSender(shareBroadcast);
+    channel.broadcastIncludingSender(shareBroadcast);
   }
-  
+    
   public String documentation() {
     return "/share http://example.com/ [annotation] - " +
         "shares a URL with the room";

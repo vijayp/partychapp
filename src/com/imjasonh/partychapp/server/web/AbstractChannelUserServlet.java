@@ -9,6 +9,7 @@ import com.imjasonh.partychapp.Datastore;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,18 +29,18 @@ public abstract class AbstractChannelUserServlet extends HttpServlet {
         HttpServletResponse resp,
         User user,
         Channel channel)
-        throws IOException;
+        throws IOException, ServletException;
   }
   
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws IOException {
+      throws IOException, ServletException {
     doMethod(req, resp, new MethodAdapter() {
       @Override public void invokeMethod(
           HttpServletRequest req,
           HttpServletResponse resp,
           User user,
-          Channel channel) throws IOException {
+          Channel channel) throws IOException, ServletException {
         doChannelGet(req, resp, user, channel);
       }
     });
@@ -47,20 +48,20 @@ public abstract class AbstractChannelUserServlet extends HttpServlet {
   
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws IOException {
+      throws IOException, ServletException {
     doMethod(req, resp, new MethodAdapter() {
       @Override public void invokeMethod(
           HttpServletRequest req,
           HttpServletResponse resp,
           User user,
-          Channel channel) throws IOException {
+          Channel channel) throws IOException, ServletException {
         doChannelPost(req, resp, user, channel);
       }
     });
   }  
   
   private void doMethod(HttpServletRequest req, HttpServletResponse resp, MethodAdapter methodAdapter)
-      throws IOException {
+      throws IOException, ServletException {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     
@@ -81,21 +82,23 @@ public abstract class AbstractChannelUserServlet extends HttpServlet {
     }        
   }
   
+  @SuppressWarnings("unused")
   protected void doChannelGet(
       HttpServletRequest req,
       HttpServletResponse resp,
       User user,
       Channel channel)
-      throws IOException {
+      throws IOException, ServletException {
     resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
   }
   
+  @SuppressWarnings("unused")
   protected void doChannelPost(
       HttpServletRequest req,
       HttpServletResponse resp,
       User user,
       Channel channel)
-      throws IOException {
+      throws IOException, ServletException {
     resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
   }  
 }

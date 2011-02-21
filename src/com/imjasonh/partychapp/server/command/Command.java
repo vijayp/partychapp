@@ -2,8 +2,6 @@ package com.imjasonh.partychapp.server.command;
 
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.urlinfo.ChainedUrlInfoService;
-import com.imjasonh.partychapp.urlinfo.EmbedlyUrlInfoService;
-import com.imjasonh.partychapp.urlinfo.SimpleUrlInfoService;
 
 import java.util.logging.Logger;
 
@@ -26,9 +24,7 @@ public enum Command {
   SCORE(new ScoreHandler()),
   REASONS(new ReasonsHandler()),
   ME(new MeHandler()),
-  SHARE(new ShareHandler(
-      new ChainedUrlInfoService(
-          new EmbedlyUrlInfoService(), new SimpleUrlInfoService()))),
+  SHARE(new ShareHandler(ChainedUrlInfoService.DEFAULT_SERVICE)),
   INVITE_ONLY(new InviteOnlyHandler()),
   TOGGLE_LOGGING(new ToggleLoggingHandler()),
   INVITE(new InviteHandler()),
