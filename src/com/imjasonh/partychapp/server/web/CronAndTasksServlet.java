@@ -1,6 +1,6 @@
 package com.imjasonh.partychapp.server.web;
 
-import com.google.appengine.api.labs.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.QueueFactory;
 
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.WebRequest;

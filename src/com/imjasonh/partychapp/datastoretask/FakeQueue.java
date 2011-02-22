@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.datastoretask;
 
 import java.util.List;
 
-import com.google.appengine.api.labs.taskqueue.TaskHandle;
+import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.common.collect.Lists;
 
 public class FakeQueue extends TestableQueue {

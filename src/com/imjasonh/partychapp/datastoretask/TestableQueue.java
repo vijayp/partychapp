@@ -3,10 +3,10 @@ package com.imjasonh.partychapp.datastoretask;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.appengine.api.labs.taskqueue.Queue;
-import com.google.appengine.api.labs.taskqueue.TaskHandle;
-import com.google.appengine.api.labs.taskqueue.TaskOptions;
-import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.TaskHandle;
+import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.api.taskqueue.TaskOptions.Method;
 import com.google.common.collect.Lists;
 
 public class TestableQueue {
@@ -15,7 +15,7 @@ public class TestableQueue {
   public static class Options {
     private String url;
     private List<String> params = Lists.newArrayList();
-    private TaskOptions opts = TaskOptions.Builder.method(Method.GET);
+    private TaskOptions opts = TaskOptions.Builder.withMethod(Method.GET);
     
     public Options(String url) {
       this.url(url);
