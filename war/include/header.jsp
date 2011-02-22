@@ -21,6 +21,8 @@
       }
      %>
      |
+     <a href="http://techwalla.blogspot.com/">Blog</a>
+     |
      <a href="/about/faq">FAQ</a>
   </div>
   <% if (Strings.isNullOrEmpty(request.getParameter("subtitle"))) { %>
