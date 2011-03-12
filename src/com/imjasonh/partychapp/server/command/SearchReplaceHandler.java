@@ -23,14 +23,23 @@ public class SearchReplaceHandler implements CommandHandler {
   }
   
   public void doCommand(Message msg) {
-    boolean isSuggestion = false;
     List<String> lastMessages = Lists.newArrayList(msg.member.getLastMessages()); 
-    String correctionPrefix = msg.member.getAlias() + " meant _";
 
     msg.member.addToLastMessages(msg.content);
     msg.channel.put();
     msg.channel.broadcast((msg.member.getAliasPrefix() + msg.content), msg.member);
 
+    if (msg.channel.isLoggingDisabled()) {
+      msg.channel.broadcastIncludingSender(
+          "Search-and-replace is not supported if logging is disabled. You " +
+          "can enable logging with the /togglelogging command or by visiting " +
+          "the room's page at " + msg.channel.webUrl());
+      return;
+    }
+    
+    boolean isSuggestion = false;
+    String correctionPrefix = msg.member.getAlias() + " meant _";
+    
     Matcher m = pattern.matcher(msg.content.trim());
     if (!m.matches()) {
       sendNoMatchError(msg);

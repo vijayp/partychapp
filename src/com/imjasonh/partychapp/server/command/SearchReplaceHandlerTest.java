@@ -204,4 +204,19 @@ public class SearchReplaceHandlerTest extends CommandHandlerTestCase {
     assertEquals("neil thinks jason meant _y++_",
                  xmpp.messages.get(1).getBody());    
   }
+  
+  public void testLoggingDisabled() {
+    Channel c = FakeDatastore.fakeChannel();
+    c.setLoggingDisabled(true);
+    c.put();
+
+    handler.doCommand(Message.createForTests("s/foo/bar/"));
+    assertEquals(2, xmpp.messages.size());
+    assertEquals("[neil] s/foo/bar/", xmpp.messages.get(0).getBody());
+    assertEquals(
+        "Search-and-replace is not supported if logging is disabled. You can " +
+        "enable logging with the /togglelogging command or by visiting the " +
+        "room's page at http://partychapp.appspot.com/room/pancake",
+        xmpp.messages.get(1).getBody());
+  }
 }
