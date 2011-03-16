@@ -175,16 +175,6 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
   
   
-  <!-- GWT webchat UI -->
-  <servlet>
-    <servlet-name>gwtSendMessageServlet</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.gwt.server.SendMessageImpl</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>gwtSendMessageServlet</servlet-name>
-    <url-pattern>/partychapp/send</url-pattern>
-  </servlet-mapping>
-
   <!-- JSON outputs -->
   <servlet>
     <servlet-name>targetdetailsjsonhandler</servlet-name>
