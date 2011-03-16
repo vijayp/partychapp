@@ -8,6 +8,7 @@ import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
 import com.imjasonh.partychapp.server.SendUtil;
+import com.imjasonh.partychapp.server.live.ChannelUtil;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -383,6 +384,12 @@ public class Channel implements Serializable {
             member);
       }
     }
+    
+    // TODO(mihaip): add uniform interface for XMPP and Channel endpoints, so
+    // that Channel doesn't have to know about either SendUtil or ChannelUtil.
+    for (Member recipient : recipients) {
+      ChannelUtil.sendMessage(this, recipient, message);
+    }
   }
   
   private Set<JID> sendMessage(
@@ -406,6 +413,7 @@ public class Channel implements Serializable {
     SendUtil.sendMessage(message,
                          serverJID(),
                          Collections.singletonList(new JID(recipient.getJID())));
+    ChannelUtil.sendMessage(this, recipient, message);
   }
   
   public void broadcast(String message, Member sender) {

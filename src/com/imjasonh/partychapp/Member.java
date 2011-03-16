@@ -38,6 +38,8 @@ public class Member implements Serializable {
   
   String carrier;
   
+  Date lastLivePing = null;
+  
   public enum SnoozeStatus {
     SNOOZING,
     NOT_SNOOZING,
@@ -170,5 +172,17 @@ public class Member implements Serializable {
    */
   public void clearLastMessages() {
     lastMessages.clear();
+  }
+  
+  public void onLivePing() {
+    this.lastLivePing = new Date();
+  }
+  
+  public void clearLivePing() {
+    this.lastLivePing = null;
+  }  
+  
+  public Date getLastLivePing() {
+   return lastLivePing; 
   }
 }

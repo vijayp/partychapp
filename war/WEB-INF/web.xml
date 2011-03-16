@@ -109,6 +109,37 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>channelShareServlet</servlet-name>
     <url-pattern>/room/share</url-pattern>
     <url-pattern>/channel/share</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>LivePingServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.live.PingServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>LivePingServlet</servlet-name>
+    <url-pattern>/channel/live/ping</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>LiveLeaveServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.live.LeaveServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>LiveLeaveServlet</servlet-name>
+    <url-pattern>/channel/live/leave</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>LiveChannelServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.live.ChannelServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>LiveChannelServlet</servlet-name>
+    <url-pattern>/channel/live/*</url-pattern>
+    <url-pattern>/room/live/*</url-pattern>
   </servlet-mapping>  
   
   <servlet>

@@ -17,8 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Base class for servlets that need to operate on a channel that the requesting
  * user is currently in (the channel name is specified via the "name"
- * parameter). Handles authentication and verification. Subclasses should
- * implement {@link #doChannelGet} and/or {@link #doChannelPost}.
+ * parameter, but subclasses can override that behavior via the
+ * {@link #getChannelName} method). Handles authentication and verification.
+ * Subclasses should implement {@link #doChannelGet} and/or
+ * {@link #doChannelPost}.
  *
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
@@ -58,14 +60,18 @@ public abstract class AbstractChannelUserServlet extends HttpServlet {
         doChannelPost(req, resp, user, channel);
       }
     });
-  }  
+  }
+  
+  protected String getChannelName(HttpServletRequest req) {
+    return req.getParameter("name");
+  }
   
   private void doMethod(HttpServletRequest req, HttpServletResponse resp, MethodAdapter methodAdapter)
       throws IOException, ServletException {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     
-    String channelName = req.getParameter("name");
+    String channelName = getChannelName(req);
     Datastore datastore = Datastore.instance();
     try {
       datastore.startRequest();
