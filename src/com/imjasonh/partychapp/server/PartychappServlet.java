@@ -7,6 +7,7 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+import com.google.common.base.Splitter;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
@@ -19,6 +20,7 @@ import com.imjasonh.partychapp.stats.ChannelStats;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,13 +33,17 @@ public class PartychappServlet extends HttpServlet {
 
   private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
   private static final QuotaService QS = QuotaServiceFactory.getQuotaService();
-  private static final String[] bad_jid_prefixes = {
-	  "twitalker022@appspot.com",
-	  "chitterim@appspot.com",
-	  "tweetjid@appspot.com", 
-	  "twiyia@gmail.com"
+  private static final Pattern[] jidBlacklist = {
+	  Pattern.compile(".*twitalker022@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
+	  Pattern.compile(".*chitterim@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
+	  Pattern.compile(".*tweetjid@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
+	  Pattern.compile(".*twiyia@gmail[.]com.*", Pattern.CASE_INSENSITIVE),
+	  Pattern.compile(".*g2twit.appspotchat.com.*", Pattern.CASE_INSENSITIVE),
+	  Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
   };
   
+  /*private static final Splitter SlashSplitter = Splitter.on('/');*/
+    
   
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -60,9 +66,9 @@ public class PartychappServlet extends HttpServlet {
 
     try { // FIXME: huge hack
     	final String fromAddr = xmppMessage.getFromJid().getId().toLowerCase();
-    	for (String m : bad_jid_prefixes) {
-    		if (fromAddr.startsWith(m)) {
-    			logger.info("blocked message from " + fromAddr + " due to ACL");
+    	for (Pattern p : jidBlacklist) {
+    		if (p.matcher(fromAddr).matches()) {
+    			logger.info("blocked message from " + fromAddr + " due to ACL " + p.toString());
     			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     			return;
     		}
