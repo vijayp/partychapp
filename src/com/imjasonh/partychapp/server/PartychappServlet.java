@@ -31,7 +31,13 @@ public class PartychappServlet extends HttpServlet {
 
   private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
   private static final QuotaService QS = QuotaServiceFactory.getQuotaService();
-
+  private static final String[] bad_jid_prefixes = {
+	  "twitalker022@appspot.com",
+	  "chitterim@appspot.com",
+	  "tweetjid@appspot.com", 
+	  "twiyia@gmail.com"
+  };
+  
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
@@ -50,6 +56,20 @@ public class PartychappServlet extends HttpServlet {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return;
     }
+
+    try { // FIXME: huge hack
+    	final String fromAddr = xmppMessage.getFromJid().getId();
+    	for (String m : bad_jid_prefixes) {
+    		if (fromAddr.startsWith(m)) {
+    			logger.info("blocked message from " + fromAddr + " due to ACL");
+    			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+    			return;
+    		}
+    	}
+    } catch (Exception e) {
+    	logger.warning("unknown exception on ACL " + e);
+    }
+    
     
     try {
       doXmpp(xmppMessage);
