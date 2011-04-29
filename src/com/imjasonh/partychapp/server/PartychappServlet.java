@@ -34,13 +34,19 @@ public class PartychappServlet extends HttpServlet {
   private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
   private static final QuotaService QS = QuotaServiceFactory.getQuotaService();
   private static final Pattern[] jidBlacklist = {
+	  
+	  // uncomment to block all bots
+	  // Pattern.compile(".*bot$", Pattern.CASE_INSENSITIVE),
+	  //
+	  
+	  
+	  Pattern.compile(".*g2twit.appspotchat.com.*", Pattern.CASE_INSENSITIVE),
 	  Pattern.compile(".*twitalker022@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
 	  Pattern.compile(".*chitterim@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
 	  Pattern.compile(".*tweetjid@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
 	  Pattern.compile(".*twiyia@gmail[.]com.*", Pattern.CASE_INSENSITIVE),
-	  Pattern.compile(".*g2twit.appspotchat.com.*", Pattern.CASE_INSENSITIVE),
-	  
 	  Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
+	  
   };
   
   /*private static final Splitter SlashSplitter = Splitter.on('/');*/
@@ -66,13 +72,7 @@ public class PartychappServlet extends HttpServlet {
     }
 
     try { // FIXME: huge hack
-    	final String fromAddr = xmppMessage.getFromJid().getId().toLowerCase();
-    	if (false && fromAddr.endsWith("bot")) {
-			logger.info("blocked message from " + fromAddr + " due to BOT ");
-			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return;
-    		
-    	}
+    	final String fromAddr = xmppMessage.getFromJid().getId();
     	for (Pattern p : jidBlacklist) {
     		if (p.matcher(fromAddr).matches()) {
     			logger.info("blocked message from " + fromAddr + " due to ACL " + p.toString());
