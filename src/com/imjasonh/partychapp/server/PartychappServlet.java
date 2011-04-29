@@ -38,6 +38,7 @@ public class PartychappServlet extends HttpServlet {
 	  "twiyia@gmail.com"
   };
   
+  
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
@@ -58,7 +59,7 @@ public class PartychappServlet extends HttpServlet {
     }
 
     try { // FIXME: huge hack
-    	final String fromAddr = xmppMessage.getFromJid().getId();
+    	final String fromAddr = xmppMessage.getFromJid().getId().toLowerCase();
     	for (String m : bad_jid_prefixes) {
     		if (fromAddr.startsWith(m)) {
     			logger.info("blocked message from " + fromAddr + " due to ACL");
