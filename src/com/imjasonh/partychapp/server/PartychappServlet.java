@@ -7,6 +7,7 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+import com.google.appengine.repackaged.com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 import com.imjasonh.partychapp.Channel;
@@ -51,6 +52,7 @@ public class PartychappServlet extends HttpServlet {
   
   /*private static final Splitter SlashSplitter = Splitter.on('/');*/
     
+  private static final Joiner semicolon_joiner = Joiner.on(';');
   
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -75,7 +77,11 @@ public class PartychappServlet extends HttpServlet {
     	final String fromAddr = xmppMessage.getFromJid().getId();
     	for (Pattern p : jidBlacklist) {
     		if (p.matcher(fromAddr).matches()) {
-    			logger.info("blocked message from " + fromAddr + " due to ACL " + p.toString());
+    			logger.info("blocked message from " + fromAddr + " to channel " 
+    					+ ((xmppMessage.getRecipientJids().length > 0) ? 
+    							jidToLowerCase(xmppMessage.getRecipientJids()[0])
+    							: "NONE")
+    					+ " due to ACL " + p.toString());
     			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     			return;
     		}
