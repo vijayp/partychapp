@@ -46,7 +46,7 @@ public class PartychappServlet extends HttpServlet {
 	  Pattern.compile(".*chitterim@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
 	  Pattern.compile(".*tweetjid@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
 	  Pattern.compile(".*twiyia@gmail[.]com.*", Pattern.CASE_INSENSITIVE),
-	  Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
+	  //Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
 	  
   };
   
