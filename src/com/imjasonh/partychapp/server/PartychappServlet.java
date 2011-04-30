@@ -45,8 +45,7 @@ public class PartychappServlet extends HttpServlet {
   
   /*private static final Splitter SlashSplitter = Splitter.on('/');*/
     
-  private static final Joiner semicolon_joiner = Joiner.on(';');
-  
+    
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
