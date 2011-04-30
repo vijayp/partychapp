@@ -7,8 +7,6 @@ import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
-import com.google.appengine.repackaged.com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
@@ -42,8 +40,6 @@ public class PartychappServlet extends HttpServlet {
 	  Pattern.compile(".*(?:g2twit[.]appspotchat[.]com|twitalker022@appspot[.]com|chitterim@appspot[.]com|tweetjid@appspot[.]com|twiyia@gmail[.]com).*", Pattern.CASE_INSENSITIVE),
 	  //Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
   };
-  
-  /*private static final Splitter SlashSplitter = Splitter.on('/');*/
     
     
   @Override

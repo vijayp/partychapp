@@ -301,13 +301,33 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
   
   <servlet>
-    <servlet-name>reloadpersistentconfighandler</servlet-name>
-    <servlet-class>com.imjasonh.partychapp.server.admin.ReloadPersistentConfigServlet</servlet-class>
+    <servlet-name>adminconfighandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.ConfigServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>reloadpersistentconfighandler</servlet-name>
-    <url-pattern>/admin/reload-persistent-config</url-pattern>
+    <servlet-name>adminconfighandler</servlet-name>
+    <url-pattern>/admin/config</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>adminconfigreloadhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.ConfigReloadServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>adminconfigreloadhandler</servlet-name>
+    <url-pattern>/admin/config/reload</url-pattern>
+  </servlet-mapping>    
+  
+  <servlet>
+    <servlet-name>adminconfigedithandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.ConfigEditServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>adminconfigedithandler</servlet-name>
+    <url-pattern>/admin/config/edit</url-pattern>
   </servlet-mapping>  
   
   <servlet>

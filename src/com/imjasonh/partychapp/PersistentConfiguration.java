@@ -6,14 +6,10 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 /**
- * Used to configure private information that shouldn't be checked into svn. At
- * the moment, this is just the session token and feed URL for updating the
- * stats spreadsheet we keep in google docs, but it could grow to include other
- * things too.
- * 
- * There's no facility for updating this from code. You have to go into the
- * datastore admin interface and edit the row there.
- * 
+ * Used to configure private, per-installation or frequently changed information
+ * that shouldn't be checked into SVN. Can be viewed and edited at the
+ * /admin/config URL.
+ *
  * @author nsanch
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -25,12 +21,15 @@ public class PersistentConfiguration {
   @Persistent
   private String name = "config";
   
+  /** AuthSub session token for updating the stats spreadsheet */
   @Persistent
   private String sessionToken;
   
+  /** GData feed URL for the stats spreadsheet */
   @Persistent
   private String listFeedUrl;
   
+  /** Whether channel stats are being recorded or not (has overhead) */
   @Persistent
   private Boolean areChannelStatsEnabled;
   
@@ -39,5 +38,19 @@ public class PersistentConfiguration {
   public boolean areChannelStatsEnabled() {
     return areChannelStatsEnabled != null &&
         areChannelStatsEnabled.booleanValue(); 
+  }
+  
+  // Setters are meant for use by {@link ConfigEditServlet} only
+  
+  public void setSessionToken(String sessionToken) {
+    this.sessionToken = sessionToken;
+  }
+  
+  public void setListFeedUrl(String listFeedUrl) {
+    this.listFeedUrl = listFeedUrl;
+  }
+  
+  public void setChannelStatsEnabled(boolean areChannelStatsEnabled) {
+    this.areChannelStatsEnabled = areChannelStatsEnabled;
   }
 }
