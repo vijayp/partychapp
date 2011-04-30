@@ -39,15 +39,8 @@ public class PartychappServlet extends HttpServlet {
 	  // uncomment to block all bots
 	  // Pattern.compile(".*bot$", Pattern.CASE_INSENSITIVE),
 	  //
-	  
-	  
-	  Pattern.compile(".*g2twit.appspotchat.com.*", Pattern.CASE_INSENSITIVE),
-	  Pattern.compile(".*twitalker022@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
-	  Pattern.compile(".*chitterim@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
-	  Pattern.compile(".*tweetjid@appspot[.]com.*", Pattern.CASE_INSENSITIVE),
-	  Pattern.compile(".*twiyia@gmail[.]com.*", Pattern.CASE_INSENSITIVE),
+	  Pattern.compile(".*(?:g2twit[.]appspotchat[.]com|twitalker022@appspot[.]com|chitterim@appspot[.]com|tweetjid@appspot[.]com|twiyia@gmail[.]com).*", Pattern.CASE_INSENSITIVE),
 	  //Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
-	  
   };
   
   /*private static final Splitter SlashSplitter = Splitter.on('/');*/
