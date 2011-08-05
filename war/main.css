@@ -64,6 +64,13 @@ body {
   line-height: 100%;
 }
 
+.important { 
+  background-color: #ffff99;
+  border-radius:15px; 
+  border: 5px solid black;
+  padding: 15px;
+}
+
 .channel-form-table .buttons {
   text-align: right;
 }

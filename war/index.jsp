@@ -9,6 +9,8 @@
 <%
 	UserService userService = UserServiceFactory.getUserService();
 	User user = userService.getCurrentUser();
+	boolean logged_in = null != user;
+	logged_in = true;
 %>
 
 <!DOCTYPE html>
@@ -19,7 +21,7 @@
 <body>
 <jsp:include page="include/header.jsp"/>
 
-<p>Create chat rooms with your friends or coworkers using Google
+<p>Create chat rooms with your friends or co-workers using Google
 Talk or XMPP.</p>
 
 <h3>Why use Partychat?</h3>
@@ -49,8 +51,12 @@ stays safe. <%
   	}
   %>
 
-<jsp:include page="include/donate.jsp"/>
+<% if (logged_in) {%>
+  <div class="important">
+<jsp:include page="include/donate.jsp" />
+  </div>
 
+<% } %>
 <h3>How do I create a room?</h3>
 
 <%
@@ -201,6 +207,10 @@ You can find the source code on <a
 	Code</a> and send feedback to the developers at
 	<script type="text/javascript">printEmail()</script>.
 </p>
+
+<% if (!logged_in) {%>
+<jsp:include page="include/donate.jsp" />
+<% } %>
 
 <jsp:include page="include/footer.jsp"/>
 </body>

@@ -5,9 +5,7 @@
 <%@ page import="com.imjasonh.partychapp.Configuration" %>
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
 <%@ page import="com.imjasonh.partychapp.server.HttpUtil"%>
-
-<h3>How much does it cost?</h3>
-
+<a name="donate"><h3>How much does it cost?</h3></a>
 <p>It doesn't cost <i>you</i> anything. However, as our usage has grown substantially over 
 the past year, AppEngine usage costs are getting pretty high. <a href="#about_us">We</a> 
 have so far been paying these charges ourselves.  If you use and enjoy Partychat, please consider donating 
