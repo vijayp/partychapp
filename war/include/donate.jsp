@@ -27,7 +27,10 @@ some money to help us defray our costs. You can donate any amount between $1 and
   <input type="hidden" name="returnUrl" value="http://partychapp.appspot.com/donate_done.jsp" >
   <input type="hidden" name="processImmediate" value="1" >
   <input type="hidden" name="cobrandingStyle" value="logo" >
-  <input type="hidden" name="abandonUrl" value="http://partychapp.appspot.com/donate_abandoned.jsp" >
+<%
+// This is not used by amazon in our configuration
+//<input type="hidden" name="abandonUrl" value="http://partychapp.appspot.com/donate_abandoned.jsp" >
+%>
   <input type="image" src="http://g-ecx.images-amazon.com/images/G/01/asp/beige_small_paynow_withmsg_whitebg.gif" border="0">
 </form>
 </div>	
