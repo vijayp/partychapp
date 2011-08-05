@@ -9,8 +9,8 @@
 <%
 	UserService userService = UserServiceFactory.getUserService();
 	User user = userService.getCurrentUser();
-	boolean logged_in = null != user;
-	logged_in = true;
+	final boolean logged_in = null != user;
+	
 %>
 
 <!DOCTYPE html>
