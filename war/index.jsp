@@ -6,6 +6,11 @@
 <%@ page import="com.imjasonh.partychapp.Datastore"%>
 <%@ page import="com.imjasonh.partychapp.server.HttpUtil"%>
 
+<%
+	UserService userService = UserServiceFactory.getUserService();
+	User user = userService.getCurrentUser();
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,8 +53,8 @@ stays safe. <%
 <h3>How much does it cost?</h3>
 
 <p>It doesn't cost <i>you</i> anything. However, as our usage has grown substantially over 
-the past year, app engine usage costs are getting pretty high. We have so far been 
-paying these charges ourselves.  If you use and enjoy partychat, please consider donating 
+the past year, AppEngine usage costs are getting pretty high. <a href="#about_us">We</a> 
+have so far been paying these charges ourselves.  If you use and enjoy Partychat, please consider donating 
 some money to help us defray our costs. You can donate any amount between $1 and $1000. (Payments are processed via Amazon 
  Simple Pay.)</p>
 <div style="width:20em;padding-left:10px;padding-top:10px;padding-right:10px;padding-bottom:10px;">
@@ -74,9 +79,6 @@ some money to help us defray our costs. You can donate any amount between $1 and
 <h3>How do I create a room?</h3>
 
 <%
-	UserService userService = UserServiceFactory.getUserService();
-	User user = userService.getCurrentUser();
-
 	if (user != null) {
 %>
 <div id="create-button-container">
@@ -207,11 +209,11 @@ to the room, or <a href="/about/faq#commands">on this page</a>. Some key ones:</
 %>
 
 
-<h3>Tell me more about this "partychat"</h3>
+<a name="about_us"><h3>Tell me more about this "partychat"</h3></a>
 
 <p>Partychat was started by <a href=http://www.q00p.net>Akshay</a> and is
 maintained by a motley, ragtag group of current and former Googlers with
-names like Neil, Jason, Kushal, <a href=http://www.vijayp.ca/> Vijay</a>, 
+names like Neil, Jason, Kushal, <a href=http://www.vijayp.ca/>Vijay</a>, 
 and Mihai, although <i>this is not in any way associated with Google</i>. 
 
 You can find the source code on <a
