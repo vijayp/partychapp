@@ -51,11 +51,11 @@ stays safe. <%
   	}
   %>
 
-<% if (logged_in) {%>
+<% if (true || logged_in) {%>
+<!--  logged in -->
   <div class="important">
 <jsp:include page="include/donate.jsp" />
   </div>
-
 <% } %>
 <h3>How do I create a room?</h3>
 

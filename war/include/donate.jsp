@@ -7,10 +7,10 @@
 <%@ page import="com.imjasonh.partychapp.server.HttpUtil"%>
 <a name="donate"><h3>How much does it cost?</h3></a>
 <p>It doesn't cost <i>you</i> anything. However, as our usage has grown substantially over 
-the past year, AppEngine usage costs are getting pretty high. <a href="#about_us">We</a> 
+the past year, App Engine usage costs are getting pretty high. <a href="#about_us">We</a> 
 have so far been paying these charges ourselves.  If you use and enjoy Partychat, please consider donating 
-some money to help us defray our costs. You can donate any amount between $1 and $1000. (Payments are processed via Amazon 
- Simple Pay.)</p>
+some money to help us defray our costs. (Payments are processed via Amazon Simple Pay.)</p>
+
 <div style="width:20em;padding-left:10px;padding-top:10px;padding-right:10px;padding-bottom:10px;">
 <form action="https://authorize.payments.amazon.com/pba/paypipeline" method="post">
   <input type="hidden" name="immediateReturn" value="1" >

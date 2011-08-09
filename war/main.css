@@ -65,10 +65,10 @@ body {
 }
 
 .important { 
-  background-color: #ffff99;
+  background-color: #ffffcc;
   border-radius:15px; 
   border: 5px solid black;
-  padding: 15px;
+  padding: 0px 15px 0px 15px;
 }
 
 .channel-form-table .buttons {
