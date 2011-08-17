@@ -13,6 +13,8 @@ the past year, App Engine usage costs are getting pretty high.
 have so far been paying these charges ourselves.  If you use and enjoy Partychat, please consider donating 
 some money to help us defray our costs. (Payments are processed via Amazon Simple Pay.)</p>
 
+<p> $15 lets us keep Partychat running for one week;  $60 keeps us going for a month!</p> 
+
 <div style="width:20em;padding-left:10px;padding-top:10px;padding-right:10px;padding-bottom:10px;">
 <form action="https://authorize.payments.amazon.com/pba/paypipeline" method="post">
   <input type="hidden" name="immediateReturn" value="1" >
