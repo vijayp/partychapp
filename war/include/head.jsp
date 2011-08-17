@@ -13,5 +13,6 @@
 <script type="text/javascript">
   var _sf_startpt=(new Date()).getTime();
 </script>
+<script type="text/javascript" src="http://dev.jquery.com/view/trunk/plugins/validate/jquery.validate.js"></script>
 <link type="text/css" rel="stylesheet" href="/main.css">
 <script type="text/javascript" src="/partychapp_compiled.js"></script>

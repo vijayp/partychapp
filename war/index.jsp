@@ -51,9 +51,10 @@ stays safe. <%
   	}
   %>
 
-<% if (true || logged_in) {%>
+<% if (logged_in) {%>
 <!--  logged in -->
   <div class="important">
+<a name="donate"><h3>How much does it cost?</h3></a>
 <jsp:include page="include/donate.jsp" />
   </div>
 <% } %>
@@ -209,6 +210,7 @@ You can find the source code on <a
 </p>
 
 <% if (!logged_in) {%>
+<a name="donate"><h3>How much does it cost?</h3></a>
 <jsp:include page="include/donate.jsp" />
 <% } %>
 
