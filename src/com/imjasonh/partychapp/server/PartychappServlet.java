@@ -33,12 +33,14 @@ public class PartychappServlet extends HttpServlet {
   private static final XMPPService XMPP = XMPPServiceFactory.getXMPPService();
   private static final QuotaService QS = QuotaServiceFactory.getQuotaService();
   private static final Pattern[] jidBlacklist = {
-	  
-	  // uncomment to block all bots
-	  // Pattern.compile(".*bot$", Pattern.CASE_INSENSITIVE),
-	  //
-	  Pattern.compile(".*(?:g2twit[.]appspotchat[.]com|twitalker\\d+@appspot[.]com|chitterim@appspot[.]com|tweetjid@appspot[.]com|twiyia@gmail[.]com|roomchinese[.]appspotchat[.]com|353606@gmail[.]com).*", Pattern.CASE_INSENSITIVE),
-	  //Pattern.compile(".*[/]conference$", Pattern.CASE_INSENSITIVE),
+    // Bots that talk to each other and cause loops
+    Pattern.compile("guru@googlelabs\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
+    Pattern.compile("webtoim@gmail\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
+    Pattern.compile(".*@bot.talk.google\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
+    Pattern.compile("service@gtalk2voip\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
+
+    // Various other bots that we've encountered
+    Pattern.compile(".*(?:g2twit[.]appspotchat[.]com|twitalker\\d+@appspot[.]com|chitterim@appspot[.]com|tweetjid@appspot[.]com|twiyia@gmail[.]com|roomchinese[.]appspotchat[.]com|353606@gmail[.]com).*", Pattern.CASE_INSENSITIVE),
   };
     
     
@@ -62,22 +64,19 @@ public class PartychappServlet extends HttpServlet {
     }
 
     try { // FIXME: huge hack
-    	final String fromAddr = xmppMessage.getFromJid().getId();
-    	for (Pattern p : jidBlacklist) {
-    		if (p.matcher(fromAddr).matches()) {
-    			logger.info("blocked message from " + fromAddr + " to channel " 
-    					+ ((xmppMessage.getRecipientJids().length > 0) ? 
-    							jidToLowerCase(xmppMessage.getRecipientJids()[0])
-    							: "NONE")
-    					+ " due to ACL " + p.toString());
-    			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-    			return;
-    		}
-    	}
+      final String fromAddr = xmppMessage.getFromJid().getId();
+      for (Pattern p : jidBlacklist) {
+        if (p.matcher(fromAddr).matches()) {
+          logger.info("blocked message from " + fromAddr + " to channel " +
+              ((xmppMessage.getRecipientJids().length > 0) ? jidToLowerCase(xmppMessage
+                  .getRecipientJids()[0]) : "NONE") + " due to ACL " + p.toString());
+          resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+          return;
+        }
+      }
     } catch (Exception e) {
-    	logger.warning("unknown exception on ACL " + e);
+      logger.warning("unknown exception on ACL " + e);
     }
-    
     
     try {
       doXmpp(xmppMessage);
