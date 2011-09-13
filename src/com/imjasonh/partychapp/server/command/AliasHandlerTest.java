@@ -10,6 +10,8 @@ public class AliasHandlerTest extends CommandHandlerTestCase {
     assertTrue(handler.matches(Message.createForTests(" /alias with-a-space-in-front")));
     assertFalse(handler.matches(Message.createForTests("no you shouldn't handle this string with /alias")));
     assertTrue(handler.matches(Message.createForTests("/alias abcABC123-_*'")));
+    assertTrue(handler.matches(Message.createForTests("/nick nsanch")));
+    assertTrue(handler.matches(Message.createForTests("/rename nsanch")));
   }
   
   public void testAllowedAliases() {

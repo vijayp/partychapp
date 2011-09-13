@@ -8,7 +8,7 @@ public class AliasHandler extends SlashCommand {
   public static final String ALIAS_REGEX = "[\\pL\\pS\\pN\\-_'\\*.]+";
   
   AliasHandler() {
-    super("alias", "rename");
+    super("alias", "rename", "nick");
   }
 
   @Override
