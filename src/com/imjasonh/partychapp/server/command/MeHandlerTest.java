@@ -18,4 +18,10 @@ public class MeHandlerTest extends CommandHandlerTestCase {
     assertEquals(1, xmpp.messages.size());
     assertEquals("_neil xs_", xmpp.messages.get(0).getBody());
   }
+  
+  public void testNoArgs() {
+    handler.doCommand(Message.createForTests("/me"));
+    assertEquals(1, xmpp.messages.size());
+    assertEquals("You must specify an action.", xmpp.messages.get(0).getBody());
+  }  
 }
