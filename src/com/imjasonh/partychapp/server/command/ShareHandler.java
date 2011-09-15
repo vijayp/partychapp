@@ -81,6 +81,9 @@ public class ShareHandler extends SlashCommand {
     shareBroadcast += "_";
 
     if (!description.isEmpty()) {
+      if (description.length() > 160) {
+        description = description.substring(0, 160) + "...";
+      }
       shareBroadcast += "\n  " + description;
     }
 
