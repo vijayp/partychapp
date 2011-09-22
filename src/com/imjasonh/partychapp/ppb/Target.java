@@ -13,6 +13,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 import java.util.Collections;
 import java.util.List;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
@@ -31,9 +32,11 @@ public class Target {
   private String channelName;
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private String name;
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private int score;
 
   public Reason takeAction(Member sender, Action act, String content) {

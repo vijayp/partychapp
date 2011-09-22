@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -39,27 +40,33 @@ public class Channel implements Serializable {
   private String name;
 
   @Persistent(serialized = "true")
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Set<Member> members = Sets.newHashSet();
   
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Boolean inviteOnly = false;
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private List<String> invitedIds = Lists.newArrayList();
   
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Integer sequenceId = 0;
   
   /** 
    * Email addresses of users that have requested invitations.
    */
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private List<String> requestedInvitations = Lists.newArrayList();
   
   /**
    * Turns off storing of recent messages for the room. 
    */
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Boolean loggingDisabled = false;
     
   public Channel(JID serverJID) {

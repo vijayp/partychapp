@@ -13,6 +13,7 @@ import com.imjasonh.partychapp.ppb.PlusPlusBot.Action;
 
 import java.util.Date;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
@@ -29,27 +30,33 @@ public class Reason {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   @PrimaryKey
   private Key key;
-  
+
   @NotPersistent
   private Target target;
+
   @Persistent
   private String targetId;
 
   @NotPersistent
   private Member sender;
+
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private String senderJID;
   
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private String reason;
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private String action;
 
   @Persistent
   private Date timestamp;
   
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private int scoreAfter;
 
   // This should only be called by Target.takeAction()

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -34,15 +35,18 @@ public class User implements Serializable {
   private String jid;
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   List<String> channelNames;
   
   @Persistent
   String phoneNumber;
   
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   String carrier;
   
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   Date lastSeen;
 
   // I stole from http://en.wikipedia.org/wiki/List_of_carriers_providing_SMS_transit
