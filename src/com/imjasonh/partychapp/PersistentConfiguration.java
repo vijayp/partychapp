@@ -7,15 +7,13 @@ import javax.jdo.annotations.PrimaryKey;
 
 /**
  * Used to configure private, per-installation or frequently changed information
- * that shouldn't be checked into SVN. Can be viewed and edited at the
- * /admin/config URL.
+ * that shouldn't be checked into source control. Can be viewed and edited at 
+ * the /admin/config URL.
  *
  * @author nsanch
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class PersistentConfiguration {
-  private static final long serialVersionUID = 7984372525340987L;
-
   @SuppressWarnings("unused")
   @PrimaryKey
   @Persistent
@@ -33,12 +31,17 @@ public class PersistentConfiguration {
   @Persistent
   private Boolean areChannelStatsEnabled;
   
+  /** The Embedly API key */
+  @Persistent
+  private String embedlyKey;
+  
   public String sessionToken() { return sessionToken; }
   public String listFeedUrl() { return listFeedUrl; }
   public boolean areChannelStatsEnabled() {
     return areChannelStatsEnabled != null &&
         areChannelStatsEnabled.booleanValue(); 
   }
+  public String embedlyKey() { return embedlyKey; }
   
   // Setters are meant for use by {@link ConfigEditServlet} only
   
@@ -52,5 +55,9 @@ public class PersistentConfiguration {
   
   public void setChannelStatsEnabled(boolean areChannelStatsEnabled) {
     this.areChannelStatsEnabled = areChannelStatsEnabled;
+  }
+  
+  public void setEmbedlyKey(String embedlyKey) {
+    this.embedlyKey = embedlyKey;
   }
 }

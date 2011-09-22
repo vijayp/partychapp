@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author mihai.parparita@gmail.com (Mihai Parparita)
  */
 public class ConfigEditServlet extends HttpServlet {
+  private static final long serialVersionUID = 1L;
+
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException, ServletException {
@@ -38,6 +40,7 @@ public class ConfigEditServlet extends HttpServlet {
     config.setListFeedUrl(getParam(req, "list-feed-url"));
     config.setChannelStatsEnabled(
         Boolean.parseBoolean(req.getParameter("channel-stats-enabled")));
+    config.setEmbedlyKey(getParam(req, "embedly-key"));
     
     Datastore datastore = Datastore.instance();
     

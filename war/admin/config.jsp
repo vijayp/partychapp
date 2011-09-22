@@ -18,7 +18,8 @@
 <p>
   <b>Session token:</b> <%=persistentConfig.sessionToken()%><br>
   <b>List feed URL:</b> <%=persistentConfig.listFeedUrl()%><br>
-  <b>Channel stats enabled:</b> <%=Boolean.toString(persistentConfig.areChannelStatsEnabled())%>
+  <b>Channel stats enabled:</b> <%=Boolean.toString(persistentConfig.areChannelStatsEnabled())%><br>
+  <b>Embedly key:</b> <%=persistentConfig.embedlyKey()%>
 </p>
 
 <p>

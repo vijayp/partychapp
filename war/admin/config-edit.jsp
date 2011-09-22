@@ -19,18 +19,25 @@
     <input name="session-token" type="text" value="<%=persistentConfig.sessionToken()%>" size="50">
   </label>
   <br>
-  
+
   <label>
     List feed URL:
     <input name="list-feed-url" type="text" value="<%=persistentConfig.listFeedUrl()%>" size="50">
   </label>
   <br>
-  
+
   <label>
     <input type="checkbox" name="channel-stats-enabled" value="true" <% if (persistentConfig.areChannelStatsEnabled()) {out.print("checked");} %>>
     Channel stats
   </label>
   <br>
+
+  <label>
+    Embedly API key:
+    <input name="embedly-key" type="text" value="<%=persistentConfig.embedlyKey()%>" size="50">
+  </label>
+  <br>
+
   <input type="submit">
 </form>
 
