@@ -46,7 +46,6 @@ public class User implements Serializable {
   String carrier;
   
   @Persistent
-  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   Date lastSeen;
 
   // I stole from http://en.wikipedia.org/wiki/List_of_carriers_providing_SMS_transit
