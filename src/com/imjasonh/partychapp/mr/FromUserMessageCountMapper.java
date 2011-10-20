@@ -1,4 +1,7 @@
 package com.imjasonh.partychapp.mr;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Logger;
 
 
@@ -43,24 +46,30 @@ public class FromUserMessageCountMapper extends AppEngineMapper<Key, Entity, Nul
     final String to = (String)value.getProperty("to");
     final long num_r = ((Long)value.getProperty("num_recipients")).longValue();
     final long payload = ((Long)value.getProperty("payload_size")).longValue();
-    context.getCounter(MakePrefix() + "fanout-messages-channel", to).increment(num_r);
-    context.getCounter(MakePrefix() + "fanout-messages-user", from).increment(num_r);
-    context.getCounter(MakePrefix() + "fanout-messages-user-channel", from + " :: " + to).increment(num_r);
+    final long time_ms = ((Long)value.getProperty("time_ms")).longValue();
     
-    context.getCounter(MakePrefix() + "messages-channel", to).increment(1);
-    context.getCounter(MakePrefix() + "messages-user", from).increment(1);
-    context.getCounter(MakePrefix() + "messages-user-channel", from + " :: " + to).increment(1);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(time_ms);
+    DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 
+    String [] prefixes = { "total-",
+        formatter.format(calendar.getTime()) + "-"
+        };
     
-    context.getCounter(MakePrefix() + "fanout-bytes-channel", to).increment(num_r * payload);
-    context.getCounter(MakePrefix() + "fanout-bytes-user", from).increment(num_r * payload);
-    context.getCounter(MakePrefix() + "fanout-bytes-user-channel", from + " :: " + to).increment(num_r * payload);
-    
-  }
+    for (String prefix : prefixes) {
+      context.getCounter(prefix + "fanout-messages-channel", to).increment(num_r);
+      context.getCounter(prefix + "fanout-messages-user", from).increment(num_r);
+      context.getCounter(prefix + "fanout-messages-user-channel", from + " :: " + to).increment(num_r);
 
-  private String MakePrefix() {
-    // TODO Auto-generated method stub
-    return "total-";
+      context.getCounter(prefix + "messages-channel", to).increment(1);
+      context.getCounter(prefix + "messages-user", from).increment(1);
+      context.getCounter(prefix + "messages-user-channel", from + " :: " + to).increment(1);
+
+
+      context.getCounter(prefix + "fanout-bytes-channel", to).increment(num_r * payload);
+      context.getCounter(prefix + "fanout-bytes-user", from).increment(num_r * payload);
+      context.getCounter(prefix + "fanout-bytes-user-channel", from + " :: " + to).increment(num_r * payload);
+    }    
   }
 }
 
