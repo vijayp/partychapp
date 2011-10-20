@@ -432,7 +432,12 @@ public class Channel implements Serializable {
 
   public void broadcast(String message, Member sender) {
     List<Member> recipients = getMembersToSendTo(sender);
+    maybeLogMessage(message, sender, recipients);
+    sendMessage(message, recipients);
+  }
 
+  private void maybeLogMessage(String message, Member sender,
+      List<Member> recipients) {
     Double frac = Configuration.persistentConfig().fractionOfMessagesToLog();
 
     final double accept = (null == frac || frac > 1.0 || frac < 0.0) ? 
@@ -443,13 +448,13 @@ public class Channel implements Serializable {
       Entity logEntity = createMessageLogEntity(message, sender, recipients);
       asyncDS.put(logEntity);
     }
-    sendMessage(message, recipients);
   }
 
   private Entity createMessageLogEntity(String message, Member sender,
       List<Member> recipients) {
     Entity logEntity = new Entity("messageLog");
-    logEntity.setUnindexedProperty("from", sender.getJID());
+    logEntity.setUnindexedProperty("from", 
+          (null == sender) ? "unknown@unknown" : sender.getJID());
     logEntity.setUnindexedProperty("to", this.getName());
     logEntity.setUnindexedProperty("num_recipients", recipients.size());
     logEntity.setUnindexedProperty("payload_size", message.length());		
@@ -458,7 +463,9 @@ public class Channel implements Serializable {
   }
 
   public void broadcastIncludingSender(String message) {
-    sendMessage(message, getMembersToSendTo());
+    List<Member> dest = getMembersToSendTo();
+    maybeLogMessage(message, null, dest);
+    sendMessage(message, dest);
   }
 
   public String sendMail(String subject,
