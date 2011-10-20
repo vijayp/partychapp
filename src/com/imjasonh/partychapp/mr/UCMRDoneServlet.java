@@ -55,11 +55,14 @@ public class UCMRDoneServlet extends HttpServlet {
       String channel = Joiner.on("\n").withKeyValueSeparator(", ").join(ChannelCountMap);
       String user = Joiner.on("\n").withKeyValueSeparator(", ").join(UserCountMap);
       
+      
       Entity channel_data = new Entity("processed_stats");
-      channel_data.setProperty("csv", channel.substring(0, Math.min(channel.length(), 100000)));
+      channel_data.setProperty("csv",
+          new com.google.appengine.api.datastore.Text(channel.substring(0, Math.min(channel.length(), 100000)))); 
       channel_data.setProperty("title", "channel");
       Entity user_data = new Entity("processed_stats");
-      user_data.setProperty("csv", user.substring(0,Math.min(channel.length()-1, 100000)));
+      user_data.setProperty("csv",
+          new com.google.appengine.api.datastore.Text(user.substring(0, Math.min(channel.length(), 100000)))); 
       user_data.setProperty("title", "user");
       asyncDS.put(user_data);
       asyncDS.put(channel_data);

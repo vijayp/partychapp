@@ -1,6 +1,7 @@
 package com.imjasonh.partychapp.mr;
 
 import java.io.IOException;
+import com.google.appengine.api.datastore.Text;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ public class StatsHandler extends HttpServlet {
       if (result.hasProperty("title") && result.hasProperty("csv")) {
         resp.getWriter().write((String)result.getProperty("title"));
         resp.getWriter().write("\n");
-        resp.getWriter().write((String)result.getProperty("csv"));
+        resp.getWriter().write(((Text)result.getProperty("csv")).getValue());
         resp.getWriter().write("\n\n\n\n");
       }
     }
