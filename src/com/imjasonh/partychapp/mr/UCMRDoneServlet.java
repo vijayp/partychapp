@@ -72,7 +72,7 @@ public class UCMRDoneServlet extends HttpServlet {
           }
         }
         pieChart.setChartLegend(new ChartLegend(legend));
-        summary_entity.setProperty("image_url1", pieChart.getUrl());
+        summary_entity.setProperty("image_url1", new Text(pieChart.getUrl()));
         ///
         
         asyncDS.put(summary_entity);

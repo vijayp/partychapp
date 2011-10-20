@@ -54,10 +54,10 @@ public class StatsHandler extends HttpServlet {
         Object img1 = result.getProperty("image_url1");
         Object img2 = result.getProperty("image_url2");
         if (null != img1) {
-          resp.getWriter().write("<img src='"+StringEscapeUtils.escapeHtml((String)img1) + "' /> <br/>");
+          resp.getWriter().write("<img src='"+StringEscapeUtils.escapeHtml(((Text)img1).getValue()) + "' /> <br/>");
         }
         if (null != img2) {
-          resp.getWriter().write("<img src='"+StringEscapeUtils.escapeHtml((String)img2) + "' /> <br/>");
+          resp.getWriter().write("<img src='"+StringEscapeUtils.escapeHtml(((Text)img2).getValue()) + "' /> <br/>");
         }
         
         resp.getWriter().write("<br/>");
