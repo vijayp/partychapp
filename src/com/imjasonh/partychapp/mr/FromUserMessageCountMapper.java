@@ -42,8 +42,19 @@ public class FromUserMessageCountMapper extends AppEngineMapper<Key, Entity, Nul
     final String from = (String)value.getProperty("from");
     final String to = (String)value.getProperty("to");
     final long num_r = ((Long)value.getProperty("num_recipients")).longValue();
-    context.getCounter("channel", to).increment(num_r);
-    context.getCounter("user", from).increment(num_r);
+    final long payload = ((Long)value.getProperty("payload_size")).longValue();
+    context.getCounter(MakePrefix() + "fanout-messages-channel", to).increment(num_r);
+    context.getCounter(MakePrefix() + "fanout-messages-user", from).increment(num_r);
+    context.getCounter(MakePrefix() + "fanout-messages-user-channel", from + " :: " + to).increment(num_r);
+    context.getCounter(MakePrefix() + "fanout-bytes-channel", to).increment(num_r * payload);
+    context.getCounter(MakePrefix() + "fanout-bytes-user", from).increment(num_r * payload);
+    context.getCounter(MakePrefix() + "fanout-bytes-user-channel", from + " :: " + to).increment(num_r * payload);
+    
+  }
+
+  private String MakePrefix() {
+    // TODO Auto-generated method stub
+    return "total-";
   }
 }
 
