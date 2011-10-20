@@ -46,6 +46,12 @@ public class FromUserMessageCountMapper extends AppEngineMapper<Key, Entity, Nul
     context.getCounter(MakePrefix() + "fanout-messages-channel", to).increment(num_r);
     context.getCounter(MakePrefix() + "fanout-messages-user", from).increment(num_r);
     context.getCounter(MakePrefix() + "fanout-messages-user-channel", from + " :: " + to).increment(num_r);
+    
+    context.getCounter(MakePrefix() + "messages-channel", to).increment(1);
+    context.getCounter(MakePrefix() + "messages-user", from).increment(1);
+    context.getCounter(MakePrefix() + "messages-user-channel", from + " :: " + to).increment(1);
+
+    
     context.getCounter(MakePrefix() + "fanout-bytes-channel", to).increment(num_r * payload);
     context.getCounter(MakePrefix() + "fanout-bytes-user", from).increment(num_r * payload);
     context.getCounter(MakePrefix() + "fanout-bytes-user-channel", from + " :: " + to).increment(num_r * payload);
