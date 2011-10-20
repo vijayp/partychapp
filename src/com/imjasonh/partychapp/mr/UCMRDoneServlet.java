@@ -63,14 +63,22 @@ public class UCMRDoneServlet extends HttpServlet {
         // This really shouldn't be done here ...
         PieChart pieChart = new PieChart(new Dimension(700, 399));
         ArrayList<String> legend = new ArrayList<String>();
+        int leftover = 0;
         for(Map.Entry<Long,String> entry : countMap.entrySet()) {
-          pieChart.addPieChartSlice(
-              new PieChartSlice.PieChartSliceBuilder(entry.getKey().intValue())/*.label(entry.getValue())*/.build());
-          legend.add(entry.getValue());
-          if (legend.size() > 15) {
-            break;
+          if (legend.size() < 15) {
+            pieChart.addPieChartSlice(
+                new PieChartSlice.PieChartSliceBuilder(entry.getKey().intValue())/*.label(entry.getValue())*/.build());
+            legend.add(entry.getValue());
+          } else {
+            leftover += entry.getKey().intValue();
           }
         }
+        if (leftover > 0) {
+          pieChart.addPieChartSlice(
+              new PieChartSlice.PieChartSliceBuilder(leftover).label("leftover").build());
+          legend.add("leftover");
+        }
+        
         pieChart.setChartLegend(new ChartLegend(legend));
         summary_entity.setProperty("image_url1", new Text(pieChart.getUrl()));
         ///
