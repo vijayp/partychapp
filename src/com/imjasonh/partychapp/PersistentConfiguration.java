@@ -18,23 +18,28 @@ public class PersistentConfiguration {
   @PrimaryKey
   @Persistent
   private String name = "config";
-  
+
   /** AuthSub session token for updating the stats spreadsheet */
   @Persistent
   private String sessionToken;
-  
+
   /** GData feed URL for the stats spreadsheet */
   @Persistent
   private String listFeedUrl;
-  
+
   /** Whether channel stats are being recorded or not (has overhead) */
   @Persistent
   private Boolean areChannelStatsEnabled;
-  
+
   /** The Embedly API key */
   @Persistent
   private String embedlyKey;
-  
+
+  // this controls the number of messages we have to log.
+  @Persistent
+  private Double fractionOfMessagesToLog;
+  public Double fractionOfMessagesToLog() { return fractionOfMessagesToLog; }
+
   public String sessionToken() { return sessionToken; }
   public String listFeedUrl() { return listFeedUrl; }
   public boolean areChannelStatsEnabled() {
@@ -42,22 +47,27 @@ public class PersistentConfiguration {
         areChannelStatsEnabled.booleanValue(); 
   }
   public String embedlyKey() { return embedlyKey; }
-  
+
+
   // Setters are meant for use by {@link ConfigEditServlet} only
-  
+
   public void setSessionToken(String sessionToken) {
     this.sessionToken = sessionToken;
   }
-  
+
   public void setListFeedUrl(String listFeedUrl) {
     this.listFeedUrl = listFeedUrl;
   }
-  
+
   public void setChannelStatsEnabled(boolean areChannelStatsEnabled) {
     this.areChannelStatsEnabled = areChannelStatsEnabled;
   }
-  
+
   public void setEmbedlyKey(String embedlyKey) {
     this.embedlyKey = embedlyKey;
+  }
+
+  public void setFractionOfMessagesToLog(double frac) {
+    this.fractionOfMessagesToLog = frac;
   }
 }

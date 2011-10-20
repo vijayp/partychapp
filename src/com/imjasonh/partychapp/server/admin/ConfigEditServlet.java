@@ -30,24 +30,25 @@ public class ConfigEditServlet extends HttpServlet {
         getServletContext().getRequestDispatcher("/admin/config-edit.jsp");
     disp.forward(req, resp);
   }
-  
+
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
     PersistentConfiguration config = Configuration.persistentConfig();
-    
+
     config.setSessionToken(getParam(req, "session-token"));
     config.setListFeedUrl(getParam(req, "list-feed-url"));
     config.setChannelStatsEnabled(
         Boolean.parseBoolean(req.getParameter("channel-stats-enabled")));
     config.setEmbedlyKey(getParam(req, "embedly-key"));
-    
+    config.setFractionOfMessagesToLog(Double.parseDouble(getParam(req, "fraction-log")));
+
     Datastore datastore = Datastore.instance();
-    
+
     datastore.startRequest();
     datastore.put(config);
     datastore.endRequest();    
-    
+
     resp.sendRedirect("/admin/config");
   }
 

@@ -36,6 +36,11 @@
     Embedly API key:
     <input name="embedly-key" type="text" value="<%=persistentConfig.embedlyKey()%>" size="50">
   </label>
+  <br />
+  <label>
+    Fraction of messages to log:
+    <input name="fraction-log" type="text" value="<%=persistentConfig.fractionOfMessagesToLog()%>" size="50">
+  </label>
   <br>
 
   <input type="submit">

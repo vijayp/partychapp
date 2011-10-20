@@ -1,5 +1,8 @@
 package com.imjasonh.partychapp;
 
+import com.google.appengine.api.datastore.AsyncDatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -14,7 +17,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
@@ -26,9 +31,11 @@ import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
+  private static final Random randomGenerator = new Random();
+
   private static final Logger logger = 
       Logger.getLogger(Channel.class.getName());
-  
+
   /**
    * Channels with more than this many members may have slightly different
    * behavior.
@@ -42,7 +49,7 @@ public class Channel implements Serializable {
   @Persistent(serialized = "true")
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Set<Member> members = Sets.newHashSet();
-  
+
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Boolean inviteOnly = false;
@@ -50,29 +57,29 @@ public class Channel implements Serializable {
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private List<String> invitedIds = Lists.newArrayList();
-  
+
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Integer sequenceId = 0;
-  
+
   /** 
    * Email addresses of users that have requested invitations.
    */
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private List<String> requestedInvitations = Lists.newArrayList();
-  
+
   /**
    * Turns off storing of recent messages for the room. 
    */
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Boolean loggingDisabled = false;
-    
+
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
   }
-   
+
   public Channel(Channel other) {
     this.name = other.name;
     this.inviteOnly = other.inviteOnly;
@@ -84,19 +91,19 @@ public class Channel implements Serializable {
     this.sequenceId = other.sequenceId;
     this.loggingDisabled = other.loggingDisabled;
   }
-  
+
   public JID serverJID() {
     return new JID(serverJIDAsString());
   }
-  
+
   public String serverJIDAsString() {
     return name + "@" + Configuration.chatDomain;
   }
-  
+
   public String mailingAddress() {
     return name + "@" + Configuration.mailDomain;
   }
-  
+
   public String webUrl() {
     return "http://" + Configuration.webDomain + "/room/" + name;
   }
@@ -118,7 +125,7 @@ public class Channel implements Serializable {
   public void setInviteOnly(boolean inviteOnly) {
     this.inviteOnly = inviteOnly;
   }
-  
+
   public void setLoggingDisabled(boolean loggingDisabled) {
     this.loggingDisabled = loggingDisabled;
     if (loggingDisabled) {
@@ -126,7 +133,7 @@ public class Channel implements Serializable {
       fixUp();
     }
   }
-  
+
   /**
    * Adds a member to the channel. This may alter the member's alias by
    * prepending a _ if the channel already has a member with that alias. Removes
@@ -151,13 +158,13 @@ public class Channel implements Serializable {
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
-    
+
     userToAdd.addChannel(getName());
     userToAdd.put();
-    
+
     return addedMember;    
   }
-  
+
   private Set<Member> mutableMembers() {
     return members;
   }
@@ -167,12 +174,12 @@ public class Channel implements Serializable {
     if (!mutableMembers().remove(memberToRemove)) {
       logger.warning(
           userToRemove.getJID() + " was not actually in channel " +
-          getName() + " when removing");
+              getName() + " when removing");
     }
     // I feel dirty doing this! There is some opaque JDO bug that makes
     // this not save.
     JDOHelper.makeDirty(this, "members");
-    
+
     userToRemove.removeChannel(getName());
     userToRemove.put();
   }
@@ -194,7 +201,7 @@ public class Channel implements Serializable {
         recipients.add(member);
       }
     }
-    
+
     return recipients;
   }
 
@@ -209,7 +216,7 @@ public class Channel implements Serializable {
   public Member getMemberByJID(JID jid) {
     return getMemberByJID(jid.getId());
   }
-  
+
   public Member getMemberByJID(String jid) {
     String shortJID = jid.split("/")[0];
     for (Member member : getMembers()) {
@@ -243,7 +250,7 @@ public class Channel implements Serializable {
     }
     return null;
   }
- 
+
   public Member getOrSuggestMemberFromUserInput(String input, StringBuilder suggestion) {
     Member found = getMemberByAlias(input);
     if (found != null) {
@@ -271,8 +278,8 @@ public class Channel implements Serializable {
     }
     return null;
   }
- 
-  
+
+
   public Member getMemberByPhoneNumber(String phoneNumber) {
     for (Member member : getMembers()) {
       User memberUser = Datastore.instance().getUserByJID(member.getJID());
@@ -320,7 +327,7 @@ public class Channel implements Serializable {
   public void delete() {
     Datastore.instance().delete(this);
   }
-  
+
   public boolean isLoggingDisabled() {
     return loggingDisabled;
   }
@@ -328,30 +335,30 @@ public class Channel implements Serializable {
   public boolean isInviteOnly() {
     return inviteOnly;
   }
- 
+
   public List<String> getInvitees() {
     return invitedIds;
   }
-  
+
   public void removeInvitee(String invitee) {
     invitedIds.remove(invitee.toLowerCase().trim());
   }  
-  
+
   public List<String> getRequestedInvitations() {
     return requestedInvitations;
   }
-  
+
   public boolean hasRequestedInvitation(String email) {
     return requestedInvitations.contains(email.toLowerCase().trim());
   }
-  
+
   public void addRequestedInvitation(String email) {
     String cleanedUp = email.toLowerCase().trim();
     if (!requestedInvitations.contains(cleanedUp)) {
       requestedInvitations.add(cleanedUp);
     }
   }    
-  
+
   private void sendMessage(String message, List<Member> recipients) {
     List<JID> withSequenceId = Lists.newArrayList();
     List<JID> noSequenceId = Lists.newArrayList();
@@ -362,7 +369,7 @@ public class Channel implements Serializable {
         noSequenceId.add(new JID(m.getJID()));
       }
     }
-    
+
     // For small channels, also send messages to all invitees. That way as soon 
     // as they accept the chat request, they'll start getting messages, even 
     // before they message the bot and are added to the room in JoinCommand.
@@ -373,7 +380,7 @@ public class Channel implements Serializable {
     }
 
     Set<JID> errorJIDs = sendMessage(message, withSequenceId, noSequenceId);
-    
+
     for (JID errorJID : errorJIDs) {
       // Skip over invitees, they're not members and so don't have debug options
       if (invitedIds.contains(errorJID.getId())) {
@@ -391,16 +398,16 @@ public class Channel implements Serializable {
             member);
       }
     }
-    
+
     // TODO(mihaip): add uniform interface for XMPP and Channel endpoints, so
     // that Channel doesn't have to know about either SendUtil or ChannelUtil.
     for (Member recipient : recipients) {
       ChannelUtil.sendMessage(this, recipient, message);
     }
   }
-  
+
   private Set<JID> sendMessage(
-        String message, List<JID> withSequenceId, List<JID> noSequenceId) {
+      String message, List<JID> withSequenceId, List<JID> noSequenceId) {
     incrementSequenceId();
     awakenSnoozers();
 
@@ -410,30 +417,53 @@ public class Channel implements Serializable {
     errorJIDs.addAll(SendUtil.sendMessage(message, serverJID(), noSequenceId));
     errorJIDs.addAll(
         SendUtil.sendMessage(messageWithSequenceId, serverJID(), withSequenceId));
-    
+
     put();
-    
+
     return errorJIDs;
   }
-  
+
   public void sendDirect(String message, Member recipient) {
     SendUtil.sendMessage(message,
-                         serverJID(),
-                         Collections.singletonList(new JID(recipient.getJID())));
+        serverJID(),
+        Collections.singletonList(new JID(recipient.getJID())));
     ChannelUtil.sendMessage(this, recipient, message);
   }
-  
+
   public void broadcast(String message, Member sender) {
-    sendMessage(message, getMembersToSendTo(sender));
+    List<Member> recipients = getMembersToSendTo(sender);
+
+    Double frac = Configuration.persistentConfig().fractionOfMessagesToLog();
+
+    final double accept = (null == frac || frac > 1.0 || frac < 0.0) ? 
+        0.0 : frac.doubleValue(); 
+
+    if (Channel.randomGenerator.nextDouble() < accept) {
+      AsyncDatastoreService asyncDS = DatastoreServiceFactory.getAsyncDatastoreService();
+      Entity logEntity = createMessageLogEntity(message, sender, recipients);
+      asyncDS.put(logEntity);
+    }
+    sendMessage(message, recipients);
+  }
+
+  private Entity createMessageLogEntity(String message, Member sender,
+      List<Member> recipients) {
+    Entity logEntity = new Entity("messageLog");
+    logEntity.setUnindexedProperty("from", sender.getJID());
+    logEntity.setUnindexedProperty("to", this.getName());
+    logEntity.setUnindexedProperty("num_recipients", recipients.size());
+    logEntity.setUnindexedProperty("payload_size", message.length());		
+    logEntity.setUnindexedProperty("time_ms", System.currentTimeMillis());
+    return logEntity;
   }
 
   public void broadcastIncludingSender(String message) {
     sendMessage(message, getMembersToSendTo());
   }
-  
+
   public String sendMail(String subject,
-                         String body,
-                         String recipient) {
+      String body,
+      String recipient) {
     return MailUtil.sendMail(subject, body, this.mailingAddress(), recipient);
   }
 
@@ -451,17 +481,17 @@ public class Channel implements Serializable {
 
     for (String addr : addresses) {
       sendMail("(sent from partychat)",
-               body,
-               addr);
+          body,
+          addr);
     }
-    
+
     return realRecipients;
   }
-  
+
   public List<Member> broadcastSMS(String body) {
     return sendSMS(body, getMembers());
   }
-  
+
   private void awakenSnoozers() {
     // awaken snoozers and broadcast them awaking.
     Set<Member> awoken = Sets.newHashSet();
@@ -470,7 +500,7 @@ public class Channel implements Serializable {
         awoken.add(member);
       }
     }
-    
+
     if (!awoken.isEmpty()) {
       put();
       StringBuilder sb = new StringBuilder();
@@ -490,11 +520,11 @@ public class Channel implements Serializable {
       sequenceId = 0;
     }
   }
-  
+
   public int getSequenceId() {
     return sequenceId;
   }
-  
+
   public void fixUp() {
     boolean shouldPut = false;
     if (sequenceId == null) {
@@ -525,7 +555,7 @@ public class Channel implements Serializable {
     }
 
     List<String> membersToRemove = Lists.newArrayList();
-    
+
     for (Member m : mutableMembers()) {
       // Don't allow channels to be in other channels {@link InviteHandler#
       // parseEmailAddresses} should be forbidding this, but just in case,
@@ -546,7 +576,7 @@ public class Channel implements Serializable {
         shouldPut = true;
       }
     }
-    
+
     if (!membersToRemove.isEmpty()) {
       for (String jid : membersToRemove) {
         User user = Datastore.instance().getUserByJID(jid);
@@ -563,7 +593,7 @@ public class Channel implements Serializable {
       }
       shouldPut = true;
     }
-    
+
     if (shouldPut) {
       logger.warning("Channel " + name + " needed fixing up");
       put();
