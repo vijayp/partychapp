@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp.mr;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -60,14 +61,13 @@ public class UCMRDoneServlet extends HttpServlet {
         summary_entity.setProperty("csv",
           new Text(txt.substring(0, Math.min(txt.length(), 1<<19)))); 
         // This really shouldn't be done here ...
-        
         PieChart pieChart = new PieChart(new Dimension(700, 399));
         ArrayList<String> legend = new ArrayList<String>();
         for(Map.Entry<Long,String> entry : countMap.entrySet()) {
           pieChart.addPieChartSlice(
               new PieChartSlice.PieChartSliceBuilder(entry.getKey().intValue())/*.label(entry.getValue())*/.build());
           legend.add(entry.getValue());
-          if (legend.size() > 100) {
+          if (legend.size() > 15) {
             break;
           }
         }

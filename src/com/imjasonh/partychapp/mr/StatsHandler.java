@@ -59,11 +59,13 @@ public class StatsHandler extends HttpServlet {
         }
         if (null != img2) {
           // this should already have been escaped .... I hope.
-          resp.getWriter().write("<img src='"+(((Text)img2).getValue()) + "' /> <br/>");
+          resp.getWriter().write("<img src='"+(((Text)img2).getValue()) + "' /> <br/><hr><br/>");
         }
         
+        String csv = StringEscapeUtils.escapeHtml(((Text)result.getProperty("csv")).getValue());
+        csv = csv.replace("\n", "<br/>");
         resp.getWriter().write("<br/>");
-        resp.getWriter().write(StringEscapeUtils.escapeHtml(((Text)result.getProperty("csv")).getValue()));
+        resp.getWriter().write(csv);
         resp.getWriter().write("<br/>");
         resp.getWriter().write("<br/>");
       }
