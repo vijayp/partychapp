@@ -103,7 +103,6 @@ public class GenerateStatsServlet extends HttpServlet {
       };
 
       for (String prefix : prefixes) {
-        channelNames.add(to);
         increment(prefix + "fanout-messages-channel", to, num_r);
         increment(prefix + "fanout-messages-user", from, num_r);
         increment(prefix + "fanout-messages-user-channel", from + " :: " + to, num_r);
@@ -119,35 +118,49 @@ public class GenerateStatsServlet extends HttpServlet {
       }
     }
     
-    Datastore ds= Datastore.instance();
-    ds.startRequest();
-    final int[] cutoffs = {1, -7, -15, -30, -90};
-    resp.getWriter().print("<br/>parsing channels");
-    resp.getWriter().flush();
-    for (String channelName :channelNames){
-      if (channelName == null)
-        continue;
-      Channel channel = ds.getChannelByName(channelName);
-      List<Member> members = Lists.newArrayList(channel.getMembers());
+    if (false){ // this causes deadline exceeded errors
+      SortedMap<Long, String> countMap = new TreeMap<Long,String>(Collections.reverseOrder());
+      for (Map.Entry<String, Long> c : counters.get("total-fanout-bytes-channel").entrySet()) {
+        countMap.put(c.getValue(), c.getKey());
+      }
+      int max = Math.min(6, countMap.size());
+      for (Map.Entry<Long,String> i : countMap.entrySet()){
+        if (max-- <= 0)
+          break;
+        channelNames.add(i.getValue());
+      }
+      Datastore ds= Datastore.instance();
+      ds.startRequest();
+      final int[] cutoffs = {1, -7, -15, -30, -90};
+      resp.getWriter().print("<br/>parsing channels");
+      resp.getWriter().flush();
+      for (String channelName :channelNames){
+        if (channelName == null)
+          continue;
+        resp.getWriter().print("<br/>" + channelName);
+        resp.getWriter().flush();
+        Channel channel = ds.getChannelByName(channelName);
+        List<Member> members = Lists.newArrayList(channel.getMembers());
 
-      for (Member member : members) {
-        if ((++count % 100) == 0) {
-          resp.getWriter().print(".");
-          resp.getWriter().flush();
-        }
-        User memberUser = Datastore.instance().getUserByJID(member.getJID());
+        for (Member member : members) {
+          if ((++count % 100) == 0) {
+            resp.getWriter().print(".");
+            resp.getWriter().flush();
+            logger.info(".");
+          }
+          User memberUser = Datastore.instance().getUserByJID(member.getJID());
 
-        for (int cutoff : cutoffs) {
-          Calendar now = Calendar.getInstance();
-          now.add(Calendar.DATE, cutoff);
-          Date threshold = now.getTime();
-          if (memberUser != null && memberUser.lastSeen().before(threshold)) {
-            increment("mia-user-channel" + cutoff, channelName, 1);
+          for (int cutoff : cutoffs) {
+            Calendar now = Calendar.getInstance();
+            now.add(Calendar.DATE, cutoff);
+            Date threshold = now.getTime();
+            if (memberUser != null && memberUser.lastSeen() != null && memberUser.lastSeen().before(threshold)) {
+              increment("mia-user-channel" + cutoff, channelName, 1);
+            }
           }
         }
       }
     }
-
     for (Map.Entry<String, HashMap<String, Long>> cg : counters.entrySet()) {
       SortedMap<Long, String> countMap = new TreeMap<Long,String>(Collections.reverseOrder());
       for (Map.Entry<String, Long> c : cg.getValue().entrySet()) {
