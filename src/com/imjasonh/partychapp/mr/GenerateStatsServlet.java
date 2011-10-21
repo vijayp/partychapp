@@ -7,8 +7,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -22,6 +25,8 @@ import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.CounterGroup;
 import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.JobID;
+import org.datanucleus.sco.backed.Set;
+
 import com.google.appengine.api.datastore.Text;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -32,7 +37,13 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.taskqueue.Transaction;
 import com.google.appengine.repackaged.com.google.common.base.Joiner;
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.apphosting.api.ApiProxy.RequestTooLargeException;
+import com.google.common.collect.Maps;
+import com.imjasonh.partychapp.Channel;
+import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.server.PartychappServlet;
 
 import de.toolforge.googlechartwrapper.Dimension;
@@ -49,26 +60,34 @@ public class GenerateStatsServlet extends HttpServlet {
       Logger.getLogger(PartychappServlet.class.getName());
 
   private static final long serialVersionUID = 1L;
-  
+
   private Map<String, HashMap<String, Long> > counters = new TreeMap<String, HashMap<String, Long>>(); 
-    
+
   private void increment(String group, String key, long amount) {
-      if (!counters.containsKey(group)) {
-        counters.put(group, new HashMap<String, Long>());
-      }
-      if (!counters.get(group).containsKey(key)) {
-        counters.get(group).put(key, new Long(0));
-      }
-      counters.get(group).put(key, counters.get(group).get(key) + amount);
+    if (!counters.containsKey(group)) {
+      counters.put(group, new HashMap<String, Long>());
+    }
+    if (!counters.get(group).containsKey(key)) {
+      counters.get(group).put(key, new Long(0));
+    }
+    counters.get(group).put(key, counters.get(group).get(key) + amount);
   }
-  
-  
-  public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+
+
+  public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query q = new Query("messageLog");
     PreparedQuery pq = datastore.prepare(q);
-
+    HashSet<String> channelNames = new HashSet<String>();
+    resp.setContentType("text/html");
+    resp.getWriter().print("parsing logs");
+    resp.getWriter().flush();
+    int count = 0;
     for (Entity value : pq.asIterable()) {
+      if ((++count % 100) == 0) {
+        resp.getWriter().print(".");
+        resp.getWriter().flush();
+      }
       final String from = (String)value.getProperty("from");
       final String to = (String)value.getProperty("to");
       final long num_r = ((Long)value.getProperty("num_recipients")).longValue();
@@ -84,6 +103,7 @@ public class GenerateStatsServlet extends HttpServlet {
       };
 
       for (String prefix : prefixes) {
+        channelNames.add(to);
         increment(prefix + "fanout-messages-channel", to, num_r);
         increment(prefix + "fanout-messages-user", from, num_r);
         increment(prefix + "fanout-messages-user-channel", from + " :: " + to, num_r);
@@ -96,6 +116,35 @@ public class GenerateStatsServlet extends HttpServlet {
         increment(prefix + "fanout-bytes-channel", to, num_r * payload);
         increment(prefix + "fanout-bytes-user", from, num_r * payload);
         increment(prefix + "fanout-bytes-user-channel", from + " :: " + to, num_r * payload);
+      }
+    }
+    
+    Datastore ds= Datastore.instance();
+    ds.startRequest();
+    final int[] cutoffs = {1, -7, -15, -30, -90};
+    resp.getWriter().print("<br/>parsing channels");
+    resp.getWriter().flush();
+    for (String channelName :channelNames){
+      if (channelName == null)
+        continue;
+      Channel channel = ds.getChannelByName(channelName);
+      List<Member> members = Lists.newArrayList(channel.getMembers());
+
+      for (Member member : members) {
+        if ((++count % 100) == 0) {
+          resp.getWriter().print(".");
+          resp.getWriter().flush();
+        }
+        User memberUser = Datastore.instance().getUserByJID(member.getJID());
+
+        for (int cutoff : cutoffs) {
+          Calendar now = Calendar.getInstance();
+          now.add(Calendar.DATE, cutoff);
+          Date threshold = now.getTime();
+          if (memberUser != null && memberUser.lastSeen().before(threshold)) {
+            increment("mia-user-channel" + cutoff, channelName, 1);
+          }
+        }
       }
     }
 
@@ -135,20 +184,15 @@ public class GenerateStatsServlet extends HttpServlet {
       datastore.put(summary_entity);
     }
     {
-    Entity ts = new Entity("stats_table", "  Timestamp  ");
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(System.currentTimeMillis());
-    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    ts.setProperty("title", "last generated on " + formatter.format(calendar.getTime()));
-    ts.setProperty("csv", "");
-    datastore.put(ts);
+      Entity ts = new Entity("stats_table", "  Timestamp  ");
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTimeInMillis(System.currentTimeMillis());
+      DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+      ts.setProperty("title", "last generated on " + formatter.format(calendar.getTime()));
+      ts.setProperty("csv", "");
+      datastore.put(ts);
     }
-    try {
-      resp.sendRedirect("/admin/stats");
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+      resp.getWriter().print("<br/> <a href=/admin/stats>Stats are here</a>");
   }
-  
+
 }
