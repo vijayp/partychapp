@@ -53,7 +53,7 @@ public class FromUserMessageCountMapper extends AppEngineMapper<Key, Entity, Nul
     DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 
     String [] prefixes = { "total-",
-        formatter.format(calendar.getTime()) + "-"
+        //formatter.format(calendar.getTime()) + "-"
         };
     
     for (String prefix : prefixes) {
