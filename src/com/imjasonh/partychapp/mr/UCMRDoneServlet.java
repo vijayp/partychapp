@@ -1,8 +1,12 @@
 package com.imjasonh.partychapp.mr;
 
 import java.awt.Color;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
@@ -23,6 +27,8 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.taskqueue.Transaction;
 import com.google.appengine.repackaged.com.google.common.base.Joiner;
 import com.google.appengine.tools.mapreduce.MapReduceState;
@@ -43,29 +49,74 @@ public class UCMRDoneServlet extends HttpServlet {
       Logger.getLogger(PartychappServlet.class.getName());
 
   private static final long serialVersionUID = 1L;
-  public void doPost(HttpServletRequest req, HttpServletResponse resp) {
+  
+  private HashMap<String, HashMap<String, Long> > counters; 
     
+  private void increment(String group, String key, long amount) {
+      if (!counters.containsKey(group)) {
+        counters.put(group, new HashMap<String, Long>());
+      }
+      if (!counters.get(group).containsKey(key)) {
+        counters.get(group).put(key, new Long(0));
+      }
+      counters.get(group).put(key, counters.get(group).get(key) + amount);
+  }
+  
+  
+  public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
     String jobIdName = req.getParameter("job_id");
     JobID jobId = JobID.forName(jobIdName);
     MapReduceState mrState;
     // TODO: wipe the table
     try {
-      {
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      mrState = MapReduceState.getMapReduceStateFromJobID(
-          datastore, jobId);
+
+      Query q = new Query("messageLog");
+      PreparedQuery pq = datastore.prepare(q);
+
+      for (Entity value : pq.asIterable()) {
+        final String from = (String)value.getProperty("from");
+        final String to = (String)value.getProperty("to");
+        final long num_r = ((Long)value.getProperty("num_recipients")).longValue();
+        final long payload = ((Long)value.getProperty("payload_size")).longValue();
+        final long time_ms = ((Long)value.getProperty("time_ms")).longValue();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time_ms);
+        DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+
+        String [] prefixes = { "total-",
+            //formatter.format(calendar.getTime()) + "-"
+        };
+
+        for (String prefix : prefixes) {
+          increment(prefix + "fanout-messages-channel", to, num_r);
+          increment(prefix + "fanout-messages-user", from, num_r);
+          increment(prefix + "fanout-messages-user-channel", from + " :: " + to, num_r);
+
+          increment(prefix + "messages-channel", to, 1);
+          increment(prefix + "messages-user", from, 1);
+          increment(prefix + "messages-user-channel", from + " :: " + to, 1);
+
+
+          increment(prefix + "fanout-bytes-channel", to, num_r * payload);
+          increment(prefix + "fanout-bytes-user", from, num_r * payload);
+          increment(prefix + "fanout-bytes-user-channel", from + " :: " + to, num_r * payload);
+
+
+        }
       }
-      Counters counters = mrState.getCounters();
-      for (Iterator<CounterGroup> cg_it = counters.iterator(); cg_it.hasNext();) {
-        CounterGroup cg = cg_it.next();
+      
+      
+      for (Map.Entry<String, HashMap<String, Long>> cg : counters.entrySet()) {
         SortedMap<Long, String> countMap = new TreeMap<Long,String>(Collections.reverseOrder());
-        for (Iterator<Counter> i = cg.iterator(); i.hasNext();) {
-          final Counter c = i.next();
-          countMap.put(c.getValue(), c.getName());
+        for (Map.Entry<String, Long> c : cg.getValue().entrySet()) {
+          countMap.put(c.getValue(), c.getKey());
         }
         String txt = Joiner.on("\n").withKeyValueSeparator(", ").join(countMap);
-        Entity summary_entity = new Entity("stats_table", cg.getName());
-        summary_entity.setProperty("title", cg.getName());
+        Entity summary_entity = new Entity("stats_table", cg.getKey());
+        summary_entity.setProperty("title", cg.getKey());
         summary_entity.setProperty("csv",
           new Text(txt.substring(0, Math.min(txt.length(), 1<<18)))); 
         // This really shouldn't be done here ...
@@ -90,13 +141,9 @@ public class UCMRDoneServlet extends HttpServlet {
         pieChart.setChartLegend(new ChartLegend(legend));
         summary_entity.setProperty("image_url1", new Text(pieChart.getUrl()));
         ///
-        {
-          logger.info("Trying to log entity of size " + summary_entity.toString().length());
-          DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-          com.google.appengine.api.datastore.Transaction t = datastore.beginTransaction();
-          datastore.put(summary_entity);
-          t.commit();
-        }
+        logger.info("Trying to log entity of size " + summary_entity.toString().length());
+        com.google.appengine.api.datastore.Transaction t = datastore.beginTransaction();
+        datastore.put(summary_entity);
       }
     } catch (EntityNotFoundException e) {
       // TODO Auto-generated catch block
