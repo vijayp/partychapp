@@ -412,7 +412,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </security-constraint>
 
 
-<!-- Map reduce -->
+<!-- Map reduce 
 <servlet>
   <servlet-name>mapreduce</servlet-name>
   <servlet-class>com.google.appengine.tools.mapreduce.MapReduceServlet</servlet-class>
@@ -421,14 +421,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   <servlet-name>mapreduce</servlet-name>
   <url-pattern>/mapreduce/*</url-pattern>
 </servlet-mapping>
+-->
 
 <servlet>
-  <servlet-name>ucmrdone</servlet-name>
-  <servlet-class>com.imjasonh.partychapp.mr.UCMRDoneServlet</servlet-class>
+  <servlet-name>genstats</servlet-name>
+  <servlet-class>com.imjasonh.partychapp.mr.GenerateStatsServlet</servlet-class>
 </servlet>
 <servlet-mapping>
-  <servlet-name>ucmrdone</servlet-name>
-  <url-pattern>/callbacks/uc_mr_done</url-pattern>
+  <servlet-name>genstats</servlet-name>
+  <url-pattern>/admin/generate_stats</url-pattern>
 </servlet-mapping>
 
 

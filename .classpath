@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/json.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/hadoop-0.20.2-core.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/charts4j-1.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/appengine-mapper.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/googlechartwrapper_1.1.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/App Engine (1)"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.5.jar"/>

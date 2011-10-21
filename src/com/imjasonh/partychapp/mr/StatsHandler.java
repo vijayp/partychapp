@@ -28,7 +28,7 @@ public class StatsHandler extends HttpServlet {
       throws IOException {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query qu = new Query("stats_table");
-    
+    resp.getWriter().print("<B><U><a href='/admin/generate_stats'> REGENERATE STATS </a> </u></b><br/><br/><hr>");
     if (null == req.getParameter("table")) {
       resp.setContentType("text/html");
       PreparedQuery pq = ds.prepare(qu);
