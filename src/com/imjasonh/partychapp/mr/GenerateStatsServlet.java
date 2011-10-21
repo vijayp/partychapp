@@ -33,6 +33,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.taskqueue.Transaction;
@@ -75,92 +76,82 @@ public class GenerateStatsServlet extends HttpServlet {
 
 
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    int stage;
+    if (null == req.getParameter("stage")) {
+      stage = 0;
+    } else {
+      stage = Integer.parseInt(req.getParameter("stage"));
+    }
+    if (stage == 3) {
+      resp.sendRedirect("/admin/stats");
+      return;
+    }
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query q = new Query("messageLog");
-    PreparedQuery pq = datastore.prepare(q);
-    HashSet<String> channelNames = new HashSet<String>();
-    resp.setContentType("text/html");
-    resp.getWriter().print("parsing logs");
-    resp.getWriter().flush();
     int count = 0;
-    for (Entity value : pq.asIterable()) {
-      if ((++count % 100) == 0) {
-        resp.getWriter().print(".");
-        resp.getWriter().flush();
-      }
-      final String from = (String)value.getProperty("from");
-      final String to = (String)value.getProperty("to");
-      final long num_r = ((Long)value.getProperty("num_recipients")).longValue();
-      final long payload = ((Long)value.getProperty("payload_size")).longValue();
-      final long time_ms = ((Long)value.getProperty("time_ms")).longValue();
+    if (stage == 0) {
+      Query q = new Query("messageLog");
+      PreparedQuery pq = datastore.prepare(q);
+      HashSet<String> channelNames = new HashSet<String>();
+      for (Entity value : pq.asIterable()) {
+        if (++count % 1000 == 0) {
+          logger.info("looked at " + count + "log lines");
+        }
+        final String from = (String)value.getProperty("from");
+        final String to = (String)value.getProperty("to");
+        final long num_r = ((Long)value.getProperty("num_recipients")).longValue();
+        final long payload = ((Long)value.getProperty("payload_size")).longValue();
+        final long time_ms = ((Long)value.getProperty("time_ms")).longValue();
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTimeInMillis(time_ms);
-      DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time_ms);
+        DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 
-      String [] prefixes = { "total-",
-          formatter.format(calendar.getTime()) + "-"
-      };
+        String [] prefixes = { 
+            "total-",
+            formatter.format(calendar.getTime()) + "-"
+        };
 
-      for (String prefix : prefixes) {
-        increment(prefix + "fanout-messages-channel", to, num_r);
-        increment(prefix + "fanout-messages-user", from, num_r);
-        increment(prefix + "fanout-messages-user-channel", from + " :: " + to, num_r);
+        for (String prefix : prefixes) {
+          increment(prefix + "fanout-messages-channel", to, num_r);
+          increment(prefix + "fanout-messages-user", from, num_r);
+          increment(prefix + "fanout-messages-user-channel", from + " :: " + to, num_r);
 
-        increment(prefix + "messages-channel", to, 1);
-        increment(prefix + "messages-user", from, 1);
-        increment(prefix + "messages-user-channel", from + " :: " + to, 1);
+          increment(prefix + "messages-channel", to, 1);
+          increment(prefix + "messages-user", from, 1);
+          increment(prefix + "messages-user-channel", from + " :: " + to, 1);
 
 
-        increment(prefix + "fanout-bytes-channel", to, num_r * payload);
-        increment(prefix + "fanout-bytes-user", from, num_r * payload);
-        increment(prefix + "fanout-bytes-user-channel", from + " :: " + to, num_r * payload);
+          increment(prefix + "fanout-bytes-channel", to, num_r * payload);
+          increment(prefix + "fanout-bytes-user", from, num_r * payload);
+          increment(prefix + "fanout-bytes-user-channel", from + " :: " + to, num_r * payload);
+        }
       }
     }
-    
-    if (false){ // this causes deadline exceeded errors
-      SortedMap<Long, String> countMap = new TreeMap<Long,String>(Collections.reverseOrder());
-      for (Map.Entry<String, Long> c : counters.get("total-fanout-bytes-channel").entrySet()) {
-        countMap.put(c.getValue(), c.getKey());
-      }
-      int max = Math.min(6, countMap.size());
-      for (Map.Entry<Long,String> i : countMap.entrySet()){
-        if (max-- <= 0)
-          break;
-        channelNames.add(i.getValue());
-      }
-      Datastore ds= Datastore.instance();
-      ds.startRequest();
-      final int[] cutoffs = {1, -7, -15, -30, -90};
-      resp.getWriter().print("<br/>parsing channels");
-      resp.getWriter().flush();
-      for (String channelName :channelNames){
-        if (channelName == null)
+
+    if (stage == 1) {
+      Query q = new Query("User");
+      PreparedQuery pq = datastore.prepare(q);
+      final int[] kCutoffs = {1, -7, -15, -30, -90};
+      for (Entity user: pq.asIterable(FetchOptions.Builder.withPrefetchSize(1<<10).chunkSize(1<<13))) {
+        List<String> channels = (List<String>)user.getProperty("channelNames");
+        Date lastSeen = (Date) user.getProperty("lastSeen");
+        if (channels == null || null == lastSeen)
           continue;
-        resp.getWriter().print("<br/>" + channelName);
-        resp.getWriter().flush();
-        Channel channel = ds.getChannelByName(channelName);
-        List<Member> members = Lists.newArrayList(channel.getMembers());
 
-        for (Member member : members) {
-          if ((++count % 100) == 0) {
-            resp.getWriter().print(".");
-            resp.getWriter().flush();
-            logger.info(".");
-          }
-          User memberUser = Datastore.instance().getUserByJID(member.getJID());
-
-          for (int cutoff : cutoffs) {
-            Calendar now = Calendar.getInstance();
-            now.add(Calendar.DATE, cutoff);
-            Date threshold = now.getTime();
-            if (memberUser != null && memberUser.lastSeen() != null && memberUser.lastSeen().before(threshold)) {
+        for (int cutoff : kCutoffs) {
+          Calendar now = Calendar.getInstance();
+          now.add(Calendar.DATE, cutoff);
+          Date threshold = now.getTime();
+          if (lastSeen.before(threshold)) {
+            for (String channelName :channels){
               increment("mia-user-channel" + cutoff, channelName, 1);
             }
           }
         }
       }
     }
+
+
     for (Map.Entry<String, HashMap<String, Long>> cg : counters.entrySet()) {
       SortedMap<Long, String> countMap = new TreeMap<Long,String>(Collections.reverseOrder());
       for (Map.Entry<String, Long> c : cg.getValue().entrySet()) {
@@ -205,7 +196,7 @@ public class GenerateStatsServlet extends HttpServlet {
       ts.setProperty("csv", "");
       datastore.put(ts);
     }
-      resp.getWriter().print("<br/> <a href=/admin/stats>Stats are here</a>");
+    resp.sendRedirect("/admin/generate_stats?stage=" + (stage + 1));
   }
 
 }
