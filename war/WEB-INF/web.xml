@@ -4,6 +4,18 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   version="2.5">
+  <!-- remote api -->
+  <servlet>
+    <servlet-name>RemoteApi</servlet-name>
+    com.google.apphosting.utils.remoteapi.RemoteApiServlet
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>RemoteApi</servlet-name>
+    <url-pattern>/remote_api</url-pattern>
+  </servlet-mapping>
+
+
   <!-- XMPP receiving -->
   <servlet>
     <servlet-name>xmppreceiver</servlet-name>
