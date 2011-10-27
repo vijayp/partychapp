@@ -12,8 +12,10 @@ parser.add_argument('--price_per_xmpp', type=float,
                     required=True)
 parser.add_argument ('file')
 
-parser.add_argument('--vary_max_roomsize', type=bool, default=False,
+parser.add_argument('--vary_max_roomsize', type=bool, default=True,
                     help='should we vary max_roomsize and generate a series of output lines?')
+parser.add_argument('--csv', type=bool, default=False,
+                    help='generate a csv file instead of a google chart url')
 parser.add_argument('--max_roomsize', type=int, default=None,
                     help='truncate rooms larger than this many users')
 
@@ -22,7 +24,7 @@ class SmartDictReader(csv.DictReader):
         rdr = csv.reader(f, *args, **kwds)
         titles = rdr.next()
         csv.DictReader.__init__(self, f, titles, *args, **kwds)
-
+    
 def ReadCSVFile(filename, process):
     sdr = SmartDictReader(open(filename, 'r'))
     map(process, sdr)
@@ -44,13 +46,25 @@ def main(args):
     else:
         sizes = sorted(roomsize_message_count.keys())
 
+    points = []
     for size in sizes:
-        print '%s,%s' % (size, 
+        points.append((size, 
                          (args.price_per_xmpp * 
                           calculate_messages(roomsize_message_count, 
                                             size)
                           )
-                         )
+                         ) )
+
+    if args.csv:
+        for p in points:
+            print '%s,%s' % p
+    else:
+        x = [q[0] for q in points]
+        y = [q[1] for q in points]
+        from pygooglechart import XYLineChart
+        chart = XYLineChart(400, 400, x_range=x, y_range=y)
+        print chart.get_url()
+        
     return 0
 
 if __name__ == '__main__':
