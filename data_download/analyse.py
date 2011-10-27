@@ -18,6 +18,8 @@ parser.add_argument('--csv', type=bool, default=False,
                     help='generate a csv file instead of a google chart url')
 parser.add_argument('--max_roomsize', type=int, default=None,
                     help='truncate rooms larger than this many users')
+parser.add_argument('--ignore_large_rooms', type=bool, default=False,
+                    help='ignore rooms larger than this many users')
 
 class SmartDictReader(csv.DictReader):
     def __init__(self, f, *args, **kwds):
@@ -29,9 +31,11 @@ def ReadCSVFile(filename, process):
     sdr = SmartDictReader(open(filename, 'r'))
     map(process, sdr)
 
-def calculate_messages(rs_cnt_dict, size):
+def calculate_messages(rs_cnt_dict, size, ignore):
     msgs = 0
     for rs, cnt in rs_cnt_dict.items():
+        if ignore and size < rs:
+            continue
         msgs += min(rs, size) * cnt
     return msgs
 
@@ -51,7 +55,7 @@ def main(args):
         points.append((size, 
                          (args.price_per_xmpp * 
                           calculate_messages(roomsize_message_count, 
-                                            size)
+                                            size, args.ignore_large_rooms)
                           )
                          ) )
 
