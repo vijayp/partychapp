@@ -1,0 +1,1 @@
+/usr/local/google_appengine/bulkloader.py --download --url=http://partychapp.appspot.com/remote_api --application=partychapp --config_file=messageLog.yaml --kind=messageLog --filename=messages.csv --bandwidth_limit=10000000 --batch_size=100 --rps_limit=10000
