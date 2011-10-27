@@ -61,9 +61,13 @@ def main(args):
     else:
         x = [q[0] for q in points]
         y = [q[1] for q in points]
-        from pygooglechart import XYLineChart
-        chart = XYLineChart(400, 400, x_range=x, y_range=y)
-        print chart.get_url()
+        from pygooglechart import XYLineChart, Axis
+        chart = XYLineChart(400, 400)
+        chart.add_data(x)
+        chart.add_data(y)
+#        chart.set_axis_labels(Axis.BOTTOM, 'max users/channel')
+#        chart.set_axis_labels(Axis.LEFT, 'approx cost / week')
+        print chart.get_url()+'&chxt=x,y'
         
     return 0
 
