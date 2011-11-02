@@ -6,8 +6,8 @@ import simplejson as json
 
 MYDOMAIN = 'im.partych.at'
 
-#PARTYCHAPP_CONTROL = '__control@partychapp.appspot.com'
-PARTYCHAPP_CONTROL = 'newpc_test@partychapp.appspot.com'
+PARTYCHAPP_CONTROL = '__control@partychapp.appspot.com'
+#PARTYCHAPP_CONTROL = 'newpc_test@partychapp.appspotchat.com'
 MY_CONTROL = '_control@im.partych.at'
 class SimpleComponent:
   @staticmethod
@@ -88,9 +88,9 @@ class SimpleComponent:
                      from_str=from_str,
                      message_str=msg_str)
 
-      self.xmpp.sendMessage(PARTYCHAPP_CONTORL,
+      self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
                             json.dumps(payload),
-                            pfrom=MY_CONTORL,
+                            mfrom=MY_CONTROL,
                             mtype='chat')
                             
       logging.info('Got message <%s> to <%s> from <%s>',
