@@ -33,6 +33,11 @@ import org.json.JSONTokener;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
+	
+	public final static String PARTYCHAPP_CONTROL = "__control@partychapp.appspot.com";
+  public final static String PARTYCHAPP_DOMAIN = "partychapp.appspot.com";
+  public final static String PROXY_CONTROL = "_control@im.partych.at";
+
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
 
@@ -89,9 +94,6 @@ public class PartychappServlet extends HttpServlet {
       final String toAddr   = (xmppMessage.getRecipientJids().length > 0) 
       	? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "";
       
-      final String PARTYCHAPP_CONTROL = "__control@partychapp.appspot.com";
-      final String PARTYCHAPP_DOMAIN = "partychapp.appspot.com";
-      final String PROXY_CONTROL = "_control@im.partych.at";
     		
     	if (fromAddr.startsWith(PROXY_CONTROL) &&
     			toAddr.startsWith(PARTYCHAPP_CONTROL)) {

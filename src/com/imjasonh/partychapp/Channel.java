@@ -4,16 +4,20 @@ import com.google.appengine.api.datastore.AsyncDatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.org.json.JSONException;
+import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
+import com.imjasonh.partychapp.server.PartychappServlet;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.live.ChannelUtil;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -78,6 +82,16 @@ public class Channel implements Serializable {
 
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
+  }
+  
+  public boolean isMigrated() {
+  	if (this.name == "partychat-migrated") {
+  		return true;
+  	} else {
+  		return false;
+  	}
+  		
+  	
   }
 
   public Channel(Channel other) {
@@ -401,6 +415,25 @@ public class Channel implements Serializable {
 
     // TODO(mihaip): add uniform interface for XMPP and Channel endpoints, so
     // that Channel doesn't have to know about either SendUtil or ChannelUtil.
+    try {
+    	if (this.isMigrated()) {
+    		JSONObject jso = new JSONObject();
+
+    		jso.put("message", message);
+    		List<String> rec = new ArrayList<String>();
+    		for (Member recipient : recipients) {
+    			rec.add(recipient.getJID().toString());
+    		}
+    		jso.put("recipients", rec);
+    		jso.put("channel", this.name);
+    		jso.toString();
+    		ChannelUtil.sendRawMessage(jso.toString(), PartychappServlet.PROXY_CONTROL);
+    	}
+    } catch (JSONException e) {
+    	// TODO Auto-generated catch block
+    	e.printStackTrace();
+    }
+    
     for (Member recipient : recipients) {
       ChannelUtil.sendMessage(this, recipient, message);
     }

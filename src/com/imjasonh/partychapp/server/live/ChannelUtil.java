@@ -31,11 +31,14 @@ public class ChannelUtil {
         now.getTime() - lastLivePing.getTime() > MAX_LIVE_PING_INTERVAL) {
       return;
     }
-    
-    ChannelService channelService = ChannelServiceFactory.getChannelService();
     String clientId = getClientId(channel, member);
+    sendRawMessage(message, clientId);
+  }
+
+	public static void sendRawMessage(String message, String clientId) {
+		ChannelService channelService = ChannelServiceFactory.getChannelService();
     String messageJson = new JSONObject(ImmutableMap.of("message", message)).toString();
     ChannelMessage channelMessage = new ChannelMessage(clientId, messageJson);
     channelService.sendMessage(channelMessage);
-  }
+	}
 }
