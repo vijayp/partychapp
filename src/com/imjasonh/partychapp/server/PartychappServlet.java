@@ -5,8 +5,10 @@ import com.google.appengine.api.quota.QuotaServiceFactory;
 import com.google.appengine.api.quota.QuotaService.DataType;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
+import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
@@ -24,6 +26,10 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
@@ -68,7 +74,7 @@ public class PartychappServlet extends HttpServlet {
       for (Pattern p : jidBlacklist) {
         if (p.matcher(fromAddr).matches()) {
           logger.info("blocked message from " + fromAddr + " to channel " +
-              ((xmppMessage.getRecipientJids().length > 0) ? jidToLowerCase(xmppMessage
+          		((xmppMessage.getRecipientJids().length > 0) ? jidToLowerCase(xmppMessage
                   .getRecipientJids()[0]) : "NONE") + " due to ACL " + p.toString());
           resp.sendError(HttpServletResponse.SC_FORBIDDEN);
           return;
@@ -79,9 +85,39 @@ public class PartychappServlet extends HttpServlet {
     }
     
     try {
-      doXmpp(xmppMessage);
+      final String fromAddr = xmppMessage.getFromJid().getId();
+      final String toAddr   = (xmppMessage.getRecipientJids().length > 0) 
+      	? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "";
+      
+      final String PARTYCHAPP_CONTROL = "__control@partychapp.appspot.com";
+      final String PARTYCHAPP_DOMAIN = "partychapp.appspot.com";
+      final String PROXY_CONTROL = "_control@im.partych.at";
+    		
+    	if (fromAddr.startsWith(PROXY_CONTROL) &&
+    			toAddr.startsWith(PARTYCHAPP_CONTROL)) {
+    		// json decode the control packet from the body
+    		// make the new message.
+    		// doxmpp
+    		String body = xmppMessage.getBody().trim();
+    		JSONObject jso = new JSONObject(body);
+    		String decodedTo = jso.getString("to_str");
+    		decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
+    		String decodedFrom = jso.getString("from_str");
+    		String decodedMsg = jso.getString("message_str");
+      	Message payload = new MessageBuilder().withFromJid(new JID(decodedFrom))
+      	.withBody(decodedMsg)
+    		.withMessageType(com.google.appengine.api.xmpp.MessageType.CHAT)
+    		.withRecipientJids(new JID(decodedTo)).build();
+      	doXmpp(payload);
+    	} else {
+    		doXmpp(xmppMessage);
+    	}
+      
       resp.setStatus(HttpServletResponse.SC_OK);
-    } finally {
+    } catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
       if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
         long endCpu = QS.getCpuTimeInMegaCycles();
         JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
@@ -96,6 +132,8 @@ public class PartychappServlet extends HttpServlet {
   }
   
   public void doXmpp(Message xmppMessage) {
+  	
+  	
     long startTime = System.currentTimeMillis();
     Datastore datastore = Datastore.instance();
     datastore.startRequest();

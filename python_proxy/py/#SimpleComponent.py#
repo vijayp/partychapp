@@ -7,8 +7,8 @@ import simplejson as json
 MYDOMAIN = 'im.partych.at'
 
 PARTYCHAPP_CONTROL = '__control@partychapp.appspot.com'
-#PARTYCHAPP_CONTROL = 'newpc_test@partychapp.appspotchat.com'
 MY_CONTROL = '_control@im.partych.at'
+#PARTYCHAPP_CONTROL = 'newpc_test@partychapp.appspotchat.com'
 class SimpleComponent:
   @staticmethod
   def GetControlMessage(event):
