@@ -94,7 +94,9 @@ public class PartychappServlet extends HttpServlet {
       final String toAddr   = (xmppMessage.getRecipientJids().length > 0) 
       	? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "";
       
-    		
+      	//logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
+      	//logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
+      	
     	if (fromAddr.startsWith(PROXY_CONTROL) &&
     			toAddr.startsWith(PARTYCHAPP_CONTROL)) {
     		// json decode the control packet from the body
@@ -110,6 +112,8 @@ public class PartychappServlet extends HttpServlet {
       	.withBody(decodedMsg)
     		.withMessageType(com.google.appengine.api.xmpp.MessageType.CHAT)
     		.withRecipientJids(new JID(decodedTo)).build();
+      	logger.info("calling doxmpp with payload :: "
+      					 + payload.toString());
       	doXmpp(payload);
     	} else {
     		doXmpp(xmppMessage);

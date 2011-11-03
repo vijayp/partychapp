@@ -33,6 +33,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
   private static final Random randomGenerator = new Random();
@@ -86,12 +87,12 @@ public class Channel implements Serializable {
   
   public boolean isMigrated() {
   	if (this.name == "partychat-migrated") {
+  		logger.warning("migrated is true");
   		return true;
   	} else {
   		return false;
   	}
-  		
-  	
+ 	
   }
 
   public Channel(Channel other) {
@@ -374,6 +375,29 @@ public class Channel implements Serializable {
   }    
 
   private void sendMessage(String message, List<Member> recipients) {
+  	
+  	try {
+    	if (this.isMigrated()) {
+    		logger.info("MIGRATED message");
+    		JSONObject jso = new JSONObject();
+
+    		jso.put("message", message);
+    		List<String> rec = new ArrayList<String>();
+    		for (Member recipient : recipients) {
+    			rec.add(recipient.getJID().toString());
+    		}
+    		jso.put("recipients", rec);
+    		jso.put("channel", this.name);
+    		jso.toString();
+    		logger.info("Sending raw message" + jso.toString());
+    		ChannelUtil.sendRawMessage(jso.toString(), PartychappServlet.PROXY_CONTROL);
+    	}
+    } catch (JSONException e) {
+    	// TODO Auto-generated catch block
+    	e.printStackTrace();
+    }
+
+  	
     List<JID> withSequenceId = Lists.newArrayList();
     List<JID> noSequenceId = Lists.newArrayList();
     for (Member m : recipients) {
@@ -415,25 +439,7 @@ public class Channel implements Serializable {
 
     // TODO(mihaip): add uniform interface for XMPP and Channel endpoints, so
     // that Channel doesn't have to know about either SendUtil or ChannelUtil.
-    try {
-    	if (this.isMigrated()) {
-    		JSONObject jso = new JSONObject();
-
-    		jso.put("message", message);
-    		List<String> rec = new ArrayList<String>();
-    		for (Member recipient : recipients) {
-    			rec.add(recipient.getJID().toString());
-    		}
-    		jso.put("recipients", rec);
-    		jso.put("channel", this.name);
-    		jso.toString();
-    		ChannelUtil.sendRawMessage(jso.toString(), PartychappServlet.PROXY_CONTROL);
-    	}
-    } catch (JSONException e) {
-    	// TODO Auto-generated catch block
-    	e.printStackTrace();
-    }
-    
+        
     for (Member recipient : recipients) {
       ChannelUtil.sendMessage(this, recipient, message);
     }
