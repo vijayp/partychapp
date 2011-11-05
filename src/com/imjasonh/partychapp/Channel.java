@@ -93,7 +93,8 @@ public class Channel implements Serializable {
 
   private static final Set<String> MIGRATED_CHANNELS = ImmutableSet.of(
       "partychat-migrated",
-      "partychat-dev");
+      "partychat-dev",
+      "dogfood");
 
 
   public boolean isMigrated() {
@@ -403,7 +404,14 @@ public class Channel implements Serializable {
             PartychappServlet.PROXY_CONTROL,
             PartychappServlet.PARTYCHAPP_CONTROL);
         logger.info("Sent message to proxy control " + succ);
-        if (message.isEmpty()) message = "<debug: refresh>";
+        
+        
+        // REMOVE THIS FOR DUAL BROADCASTS.
+        return; 
+        //
+        //
+        
+        //if (message.isEmpty()) message = "<debug: refresh>";
       }
     } catch (JSONException e) {
       // TODO Auto-generated catch block
