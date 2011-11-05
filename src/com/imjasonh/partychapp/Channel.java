@@ -97,8 +97,11 @@ public class Channel implements Serializable {
       "dogfood");
 
 
+  public static boolean isMigrated(String name) {
+    return MIGRATED_CHANNELS.contains(name);
+  }
   public boolean isMigrated() {
-    return MIGRATED_CHANNELS.contains(this.name);
+    return isMigrated(name);
   }
   public static Iterable<String> migratedChannelNames() {
     return MIGRATED_CHANNELS;
