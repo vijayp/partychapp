@@ -46,7 +46,7 @@ class SimpleComponent:
 
     logging.info("I don't store rosters, so asking server for help")
     self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
-                          json.dumps(dict(state='new'))
+                          json.dumps(dict(state='new')),
                           mfrom=MY_CONTROL,
                           mtype='chat')
     

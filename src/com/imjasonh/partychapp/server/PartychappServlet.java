@@ -133,6 +133,7 @@ private void doControlPacket(Message xmppMessage) throws JSONException {
 		logger.warning("Looks like the proxy just came up. Refreshing his roster");
 			for (String channelName : Channel.migratedChannelNames()) {
 				// send a message to this channel
+				logger.info("Trying to get channel for name <" + channelName +">. ");
 				Channel c = Datastore.instance().getChannelByName(channelName);
 				if (null != c) {
 					// TODO: a bit of a hack; the proxy does not actually send
