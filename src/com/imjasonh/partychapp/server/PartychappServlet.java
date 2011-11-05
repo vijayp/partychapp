@@ -38,7 +38,7 @@ public class PartychappServlet extends HttpServlet {
   public final static String PARTYCHAPP_CONTROL = "__control@partychapp.appspotchat.com";
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
   public final static String PROXY_CONTROL = "_control@im.partych.at";
-  public final static String MIGRATED_MESSAGE = "Your channel has been migrated. Please see http://www.partch.at/migration";
+  public final static String MIGRATED_MESSAGE = "Your channel has been migrated. Please see http://partch.at/migration";
 
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
