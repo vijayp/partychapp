@@ -138,7 +138,7 @@ public class PartychappServlet extends HttpServlet {
         Datastore datastore = Datastore.instance();
         datastore.startRequest();
         try {
-          Channel c = Datastore.instance().getChannelByName(channelName);
+          Channel c = datastore.getChannelByName(channelName);
           if (null != c) {
             // TODO: a bit of a hack; the proxy does not actually send
             // empty messages, but will use this to broadcast presence info
