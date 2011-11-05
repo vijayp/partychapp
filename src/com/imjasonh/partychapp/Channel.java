@@ -96,14 +96,8 @@ public class Channel implements Serializable {
   
   
   public boolean isMigrated() {
-	  	if (this.name.equals("partychat-migrated")) {
-	  		logger.warning("migrated is true");
-	  		return true;
-	  	} else {
-	  		return false;
-	  	}
-	 	
-	  }
+	  return MIGRATED_CHANNELS.contains(this.name);
+  }
   public static Iterable<String> migratedChannelNames() {
 	  return MIGRATED_CHANNELS;
   }
