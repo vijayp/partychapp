@@ -258,6 +258,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>adminbroadcasthandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.BroadcastServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>adminbroadcasthandler</servlet-name>
+    <url-pattern>/admin/broadcast</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>adminchannelcleanuphandler</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.admin.ChannelCleanupServlet</servlet-class>
   </servlet>
