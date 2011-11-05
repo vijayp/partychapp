@@ -38,9 +38,9 @@ class SimpleComponent:
 
   def sessionStart(self, *args, **kwargs):
     logging.info("session begun. Telling control channel I'm alive")
-    self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
-                             pstatus="presence probe",
-                             ptype="subscribed")
+#    self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
+#                             pstatus="presence probe",
+#                             ptype="subscribed")
     self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
                              pstatus="presence probe")
 
@@ -60,13 +60,19 @@ class SimpleComponent:
       logging.info('%s has come online', sender)
 
     # Populate the presence reply with the agent's current status.
-    #self.sendPresence(pto=sender, pstatus="Busy studying XMPP", pshow="dnd")
+    self.sendPresence(pto=sender, pstatus="Busy studying XMPP")
 
 
   def handleIncomingXMPPEvent(self, event) :
     logging.debug('got xmpp incoming event for %s', event)
+    
     logging.info('from: %s', event['from'])
     logging.info('to: %s', event['to'])
+
+    if event['type'] == 'error':
+      logging.error('GOT UNKNOWN ERROR FOR %s' % event)
+      return
+
 #    msgLocations = {sleekxmpp.stanza.presence.Presence: "status",
 #                    sleekxmpp.stanza.message.Message: "body"}
 #    assert type(event) == 
@@ -91,16 +97,37 @@ class SimpleComponent:
       #      self.xmpp.sendMessage(event['from'], debug_message, mfrom=from_jid)
       for rec in recipients:
         if not self.xmpp.roster[from_jid][rec].resources:
+          logging.info('sending presence subscription')
+
           self.xmpp.sendPresenceSubscription(pfrom=from_jid,
                                              ptype='subscribe',
                                              pto=rec)
+#          logging.info('sending presence subscribed')
+#          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
+#                                 pstatus=STATUS,
+#                                 ptype="subscribed")
+#          logging.info('sending presence status')
           self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
                                  pstatus=STATUS,
-                                 ptype="subscribed")
-          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
-                                 pstatus=STATUS)
+                                 ptype="probe"
+#                                 ptype="subscribe"
+                                 )
+
         if outmsg:
-          self.xmpp.sendMessage(rec, outmsg, mfrom=from_jid, mtype='chat')
+          logging.info ("rec:%s roster:%s" , rec, self.xmpp.roster[from_jid][rec].resources)
+          nodes = sorted([(v.get('priority',0),k) 
+                          for k,v in self.xmpp.roster[from_jid][rec].resources.items()])
+
+          nodes = nodes[-2:]
+          rec_list = []
+          if nodes:
+            rec_list = ['/'.join([rec, n[1]]) for n in nodes]
+            logging.info('actually sending to %s', rec_list)
+          else:
+            rec_lits = [rec]
+
+          for r in rec_list:
+            self.xmpp.sendMessage(r, outmsg, mfrom=from_jid, mtype='chat')
 
     else:
       to_str = str(event['to'])
@@ -120,9 +147,9 @@ class SimpleComponent:
 #      self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
 #                             pstatus="presence probe")
 
-      if not self.xmpp.roster[MY_CONTROL][PARTYCHAPP_CONTROL].resources:
-        self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
-                               ptype='subscribe')
+#      if not self.xmpp.roster[MY_CONTROL][PARTYCHAPP_CONTROL].resources:
+#        self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
+#                               ptype='subscribe')
 
       self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
                             json.dumps(payload),
