@@ -402,6 +402,7 @@ public class Channel implements Serializable {
     				PartychappServlet.PROXY_CONTROL,
     				PartychappServlet.PARTYCHAPP_CONTROL);
     		logger.info("Sent message to proxy control " + succ);
+    		if (message.isEmpty()) message = "<debug: refresh>";
     	}
     } catch (JSONException e) {
     	// TODO Auto-generated catch block

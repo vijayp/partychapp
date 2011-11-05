@@ -132,8 +132,12 @@ private void doControlPacket(Message xmppMessage) throws JSONException {
 	if ((null != state) && state.equals("new")) {
 		logger.warning("Looks like the proxy just came up. Refreshing his roster");
 			for (String channelName : Channel.migratedChannelNames()) {
+				
 				// send a message to this channel
 				logger.info("Trying to get channel for name <" + channelName +">. ");
+				Datastore datastore = Datastore.instance();
+				datastore.startRequest();
+				try {
 				Channel c = Datastore.instance().getChannelByName(channelName);
 				if (null != c) {
 					// TODO: a bit of a hack; the proxy does not actually send
@@ -143,6 +147,10 @@ private void doControlPacket(Message xmppMessage) throws JSONException {
 					logger.warning("Could not get channel for name <" + channelName +">. "
 							+ "CHECK MIGRATED LIST");
 				}
+				} finally {
+					datastore.endRequest();
+				}
+				
 		}
 	} else {
 
