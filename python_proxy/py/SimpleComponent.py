@@ -38,9 +38,9 @@ class SimpleComponent:
 
   def sessionStart(self, *args, **kwargs):
     logging.info("session begun. Telling control channel I'm alive")
-#    self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
-#                             pstatus="presence probe",
-#                             ptype="subscribed")
+    self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
+                             pstatus="presence probe",
+                             ptype="subscribed")
     self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
                              pstatus="presence probe")
 
