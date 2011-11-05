@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
@@ -86,7 +85,7 @@ public class Channel implements Serializable {
   }
   
   public boolean isMigrated() {
-  	if (this.name == "partychat-migrated") {
+  	if (this.name.equals("partychat-migrated")) {
   		logger.warning("migrated is true");
   		return true;
   	} else {
@@ -381,16 +380,20 @@ public class Channel implements Serializable {
     		logger.info("MIGRATED message");
     		JSONObject jso = new JSONObject();
 
-    		jso.put("message", message);
+    		jso.put("outmsg", message);
     		List<String> rec = new ArrayList<String>();
     		for (Member recipient : recipients) {
     			rec.add(recipient.getJID().toString());
     		}
     		jso.put("recipients", rec);
-    		jso.put("channel", this.name);
-    		jso.toString();
-    		logger.info("Sending raw message" + jso.toString());
-    		ChannelUtil.sendRawMessage(jso.toString(), PartychappServlet.PROXY_CONTROL);
+    		jso.put("from_channel", this.name);
+
+    		logger.info("Sending raw message" + jso.toString() + "to " 
+    					+ PartychappServlet.PROXY_CONTROL);
+    		boolean succ = ChannelUtil.sendMessage(jso.toString(), 
+    				PartychappServlet.PROXY_CONTROL,
+    				PartychappServlet.PARTYCHAPP_CONTROL);
+    		logger.info("Sent message to proxy control " + succ);
     	}
     } catch (JSONException e) {
     	// TODO Auto-generated catch block
