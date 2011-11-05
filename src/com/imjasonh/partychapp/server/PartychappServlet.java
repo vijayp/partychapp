@@ -37,8 +37,9 @@ public class PartychappServlet extends HttpServlet {
 
   public final static String PARTYCHAPP_CONTROL = "__control@partychapp.appspotchat.com";
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
+  public final static String PROXY_DOMAIN = "@im.partych.at";
   public final static String PROXY_CONTROL = "_control@im.partych.at";
-  public final static String MIGRATED_MESSAGE = "Your channel has been migrated. Please see http://partch.at/migration";
+  public final static String MIGRATED_MESSAGE = "Your channel has been migrated. Please see http://partych.at/migration. New channel name: ";
 
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
@@ -102,9 +103,10 @@ public class PartychappServlet extends HttpServlet {
           if (fromAddr.startsWith(PROXY_CONTROL) &&
               toAddr.startsWith(PARTYCHAPP_CONTROL)) {
             doControlPacket(xmppMessage);
+            
           } else if (Channel.isMigrated(toAddr.split(("@"))[0])) {
             boolean succ = ChannelUtil.sendMessage(
-                MIGRATED_MESSAGE,
+                MIGRATED_MESSAGE + toAddr.split(("@"))[0] + PROXY_DOMAIN,
                 fromAddr,
                 toAddr);
           } else {
