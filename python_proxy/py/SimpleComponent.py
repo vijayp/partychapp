@@ -59,9 +59,6 @@ class SimpleComponent:
     else:
       logging.info('%s has come online', sender)
 
-    # Populate the presence reply with the agent's current status.
-    self.sendPresence(pto=sender, pstatus="Busy studying XMPP")
-
 
   def handleIncomingXMPPEvent(self, event) :
     logging.debug('got xmpp incoming event for %s', event)
@@ -95,13 +92,14 @@ class SimpleComponent:
         from_jid)
       logging.info(debug_message)
       #      self.xmpp.sendMessage(event['from'], debug_message, mfrom=from_jid)
+
       for rec in recipients:
         if not self.xmpp.roster[from_jid][rec].resources:
           logging.info('sending presence subscription')
 
-          self.xmpp.sendPresenceSubscription(pfrom=from_jid,
-                                             ptype='subscribe',
-                                             pto=rec)
+#          self.xmpp.sendPresenceSubscription(pfrom=from_jid,
+#                                             ptype='subscribe',
+#                                             pto=rec)
 #          logging.info('sending presence subscribed')
 #          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
 #                                 pstatus=STATUS,
@@ -110,15 +108,21 @@ class SimpleComponent:
           self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
                                  pstatus=STATUS,
                                  ptype="probe"
-#                                 ptype="subscribe"
+#                                 ptype="subscribed"
+                                 )
+          
+        
+        nodes = sorted([(v.get('priority',0),k) 
+                        for k,v in self.xmpp.roster[from_jid][rec].resources.items()])
+        rec_list = ['/'.join([rec, n[1]]) for n in nodes]
+        for r in rec_list:
+          self.xmpp.sendPresence(pto=r, pfrom=from_jid,
+                                 pstatus=STATUS,
                                  )
 
         if outmsg:
           logging.info ("rec:%s roster:%s" , rec, self.xmpp.roster[from_jid][rec].resources)
-          nodes = sorted([(v.get('priority',0),k) 
-                          for k,v in self.xmpp.roster[from_jid][rec].resources.items()])
-
-          nodes = nodes[-2:]
+          nodes = nodes[-1:]
           rec_list = []
           if nodes:
             rec_list = ['/'.join([rec, n[1]]) for n in nodes]
@@ -128,6 +132,10 @@ class SimpleComponent:
 
           for r in rec_list:
             self.xmpp.sendMessage(r, outmsg, mfrom=from_jid, mtype='chat')
+
+        self.xmpp.sendPresence(pfrom=from_jid,
+                               pstatus=STATUS,
+                               pshow='xa')
 
     else:
       to_str = str(event['to'])
