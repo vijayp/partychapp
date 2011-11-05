@@ -92,7 +92,8 @@ public class Channel implements Serializable {
   // or maybe somewhere in persistent config.
 
   private static final Set<String> MIGRATED_CHANNELS = ImmutableSet.of(
-      "partychat-migrated");
+      "partychat-migrated",
+      "partychat-dev");
 
 
   public boolean isMigrated() {
@@ -475,10 +476,14 @@ public class Channel implements Serializable {
   }
 
   public void sendDirect(String message, Member recipient) {
-    SendUtil.sendMessage(message,
-        serverJID(),
-        Collections.singletonList(new JID(recipient.getJID())));
-    ChannelUtil.sendMessage(this, recipient, message);
+    sendMessage(message, Collections.singletonList(recipient));
+    //TODO(someone): figure out if this is safe to do.
+    if (false) {
+      SendUtil.sendMessage(message,
+          serverJID(),
+          Collections.singletonList(new JID(recipient.getJID())));
+      ChannelUtil.sendMessage(this, recipient, message);
+    }
   }
 
   public void broadcast(String message, Member sender) {
