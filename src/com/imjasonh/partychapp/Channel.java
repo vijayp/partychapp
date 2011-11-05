@@ -4,22 +4,27 @@ import com.google.appengine.api.datastore.AsyncDatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.xmpp.JID;
+import com.google.appengine.repackaged.org.json.JSONException;
+import com.google.appengine.repackaged.org.json.JSONObject;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
+import com.imjasonh.partychapp.server.PartychappServlet;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.live.ChannelUtil;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
@@ -28,6 +33,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
@@ -78,6 +84,22 @@ public class Channel implements Serializable {
 
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
+  }
+
+
+  /// TODO(vijayp): this is really horribly horribly ugly
+  // and should be moved somewhere way better, like the Channel class,
+  // or maybe somewhere in persistent config.
+
+  private static final Set<String> MIGRATED_CHANNELS = ImmutableSet.of(
+      "partychat-migrated");
+
+
+  public boolean isMigrated() {
+    return MIGRATED_CHANNELS.contains(this.name);
+  }
+  public static Iterable<String> migratedChannelNames() {
+    return MIGRATED_CHANNELS;
   }
 
   public Channel(Channel other) {
@@ -360,6 +382,34 @@ public class Channel implements Serializable {
   }    
 
   private void sendMessage(String message, List<Member> recipients) {
+
+    try {
+      if (this.isMigrated()) {
+        logger.info("MIGRATED message");
+        JSONObject jso = new JSONObject();
+
+        jso.put("outmsg", message);
+        List<String> rec = new ArrayList<String>();
+        for (Member recipient : recipients) {
+          rec.add(recipient.getJID().toString());
+        }
+        jso.put("recipients", rec);
+        jso.put("from_channel", this.name);
+
+        logger.info("Sending raw message" + jso.toString() + "to " 
+            + PartychappServlet.PROXY_CONTROL);
+        boolean succ = ChannelUtil.sendMessage(jso.toString(), 
+            PartychappServlet.PROXY_CONTROL,
+            PartychappServlet.PARTYCHAPP_CONTROL);
+        logger.info("Sent message to proxy control " + succ);
+        if (message.isEmpty()) message = "<debug: refresh>";
+      }
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+
     List<JID> withSequenceId = Lists.newArrayList();
     List<JID> noSequenceId = Lists.newArrayList();
     for (Member m : recipients) {
@@ -401,6 +451,7 @@ public class Channel implements Serializable {
 
     // TODO(mihaip): add uniform interface for XMPP and Channel endpoints, so
     // that Channel doesn't have to know about either SendUtil or ChannelUtil.
+
     for (Member recipient : recipients) {
       ChannelUtil.sendMessage(this, recipient, message);
     }
@@ -454,7 +505,7 @@ public class Channel implements Serializable {
       List<Member> recipients) {
     Entity logEntity = new Entity("messageLog");
     logEntity.setUnindexedProperty("from", 
-          (null == sender) ? "unknown@unknown" : sender.getJID());
+        (null == sender) ? "unknown@unknown" : sender.getJID());
     logEntity.setUnindexedProperty("to", this.getName());
     logEntity.setUnindexedProperty("num_recipients", recipients.size());
     logEntity.setUnindexedProperty("payload_size", message.length());		

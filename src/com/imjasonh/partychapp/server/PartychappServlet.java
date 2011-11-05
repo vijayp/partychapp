@@ -5,8 +5,10 @@ import com.google.appengine.api.quota.QuotaServiceFactory;
 import com.google.appengine.api.quota.QuotaService.DataType;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.api.xmpp.Message;
+import com.google.appengine.api.xmpp.MessageBuilder;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
+
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
@@ -25,8 +27,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
+
+  public final static String PARTYCHAPP_CONTROL = "__control@partychapp.appspotchat.com";
+  public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
+  public final static String PROXY_CONTROL = "_control@im.partych.at";
+
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
 
@@ -42,8 +53,8 @@ public class PartychappServlet extends HttpServlet {
     // Various other bots that we've encountered
     Pattern.compile(".*(?:g2twit[.]appspotchat[.]com|twitalker\\d+@appspot[.]com|chitterim@appspot[.]com|tweetjid@appspot[.]com|twiyia@gmail[.]com|roomchinese[.]appspotchat[.]com|353606@gmail[.]com).*", Pattern.CASE_INSENSITIVE),
   };
-    
-    
+
+
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
@@ -77,10 +88,26 @@ public class PartychappServlet extends HttpServlet {
     } catch (Exception e) {
       logger.warning("unknown exception on ACL " + e);
     }
-    
+
     try {
-      doXmpp(xmppMessage);
-      resp.setStatus(HttpServletResponse.SC_OK);
+      final String fromAddr = jidToLowerCase(xmppMessage.getFromJid()).getId();
+      final String toAddr   = (xmppMessage.getRecipientJids().length > 0) 
+          ? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "";
+
+          //logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
+          //logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
+
+          if (fromAddr.startsWith(PROXY_CONTROL) &&
+              toAddr.startsWith(PARTYCHAPP_CONTROL)) {
+            doControlPacket(xmppMessage);
+          } else {
+            doXmpp(xmppMessage);
+          }
+
+          resp.setStatus(HttpServletResponse.SC_OK);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     } finally {
       if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
         long endCpu = QS.getCpuTimeInMegaCycles();
@@ -91,57 +118,109 @@ public class PartychappServlet extends HttpServlet {
     }
   }
 
+  private void doControlPacket(Message xmppMessage) throws JSONException {
+    logger.info("GOT CONTROL PACKET");
+    // json decode the control packet from the body
+    // make the new message.
+    // doxmpp
+    String body = xmppMessage.getBody().trim();
+    JSONObject jso = new JSONObject(body);
+    String state = jso.getString("state");
+    //TODO(vijayp): make this a lot nicer and get rid of magic strings, etc..
+    // if the state is 'new', we have to send an empty message for every migrated channel
+    // this is to prevent the proxy from having to store state (i.e. roster).
+    if ((null != state) && state.equals("new")) {
+      logger.warning("Looks like the proxy just came up. Refreshing his roster");
+      for (String channelName : Channel.migratedChannelNames()) {
+
+        // send a message to this channel
+        logger.info("Trying to get channel for name <" + channelName +">. ");
+        Datastore datastore = Datastore.instance();
+        datastore.startRequest();
+        try {
+          Channel c = Datastore.instance().getChannelByName(channelName);
+          if (null != c) {
+            // TODO: a bit of a hack; the proxy does not actually send
+            // empty messages, but will use this to broadcast presence info
+            c.broadcastIncludingSender("");
+          } else {
+            logger.warning("Could not get channel for name <" + channelName +">. "
+                + "CHECK MIGRATED LIST");
+          }
+        } finally {
+          datastore.endRequest();
+        }
+
+      }
+    } else {
+
+      String decodedTo = jso.getString("to_str");
+      decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
+      String decodedFrom = jso.getString("from_str");
+      String decodedMsg = jso.getString("message_str");
+      Message payload = new MessageBuilder().withFromJid(new JID(decodedFrom))
+          .withBody(decodedMsg)
+          .withMessageType(com.google.appengine.api.xmpp.MessageType.CHAT)
+          .withRecipientJids(new JID(decodedTo)).build();
+      logger.info("calling doxmpp with payload :: "
+          + payload.toString());
+      doXmpp(payload);
+    }
+  }
+
   private static JID jidToLowerCase(JID in) {
     return new JID(in.getId().toLowerCase());
   }
-  
+
   public void doXmpp(Message xmppMessage) {
+
+
     long startTime = System.currentTimeMillis();
     Datastore datastore = Datastore.instance();
     datastore.startRequest();
-    
+
     try {
       JID userJID = jidToLowerCase(xmppMessage.getFromJid());
-  
+
       // should only be "to" one JID, right?
       JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
       String channelName = serverJID.getId().split("@")[0];
-      
+
       logger.info("Request by " + userJID.getId() + " for channel " + channelName);
-  
+
       String body = xmppMessage.getBody().trim();
-  
+
       if (channelName.equalsIgnoreCase("echo")) {
         handleEcho(xmppMessage);
         return;
       }
-  
+
       Channel channel = datastore.getChannelByName(channelName);
       Member member = null; 
       if (channel != null) {
         member = channel.getMemberByJID(userJID);
       }
       User user = datastore.getOrCreateUser(userJID.getId().split("/")[0]);
-      
+
       com.imjasonh.partychapp.Message message =
-        new com.imjasonh.partychapp.Message.Builder()
-          .setContent(body)
-          .setUserJID(userJID)
-          .setServerJID(serverJID)
-          .setChannel(channel)
-          .setMember(member)
-          .setUser(user)
-          .setMessageType(MessageType.XMPP)
-          .build();
-  
+          new com.imjasonh.partychapp.Message.Builder()
+      .setContent(body)
+      .setUserJID(userJID)
+      .setServerJID(serverJID)
+      .setChannel(channel)
+      .setMember(member)
+      .setUser(user)
+      .setMessageType(MessageType.XMPP)
+      .build();
+
       Command.getCommandHandler(message).doCommand(message);
-      
+
       // {@link User#fixUp} can't be called by {@link FixingDatastore}, since
       // it can't know what channel the user is currently messaging, so we have
       // to do it ourselves.
       user.fixUp(message.channel);
       user.maybeMarkAsSeen();
-      
+
       long requestTime = System.currentTimeMillis() - startTime;
       if (requestTime > 300) {
         if (channel != null) {

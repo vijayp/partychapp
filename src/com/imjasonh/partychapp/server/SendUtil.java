@@ -48,7 +48,7 @@ public abstract class SendUtil {
    */
   public static void invite(String email, JID serverJID) {
     XMPP.sendInvitation(new JID(email), serverJID);
-  }
+    }
 
   /**
    * Sends a message. Unsuccessful sends are logged, and the JIDs they were 

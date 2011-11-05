@@ -1,2 +1,7 @@
 war/WEB-INF/appengine-generated
 war/WEB-INF/classes
+*.pyc
+python_proxy/py/bin
+python_proxy/py/lib
+python_proxy/py/include
+python_proxy/py/local
