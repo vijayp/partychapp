@@ -9,6 +9,7 @@ MYDOMAIN = 'im.partych.at'
 PARTYCHAPP_CONTROL = '__control@partychapp.appspotchat.com'
 #PARTYCHAPP_CONTROL = 'newpc_test@partychapp.appspotchat.com'
 MY_CONTROL = '_control@im.partych.at'
+STATUS = 'replacing app engine since 2011'
 class SimpleComponent:
   @staticmethod
   def GetControlMessage(event):
@@ -17,7 +18,7 @@ class SimpleComponent:
       logging.info('to is <%s> but not <_control@im.partych.at>', str(event['to']))
       return None
     else:
-#      assert str(event['from']).startswith(PARTYCHAPP_CONTROL)
+      assert str(event['from']).startswith(PARTYCHAPP_CONTROL)
       # TODO: check from, and check signature of message
       msg_str = str(event['body'])
       logging.info('decoding <%s>', msg_str)
@@ -29,12 +30,27 @@ class SimpleComponent:
     self.xmpp = sleekxmpp.componentxmpp.ComponentXMPP(jid, password, server, port)
     self.xmpp.auto_authorize = True
     self.xmpp.auto_subscribe = True
-    # for event in ["message", "got_online", "got_offline", "changed_status"] :
     for event in ["message"]:
       self.xmpp.add_event_handler(event, self.handleIncomingXMPPEvent)
-#    for event in ["got_online", "got_offline", "changed_status"] :
-#      self.xmpp.add_event_handler(event, self.handle_probe)
+    self.xmpp.add_event_handler('session_start', self.sessionStart)
+
     self._jid_resource_map = {}
+
+  def sessionStart(self, *args, **kwargs):
+    logging.info("session begun. Telling control channel I'm alive")
+    self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
+                             pstatus="presence probe",
+                             ptype="subscribed")
+    self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
+                             pstatus="presence probe")
+
+    logging.info("I don't store rosters, so asking server for help")
+    self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
+                          json.dumps(dict(state='new'))
+                          mfrom=MY_CONTROL,
+                          mtype='chat')
+    
+
 
   def handle_probe(self, presence):
     sender = presence['from']
@@ -63,7 +79,7 @@ class SimpleComponent:
       outmsg = ctl.get('outmsg')
       recipients = ctl.get('recipients', [])
       from_channel = ctl.get('from_channel', '')
-      assert from_channel and recipients and outmsg
+      assert from_channel and recipients
       assert '@' not in from_channel # TODO better validation
       from_jid = '%s@%s' % (from_channel, MYDOMAIN)
 
@@ -74,24 +90,24 @@ class SimpleComponent:
       logging.info(debug_message)
       #      self.xmpp.sendMessage(event['from'], debug_message, mfrom=from_jid)
       for rec in recipients:
-        self.xmpp.sendPresenceSubscription(pfrom=from_jid,
-                                           ptype='subscribe',
-                                           pto=rec)
-        self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
-                               pstatus="presence probe",
-                               ptype="subscribed")
-        self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
-                               pstatus="presence probe")
-
-        self.xmpp.sendMessage(rec, outmsg, mfrom=from_jid, mtype='chat'
-                              )
-        logging.info('roster: says %s ', self.xmpp.roster[from_jid][rec].resources)
+        if not self.xmpp.roster[from_jid][rec].resources:
+          self.xmpp.sendPresenceSubscription(pfrom=from_jid,
+                                             ptype='subscribe',
+                                             pto=rec)
+          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
+                                 pstatus=STATUS,
+                                 ptype="subscribed")
+          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
+                                 pstatus=STATUS)
+        if outmsg:
+          self.xmpp.sendMessage(rec, outmsg, mfrom=from_jid, mtype='chat')
 
     else:
       to_str = str(event['to'])
       msg_str = str(event['body'])
       from_str = str(event['from'])
-      payload = dict(to_str=to_str,
+      payload = dict(state='old',
+                     to_str=to_str,
                      from_str=from_str,
                      message_str=msg_str)
 
@@ -104,8 +120,8 @@ class SimpleComponent:
 #      self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
 #                             pstatus="presence probe")
 
-# works if set strangely
-      self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
+      if not self.xmpp.roster[MY_CONTROL][PARTYCHAPP_CONTROL].resources:
+        self.xmpp.sendPresence(pto=PARTYCHAPP_CONTROL, pfrom=MY_CONTROL,
                                ptype='subscribe')
 
       self.xmpp.sendMessage(PARTYCHAPP_CONTROL,

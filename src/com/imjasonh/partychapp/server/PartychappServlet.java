@@ -99,23 +99,7 @@ public class PartychappServlet extends HttpServlet {
       	
     	if (fromAddr.startsWith(PROXY_CONTROL) &&
     			toAddr.startsWith(PARTYCHAPP_CONTROL)) {
-    		logger.warning("GOT instructional packet");
-    		// json decode the control packet from the body
-    		// make the new message.
-    		// doxmpp
-    		String body = xmppMessage.getBody().trim();
-    		JSONObject jso = new JSONObject(body);
-    		String decodedTo = jso.getString("to_str");
-    		decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
-    		String decodedFrom = jso.getString("from_str");
-    		String decodedMsg = jso.getString("message_str");
-      	Message payload = new MessageBuilder().withFromJid(new JID(decodedFrom))
-      	.withBody(decodedMsg)
-    		.withMessageType(com.google.appengine.api.xmpp.MessageType.CHAT)
-    		.withRecipientJids(new JID(decodedTo)).build();
-      	logger.info("calling doxmpp with payload :: "
-      					 + payload.toString());
-      	doXmpp(payload);
+    		doControlPacket(xmppMessage);
     	} else {
     		doXmpp(xmppMessage);
     	}
@@ -133,6 +117,47 @@ public class PartychappServlet extends HttpServlet {
       }
     }
   }
+
+private void doControlPacket(Message xmppMessage) throws JSONException {
+	logger.info("GOT CONTROL PACKET");
+	// json decode the control packet from the body
+	// make the new message.
+	// doxmpp
+	String body = xmppMessage.getBody().trim();
+	JSONObject jso = new JSONObject(body);
+	String state = jso.getString("state");
+	//TODO(vijayp): make this a lot nicer and get rid of magic strings, etc..
+	// if the state is 'new', we have to send an empty message for every migrated channel
+	// this is to prevent the proxy from having to store state (i.e. roster).
+	if ((null != state) && state.equals("new")) {
+		logger.warning("Looks like the proxy just came up. Refreshing his roster");
+			for (String channelName : Channel.migratedChannelNames()) {
+				// send a message to this channel
+				Channel c = Datastore.instance().getChannelByName(channelName);
+				if (null != c) {
+					// TODO: a bit of a hack; the proxy does not actually send
+					// empty messages, but will use this to broadcast presence info
+					c.broadcastIncludingSender("");
+				} else {
+					logger.warning("Could not get channel for name <" + channelName +">. "
+							+ "CHECK MIGRATED LIST");
+				}
+		}
+	} else {
+
+	String decodedTo = jso.getString("to_str");
+	decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
+	String decodedFrom = jso.getString("from_str");
+	String decodedMsg = jso.getString("message_str");
+    	Message payload = new MessageBuilder().withFromJid(new JID(decodedFrom))
+    	.withBody(decodedMsg)
+	.withMessageType(com.google.appengine.api.xmpp.MessageType.CHAT)
+	.withRecipientJids(new JID(decodedTo)).build();
+    	logger.info("calling doxmpp with payload :: "
+				 + payload.toString());
+    	doXmpp(payload);
+	}
+}
 
   private static JID jidToLowerCase(JID in) {
     return new JID(in.getId().toLowerCase());

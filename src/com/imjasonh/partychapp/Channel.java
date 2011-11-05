@@ -6,6 +6,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -84,14 +86,26 @@ public class Channel implements Serializable {
     this.name = serverJID.getId().split("@")[0];
   }
   
+  
+  /// TODO(vijayp): this is really horribly horribly ugly
+  // and should be moved somewhere way better, like the Channel class,
+  // or maybe somewhere in persistent config.
+  
+  private static final Set<String> MIGRATED_CHANNELS = ImmutableSet.of(
+		  "partychat-migrated");
+  
+  
   public boolean isMigrated() {
-  	if (this.name.equals("partychat-migrated")) {
-  		logger.warning("migrated is true");
-  		return true;
-  	} else {
-  		return false;
-  	}
- 	
+	  	if (this.name.equals("partychat-migrated")) {
+	  		logger.warning("migrated is true");
+	  		return true;
+	  	} else {
+	  		return false;
+	  	}
+	 	
+	  }
+  public static Iterable<String> migratedChannelNames() {
+	  return MIGRATED_CHANNELS;
   }
 
   public Channel(Channel other) {
