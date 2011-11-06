@@ -204,6 +204,16 @@ public class LiveDatastore extends Datastore {
     return pq.asList(fetchOptions).size(); 
   }
 
+  @Override
+  public Iterable<Channel> getChannelsByMigrationStatus(boolean migrated) {
+    Query q = manager.get().newQuery(Channel.class);
+    q.setFilter("migrated == migratedParam");
+    q.declareParameters("String migratedParam");
+    List<Channel> channels = (List<Channel>) q.execute(Boolean.toString(migrated));
+    q.closeAll();
+    return channels;
+  }
+
 
   @Override
   public Datastore.Stats getStats(boolean useCache) {

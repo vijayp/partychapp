@@ -18,6 +18,8 @@ import com.imjasonh.partychapp.server.PartychappServlet;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.live.ChannelUtil;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +28,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.annotations.Extension;
@@ -51,6 +56,9 @@ public class Channel implements Serializable {
   @PrimaryKey
   @Persistent
   private String name;
+
+  @Persistent
+  private Boolean migrated=new Boolean(false);
 
   @Persistent(serialized = "true")
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
@@ -91,20 +99,12 @@ public class Channel implements Serializable {
   // and should be moved somewhere way better, like the Channel class,
   // or maybe somewhere in persistent config.
 
-  private static final Set<String> MIGRATED_CHANNELS = ImmutableSet.of(
-      "partychat-migrated",
-      "partychat-dev",
-      "dogfood");
 
-
-  public static boolean isMigrated(String name) {
-    return MIGRATED_CHANNELS.contains(name);
-  }
   public boolean isMigrated() {
-    return isMigrated(name);
+    return (true == this.migrated);
   }
-  public static Iterable<String> migratedChannelNames() {
-    return MIGRATED_CHANNELS;
+  public void setMigrated(boolean m) {
+    this.migrated = new Boolean(m);
   }
 
   public Channel(Channel other) {
@@ -398,12 +398,39 @@ public class Channel implements Serializable {
         for (Member recipient : recipients) {
           rec.add(recipient.getJID().toString());
         }
+        
+        
+        // if there are lots of people in a channel,
+        // the addresses can take up most of the max space for xmpp
+        // which is 32k. 
         jso.put("recipients", rec);
         jso.put("from_channel", this.name);
-
-        logger.info("Sending raw message" + jso.toString() + "to " 
+        
+        String out = jso.toString();
+        final int COMPRESS_THRESHOLD_BYTES = 0;//30000;
+        try{
+        if (out.length() > (COMPRESS_THRESHOLD_BYTES)) {
+          // compress this packet
+          
+          ByteArrayOutputStream bos = new ByteArrayOutputStream();
+          bos.write("gzip:".toString().getBytes());
+          //Deflater dfl = new Deflater();
+          DeflaterOutputStream dflOutStream = 
+              new DeflaterOutputStream(bos);
+          dflOutStream.write(out.getBytes());
+          dflOutStream.close();
+          bos.close();
+          out = bos.toString();
+        }
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+          logger.warning("couldn't compress data");
+        } 
+        
+        logger.info("Sending raw message" + out + "to " 
             + PartychappServlet.PROXY_CONTROL);
-        boolean succ = ChannelUtil.sendMessage(jso.toString(), 
+        boolean succ = ChannelUtil.sendMessage(out, 
             PartychappServlet.PROXY_CONTROL,
             PartychappServlet.PARTYCHAPP_CONTROL);
         logger.info("Sent message to proxy control " + succ);

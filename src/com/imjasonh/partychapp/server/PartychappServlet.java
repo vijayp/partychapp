@@ -12,6 +12,8 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
+import com.imjasonh.partychapp.Datastore.NotImplementedException;
+import com.imjasonh.partychapp.LiveDatastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.Message.MessageType;
@@ -39,7 +41,9 @@ public class PartychappServlet extends HttpServlet {
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
   public final static String PROXY_DOMAIN = "@im.partych.at";
   public final static String PROXY_CONTROL = "_control@im.partych.at";
-  public final static String MIGRATED_MESSAGE = "Your channel has been migrated. Please see http://partych.at/migration. New channel name: ";
+  public final static String MIGRATED_MESSAGE = 
+      "Your channel has been migrated. Please see " +
+  		"http://partych.at/migration.html. New channel name: ";
 
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
@@ -94,19 +98,25 @@ public class PartychappServlet extends HttpServlet {
 
     try {
       final String fromAddr = jidToLowerCase(xmppMessage.getFromJid()).getId();
+      
       final String toAddr   = (xmppMessage.getRecipientJids().length > 0) 
           ? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "";
 
           //logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
           //logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
-
+          Datastore datastore = Datastore.instance();
+          datastore.startRequest();
+          String channelName = toAddr.split(("@"))[0];
+          Channel c = datastore.getChannelByName(channelName);
+          datastore.endRequest();
+          
           if (fromAddr.startsWith(PROXY_CONTROL) &&
               toAddr.startsWith(PARTYCHAPP_CONTROL)) {
             doControlPacket(xmppMessage);
             
-          } else if (Channel.isMigrated(toAddr.split(("@"))[0])) {
+          } else if (c.isMigrated()) {
             boolean succ = ChannelUtil.sendMessage(
-                MIGRATED_MESSAGE + toAddr.split(("@"))[0] + PROXY_DOMAIN,
+                MIGRATED_MESSAGE + c.getName() + PROXY_DOMAIN,
                 fromAddr,
                 toAddr);
           } else {
@@ -138,29 +148,26 @@ public class PartychappServlet extends HttpServlet {
     //TODO(vijayp): make this a lot nicer and get rid of magic strings, etc..
     // if the state is 'new', we have to send an empty message for every migrated channel
     // this is to prevent the proxy from having to store state (i.e. roster).
+    
     if ((null != state) && state.equals("new")) {
       logger.warning("Looks like the proxy just came up. Refreshing his roster");
-      for (String channelName : Channel.migratedChannelNames()) {
+      Datastore datastore = LiveDatastore.instance();
+      datastore.startRequest();
+      try {
 
+      for (Channel c: datastore.getChannelsByMigrationStatus(true)) {
         // send a message to this channel
-        logger.info("Trying to get channel for name <" + channelName +">. ");
-        Datastore datastore = Datastore.instance();
-        datastore.startRequest();
-        try {
-          Channel c = datastore.getChannelByName(channelName);
-          if (null != c) {
-            // TODO: a bit of a hack; the proxy does not actually send
-            // empty messages, but will use this to broadcast presence info
-            c.broadcastIncludingSender("");
-          } else {
-            logger.warning("Could not get channel for name <" + channelName +">. "
-                + "CHECK MIGRATED LIST");
-          }
-        } finally {
-          datastore.endRequest();
-        }
-
+        logger.info("Sending message to " + c.getName());
+        c.broadcastIncludingSender("");
       }
+      
+    } catch (NotImplementedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } finally {
+      datastore.endRequest();
+    }
+
     } else {
 
       String decodedTo = jso.getString("to_str");

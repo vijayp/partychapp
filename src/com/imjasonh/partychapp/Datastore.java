@@ -1,5 +1,6 @@
 package com.imjasonh.partychapp;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -45,7 +46,13 @@ public abstract class Datastore {
   
   public abstract User getUserByJID(String jid);
   public abstract User getUserByPhoneNumber(String phoneNumber);
+  public class NotImplementedException extends Exception {}
   
+  public Iterable<Channel> getChannelsByMigrationStatus(
+        boolean migrated) throws NotImplementedException {
+    throw (new NotImplementedException());
+  }
+
   public User getOrCreateUser(String jid) {
     User u = getUserByJID(jid);
     if (u != null) {

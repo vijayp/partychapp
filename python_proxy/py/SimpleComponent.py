@@ -1,5 +1,4 @@
 import sys
-sys.path.append("../3rdParty")
 import sleekxmpp.componentxmpp
 import logging
 import simplejson as json
@@ -21,6 +20,8 @@ class SimpleComponent:
       assert str(event['from']).startswith(PARTYCHAPP_CONTROL)
       # TODO: check from, and check signature of message
       msg_str = str(event['body'])
+      if msg_str.startswith('gzip:'):
+        msg_str = zlib.decompress(msg_str[len('gzip:'):])
       logging.info('decoding <%s>', msg_str)
       return json.loads(msg_str)
 
@@ -81,6 +82,7 @@ class SimpleComponent:
     if ctl:
       outmsg = ctl.get('outmsg')
       recipients = ctl.get('recipients', [])
+
       from_channel = ctl.get('from_channel', '')
       assert from_channel and recipients
       assert '@' not in from_channel # TODO better validation

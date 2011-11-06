@@ -15,16 +15,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Invalidates cached {@link Channel} data. 
+ * Broadcast a message to a channel, by name.
  *
- * @author mihai.parparita@gmail.com (Mihai Parparita)
+ * @author vijayp@vijayp.ca (Vijay Pandurangan)
  */
 public class BroadcastServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
     String channelName = req.getParameter("channel");
-    String message = req.getParameter("admin");
+    String message = req.getParameter("message");
     CachingDatastore cachingDatastore = WrappingDatastore.findWrappedInstance(
         Datastore.instance(), CachingDatastore.class);
     message = "[ADMIN MESSAGE] " + message;

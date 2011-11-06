@@ -15,7 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Broadcast a message to a channel, by name.
+ * Migrate a channel, by name.
+ *
  *
  * @author vijayp@vijayp.ca (Vijay Pandurangan)
  */
@@ -32,7 +33,7 @@ public class MigrateServlet extends HttpServlet {
     if (channelName != null) {
       Channel c = null;
       Datastore ds = Datastore.instance();
-      ds.startRequest();  
+      ds.startRequest();
       c = ds.getChannelByName(channelName);
       message = "[ADMIN MESSAGE] " + message;
       if (null != c) {
