@@ -32,6 +32,7 @@ public class MigrateServlet extends HttpServlet {
     }
     if (channelName != null) {
       Channel c = null;
+      boolean broadcast = false;
       Datastore ds = Datastore.instance();
       ds.startRequest();
       c = ds.getChannelByName(channelName);
@@ -40,8 +41,7 @@ public class MigrateServlet extends HttpServlet {
         c.setMigrated(true);
         ds = Datastore.instance();
         ds.put(c);
-
-        c.broadcastIncludingSender(message);
+        broadcast = true;
         resp.setContentType("text/plain");
         resp.getWriter().write("migrated channel " + c.getName());
       } else {
@@ -49,6 +49,10 @@ public class MigrateServlet extends HttpServlet {
         resp.getWriter().write("couldn't find channel " + channelName);
       }
       ds.endRequest();
+      if (broadcast) {
+        c.broadcastIncludingSender(message);
+
+      }
     } else {
       resp.setContentType("text/html");
       resp.getWriter().write("<h1> migrate channel </h1>" +

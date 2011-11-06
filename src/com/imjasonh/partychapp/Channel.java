@@ -103,7 +103,7 @@ public class Channel implements Serializable {
   public boolean isMigrated() {
     return (this.migrated == null) ? false : this.migrated;     
   }
-  
+
   public void setMigrated(boolean m) {
     this.migrated = new Boolean(m);
   }
@@ -124,7 +124,7 @@ public class Channel implements Serializable {
     return new JID(serverJIDAsString());
   }
 
-  public String serverJIDAsString() {
+  public String serverJIDAsString() {    
     return name + "@" + Configuration.chatDomain;
   }
 
@@ -389,65 +389,22 @@ public class Channel implements Serializable {
 
   private void sendMessage(String message, List<Member> recipients) {
 
-    try {
       if (this.isMigrated()) {
         logger.info("MIGRATED message");
-        JSONObject jso = new JSONObject();
-
-        jso.put("outmsg", message);
         List<String> rec = new ArrayList<String>();
         for (Member recipient : recipients) {
           rec.add(recipient.getJID().toString());
         }
-        
-        
-        // if there are lots of people in a channel,
-        // the addresses can take up most of the max space for xmpp
-        // which is 32k. 
-        jso.put("recipients", rec);
-        jso.put("from_channel", this.name);
-        
-        String out = jso.toString();
-        final int COMPRESS_THRESHOLD_BYTES = 0;//30000;
-        try{
-        if (out.length() > (COMPRESS_THRESHOLD_BYTES)) {
-          // compress this packet
-          
-          ByteArrayOutputStream bos = new ByteArrayOutputStream();
-          bos.write("gzip:".toString().getBytes());
-          //Deflater dfl = new Deflater();
-          DeflaterOutputStream dflOutStream = 
-              new DeflaterOutputStream(bos);
-          dflOutStream.write(out.getBytes());
-          dflOutStream.close();
-          bos.close();
-          out = bos.toString();
-        }
-        } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-          logger.warning("couldn't compress data");
-        } 
-        
-        logger.info("Sending raw message" + out + "to " 
-            + PartychappServlet.PROXY_CONTROL);
-        boolean succ = ChannelUtil.sendMessage(out, 
-            PartychappServlet.PROXY_CONTROL,
-            PartychappServlet.PARTYCHAPP_CONTROL);
-        logger.info("Sent message to proxy control " + succ);
-        
-        
+        sendProxiedMessage(message, rec);
+
+
         // REMOVE THIS FOR DUAL BROADCASTS.
         return; 
         //
         //
-        
+
         //if (message.isEmpty()) message = "<debug: refresh>";
       }
-    } catch (JSONException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
 
 
     List<JID> withSequenceId = Lists.newArrayList();
@@ -496,6 +453,56 @@ public class Channel implements Serializable {
       ChannelUtil.sendMessage(this, recipient, message);
     }
   }
+
+
+  public void sendProxiedMessage(String message, List<String> rec)
+  {
+    JSONObject jso = new JSONObject();
+
+    try {
+      jso.put("outmsg", message);
+
+      // if there are lots of people in a channel,
+      // the addresses can take up most of the max space for xmpp
+      // which is 32k. 
+      jso.put("recipients", rec);
+      jso.put("from_channel", this.name);
+
+      String out = jso.toString();
+      //  compress is broken
+      final int COMPRESS_THRESHOLD_BYTES = 1<<30;//30000;
+      try{
+        if (out.length() > (COMPRESS_THRESHOLD_BYTES)) {
+          // compress this packet
+
+          ByteArrayOutputStream bos = new ByteArrayOutputStream();
+          bos.write("gzip:".toString().getBytes());
+          //Deflater dfl = new Deflater();
+          DeflaterOutputStream dflOutStream = 
+              new DeflaterOutputStream(bos);
+          dflOutStream.write(out.getBytes());
+          dflOutStream.close();
+          bos.close();
+          out = bos.toString();
+        }
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        logger.warning("couldn't compress data");
+      } 
+
+      logger.info("Sending raw message" + out + "to " 
+          + PartychappServlet.PROXY_CONTROL);
+      boolean succ = ChannelUtil.sendMessage(out, 
+          PartychappServlet.PROXY_CONTROL,
+          PartychappServlet.PARTYCHAPP_CONTROL);
+      logger.info("Sent message to proxy control " + succ);
+    } catch (JSONException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+
+    }
 
   private Set<JID> sendMessage(
       String message, List<JID> withSequenceId, List<JID> noSequenceId) {
