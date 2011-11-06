@@ -35,10 +35,14 @@ public class MigrateServlet extends HttpServlet {
       Datastore ds = Datastore.instance();
       ds.startRequest();
       c = ds.getChannelByName(channelName);
+      ds.endRequest();
       message = "[ADMIN MESSAGE] " + message;
       if (null != c) {
         c.setMigrated(true);
+        ds = Datastore.instance();
+        ds.startRequest();
         ds.put(c);
+        ds.endRequest();
         CachingDatastore cachingDatastore = WrappingDatastore.findWrappedInstance(
             Datastore.instance(), CachingDatastore.class);
 
