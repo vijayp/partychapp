@@ -101,7 +101,7 @@ public class Channel implements Serializable {
 
 
   public boolean isMigrated() {
-    return (true == this.migrated);
+    return (this.migrated == null) ? false : this.migrated;     
   }
   public void setMigrated(boolean m) {
     this.migrated = new Boolean(m);
