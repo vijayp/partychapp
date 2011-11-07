@@ -1,3 +1,4 @@
+import zlib
 import sys
 import sleekxmpp.componentxmpp
 import logging
@@ -14,15 +15,18 @@ class SimpleComponent:
   def GetControlMessage(event):
     
     if str(event['to']) != MY_CONTROL:
-      logging.info('to is <%s> but not <_control@im.partych.at>', str(event['to']))
+#      logging.info('to is <%s> but not <_control@im.partych.at>', str(event['to']))
       return None
     else:
       assert str(event['from']).startswith(PARTYCHAPP_CONTROL)
       # TODO: check from, and check signature of message
       msg_str = str(event['body'])
       if msg_str.startswith('gzip:'):
-        msg_str = zlib.decompress(msg_str[len('gzip:'):])
-      logging.info('decoding <%s>', msg_str)
+	try:
+          msg_str = zlib.decompress(msg_str[len('gzip:'):])
+        except:
+          open('/tmp/broken', 'wb').write(msg_str)
+#      logging.info('decoding <%s>', msg_str)
       return json.loads(msg_str)
 
     
@@ -75,7 +79,7 @@ class SimpleComponent:
 #                    sleekxmpp.stanza.message.Message: "body"}
 #    assert type(event) == 
     message = event['body']
-    logging.info('message: %s' % message)
+#    logging.info('message: %s' % message)
 
     
     ctl = self.GetControlMessage(event)
@@ -99,9 +103,9 @@ class SimpleComponent:
         if not self.xmpp.roster[from_jid][rec].resources:
           logging.info('sending presence subscription')
 
-#          self.xmpp.sendPresenceSubscription(pfrom=from_jid,
-#                                             ptype='subscribe',
-#                                             pto=rec)
+          self.xmpp.sendPresenceSubscription(pfrom=from_jid,
+                                             ptype='subscribe',
+                                             pto=rec)
 #          logging.info('sending presence subscribed')
 #          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
 #                                 pstatus=STATUS,
@@ -112,6 +116,9 @@ class SimpleComponent:
                                  ptype="probe"
 #                                 ptype="subscribed"
                                  )
+        else:
+#          logging.info('roster says: %s', self.xmpp.roster[from_jid][rec])
+          pass
           
         
         nodes = sorted([(v.get('priority',0),k) 
@@ -123,12 +130,12 @@ class SimpleComponent:
                                  )
 
         if outmsg:
-          logging.info ("rec:%s roster:%s" , rec, self.xmpp.roster[from_jid][rec].resources)
+#          logging.info ("rec:%s roster:%s" , rec, self.xmpp.roster[from_jid][rec].resources)
           nodes = nodes[-1:]
           rec_list = []
           if nodes:
             rec_list = ['/'.join([rec, n[1]]) for n in nodes]
-            logging.info('actually sending to %s', rec_list)
+#            logging.info('actually sending to %s', rec_list)
           else:
             rec_lits = [rec]
 
