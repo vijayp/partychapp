@@ -134,7 +134,7 @@ public class PartychappServlet extends HttpServlet {
               c.setMigrated(true);
               c.broadcastIncludingSender("Your channel has been migrated");
               ds.put(c);
-              datastore.endRequest();
+              ds.endRequest();
             }
           }
 
