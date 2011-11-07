@@ -26,6 +26,10 @@ class State:
     # TODO: remember to add in time data into the mix.
     return not self._state in [State.PENDING, State.REJECTED, State.OK]
 
+  def can_send(self):
+    return self._state in [State.OK, State.UNKNOWN]
+
+
   def request_pending(self):
     # TODO: remember to add in time data into the mix.
     self._state = State.PENDING
@@ -39,15 +43,12 @@ class State:
     # unimplemented
     pass
 
-class SimpleComponent:
-  @staticmethod
-  def GetControlMessage(event):
-    
+
+def GetControlMessage(event):
     if str(event['to']) != MY_CONTROL:
-#      logging.info('to is <%s> but not <_control@im.partych.at>', str(event['to']))
       return None
     else:
-      assert str(event['from']).startswith(PARTYCHAPP_CONTROL)
+#      assert str(event['from']).startswith(PARTYCHAPP_CONTROL)
       # TODO: check from, and check signature of message
       msg_str = str(event['body'])
       if msg_str.startswith('gzip:'):
@@ -55,10 +56,9 @@ class SimpleComponent:
           msg_str = zlib.decompress(msg_str[len('gzip:'):])
         except:
           open('/tmp/broken', 'wb').write(msg_str)
-#      logging.info('decoding <%s>', msg_str)
       return json.loads(msg_str)
 
-    
+class SimpleComponent:
   def __init__(self, jid, password, server, port, backend) :
     
     self.xmpp = sleekxmpp.componentxmpp.ComponentXMPP(jid, password, server, port)
@@ -92,9 +92,33 @@ class SimpleComponent:
       self.xmpp.add_event_handler(s, lambda event: self.generic_handler(s, event))
     self._jid_resource_map = {}
     
-    
+
+  def _handle_control_message(self, ctl):
+      outmsg = ctl.get('outmsg')
+      recipients = ctl.get('recipients', [])
+
+      from_channel = ctl.get('from_channel', '')
+      assert from_channel and recipients
+      assert '@' not in from_channel # TODO better validation
+      from_jid = '%s@%s' % (from_channel, MYDOMAIN)
+      for r in recipients:
+#        logging.info('trying recipient %s' % r)
+        if (r, from_jid) not in self._state or self._state[(r, from_jid)].can_send():
+          self.xmpp.sendMessage(r,
+                                outmsg,
+                                mfrom=from_jid,
+                                mtype='chat')
+        else:
+#          logging.info('failed recipient %s' % r)
+          pass
+        
 
   def _inbound_message(self, message):
+    ctl = GetControlMessage(message)
+    if ctl:
+      self._handle_control_message(ctl)
+      return
+    # inbound message
     # echo
     self.xmpp.sendMessage(str(message['from']).split('/')[0], message['body'], 
                           mfrom=message['to'], 
@@ -107,10 +131,12 @@ class SimpleComponent:
     logging.info(' MESSAGE: %s' , message)
     if message['type'] == 'error':
       logging.error('ERROR: %s', message)
-      logging.info('requesting subscription')
-      from_person = message['from']
-      if self._state[from_person].should_request():
-        self._state[from_person].request_pending()
+      from_person = str(message['from'])
+      channel_id = str(message['to'])
+      if self._state[(from_person, channel_id)].should_request():
+        logging.info('requesting subscription for %s')
+        self._state[(from_person, channel_id)].request_pending()
+        logging.info('set state to pending for %s' % from_person)
         self.xmpp.sendPresence(pto=message['from'], pfrom=message['to'],
                                ptype='subscribe')
 
@@ -119,16 +145,13 @@ class SimpleComponent:
 
   def generic_handler(self, s, event):
     try:
-      if not str(event['from']).startswith('vijayp'):
+      if not event:
         return
+      if s in ['roster_update'] or event['type'] == 'probe':#, 'pre
+        logging.info('sending presence to %s from %s' , event['to'], event['from'])
+        self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus=STATUS)
     except:
       return
-    logging.info('generic handler for event %s (%s)', s, event)
-    if not event:
-      return
-    if s == 'roster_update':
-      pass
-      self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus="test")
 
   def send_unsubscribe(self, u, f):
     self.xmpp.sendPresence(pto=u, pfrom=f, 
@@ -138,21 +161,14 @@ class SimpleComponent:
   def start_session(self, *args, **kwargs):
     logging.info('started session')
     logging.info('trying to probe vijayp@gmail.com for dogfood')
-#    u = 'test@partych.at'
     u = 'vijayp@gmail.com'
-#    self.send_unsubscribe(u, 'dogfood@im.partych.at')
-    self.xmpp.sendPresence(pto=u, pfrom="dogfood@im.partych.at",
-                           pstatus='test')
-
-#    self.xmpp.sendPresence(pto=u, pfrom="dogfood@im.partych.at", pstatus="test",
-#                           ptype="subscribe")
-#    self.xmpp.sendPresence(pto=u, pfrom="dogfood@im.partych.at", pstatus="test")
-
-#    self.xmpp.sendMessage(u, 'message', 
-#                          mfrom="dogfood@im.partych.at", mtype='chat')
+    self.xmpp.sendPresence(pto=u, pfrom=MY_CONTROL,
+                           pstatus=STATUS)
+    u = PARTYCHAPP_CONTROL
+    self.xmpp.sendPresence(pto=u, pfrom=MY_CONTROL,
+                           pstatus=STATUS)
 
 
-  
   def handle_probe(self, probe):
     logging.info('probe: %s', probe)
     return 
