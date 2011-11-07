@@ -13,7 +13,7 @@ def main() :
 		jid = "im.partych.at", password = "secret",
 		server = "127.0.0.1", port = 5275, backend = None)
 	component.start()
-	httpFrontend = HTTPFrontend(8080, None)
+	httpFrontend = HTTPFrontend(8234, None)
 	httpFrontend.start()
 
 if __name__ == '__main__' :
