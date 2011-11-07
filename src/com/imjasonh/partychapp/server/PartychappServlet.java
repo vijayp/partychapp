@@ -124,12 +124,7 @@ public class PartychappServlet extends HttpServlet {
           } else {
              
             doXmpp(xmppMessage);
-            if (false) {
-            Double frac = Configuration.persistentConfig().fractionOfMessagesToLog();
-            final double accept = (null == frac || frac > 1.0 || frac < 0.0) ? 
-                0.0 : frac.doubleValue(); 
-            final int accept_int = (int)(accept* 100);
-            if ((channelName.hashCode() % 100 ) < accept_int) {
+            if (c != null) {
               Datastore ds = Datastore.instance();
               ds.startRequest();
               logger.warning("migrating channel " + channelName);
@@ -137,7 +132,6 @@ public class PartychappServlet extends HttpServlet {
               c.broadcastIncludingSender("Your channel has been migrated");
               ds.put(c);
               ds.endRequest();
-            }
             }
           }
 
