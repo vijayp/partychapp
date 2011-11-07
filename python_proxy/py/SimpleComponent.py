@@ -2,6 +2,7 @@ import sys
 import sleekxmpp.componentxmpp
 import logging
 import simplejson as json
+import zlib
 
 MYDOMAIN = 'im.partych.at'
 

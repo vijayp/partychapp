@@ -39,6 +39,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.apache.commons.codec.binary.Base64OutputStream;
+
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Channel implements Serializable {
@@ -457,8 +459,13 @@ public class Channel implements Serializable {
 
   public void sendProxiedMessage(String message, List<String> rec)
   {
+    logger.info("in proxied message with " + rec.size() + " recipients");
+    final int TOP = 600;
+    if (rec.size() > TOP) {
+      sendProxiedMessage(message, rec.subList(TOP, rec.size()));
+      rec = rec.subList(0, TOP);
+    } 
     JSONObject jso = new JSONObject();
-
     try {
       jso.put("outmsg", message);
 
@@ -474,16 +481,22 @@ public class Channel implements Serializable {
       try{
         if (out.length() > (COMPRESS_THRESHOLD_BYTES)) {
           // compress this packet
-
           ByteArrayOutputStream bos = new ByteArrayOutputStream();
-          bos.write("gzip:".toString().getBytes());
-          //Deflater dfl = new Deflater();
-          DeflaterOutputStream dflOutStream = 
-              new DeflaterOutputStream(bos);
-          dflOutStream.write(out.getBytes());
-          dflOutStream.close();
-          bos.close();
+          
+          //bos.write("gzip:".toString().getBytes());
+          Base64OutputStream b64os = new Base64OutputStream(bos);
+          GZIPOutputStream gzip = new GZIPOutputStream(b64os);
+          gzip.write(out.getBytes());
+          gzip.flush();
+          gzip.close();
+          b64os.flush();
+          b64os.close();
+          
+          //bos.close();
+          bos.flush();
+          logger.info(bos.toString());
           out = bos.toString();
+          
         }
       } catch (IOException e) {
         // TODO Auto-generated catch block
@@ -491,8 +504,8 @@ public class Channel implements Serializable {
         logger.warning("couldn't compress data");
       } 
 
-      logger.info("Sending raw message" + out + "to " 
-          + PartychappServlet.PROXY_CONTROL);
+//      logger.info("Sending raw message" + out + "to " 
+//          + PartychappServlet.PROXY_CONTROL);
       boolean succ = ChannelUtil.sendMessage(out, 
           PartychappServlet.PROXY_CONTROL,
           PartychappServlet.PARTYCHAPP_CONTROL);

@@ -151,11 +151,14 @@ public class PartychappServlet extends HttpServlet {
     
     if ((null != state) && state.equals("new")) {
       logger.warning("Looks like the proxy just came up. Refreshing his roster");
-      Datastore datastore = LiveDatastore.instance();
-      datastore.startRequest();
-      try {
+      Datastore datastore = new LiveDatastore();
+      logger.warning("Looks like the proxy just came up. Refreshing his roster");
 
-      for (Channel c: datastore.getChannelsByMigrationStatus(true)) {
+      datastore.startRequest();
+
+      try {
+        Iterable<Channel> cnls = datastore.getChannelsByMigrationStatus(true);
+      for (Channel c: cnls) {
         // send a message to this channel
         logger.info("Sending message to " + c.getName());
         c.broadcastIncludingSender("");
