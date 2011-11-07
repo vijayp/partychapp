@@ -2,7 +2,11 @@ import zlib
 import sys
 import sleekxmpp.componentxmpp
 import logging
-import simplejson as json
+try:
+  import simplejson as json
+except:
+  import json
+import json
 import zlib
 from collections import defaultdict
 
@@ -52,7 +56,7 @@ def GetControlMessage(event):
       # TODO: check from, and check signature of message
       msg_str = str(event['body'])
       if msg_str.startswith('gzip:'):
-	try:
+        try:
           msg_str = zlib.decompress(msg_str[len('gzip:'):])
         except:
           open('/tmp/broken', 'wb').write(msg_str)
@@ -69,8 +73,8 @@ class SimpleComponent:
     self.xmpp.add_event_handler('session_start', self.start_session)
     self.xmpp.add_event_handler('message', self.message)
 
-    self.xmpp.del_event_handler('presence_probe', 
-                                self.xmpp._handle_probe)
+#    self.xmpp.del_event_handler('presence_probe', 
+#                                self.xmpp._handle_probe)
     for s in ['presence_subscribe', 
               'presence_subscribed', 
               'presence_unsubscribe', 
@@ -166,9 +170,10 @@ class SimpleComponent:
       if not event:
         return
       if s in ['roster_update'] or event['type'] == 'probe':#, 'pre
-        logging.info('sending presence to %s from %s' , event['to'], event['from'])
+        logging.info('sending presence from %s to %s' , event['to'], event['from'])
         self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus=STATUS)
-    except:
+    except Exception as e:
+      logging.exception(e)
       return
 
   def send_unsubscribe(self, u, f):
