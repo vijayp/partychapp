@@ -6,7 +6,7 @@ from HTTPFrontend import HTTPFrontend
 from SimpleComponent import SimpleComponent
 
 # Uncomment the following line to turn on debugging
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(levelname)-8s %(message)s')
 
 def main() :
 	backend = {}

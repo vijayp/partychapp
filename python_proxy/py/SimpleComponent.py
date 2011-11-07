@@ -120,15 +120,27 @@ class SimpleComponent:
       return
     # inbound message
     # echo
-    self.xmpp.sendMessage(str(message['from']).split('/')[0], message['body'], 
-                          mfrom=message['to'], 
-                          mtype='chat')
+
+                           
+    event = message
+    to_str = str(event['to'])
+    msg_str = str(event['body'])
+    from_str = str(event['from'])
+    payload = dict(state='old',
+                     to_str=to_str,
+                     from_str=from_str,
+                     message_str=msg_str)
+    logging.info('sending message to partychapp control for (%s, %s)',
+                 to_str, from_str)
+
+    self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
+                            json.dumps(payload),
+                            mfrom=MY_CONTROL,
+                            mtype='chat')
+    self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus=STATUS)
 
   def message(self, message):
-    if not str(message['from']).startswith('vijayp'):
-      return
 
-    logging.info(' MESSAGE: %s' , message)
     if message['type'] == 'error':
       logging.error('ERROR: %s', message)
       from_person = str(message['from'])
