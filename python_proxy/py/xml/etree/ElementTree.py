@@ -1618,10 +1618,20 @@ class XMLParser(object):
     # @param data Encoded data.
 
     def feed(self, data):
+        ##### HORRIBLE HACK BEGINS HERE!!! #######
+        import logging
         try:
+            if data.find('iTeleport Connect.WINDOWS.') != -1:
+                logging.error('******* skipping %s', data)
+                return
+
+            #logging.info(data)
             self._parser.Parse(data, 0)
         except self._error, v:
-            self._raiseerror(v)
+           import logging
+           logging.error('****************** BAD XML PACKET *************** %s', v) 
+           self._raiseerror(v)
+        ####### END HORRIBLE HACK ##############   
 
     ##
     # Finishes feeding data to the parser.
