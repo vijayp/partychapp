@@ -93,11 +93,11 @@ class SimpleComponent:
       assert '@' not in from_channel # TODO better validation
       from_jid = '%s@%s' % (from_channel, MYDOMAIN)
 
-      debug_message = 'sending message <%s> to recipients[%s] from %s' % (
-        outmsg, 
-        ','.join(recipients),
-        from_jid)
-      logging.info(debug_message)
+#      debug_message = 'sending message <%s> to recipients[%s] from %s' % (
+#        outmsg, 
+#        ','.join(recipients),
+#        from_jid)
+#      logging.info(debug_message)
       #      self.xmpp.sendMessage(event['from'], debug_message, mfrom=from_jid)
 
       for rec in recipients:
