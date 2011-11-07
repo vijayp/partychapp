@@ -1119,7 +1119,6 @@ class XMLStream(object):
         depth = 0
         root = None
         for event, xml in ET.iterparse(self.filesocket, (b'end', b'start')):
-            log.info('%s, %s', event, xml)
             if event == b'start':
                 if depth == 0:
                     # We have received the start of the root element.
