@@ -39,6 +39,10 @@ public class PersistentConfiguration {
   @Persistent
   private Double fractionOfMessagesToLog;
   public Double fractionOfMessagesToLog() { return fractionOfMessagesToLog; }
+  @Persistent
+  
+  private Double fractionOfChannelsToMigrate;
+  public Double fractionOfChannelsToMigrate() { return fractionOfChannelsToMigrate; }
 
   public String sessionToken() { return sessionToken; }
   public String listFeedUrl() { return listFeedUrl; }
@@ -69,5 +73,8 @@ public class PersistentConfiguration {
 
   public void setFractionOfMessagesToLog(double frac) {
     this.fractionOfMessagesToLog = frac;
+  }
+  public void setFractionOfChannelsToMigrate(double frac) {
+    this.fractionOfChannelsToMigrate = frac;
   }
 }

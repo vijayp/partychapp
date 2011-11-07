@@ -49,9 +49,9 @@ public class MigrateManyServlet extends HttpServlet {
             }
             c.setMigrated(true);
             ds.put(c);
-            resp.setContentType("text/plain");
-            resp.getWriter().write("migrated channel " + c.getName());
             c.broadcastIncludingSender(message);
+            resp.setContentType("text/plain");
+            resp.getWriter().write("migrated channel " + c.getName() + "\n");
           }
         } catch (NotImplementedException e) {
           // TODO Auto-generated catch block

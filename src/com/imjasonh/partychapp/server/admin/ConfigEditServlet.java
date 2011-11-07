@@ -42,6 +42,7 @@ public class ConfigEditServlet extends HttpServlet {
         Boolean.parseBoolean(req.getParameter("channel-stats-enabled")));
     config.setEmbedlyKey(getParam(req, "embedly-key"));
     config.setFractionOfMessagesToLog(Double.parseDouble(getParam(req, "fraction-log")));
+    config.setFractionOfChannelsToMigrate(Double.parseDouble(getParam(req, "fraction-migrate")));
 
     Datastore datastore = Datastore.instance();
 

@@ -60,7 +60,7 @@ public class Channel implements Serializable {
   private String name;
 
   @Persistent
-  private Boolean migrated=new Boolean(false);
+  private Boolean migrated=new Boolean(true);
 
   @Persistent(serialized = "true")
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")

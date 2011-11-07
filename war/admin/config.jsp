@@ -21,6 +21,7 @@
   <b>Channel stats enabled:</b> <%=Boolean.toString(persistentConfig.areChannelStatsEnabled())%><br>
   <b>Embedly key:</b> <%=persistentConfig.embedlyKey()%> <br />
   <b>Fraction of messages to log:</b> <%=persistentConfig.fractionOfMessagesToLog()%>
+  <b>Fraction of channels to migrate:</b> <%=persistentConfig.fractionOfChannelsToMigrate()%>
 </p>
 
 <p>

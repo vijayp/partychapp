@@ -41,6 +41,10 @@
     Fraction of messages to log:
     <input name="fraction-log" type="text" value="<%=persistentConfig.fractionOfMessagesToLog()%>" size="50">
   </label>
+  <label>
+    Fraction of channels to migrate:
+    <input name="fraction-migrate" type="text" value="<%=persistentConfig.fractionOfChannelsToMigrate()%>" size="50">
+  </label>
   <br>
 
   <input type="submit">

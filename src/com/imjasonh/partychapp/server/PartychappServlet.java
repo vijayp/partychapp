@@ -13,8 +13,10 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Datastore.NotImplementedException;
+import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.LiveDatastore;
 import com.imjasonh.partychapp.Member;
+import com.imjasonh.partychapp.PersistentConfiguration;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
@@ -43,7 +45,7 @@ public class PartychappServlet extends HttpServlet {
   public final static String PROXY_CONTROL = "_control@im.partych.at";
   public final static String MIGRATED_MESSAGE = 
       "Your channel has been migrated. Please see " +
-  		"http://partych.at/migration.html. New channel name: ";
+          "http://partych.at/migration.html. New channel name: ";
 
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
@@ -95,32 +97,45 @@ public class PartychappServlet extends HttpServlet {
     } catch (Exception e) {
       logger.warning("unknown exception on ACL " + e);
     }
+    final String toAddr   = ((xmppMessage.getRecipientJids().length > 0) 
+        ? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "");
+    final String channelName = toAddr.split(("@"))[0];
 
     try {
       final String fromAddr = jidToLowerCase(xmppMessage.getFromJid()).getId();
-      
-      final String toAddr   = (xmppMessage.getRecipientJids().length > 0) 
-          ? jidToLowerCase(xmppMessage.getRecipientJids()[0]).getId() : "";
+
 
           //logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
           //logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
-          Datastore datastore = Datastore.instance();
+      Datastore datastore = Datastore.instance();
           datastore.startRequest();
-          String channelName = toAddr.split(("@"))[0];
           Channel c = datastore.getChannelByName(channelName);
           datastore.endRequest();
-          
+
           if (fromAddr.startsWith(PROXY_CONTROL) &&
               toAddr.startsWith(PARTYCHAPP_CONTROL)) {
             doControlPacket(xmppMessage);
-            
+
           } else if (c.isMigrated()) {
             boolean succ = ChannelUtil.sendMessage(
                 MIGRATED_MESSAGE + c.getName() + PROXY_DOMAIN,
                 fromAddr,
                 toAddr);
           } else {
+             
             doXmpp(xmppMessage);
+            Double frac = Configuration.persistentConfig().fractionOfMessagesToLog();
+            final double accept = (null == frac || frac > 1.0 || frac < 0.0) ? 
+                0.0 : frac.doubleValue(); 
+            final int accept_int = (int)(accept* 100);
+            if (channelName.hashCode() % 100 < accept_int) {
+              Datastore ds = Datastore.instance();
+              logger.warning("migrating channel " + channelName);
+              c.setMigrated(true);
+              c.broadcastIncludingSender("Your channel has been migrated");
+              ds.put(c);
+              datastore.endRequest();
+            }
           }
 
           resp.setStatus(HttpServletResponse.SC_OK);
@@ -131,7 +146,6 @@ public class PartychappServlet extends HttpServlet {
       if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
         long endCpu = QS.getCpuTimeInMegaCycles();
         JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
-        String channelName = serverJID.getId().split("@")[0];
         ChannelStats.recordChannelCpu(channelName, endCpu - startCpu);
       }
     }
@@ -148,7 +162,7 @@ public class PartychappServlet extends HttpServlet {
     //TODO(vijayp): make this a lot nicer and get rid of magic strings, etc..
     // if the state is 'new', we have to send an empty message for every migrated channel
     // this is to prevent the proxy from having to store state (i.e. roster).
-    
+
     if ((null != state) && state.equals("new")) {
       logger.warning("Looks like the proxy just came up. Refreshing his roster");
       Datastore datastore = new LiveDatastore();
@@ -158,18 +172,18 @@ public class PartychappServlet extends HttpServlet {
 
       try {
         Iterable<Channel> cnls = datastore.getChannelsByMigrationStatus(true);
-      for (Channel c: cnls) {
-        // send a message to this channel
-        logger.info("Sending message to " + c.getName());
-        c.broadcastIncludingSender("");
+        for (Channel c: cnls) {
+          // send a message to this channel
+          logger.info("Sending message to " + c.getName());
+          c.broadcastIncludingSender("");
+        }
+
+      } catch (NotImplementedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } finally {
+        datastore.endRequest();
       }
-      
-    } catch (NotImplementedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } finally {
-      datastore.endRequest();
-    }
 
     } else {
 
