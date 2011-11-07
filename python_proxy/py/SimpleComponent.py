@@ -102,6 +102,8 @@ class SimpleComponent:
 
       pres = 0
       for rec in recipients:
+        nodes = sorted([(v.get('priority',0),k) 
+                        for k,v in self.xmpp.roster[from_jid][rec].resources.items()])
         if not self.xmpp.roster[from_jid][rec].resources:
           pres += 1
           self.xmpp.sendPresenceSubscription(pfrom=from_jid,
@@ -118,17 +120,18 @@ class SimpleComponent:
                                  ptype="probe"
 #NOT THIS                                 ptype="subscribed"
                                  )
+
+
+          rec_list = ['/'.join([rec, n[1]]) for n in nodes]
+          for r in rec_list:
+            self.xmpp.sendPresence(pto=r, pfrom=from_jid,
+                                 pstatus=STATUS,
+                                 )
+
         else:
 #          logging.info('roster says: %s', self.xmpp.roster[from_jid][rec])
           pass
-        
-        nodes = sorted([(v.get('priority',0),k) 
-                        for k,v in self.xmpp.roster[from_jid][rec].resources.items()])
-        rec_list = ['/'.join([rec, n[1]]) for n in nodes]
-        for r in rec_list:
-          self.xmpp.sendPresence(pto=r, pfrom=from_jid,
-                                 pstatus=STATUS,
-                                 )
+
 
         if outmsg:
 #          logging.info ("rec:%s roster:%s" , rec, self.xmpp.roster[from_jid][rec].resources)
@@ -143,9 +146,9 @@ class SimpleComponent:
           for r in rec_list:
             self.xmpp.sendMessage(r, outmsg, mfrom=from_jid, mtype='chat')
 
-        self.xmpp.sendPresence(pfrom=from_jid,
-                               pstatus=STATUS,
-                               pshow='xa')
+      self.xmpp.sendPresence(pfrom=from_jid,
+                             pstatus=STATUS,
+                             pshow='xa')
       logging.info('sent presence data to %d people for channel %s',
                    pres, from_jid)
 
