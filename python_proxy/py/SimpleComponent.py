@@ -152,7 +152,7 @@ class SimpleComponent:
       from_person = str(message['from'])
       channel_id = str(message['to'])
       if self._state[(from_person, channel_id)].should_request():
-        logging.info('requesting subscription for (%s,%s)', (from_person, channel_id))
+        logging.info('requesting subscription for (%s,%s)', from_person, channel_id)
         self._state[(from_person, channel_id)].request_pending()
         logging.info('set state to pending for %s' % from_person)
         self.xmpp.sendPresence(pto=message['from'], pfrom=message['to'],
