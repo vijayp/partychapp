@@ -9,11 +9,12 @@ from SimpleComponent import SimpleComponent
 logging.basicConfig(level=logging.INFO, format='%(levelname)-8s %(message)s')
 
 def main() :
+	backend = {}
 	component = SimpleComponent(
 		jid = "im.partych.at", password = "secret",
-		server = "127.0.0.1", port = 5275, backend = None)
+		server = "127.0.0.1", port = 5275, backend = backend)
 	component.start()
-	httpFrontend = HTTPFrontend(8080, None)
+	httpFrontend = HTTPFrontend(8234, None)
 	httpFrontend.start()
 
 if __name__ == '__main__' :
