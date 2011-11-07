@@ -32,27 +32,26 @@ public class MigrateServlet extends HttpServlet {
     }
     if (channelName != null) {
       Channel c = null;
+      boolean broadcast = false;
       Datastore ds = Datastore.instance();
       ds.startRequest();
       c = ds.getChannelByName(channelName);
       message = "[ADMIN MESSAGE] " + message;
       if (null != c) {
         c.setMigrated(true);
+        ds = Datastore.instance();
         ds.put(c);
-        CachingDatastore cachingDatastore = WrappingDatastore.findWrappedInstance(
-            Datastore.instance(), CachingDatastore.class);
-
-        if (cachingDatastore != null) {      
-          cachingDatastore.startRequest();
-          cachingDatastore.invalidateCacheIfNecessary(c);
-          cachingDatastore.endRequest();
-        }
-        c.broadcastIncludingSender(message);
+        broadcast = true;
         resp.setContentType("text/plain");
         resp.getWriter().write("migrated channel " + c.getName());
       } else {
         resp.setContentType("text/plain");
         resp.getWriter().write("couldn't find channel " + channelName);
+      }
+      ds.endRequest();
+      if (broadcast) {
+        c.broadcastIncludingSender(message);
+
       }
     } else {
       resp.setContentType("text/html");

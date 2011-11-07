@@ -58,7 +58,11 @@ public class ChannelServlet extends HttpServlet {
       if (cachingDatastore != null) {
         writer.write("Cache key: " + cachingDatastore.getKey(channel) + "\n");
       }
+      writer.write("Migrated: " + channel.isMigrated() + "\n");
+      
+      
       writer.write("Invite only: " + channel.isInviteOnly() + "\n");
+
       writer.write("Logging disabled: " + channel.isLoggingDisabled() + "\n");
       writer.write("Invitees:\n");
       for (String invitee : channel.getInvitees()) {

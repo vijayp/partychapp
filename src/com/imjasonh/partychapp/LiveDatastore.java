@@ -208,9 +208,10 @@ public class LiveDatastore extends Datastore {
   public Iterable<Channel> getChannelsByMigrationStatus(boolean migrated) {
     Query q = manager.get().newQuery(Channel.class);
     q.setFilter("migrated == migratedParam");
-    q.declareParameters("String migratedParam");
-    List<Channel> channels = (List<Channel>) q.execute(Boolean.toString(migrated));
+    q.declareParameters("boolean migratedParam");
+    List<Channel> channels = (List<Channel>) q.execute(migrated);
     q.closeAll();
+    logger.warning("got "+channels.size()+" migrated channels");
     return channels;
   }
 
