@@ -273,6 +273,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   </servlet>
 
   <servlet-mapping>
+    <servlet-name>adminmigratemanyhandler</servlet-name>
+    <url-pattern>/admin/migratemany</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>adminmigratemanyhandler</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.admin.MigrateManyServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
     <servlet-name>adminbroadcasthandler</servlet-name>
     <url-pattern>/admin/broadcast</url-pattern>
   </servlet-mapping>
