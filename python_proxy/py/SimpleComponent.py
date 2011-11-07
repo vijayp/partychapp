@@ -101,9 +101,11 @@ class SimpleComponent:
       assert from_channel and recipients
       assert '@' not in from_channel # TODO better validation
       from_jid = '%s@%s' % (from_channel, MYDOMAIN)
+      rmsg = 0
       for r in recipients:
 #        logging.info('trying recipient %s' % r)
         if (r, from_jid) not in self._state or self._state[(r, from_jid)].can_send():
+          rmsg +=1
           self.xmpp.sendMessage(r,
                                 outmsg,
                                 mfrom=from_jid,
@@ -111,6 +113,10 @@ class SimpleComponent:
         else:
 #          logging.info('failed recipient %s' % r)
           pass
+      logging.info('sent message to %s (%d out of %d recipients)',
+                   from_jid,
+                   rmsg,
+                   len(recipients))
         
 
   def _inbound_message(self, message):
@@ -146,7 +152,7 @@ class SimpleComponent:
       from_person = str(message['from'])
       channel_id = str(message['to'])
       if self._state[(from_person, channel_id)].should_request():
-        logging.info('requesting subscription for %s')
+        logging.info('requesting subscription for (%s,%s)', (from_person, channel_id))
         self._state[(from_person, channel_id)].request_pending()
         logging.info('set state to pending for %s' % from_person)
         self.xmpp.sendPresence(pto=message['from'], pfrom=message['to'],
