@@ -51,10 +51,10 @@ class SimpleComponent:
                              pstatus="presence probe")
 
     logging.info("I don't store rosters, so asking server for help")
-    self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
-                          json.dumps(dict(state='new')),
-                          mfrom=MY_CONTROL,
-                          mtype='chat')
+#    self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
+#                          json.dumps(dict(state='new')),
+#                          mfrom=MY_CONTROL,
+#                          mtype='chat')
     
 
 
@@ -67,10 +67,10 @@ class SimpleComponent:
 
 
   def handleIncomingXMPPEvent(self, event) :
-    logging.debug('got xmpp incoming event for %s', event)
+    logging.info('got xmpp incoming event for %s', event)
     
-    logging.info('from: %s', event['from'])
-    logging.info('to: %s', event['to'])
+#    logging.info('from: %s', event['from'])
+#   logging.info('to: %s', event['to'])
 
     if event['type'] == 'error':
       logging.error('GOT UNKNOWN ERROR FOR %s' % event)
@@ -100,27 +100,27 @@ class SimpleComponent:
 #      logging.info(debug_message)
       #      self.xmpp.sendMessage(event['from'], debug_message, mfrom=from_jid)
 
+      pres = 0
       for rec in recipients:
         if not self.xmpp.roster[from_jid][rec].resources:
-          logging.info('sending presence subscription')
-
+          pres += 1
           self.xmpp.sendPresenceSubscription(pfrom=from_jid,
-                                             ptype='subscribe',
+                                             ptype='subscribed',
                                              pto=rec)
 #          logging.info('sending presence subscribed')
 #          self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
 #                                 pstatus=STATUS,
 #                                 ptype="subscribed")
 #          logging.info('sending presence status')
+#TO ENABLE
           self.xmpp.sendPresence(pto=rec, pfrom=from_jid,
                                  pstatus=STATUS,
                                  ptype="probe"
-#                                 ptype="subscribed"
+#NOT THIS                                 ptype="subscribed"
                                  )
         else:
 #          logging.info('roster says: %s', self.xmpp.roster[from_jid][rec])
           pass
-          
         
         nodes = sorted([(v.get('priority',0),k) 
                         for k,v in self.xmpp.roster[from_jid][rec].resources.items()])
@@ -136,7 +136,7 @@ class SimpleComponent:
           rec_list = []
           if nodes:
             rec_list = ['/'.join([rec, n[1]]) for n in nodes]
-#            logging.info('actually sending to %s', rec_list)
+            logging.info('actually sending to %s', rec_list)
           else:
             rec_lits = [rec]
 
@@ -146,6 +146,8 @@ class SimpleComponent:
         self.xmpp.sendPresence(pfrom=from_jid,
                                pstatus=STATUS,
                                pshow='xa')
+      logging.info('sent presence data to %d people for channel %s',
+                   pres, from_jid)
 
     else:
       to_str = str(event['to'])
