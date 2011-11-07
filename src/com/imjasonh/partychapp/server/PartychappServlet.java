@@ -130,6 +130,7 @@ public class PartychappServlet extends HttpServlet {
             final int accept_int = (int)(accept* 100);
             if (channelName.hashCode() % 100 < accept_int) {
               Datastore ds = Datastore.instance();
+              ds.startRequest();
               logger.warning("migrating channel " + channelName);
               c.setMigrated(true);
               c.broadcastIncludingSender("Your channel has been migrated");
