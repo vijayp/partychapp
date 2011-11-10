@@ -14,15 +14,15 @@ import json
 import zlib
 from collections import defaultdict
 
-MYDOMAIN = 'im.partych.at'
+MYDOMAIN = 'at.partych.at'
 
 PARTYCHAPP_CONTROL = '__control@partychapp.appspotchat.com'
-MY_CONTROL = '_control@im.partych.at'
+MY_CONTROL = '_control@at.partych.at'
 STATUS = 'replacing app engine since 2011'
 
 
-PROXY_JID_PATTERN = '%s@im.partych.at/pcbot'
-PROXY_BARE_JID_PATTERN = '%s@im.partych.at/pcbot'
+PROXY_JID_PATTERN = '%s@at.partych.at/pcbot'
+PROXY_BARE_JID_PATTERN = '%s@at.partych.at/pcbot'
 
 import time
 
@@ -35,21 +35,10 @@ class State:
   REJECTED = 2
   OK = 3
   def __init__(self):
-    self._state = State.UNKNOWN
+    self.in_state = State.UNKNOWN
+    self.out_state = State.UNKNOWN
     self._timestamp = time.time()
 
-  def should_request(self):
-    # TODO: remember to add in time data into the mix.
-    return not self._state in [State.PENDING, State.REJECTED, State.OK]
-
-  def is_subscribed(self):
-    return self._state == State.OK
-
-  def is_unknown(self):
-    return self._state == State.UNKNOWN
-
-  def is_pending(self):
-    return self._state == State.PENDING
 
 
 strip_resource = lambda x:str(x).split('/')[0]
@@ -128,6 +117,41 @@ class SimpleComponent:
     self.xmpp = sleekxmpp.componentxmpp.ComponentXMPP(jid, password, server, port)
     self.xmpp.auto_authorize = None
     self.xmpp.auto_subscribe = None
+
+
+
+    self.xmpp.del_event_handler('presence_available',
+                           self.xmpp._handle_available)
+    self.xmpp.del_event_handler('presence_dnd',
+                           self.xmpp._handle_available)
+    self.xmpp.del_event_handler('presence_xa',
+                           self.xmpp._handle_available)
+    self.xmpp.del_event_handler('presence_chat',
+                           self.xmpp._handle_available)
+    self.xmpp.del_event_handler('presence_away',
+                           self.xmpp._handle_available)
+    self.xmpp.del_event_handler('presence_unavailable',
+                           self.xmpp._handle_unavailable)
+    self.xmpp.del_event_handler('presence_subscribe',
+                           self.xmpp._handle_subscribe)
+    self.xmpp.del_event_handler('presence_subscribed',
+                           self.xmpp._handle_subscribed)
+    self.xmpp.del_event_handler('presence_unsubscribe',
+                           self.xmpp._handle_unsubscribe)
+    self.xmpp.del_event_handler('presence_unsubscribed',
+                           self.xmpp._handle_unsubscribed)
+    self.xmpp.del_event_handler('roster_subscription_request',
+                           self.xmpp._handle_new_subscription)
+
+    self.xmpp.del_event_handler('presence_probe', 
+                                self.xmpp._handle_probe)
+
+
+
+
+
+
+
     self.xmpp.add_event_handler('session_start', self.start_session)
     self.xmpp.add_event_handler('message', self.message)
 
@@ -165,9 +189,10 @@ class SimpleComponent:
 
       for r in recipients:
         state = StateManager.instance().get(from_channel, r)
-        if not state.is_subscribed():
-          if state.is_unknown():
-            self._send_subscribe(from_channel, r)
+        if state.in_state != State.OK or state.out_state != State.OK:
+          logging.info('states are wrong: in %s out %s', state.in_state, state.out_state)
+          self._send_subscribe(from_channel, r)
+          self._send_subscribed(from_channel, r)
         else:
           rmsg +=1
           self.xmpp.sendMessage(r,
@@ -230,31 +255,45 @@ class SimpleComponent:
   def _send_subscribed(self, channel, user):
     logging.info('sending outbound subscribed from user %s for channel %s',
                  user, channel)
-    self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
-                           pto=strip_resource(user), 
-                           ptype='subscribed')
-    #state = StateManager.instance().get(channel, user)._state = State.OK
+    if StateManager.instance().get(channel, user).in_state not in [
+      State.OK, State.PENDING, State.REJECTED]:
+      self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
+                             pto=strip_resource(user), 
+                             ptype='subscribed')
+      self._send_presence(channel, user)
+    else:
+      logging.info('subscribed not sent due to state')
+    state = StateManager.instance().get(channel, user).in_state = State.OK
 
   def _send_subscribe(self, channel, user):
-    state = StateManager.instance().get(channel, user)
-    if not state.is_unknown():
+    if StateManager.instance().get(channel, user).out_state in [
+      State.OK, State.PENDING, State.REJECTED]:
       logging.info('NOT sending outbound subscribe request for user %s for channel %s',
                  user, channel)
       return
-    else:
-      logging.info('sending outbound subscribe request for user %s for channel %s',
+
+
+    state = StateManager.instance().get(channel, user).out_state = State.PENDING
+    logging.info('sending outbound subscribe request for user %s for channel %s',
                    user, channel)
     self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                            pto=strip_resource(user), 
                            ptype='subscribe')
-    self._send_presence(channel, user)
-    state = StateManager.instance().get(channel, user)._state = State.PENDING
 
-  def _got_subscribed(self, channel, user):
+  def _got_subscribe(self, channel, user):
     logging.info('got inbound subscribe request from user %s for channel %s',
                  user, channel)
-    state = StateManager.instance().get(channel, user)._state = State.OK
+    StateManager.instance().get(channel, user).in_state = State.OK
+
     self._send_subscribed(channel, user)
+    self._send_subscribe(channel, user)
+
+
+  def _got_subscribed(self, channel, user):
+    logging.info('got subscribed from user %s for channel %s',
+                 user, channel)
+    StateManager.instance().get(channel, user).out_state = State.OK
+    self._send_subscribe(channel, user)
     self._send_presence(channel, user)
     logging.info('would have sent welcome message here')
     
@@ -266,27 +305,18 @@ class SimpleComponent:
     return
 
 
-    if message['type'] == 'error':
-
-      from_person = str(message['from'])
-      channel_id = str(message['to'])
-      if self._state[(from_person, channel_id)].should_request():
-        logging.info('requesting subscription for (%s,%s)', from_person, channel_id)
-        self._state[(from_person, channel_id)].request_pending()
-        logging.info('set state to pending for %s' % from_person)
-        self.xmpp.sendPresence(pto=message['from'], pfrom=message['to'],
-                               ptype='subscribed')
-        self.xmpp.sendPresence(pto=message['from'], pfrom=message['to'],
-                               pstatus='status')
-        self.xmpp.sendPresence(pto=message['from'], pfrom=message['to'],
-                               ptype='subscribe')
-
-    else:
-      self._inbound_message(message)
 
   def generic_handler(self, s, event):
-    s = event['type'] if 'type' in event else None
-    logging.info('%s,%s, %s', s, event,'type' in event)
+    logging.info(s)
+    s = None
+    try:
+      s = event['type']
+    except:
+      logging.error(s)
+      return
+      pass
+
+    logging.info('%s,%s', s, event)
 #    if str(event['from']).find('vijayp') == -1:
 #      return
 #    return
@@ -295,27 +325,28 @@ class SimpleComponent:
         return
       user = event['from']
       channel = str(event['to']).split('@')[0]
-      if 'type' not in event:
+      if s == 'presence_available':
         # this is a presence update, so we know we're ok.
-        if StateManager.instance().get(channel,user)._state != State.OK:
-          logging.info('setting %s,%s to OK because of inbound presence stanza',
+        if StateManager.instance().get(channel,user)._state == State.UNKNOWN:
+          logging.info('not setting %s,%s to OK because of inbound presence stanza',
                        channel, user)
-          self._send_presence(channel, user)
-          StateManager.instance().get(channel,user)._state = State.OK
+#          self._send_presence(channel, user)
+#          StateManager.instance().get(channel,user)._state = State.OK
 
-        
+        return
 
       if s == 'subscribe':
-        self._send_subscribed(channel, user)
-        self._send_subscribe(channel, user)
+        logging.info('got subscribe')
+        self._got_subscribe(channel, user)
       elif s == 'subscribed':
+        logging.info('got subscribed')
         self._got_subscribed(channel, user)
       elif s == 'unsubscribed':
-        pass
+        StateManager.instance().get(channel, user).out_state = State.UNKNOWN # TODO: rejected
       elif s == 'unsubscribe':
-        pass
+        StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
 
-      if event['type'] == 'probe':
+      elif s == 'probe':
         self._send_presence(channel, user)
 
     except Exception as e:
@@ -326,9 +357,9 @@ class SimpleComponent:
 
   def start_session(self, *args, **kwargs):
     logging.info('started session')
-    for c,u,_ in StateManager.instance().iter_channel_users():
+#    for c,u,_ in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
-      self._send_presence(c,u)
+#      self._send_presence(c,u)
 
 
   def start(self):
