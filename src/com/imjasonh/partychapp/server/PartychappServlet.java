@@ -46,7 +46,10 @@ public class PartychappServlet extends HttpServlet {
   public final static String MIGRATED_MESSAGE = 
       "Your channel has been migrated. Please see " +
           "http://partych.at/migration.html. New channel name: ";
-
+  public final static String OVERLOADED_MESSAGE = 
+        "System is currently overloaded. Please check" +
+        " http://partych.at for details";
+  
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
 
@@ -114,32 +117,30 @@ public class PartychappServlet extends HttpServlet {
 
           if (fromAddr.startsWith(PROXY_CONTROL) &&
               toAddr.startsWith(PARTYCHAPP_CONTROL)) {
-            doControlPacket(xmppMessage);
-
-          } else if (c != null && c.isMigrated()) {
+            return;
+            //doControlPacket(xmppMessage);
+          } else if (false && c != null && c.isMigrated()) {
             boolean succ = ChannelUtil.sendMessage(
                 MIGRATED_MESSAGE + c.getName() + PROXY_DOMAIN,
                 fromAddr,
                 toAddr);
           } else {
-             
-            doXmpp(xmppMessage);
-            if (c != null) {
-              Datastore ds = Datastore.instance();
-              ds.startRequest();
-              logger.warning("migrating channel " + channelName);
-              c.setMigrated(true);
-              c.broadcastIncludingSender("Your channel has been migrated");
-              ds.put(c);
-              ds.endRequest();
+            if (c!= null && c.getMembers().size() < 100) {
+              doXmpp(xmppMessage);
+              return;
+            } else {
+              boolean succ = ChannelUtil.sendMessage(
+                  "channels with more than 50 users are temporarily not supported",
+                  fromAddr,
+                  toAddr);
+              return;
             }
           }
-
           resp.setStatus(HttpServletResponse.SC_OK);
-    } catch (JSONException e) {
+    } /*catch (JSONException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } finally {
+    } */finally {
       if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
         long endCpu = QS.getCpuTimeInMegaCycles();
         JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);

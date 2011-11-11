@@ -391,7 +391,7 @@ public class Channel implements Serializable {
 
   private void sendMessage(String message, List<Member> recipients) {
 
-      if (this.isMigrated()) {
+      if (false && this.isMigrated()) {
         logger.info("MIGRATED message");
         List<String> rec = new ArrayList<String>();
         for (Member recipient : recipients) {
@@ -460,6 +460,14 @@ public class Channel implements Serializable {
   public void sendProxiedMessage(String message, List<String> rec)
   {
     logger.info("in proxied message with " + rec.size() + " recipients");
+    // SIZE LIMIT
+    if (rec.size() > 100) {
+      logger.warning("rejecting message for very large channel");
+      return;
+    }
+    
+    
+    
     final int TOP = 600;
     if (rec.size() > TOP) {
       sendProxiedMessage(message, rec.subList(TOP, rec.size()));
