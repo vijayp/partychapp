@@ -18,12 +18,13 @@ MYDOMAIN = 'at.partych.at'
 
 PARTYCHAPP_CONTROL = '__control@partychapp.appspotchat.com'
 MY_CONTROL = '_control@at.partych.at'
+
 STATUS = 'replacing app engine since 2011'
 
 
 PROXY_JID_PATTERN = '%s@at.partych.at/pcbot'
 PROXY_BARE_JID_PATTERN = '%s@at.partych.at/pcbot'
-
+MY_CONTROL_FULL = PROXY_JID_PATTERN % '_control'
 import time
 
 
@@ -176,17 +177,12 @@ class SimpleComponent:
       self.xmpp.add_event_handler(s, lambda event: self.generic_handler(s, event))
     
 
-  def _handle_control_message(self, ctl):
-      outmsg = ctl.get('outmsg')
-      recipients = ctl.get('recipients', [])
+  def _send_message(from_channel, 
+                    from_jid,
+                    recipients,
+                    outmsg):
 
-      from_channel = ctl.get('from_channel', '')
-      assert from_channel and recipients
-      assert '@' not in from_channel # TODO better validation
-      from_jid = '%s@%s/pcbot' % (from_channel, MYDOMAIN)
       rmsg = 0
-                             
-
       for r in recipients:
         state = StateManager.instance().get(from_channel, r)
         if state.in_state != State.OK or state.out_state != State.OK:
@@ -204,19 +200,27 @@ class SimpleComponent:
                    from_jid,
                    rmsg,
                    len(recipients))
-        
+                    
+
+  def _handle_control_message(self, ctl):
+      outmsg = ctl.get('outmsg')
+      recipients = ctl.get('recipients', [])
+
+      from_channel = ctl.get('from_channel', '')
+      assert from_channel and recipients
+      assert '@' not in from_channel # TODO better validation
+      from_jid = '%s@%s/pcbot' % (from_channel, MYDOMAIN)
+      self._send_message(from_channel, from_jid, recipients, outmsg)
 
   def _inbound_message(self, message):
     if message['type'] == 'error':
       return
-
-    self._handle_control_message(dict(outmsg=message['body'],
-                                      recipients=[str(message['from']).split('/')[0]],
-                                      from_channel=str(message['to']).split('@')[0]
-                                      )
-                                 )
-
-    return
+    if 1==0:
+      self._handle_control_message(dict(outmsg=message['body'],
+                                        recipients=[str(message['from']).split('/')[0]],
+                                        from_channel=str(message['to']).split('@')[0]
+                                        )
+                                   )
 
     ctl = GetControlMessage(message)
     if ctl:
@@ -236,13 +240,10 @@ class SimpleComponent:
     logging.info('sending message to partychapp control for (%s, %s)',
                  to_str, from_str)
 
-    self.xmpp.sendMessage(PARTYCHAPP_CONTROL,
-                            json.dumps(payload),
-                            mfrom=MY_CONTROL,
-                            mtype='chat')
-#    self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus=STATUS)
-
-
+    self._send_message('_control',
+                       MY_CONTROL_FULL,
+                       [PARTYCHAPP_CONTROL],
+                       json.dumps(payload))
 
   def _send_presence(self, channel, user, status=STATUS):
     logging.info('presence --> %s,%s' , channel, user)

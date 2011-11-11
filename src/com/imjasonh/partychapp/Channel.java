@@ -391,7 +391,7 @@ public class Channel implements Serializable {
 
   private void sendMessage(String message, List<Member> recipients) {
 
-      if (false && this.isMigrated()) {
+      if (this.getName().equals("dogfood") && this.isMigrated()) {
         logger.info("MIGRATED message");
         List<String> rec = new ArrayList<String>();
         for (Member recipient : recipients) {
@@ -401,7 +401,7 @@ public class Channel implements Serializable {
 
 
         // REMOVE THIS FOR DUAL BROADCASTS.
-        return; 
+        //return; 
         //
         //
 

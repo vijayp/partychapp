@@ -109,38 +109,37 @@ public class PartychappServlet extends HttpServlet {
 
 
           //logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
-          //logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
+      //logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
       Datastore datastore = Datastore.instance();
-          datastore.startRequest();
-          Channel c = datastore.getChannelByName(channelName);
-          datastore.endRequest();
+      datastore.startRequest();
+      Channel c = datastore.getChannelByName(channelName);
+      datastore.endRequest();
 
-          if (fromAddr.startsWith(PROXY_CONTROL) &&
-              toAddr.startsWith(PARTYCHAPP_CONTROL)) {
-            return;
-            //doControlPacket(xmppMessage);
-          } else if (false && c != null && c.isMigrated()) {
+      if (fromAddr.startsWith(PROXY_CONTROL) &&
+          toAddr.startsWith(PARTYCHAPP_CONTROL)) {
+        doControlPacket(xmppMessage);
+      } /*else if (c != null && c.getName().equals("dogfood") && c.isMigrated()) {
             boolean succ = ChannelUtil.sendMessage(
                 MIGRATED_MESSAGE + c.getName() + PROXY_DOMAIN,
                 fromAddr,
                 toAddr);
-          } else {
-            if (c!= null && c.getMembers().size() < 100) {
-              doXmpp(xmppMessage);
-              return;
-            } else {
-              boolean succ = ChannelUtil.sendMessage(
-                  "channels with more than 50 users are temporarily not supported",
-                  fromAddr,
-                  toAddr);
-              return;
-            }
-          }
-          resp.setStatus(HttpServletResponse.SC_OK);
-    } /*catch (JSONException e) {
+          } */
+      if (c!= null && c.getMembers().size() < 100) {
+        doXmpp(xmppMessage);
+        return;
+      } else {
+        boolean succ = ChannelUtil.sendMessage(
+            "channels with more than 50 users are temporarily not supported",
+            fromAddr,
+            toAddr);
+        return;
+      }
+
+
+    } catch (JSONException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } */finally {
+    }finally {
       if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
         long endCpu = QS.getCpuTimeInMegaCycles();
         JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
