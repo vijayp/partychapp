@@ -88,8 +88,8 @@ class StateManager:
       in_dat = cPickle.load(open(filename, 'rb'))
       for (c, u, s) in in_dat:
         cls.instance().set(c,u, s)
-        logging.info('%s,%s = %s',
-                     c,u,s)
+        logging.info('%s,%s = (in=%s, out=%s)',
+                     c,u,s.in_state, s.out_state)
       logging.error('loaded %s data records', len(in_dat))
              
     except:
@@ -199,6 +199,7 @@ class SimpleComponent:
                                 outmsg,
                                 mfrom=from_jid,
                                 mtype='chat')
+          self._send_presence(from_channel, r)
       logging.info('sent message to %s (%d out of %d recipients)',
                    from_jid,
                    rmsg,
@@ -239,7 +240,7 @@ class SimpleComponent:
                             json.dumps(payload),
                             mfrom=MY_CONTROL,
                             mtype='chat')
-    self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus=STATUS)
+#    self.xmpp.sendPresence(pto=event['from'], pfrom=event['to'], pstatus=STATUS)
 
 
 
@@ -267,7 +268,8 @@ class SimpleComponent:
 
   def _send_subscribe(self, channel, user):
     if StateManager.instance().get(channel, user).out_state in [
-      State.OK, State.PENDING, State.REJECTED]:
+      State.OK, 
+      State.PENDING, State.REJECTED]:
       logging.info('NOT sending outbound subscribe request for user %s for channel %s',
                  user, channel)
       return
@@ -284,6 +286,9 @@ class SimpleComponent:
     logging.info('got inbound subscribe request from user %s for channel %s',
                  user, channel)
     StateManager.instance().get(channel, user).in_state = State.OK
+    # something screwy is happening here
+    
+    StateManager.instance().get(channel, user).out_state = State.UNKNOWN
 
     self._send_subscribed(channel, user)
     self._send_subscribe(channel, user)
@@ -342,8 +347,13 @@ class SimpleComponent:
         logging.info('got subscribed')
         self._got_subscribed(channel, user)
       elif s == 'unsubscribed':
+        logging.info('unsubscribed received from (%s,%s)', channel, user)
         StateManager.instance().get(channel, user).out_state = State.UNKNOWN # TODO: rejected
+        StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
       elif s == 'unsubscribe':
+        StateManager.instance().get(channel, user).out_state = State.UNKNOWN # TODO: rejected
+        StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
+        logging.info('unsubscribe received from (%s,%s)', channel, user)
         StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
 
       elif s == 'probe':
@@ -357,9 +367,10 @@ class SimpleComponent:
 
   def start_session(self, *args, **kwargs):
     logging.info('started session')
-#    for c,u,_ in StateManager.instance().iter_channel_users():
+    for c,u,s in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
-#      self._send_presence(c,u)
+      if s.in_state == State.OK and s.out_state == State.OK:
+        self._send_presence(c,u)
 
 
   def start(self):
