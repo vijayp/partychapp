@@ -19,9 +19,19 @@
 <script type="text/javascript" src="/partychapp_compiled.js"></script>
 
 <center><table BORDER="1px" style="background-color: yellow;" width=800px>
-<tr><td><b>
-Partychat is currently experiencing <a href="/migration.html">migration issues</a>. We expect to be back by noon on Nov 8 EST. 
-Sorry for the inconvenience. Please try back tomorrow.
+<tr><td>
+<h3>Migration update:</h3>
+<p>Due to <a href="/migration.html">issues with our migration process</a>, 
+we have <b>temporarily reactivated chats on the old partychapp.appspot.com domain</b>	
+for channels with fewer than 100 people until those issues are resolved. 
+</p><p>
+Larger channels won't be supported until these issues are resolved. 
+Please follow <a href="http://www.twitter.com/partychat">partychat on Twitter</a> for more up to date details.
+</p><p>
+Sorry for the inconvenience
+</p> 
+
+
 </b></td></tr>
 </table>
 </center>
