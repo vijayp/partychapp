@@ -71,7 +71,7 @@ class StateManager:
   @classmethod
   def save(cls, filename):
     logging.error('dumping state to %s', filename)
-    (fd, fn) = tempfile.mkstemp()
+    (fd, fn) = tempfile.mkstemp(dir='.') # same dir as final filename
     fd = os.fdopen(fd, 'w')
     logging.error('tempfile: %s', fn)
     out = [x for x in cls._instance.iter_channel_users()]
@@ -177,7 +177,8 @@ class SimpleComponent:
       self.xmpp.add_event_handler(s, lambda event: self.generic_handler(s, event))
     
 
-  def _send_message(from_channel, 
+  def _send_message(self, 
+                    from_channel, 
                     from_jid,
                     recipients,
                     outmsg):
@@ -246,8 +247,8 @@ class SimpleComponent:
                        json.dumps(payload))
 
   def _send_presence(self, channel, user, status=STATUS):
-    logging.info('presence --> %s,%s' , channel, user)
- 
+    
+    logging.info('PRESENCE                %s->%s', channel, user)
     self.xmpp.sendPresence(pfrom=PROXY_JID_PATTERN % channel,
                            pto=strip_resource(user),
                            pstatus=status,
@@ -255,49 +256,46 @@ class SimpleComponent:
                            )
 
   def _send_subscribed(self, channel, user):
-    logging.info('sending outbound subscribed from user %s for channel %s',
-                 user, channel)
+    logging.info('SUBSCRIBED                %s->%s', channel, user)
     if StateManager.instance().get(channel, user).in_state not in [
       State.OK, State.PENDING, State.REJECTED]:
       self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                              pto=strip_resource(user), 
                              ptype='subscribed')
+      state = StateManager.instance().get(channel, user).in_state = State.OK
       self._send_presence(channel, user)
     else:
-      logging.info('subscribed not sent due to state')
-    state = StateManager.instance().get(channel, user).in_state = State.OK
+      state = StateManager.instance().get(channel, user).in_state = State.OK
+      logging.debug('subscribed not sent due to state')
+
 
   def _send_subscribe(self, channel, user):
+
     if StateManager.instance().get(channel, user).out_state in [
       State.OK, 
       State.PENDING, State.REJECTED]:
-      logging.info('NOT sending outbound subscribe request for user %s for channel %s',
+      logging.debug('NOT sending outbound subscribe request for user %s for channel %s',
                  user, channel)
       return
 
 
     state = StateManager.instance().get(channel, user).out_state = State.PENDING
-    logging.info('sending outbound subscribe request for user %s for channel %s',
-                   user, channel)
+    logging.info('SUBSCRIBE                %s->%s', channel, user)
     self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                            pto=strip_resource(user), 
                            ptype='subscribe')
 
   def _got_subscribe(self, channel, user):
-    logging.info('got inbound subscribe request from user %s for channel %s',
-                 user, channel)
     StateManager.instance().get(channel, user).in_state = State.OK
     # something screwy is happening here
     
-    StateManager.instance().get(channel, user).out_state = State.UNKNOWN
+    #StateManager.instance().get(channel, user).out_state = State.UNKNOWN
 
     self._send_subscribed(channel, user)
     self._send_subscribe(channel, user)
 
 
   def _got_subscribed(self, channel, user):
-    logging.info('got subscribed from user %s for channel %s',
-                 user, channel)
     StateManager.instance().get(channel, user).out_state = State.OK
     self._send_subscribe(channel, user)
     self._send_presence(channel, user)
@@ -342,22 +340,27 @@ class SimpleComponent:
         return
 
       if s == 'subscribe':
-        logging.info('got subscribe')
+        logging.info('SUBSCRIBE              %s<-%s', channel, user)
         self._got_subscribe(channel, user)
       elif s == 'subscribed':
-        logging.info('got subscribed')
+        logging.info('SUBSCRIBED             %s<-%s', channel, user)
         self._got_subscribed(channel, user)
       elif s == 'unsubscribed':
-        logging.info('unsubscribed received from (%s,%s)', channel, user)
+        logging.info('UNSUBSCRIBED           %s<-%s', channel, user)
         StateManager.instance().get(channel, user).out_state = State.UNKNOWN # TODO: rejected
         StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
       elif s == 'unsubscribe':
+        logging.info('UNSUBSCRIBE            %s<-%s', channel, user)
         StateManager.instance().get(channel, user).out_state = State.UNKNOWN # TODO: rejected
-        StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
-        logging.info('unsubscribe received from (%s,%s)', channel, user)
         StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
 
       elif s == 'probe':
+        logging.info('PROBE                  %s<-%s', channel, user)
+        # if necessary
+        self._send_subscribe(channel, user)
+        self._send_subscribed(channel, user)
+        #
+
         self._send_presence(channel, user)
 
     except Exception as e:
@@ -372,6 +375,12 @@ class SimpleComponent:
       # TODO: execute this in the background somehow. This can take a long time.
       if s.in_state == State.OK and s.out_state == State.OK:
         self._send_presence(c,u)
+    
+    ##
+    self._send_message('_control', MY_CONTROL_FULL,
+                       [PARTYCHAPP_CONTROL],
+                       'hi')
+                       
 
 
   def start(self):

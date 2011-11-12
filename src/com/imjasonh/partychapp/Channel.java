@@ -390,7 +390,7 @@ public class Channel implements Serializable {
   }    
 
   private void sendMessage(String message, List<Member> recipients) {
-
+    
       if (this.getName().equals("dogfood") && this.isMigrated()) {
         logger.info("MIGRATED message");
         List<String> rec = new ArrayList<String>();
