@@ -303,15 +303,16 @@ class SimpleComponent:
 #                           pshow='dnd'
                            )
 
-  def _send_subscribed(self, channel, user):
-    logging.info('SUBSCRIBED                %s->%s', channel, user)
-    if StateManager.instance().get(channel, user).in_state not in [
+  def _send_subscribed(self, channel, user,force=False):
+
+    if force or StateManager.instance().get(channel, user).in_state not in [
       State.OK, State.PENDING, State.REJECTED]:
       self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                              pto=strip_resource(user), 
                              ptype='subscribed')
       state = StateManager.instance().get(channel, user).in_state = State.OK
       self._send_presence(channel, user)
+      logging.info('SUBSCRIBED                %s->%s', channel, user)
     else:
       state = StateManager.instance().get(channel, user).in_state = State.OK
       logging.debug('subscribed not sent due to state')
@@ -338,7 +339,7 @@ class SimpleComponent:
     
     #StateManager.instance().get(channel, user).out_state = State.UNKNOWN
 
-    self._send_subscribed(channel, user)
+    self._send_subscribed(channel, user, force=True)
     self._send_subscribe(channel, user)
 
 
