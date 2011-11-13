@@ -23,7 +23,11 @@ public class JoinCommand implements CommandHandler {
     String email = msg.userJID.getId().split("/")[0];
     if (!msg.channel.canJoin(email)) {
       String reply = "You must be invited to this room.";
-      SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+      //TODO(vijayp): migrated bots are getting all confused and DOSing the service. 
+      // Do not send them a message. 
+      if (!msg.channel.isMigrated()) {
+        SendUtil.sendDirect(reply, msg.userJID, msg.serverJID);
+      }
       return;
     }
 
