@@ -15,7 +15,7 @@ import json
 import zlib
 from collections import defaultdict, Counter
 
-SUBDOMAIN = 'at'
+SUBDOMAIN = 'im'
 
 MYDOMAIN = SUBDOMAIN + '.partych.at'
 

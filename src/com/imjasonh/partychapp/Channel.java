@@ -134,10 +134,11 @@ public class Channel implements Serializable {
         && (!(this.migratedDomain == null || this.migratedDomain.isEmpty())); 
   }
 
-  private static final String MIGRATED_DOMAIN = "im";
   public void setMigrated(boolean m) {
     if (m) {
-      this.migratedDomain = MIGRATED_DOMAIN;
+      this.migratedDomain = PartychappServlet.PROXY_SUBDOMAIN;
+    } else {
+      this.migratedDomain = null;
     }
   }
   

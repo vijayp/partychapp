@@ -38,11 +38,11 @@ import org.json.JSONTokener;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
-
+  public final static String PROXY_SUBDOMAIN = "im";
   public final static String PARTYCHAPP_CONTROL = "__control@partychapp.appspotchat.com";
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
-  public final static String PROXY_DOMAIN = "@at.partych.at";
-  public final static String PROXY_CONTROL = "_control@at.partych.at";
+  public final static String PROXY_DOMAIN = "@"+PROXY_SUBDOMAIN + ".partych.at";
+  public final static String PROXY_CONTROL = "_control@"+ PROXY_SUBDOMAIN +".partych.at";
   public final static String MIGRATED_MESSAGE = 
       "Your channel has been migrated. Please see " +
           "http://partych.at/migration.html. New channel name: ";
