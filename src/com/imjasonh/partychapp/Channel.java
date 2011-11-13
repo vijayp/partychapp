@@ -109,7 +109,11 @@ public class Channel implements Serializable {
   private static MessageDigest hasher = null;
 
   public static synchronized boolean shouldMigrate(String channelName) {
-    Double frac = Configuration.persistentConfig().fractionOfChannelsToMigrate();
+    if (channelName.equals("dogfood")) {
+      logger.info("special casing dogfood, migration = true");
+      return true;
+    }
+  Double frac = Configuration.persistentConfig().fractionOfChannelsToMigrate();
     double cutoff = (null == frac) ? 0.0 : frac.doubleValue();
     assert (cutoff >=0.0);
     assert (cutoff <=1.0);
@@ -126,12 +130,15 @@ public class Channel implements Serializable {
   }
   
   public boolean isMigrated() {
-    return !(this.migratedDomain == null || this.migratedDomain.isEmpty()); 
+    return shouldMigrate()
+        && (!(this.migratedDomain == null || this.migratedDomain.isEmpty())); 
   }
 
   private static final String MIGRATED_DOMAIN = "im";
   public void setMigrated(boolean m) {
-    this.migratedDomain = MIGRATED_DOMAIN;
+    if (m) {
+      this.migratedDomain = MIGRATED_DOMAIN;
+    }
   }
   
   public boolean shouldMigrate() {
@@ -419,7 +426,7 @@ public class Channel implements Serializable {
 
   private void sendMessage(String message, List<Member> recipients) {
     
-      if (this.getName().equals("dogfood") && this.isMigrated()) {
+      if (this.isMigrated()) {
         logger.info("MIGRATED message");
         List<String> rec = new ArrayList<String>();
         for (Member recipient : recipients) {
