@@ -148,7 +148,7 @@ public class PartychappServlet extends HttpServlet {
         
         // send message to message sender warning of move.
         boolean succ = ChannelUtil.sendMessage(
-            PartychappServlet.MIGRATED_MESSAGE + c.getName() + "@"+PartychappServlet.PARTYCHAPP_DOMAIN,
+            PartychappServlet.MIGRATED_MESSAGE + c.getName() + PartychappServlet.PROXY_DOMAIN,
             fromAddr,
             toAddr);
         logger.info(c.getName() + " channel is already migrated");
