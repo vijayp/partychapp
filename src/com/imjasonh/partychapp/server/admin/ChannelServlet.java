@@ -59,7 +59,7 @@ public class ChannelServlet extends HttpServlet {
         writer.write("Cache key: " + cachingDatastore.getKey(channel) + "\n");
       }
       writer.write("Migrated: " + channel.isMigrated() + "\n");
-      
+      writer.write("Should Migrate: " + channel.shouldMigrate()+ "\n");
       
       writer.write("Invite only: " + channel.isInviteOnly() + "\n");
 

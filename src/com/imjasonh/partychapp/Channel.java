@@ -21,6 +21,7 @@ import com.imjasonh.partychapp.server.live.ChannelUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -62,6 +63,10 @@ public class Channel implements Serializable {
   @Persistent
   private Boolean migrated=new Boolean(true);
 
+  @Persistent
+  private String migratedDomain = new String("");
+  
+  
   @Persistent(serialized = "true")
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Set<Member> members = Sets.newHashSet();
@@ -100,14 +105,37 @@ public class Channel implements Serializable {
   /// TODO(vijayp): this is really horribly horribly ugly
   // and should be moved somewhere way better, like the Channel class,
   // or maybe somewhere in persistent config.
+  
+  private static MessageDigest hasher = null;
 
-
+  public static synchronized boolean shouldMigrate(String channelName) {
+    Double frac = Configuration.persistentConfig().fractionOfChannelsToMigrate();
+    double cutoff = (null == frac) ? 0.0 : frac.doubleValue();
+    assert (cutoff >=0.0);
+    assert (cutoff <=1.0);
+    final int quantum=1<<19;
+    int remainder_cutoff = (int) (cutoff * quantum); 
+    long h = Math.abs(channelName.hashCode());
+    long remainder = h % quantum;
+    boolean rval = (remainder < remainder_cutoff);
+    logger.info("channel name is " + channelName + " hash is " + h
+       +" frac is " + frac + " cutoff: " + remainder_cutoff 
+       + " and remainder is " + remainder
+       + " rval is " + rval);
+    return rval;
+  }
+  
   public boolean isMigrated() {
-    return (this.migrated == null) ? false : this.migrated;     
+    return !(this.migratedDomain == null || this.migratedDomain.isEmpty()); 
   }
 
+  private static final String MIGRATED_DOMAIN = "im";
   public void setMigrated(boolean m) {
-    this.migrated = new Boolean(m);
+    this.migratedDomain = MIGRATED_DOMAIN;
+  }
+  
+  public boolean shouldMigrate() {
+    return Channel.shouldMigrate(getName());
   }
 
   public Channel(Channel other) {

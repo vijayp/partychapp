@@ -47,9 +47,9 @@ public class PartychappServlet extends HttpServlet {
       "Your channel has been migrated. Please see " +
           "http://partych.at/migration.html. New channel name: ";
   public final static String OVERLOADED_MESSAGE = 
-        "System is currently overloaded. Please check" +
-        " http://partych.at for details";
-  
+      "System is currently overloaded. Please check" +
+          " http://partych.at for details";
+
   private static final Logger logger =
       Logger.getLogger(PartychappServlet.class.getName());
 
@@ -108,31 +108,52 @@ public class PartychappServlet extends HttpServlet {
       final String fromAddr = jidToLowerCase(xmppMessage.getFromJid()).getId();
 
 
-          //logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
+      //logger.info("comparing <" + fromAddr + "> to <"+ PROXY_CONTROL);
       //logger.info("comparing <" + toAddr + "> to <"+ PARTYCHAPP_CONTROL);
       Datastore datastore = Datastore.instance();
       datastore.startRequest();
       Channel c = datastore.getChannelByName(channelName);
       datastore.endRequest();
-
-      if (fromAddr.startsWith(PROXY_CONTROL) &&
-          toAddr.startsWith(PARTYCHAPP_CONTROL)) {
-        doControlPacket(xmppMessage);
-      } /*else if (c != null && c.getName().equals("dogfood") && c.isMigrated()) {
-            boolean succ = ChannelUtil.sendMessage(
-                MIGRATED_MESSAGE + c.getName() + PROXY_DOMAIN,
-                fromAddr,
-                toAddr);
-          } */
       if (c!= null && c.getMembers().size() < 100) {
-        doXmpp(xmppMessage);
-        return;
-      } else {
+        logger.info("rejected inbound message for " + c.getName() 
+            + " because it is too large");
         boolean succ = ChannelUtil.sendMessage(
-            "channels with more than 50 users are temporarily not supported",
+            "channels with more than 100 users are temporarily not supported",
             fromAddr,
             toAddr);
         return;
+      } else if (fromAddr.startsWith(PROXY_CONTROL) &&
+          toAddr.startsWith(PARTYCHAPP_CONTROL)) {
+        // message coming in from proxy
+        // TODO: this stuff should really be over HTTP.
+        doControlPacket(xmppMessage);
+      } else if (
+          c != null && 
+          (c.getName().equals("dogfood") 
+              || c.shouldMigrate())
+          ) {
+        if (c.isMigrated()) {
+          ; // no reason to change state.
+        } else {
+          
+          // this is a new migration. Do the migration, then send a message
+          // to the new channel
+          c.setMigrated(true);
+          c.broadcastIncludingSender("This is your new channel");
+        }
+        
+        // send message to message sender warning of move.
+        boolean succ = ChannelUtil.sendMessage(
+            PartychappServlet.MIGRATED_MESSAGE + c.getName() + PartychappServlet.PARTYCHAPP_DOMAIN,
+            fromAddr,
+            toAddr);
+        logger.info(c.getName() + " channel is already migrated");
+        return;
+      } else {
+        
+        // still unmigrated channel
+        doXmpp(xmppMessage);        
+
       }
 
 

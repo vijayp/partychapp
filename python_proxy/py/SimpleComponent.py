@@ -1,4 +1,5 @@
 import zlib
+import time
 import atexit
 import tempfile
 import cPickle
@@ -12,18 +13,20 @@ except:
   import json
 import json
 import zlib
-from collections import defaultdict
+from collections import defaultdict, Counter
 
-MYDOMAIN = 'at.partych.at'
+SUBDOMAIN = 'at'
+
+MYDOMAIN = SUBDOMAIN + '.partych.at'
 
 PARTYCHAPP_CONTROL = '__control@partychapp.appspotchat.com'
-MY_CONTROL = '_control@at.partych.at'
+MY_CONTROL = '_control@' + SUBDOMAIN + '.partych.at'
 
 STATUS = 'replacing app engine since 2011'
 
 
-PROXY_JID_PATTERN = '%s@at.partych.at/pcbot'
-PROXY_BARE_JID_PATTERN = '%s@at.partych.at/pcbot'
+PROXY_JID_PATTERN = '%s@' + SUBDOMAIN + '.partych.at/pcbot'
+PROXY_BARE_JID_PATTERN = '%s@'+ SUBDOMAIN + '.partych.at/pcbot'
 MY_CONTROL_FULL = PROXY_JID_PATTERN % '_control'
 import time
 
@@ -40,11 +43,36 @@ class State:
     self.out_state = State.UNKNOWN
     self._timestamp = time.time()
 
+  def is_ok(self):
+    return (self.in_state == State.OK) and (self.out_state == State.OK)
 
 
 strip_resource = lambda x:str(x).split('/')[0]
 class StateManager:
   _instance = None
+
+  def log_message(self, channel, user):
+    self._counters['channel'][channel] += 1
+#    self._counters['user'][user] += 1
+  
+  def counters_as_tuples(self):
+    for t, keycount in self._counters.items():
+      for k,v in keycount.items():
+        yield t,k,v
+    
+
+  def num_channels(self):
+    return len(self._channel_user_state)
+
+  def num_ok_bad_total_users(self):
+    ok = 0
+    bad = 0
+    for c, u, s in self.iter_channel_users():
+      if s.is_ok():
+        ok += 1
+      else:
+        bad += 1
+    return ok, bad, ok+bad
 
   @classmethod
   def instance(cls):
@@ -59,6 +87,7 @@ class StateManager:
         
   def __init__(self):
     self._channel_user_state = defaultdict(lambda:defaultdict(State))
+    self._counters = defaultdict(Counter)
 
   def get(self, channel, user):
     # assert '@' not in channel and '/' not in channel
@@ -192,6 +221,7 @@ class SimpleComponent:
           self._send_subscribed(from_channel, r)
         else:
           rmsg +=1
+          StateManager.instance().log_message(from_channel, r)
           self.xmpp.sendMessage(r,
                                 outmsg,
                                 mfrom=from_jid,
@@ -299,7 +329,11 @@ class SimpleComponent:
     StateManager.instance().get(channel, user).out_state = State.OK
     self._send_subscribe(channel, user)
     self._send_presence(channel, user)
-    logging.info('would have sent welcome message here')
+    from_jid = '%s@%s/pcbot' % (channel, MYDOMAIN)
+    self._send_message(channel, from_jid,
+                       [user],
+                       'Welcome to ' + channel)
+    logging.info('sent welcome message')
     
   def message(self, message):
 #    if str(message['from']).find('vijayp') == -1:
@@ -371,6 +405,8 @@ class SimpleComponent:
 
   def start_session(self, *args, **kwargs):
     logging.info('started session')
+    atexit.register(StateManager.save, 'state.partychatproxy')
+    atexit.register(StateManager.save, 'state.partychatproxy.' + str(time.time()))
     for c,u,s in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
       if s.in_state == State.OK and s.out_state == State.OK:
@@ -385,6 +421,5 @@ class SimpleComponent:
 
   def start(self):
     StateManager.load('state.partychatproxy')
-    atexit.register(StateManager.save, 'state.partychatproxy')
     self.xmpp.connect()
     self.xmpp.process()
