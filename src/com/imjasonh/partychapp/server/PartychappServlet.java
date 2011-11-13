@@ -139,7 +139,9 @@ public class PartychappServlet extends HttpServlet {
           // this is a new migration. Do the migration, then send a message
           // to the new channel
           c.setMigrated(true);
+          datastore.startRequest();
           c.put();
+          datastore.endRequest();
           c.broadcastIncludingSender("This is your new channel");
 
         }

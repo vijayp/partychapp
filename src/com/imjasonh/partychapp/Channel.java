@@ -131,7 +131,8 @@ public class Channel implements Serializable {
   
   public boolean isMigrated() {
     return shouldMigrate()
-        && (!(this.migratedDomain == null || this.migratedDomain.isEmpty())); 
+        && this.migratedDomain != null 
+        && !this.migratedDomain.isEmpty(); 
   }
 
   public void setMigrated(boolean m) {
@@ -437,7 +438,7 @@ public class Channel implements Serializable {
 
 
         // REMOVE THIS FOR DUAL BROADCASTS.
-        //return; 
+        return; 
         //
         //
 

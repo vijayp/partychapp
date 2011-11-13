@@ -6,6 +6,7 @@ import cPickle
 import sys
 import sleekxmpp.componentxmpp
 import logging
+import signal
 import os
 try:
   import simplejson as json
@@ -47,7 +48,9 @@ class State:
     return (self.in_state == State.OK) and (self.out_state == State.OK)
 
 
-strip_resource = lambda x:str(x).split('/')[0]
+
+strip_resource = lambda x:str(x).split('/')[0].lower()
+make_channel = lambda x:str(x).split('@')[0].lower()
 class StateManager:
   _instance = None
 
@@ -125,7 +128,14 @@ class StateManager:
     except:
       logging.error('failed to load any data')
 
+def SAVE(*args, **kwargs):
+  logging.info('SAVING...')
+  StateManager.save('state.partychatproxy')
+  StateManager.save('state.partychatproxy.' + str(time.time()))
 
+def do_exit(sig, stack):
+    SAVE()
+    raise SystemExit('Exiting')
 
 def GetControlMessage(event):
     if str(event['to']) != MY_CONTROL:
@@ -246,6 +256,14 @@ class SimpleComponent:
   def _inbound_message(self, message):
     if message['type'] == 'error':
       return
+#    try:
+#      if not str(event['to']).split('@')[1].lower().startswith(SUBDOMAIN):
+#        logging.info('invalid inbound domain')
+#        return
+#    except:
+#      pass
+
+    
     if 1==0:
       self._handle_control_message(dict(outmsg=message['body'],
                                         recipients=[str(message['from']).split('/')[0]],
@@ -270,7 +288,7 @@ class SimpleComponent:
                      message_str=msg_str)
     logging.info('sending message to partychapp control for (%s, %s)',
                  to_str, from_str)
-
+    self._send_subscribe(make_channel(to_str), from_str)
     self._send_message('_control',
                        MY_CONTROL_FULL,
                        [PARTYCHAPP_CONTROL],
@@ -300,7 +318,6 @@ class SimpleComponent:
 
 
   def _send_subscribe(self, channel, user):
-
     if StateManager.instance().get(channel, user).out_state in [
       State.OK, 
       State.PENDING, State.REJECTED]:
@@ -405,8 +422,8 @@ class SimpleComponent:
 
   def start_session(self, *args, **kwargs):
     logging.info('started session')
-    atexit.register(StateManager.save, 'state.partychatproxy')
-    atexit.register(StateManager.save, 'state.partychatproxy.' + str(time.time()))
+    atexit.register(SAVE)
+    
     for c,u,s in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
       if s.in_state == State.OK and s.out_state == State.OK:
@@ -423,3 +440,5 @@ class SimpleComponent:
     StateManager.load('state.partychatproxy')
     self.xmpp.connect()
     self.xmpp.process()
+
+
