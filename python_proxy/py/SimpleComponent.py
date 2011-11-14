@@ -226,7 +226,8 @@ class SimpleComponent:
       for r in recipients:
         state = StateManager.instance().get(from_channel, r)
         if state.in_state != State.OK or state.out_state != State.OK:
-          logging.info('states are wrong: in %s out %s', state.in_state, state.out_state)
+          logging.info('BAD_STATE        %s  --> %s in %s out %s', 
+                       from_channel, r, state.in_state, state.out_state)
           self._send_subscribe(from_channel, r)
           self._send_subscribed(from_channel, r)
         else:
@@ -286,7 +287,7 @@ class SimpleComponent:
                      to_str=to_str,
                      from_str=from_str,
                      message_str=msg_str)
-    logging.info('sending message to partychapp control for (%s, %s)',
+    logging.info('MESSAGE              control<--- %s <--- %s',
                  to_str, from_str)
     self._send_subscribe(make_channel(to_str), from_str)
     self._send_message('_control',
@@ -357,13 +358,13 @@ class SimpleComponent:
 #    if str(message['from']).find('vijayp') == -1:
 #      return
     self._inbound_message(message)
-    logging.info(message)
+    logging.debug(message)
     return
 
 
 
   def generic_handler(self, s, event):
-    logging.info(s)
+ #   logging.info(s)
     s = None
     try:
       s = event['type']
@@ -372,7 +373,7 @@ class SimpleComponent:
       return
       pass
 
-    logging.info('%s,%s', s, event)
+#    logging.info('%s,%s', s, event)
 #    if str(event['from']).find('vijayp') == -1:
 #      return
 #    return
