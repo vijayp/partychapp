@@ -315,7 +315,7 @@ class SimpleComponent:
   def _send_presence(self, channel, user, status=STATUS):
     
     logging.debug('PRESENCE                %s->%s', channel, user)
-    StateManager.instance().get(from_channel, r).update_timestamp()
+    StateManager.instance().get(channel, r).update_timestamp()
     self.xmpp.sendPresence(pfrom=PROXY_JID_PATTERN % channel,
                            pto=strip_resource(user),
                            pstatus=status,
