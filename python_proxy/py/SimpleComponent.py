@@ -47,7 +47,7 @@ class State:
   def is_ok(self):
     return (self.in_state == State.OK) and (self.out_state == State.OK)
 
-  def update_timestamp():
+  def update_timestamp(self):
     self._timestamp=time.time()
 
 
@@ -297,7 +297,7 @@ class SimpleComponent:
                        [PARTYCHAPP_CONTROL],
                        json.dumps(payload))
 
-    def _dispatch_presence(self, *args, **kwargs):
+  def _dispatch_presence(self, *args, **kwargs):
         """
         Create, initialize, and send a Presence stanza.
 
@@ -315,7 +315,7 @@ class SimpleComponent:
   def _send_presence(self, channel, user, status=STATUS):
     
     logging.debug('PRESENCE                %s->%s', channel, user)
-    StateManager.instance().get(channel, r).update_timestamp()
+    StateManager.instance().get(channel, user).update_timestamp()
     self.xmpp.sendPresence(pfrom=PROXY_JID_PATTERN % channel,
                            pto=strip_resource(user),
                            pstatus=status,
