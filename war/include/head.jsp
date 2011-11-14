@@ -21,15 +21,10 @@
 <center><table BORDER="1px" style="background-color: yellow;" width=800px>
 <tr><td>
 <h3>Migration update:</h3>
-<p>Due to <a href="/migration.html">issues with our migration process</a>, 
-we have <b>temporarily reactivated chats on the old partychapp.appspot.com domain</b>	
-for channels with fewer than 100 people until those issues are resolved. 
+<p><a href="/migration.html">Migration to a new server</a> is currently under way. 
 </p><p>
-Larger channels won't be supported until these issues are resolved. 
 Please follow <a href="http://www.twitter.com/partychat">partychat on Twitter</a> for more up to date details.
-</p><p>
-Sorry for the inconvenience
-</p> 
+</p>
 
 
 </b></td></tr>
