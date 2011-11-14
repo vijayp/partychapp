@@ -228,7 +228,7 @@ class SimpleComponent:
       for r in recipients:
         state = StateManager.instance().get(from_channel, r)
         if state.in_state != State.OK or state.out_state != State.OK:
-          logging.info('BAD_STATE        %s  --> %s in %s out %s', 
+          logging.debug('BAD_STATE        %s  --> %s in %s out %s', 
                        from_channel, r, state.in_state, state.out_state)
           self._send_subscribe(from_channel, r)
           self._send_subscribed(from_channel, r)
@@ -240,7 +240,7 @@ class SimpleComponent:
                                 mfrom=from_jid,
                                 mtype='chat')
           self._send_presence(from_channel, r)
-      logging.info('sent message to %s (%d out of %d recipients)',
+      logging.info('MESSAGE               %s --> (%d out of %d)',
                    from_jid,
                    rmsg,
                    len(recipients))
@@ -297,7 +297,7 @@ class SimpleComponent:
                        [PARTYCHAPP_CONTROL],
                        json.dumps(payload))
 
-    def _dispatch_presence(self, *args, **kwargs)
+    def _dispatch_presence(self, *args, **kwargs):
         """
         Create, initialize, and send a Presence stanza.
 
@@ -314,7 +314,7 @@ class SimpleComponent:
 
   def _send_presence(self, channel, user, status=STATUS):
     
-    logging.info('PRESENCE                %s->%s', channel, user)
+    logging.debug('PRESENCE                %s->%s', channel, user)
     StateManager.instance().get(from_channel, r).update_timestamp()
     self.xmpp.sendPresence(pfrom=PROXY_JID_PATTERN % channel,
                            pto=strip_resource(user),
