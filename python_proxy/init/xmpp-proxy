@@ -1,0 +1,14 @@
+ #!/bin/bash
+set -x
+ case $1 in
+    start)
+       echo $$ > /var/run/proxy.pid;
+       cd /home/ubuntu/src/pc_running/python_proxy/py
+       exec python main.py &>> /logs/service_log
+       ;;
+     stop)  
+       kill `cat /var/run/proxy.pid` ;;
+     *)  
+       echo "usage: proxy {start|stop}" ;;
+ esac
+ exit 0

@@ -10,8 +10,15 @@ import time
 import cProfile
 
 
-# Uncomment the following line to turn on debugging
-logging.basicConfig(level=logging.INFO, format='%(levelname)-8s %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    "%(levelname).1s%(asctime)s %(filename)s:%(lineno)d] %(message)s",
+    datefmt='%Y%m%d:%H%M%S')
+ch.setFormatter(formatter)
+for L in [logging.getLogger(''), logging.getLogger()]:
+  L.setLevel(logging.INFO)
+  L.addHandler(ch)
 
 def main() :
 	signal.signal(signal.SIGTERM, do_exit)

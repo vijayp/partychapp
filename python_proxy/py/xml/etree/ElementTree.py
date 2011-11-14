@@ -1630,6 +1630,13 @@ class XMLParser(object):
         except self._error, v:
            import logging
            logging.error('****************** BAD XML PACKET *************** %s', v) 
+           logging.error(data)
+           error_str = str(v)
+           if error_str.find('junk after document') != -1:
+               # this is indicative of streams getting out of sync
+               # at this point, just quit and get restarted.
+               import sys
+               sys.exit(0)
            self._raiseerror(v)
         ####### END HORRIBLE HACK ##############   
 
