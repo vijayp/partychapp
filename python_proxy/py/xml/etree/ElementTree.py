@@ -1621,7 +1621,7 @@ class XMLParser(object):
         ##### HORRIBLE HACK BEGINS HERE!!! #######
         import logging
         try:
-            if data.find('iTeleport Connect.WINDOWS.') != -1:
+            if data.find('iTeleport Connect.') != -1:
                 logging.error('******* skipping %s', data)
                 return
 
@@ -1635,8 +1635,9 @@ class XMLParser(object):
            if error_str.find('junk after document') != -1:
                # this is indicative of streams getting out of sync
                # at this point, just quit and get restarted.
-               import sys
-               sys.exit(0)
+               import os
+               logging.error('trying to bail out')
+               os._exit(1)
            self._raiseerror(v)
         ####### END HORRIBLE HACK ##############   
 
