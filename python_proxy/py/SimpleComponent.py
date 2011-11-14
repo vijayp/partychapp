@@ -47,6 +47,8 @@ class State:
   def is_ok(self):
     return (self.in_state == State.OK) and (self.out_state == State.OK)
 
+  def update_timestamp():
+    self._timestamp=time.time()
 
 
 strip_resource = lambda x:str(x).split('/')[0].lower()
@@ -295,9 +297,25 @@ class SimpleComponent:
                        [PARTYCHAPP_CONTROL],
                        json.dumps(payload))
 
+    def _dispatch_presence(self, *args, **kwargs)
+        """
+        Create, initialize, and send a Presence stanza.
+
+        Arguments:
+            pshow     -- The presence's show value.
+            pstatus   -- The presence's status message.
+            ppriority -- This connections' priority.
+            ptype     -- The type of presence, such as 'subscribe'.
+            pnick     -- Optional nickname of the presence's sender.
+        """
+        p = self.xmpp.make_presence(**kwargs)
+        p.send()
+        del p
+
   def _send_presence(self, channel, user, status=STATUS):
     
     logging.info('PRESENCE                %s->%s', channel, user)
+    StateManager.instance().get(from_channel, r).update_timestamp()
     self.xmpp.sendPresence(pfrom=PROXY_JID_PATTERN % channel,
                            pto=strip_resource(user),
                            pstatus=status,
@@ -308,7 +326,7 @@ class SimpleComponent:
 
     if force or StateManager.instance().get(channel, user).in_state not in [
       State.OK, State.PENDING, State.REJECTED]:
-      self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
+      self._dispatch_presence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                              pto=strip_resource(user), 
                              ptype='subscribed')
       state = StateManager.instance().get(channel, user).in_state = State.OK
@@ -330,7 +348,7 @@ class SimpleComponent:
 
     state = StateManager.instance().get(channel, user).out_state = State.PENDING
     logging.info('SUBSCRIBE                %s->%s', channel, user)
-    self.xmpp.sendPresence(pfrom=PROXY_BARE_JID_PATTERN % channel,
+    self._dispatch_presence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                            pto=strip_resource(user), 
                            ptype='subscribe')
 
@@ -425,11 +443,14 @@ class SimpleComponent:
   def start_session(self, *args, **kwargs):
     logging.info('started session')
     atexit.register(SAVE)
-    
+    # if we've sent a status update in the last three minutes, don't send another
+    CUTOFF= time.time() - 60*3
     for c,u,s in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
       if s.in_state == State.OK and s.out_state == State.OK:
-        self._send_presence(c,u)
+        if s._timestamp < CUTOFF:
+          self._send_presence(c,u)
+
     
     ##
     self._send_message('_control', MY_CONTROL_FULL,

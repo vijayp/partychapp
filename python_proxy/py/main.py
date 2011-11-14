@@ -8,6 +8,8 @@ import signal
 
 import time
 import cProfile
+from pwd import getpwnam
+import os
 
 
 ch = logging.StreamHandler()
@@ -21,6 +23,9 @@ for L in [logging.getLogger(''), logging.getLogger()]:
   L.addHandler(ch)
 
 def main() :
+        logging.info('dropping permissions')
+        os.setuid(getpwnam('nobody').pw_uid)
+        
 	signal.signal(signal.SIGTERM, do_exit)
 	signal.signal(signal.SIGHUP, SAVE)
 
