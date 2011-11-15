@@ -12,8 +12,6 @@ try:
   import simplejson as json
 except:
   import json
-import json
-import zlib
 from collections import defaultdict, Counter
 
 SUBDOMAIN = 'im'
@@ -29,7 +27,6 @@ STATUS = 'replacing app engine since 2011'
 PROXY_JID_PATTERN = '%s@' + SUBDOMAIN + '.partych.at/pcbot'
 PROXY_BARE_JID_PATTERN = '%s@'+ SUBDOMAIN + '.partych.at/pcbot'
 MY_CONTROL_FULL = PROXY_JID_PATTERN % '_control'
-import time
 
 
 
@@ -43,12 +40,19 @@ class State:
     self.in_state = State.UNKNOWN
     self.out_state = State.UNKNOWN
     self._timestamp = time.time()
+    self._last_out_request = 0
 
   def is_ok(self):
     return (self.in_state == State.OK) and (self.out_state == State.OK)
 
   def update_timestamp(self):
     self._timestamp=time.time()
+
+  def update_outrequest_timestamp(self):
+    self._last_out_request = time.time()
+
+  def can_rerequest(self):
+    return (time.time() - 60*5) > self._last_out_request
 
 
 strip_resource = lambda x:str(x).split('/')[0].lower()
@@ -122,6 +126,9 @@ class StateManager:
       logging.error('loading state from %s', filename)
       in_dat = cPickle.load(open(filename, 'rb'))
       for (c, u, s) in in_dat:
+        if getattr(s, '_last_out_request', None) is None:
+          s._last_out_request = 0
+
         cls.instance().set(c,u, s)
         logging.info('%s,%s = (in=%s, out=%s)',
                      c,u,s.in_state, s.out_state)
@@ -323,7 +330,6 @@ class SimpleComponent:
                            )
 
   def _send_subscribed(self, channel, user,force=False):
-
     if force or StateManager.instance().get(channel, user).in_state not in [
       State.OK, State.PENDING, State.REJECTED]:
       self._dispatch_presence(pfrom=PROXY_BARE_JID_PATTERN % channel,
@@ -338,15 +344,21 @@ class SimpleComponent:
 
 
   def _send_subscribe(self, channel, user):
-    if StateManager.instance().get(channel, user).out_state in [
+
+    state = StateManager.instance().get(channel, user)
+    if (state.out_state == State.PENDING and state.can_rerequest()):
+      logging.info('SUBSCRIBE reset pending out state for %s --> %s', channel, user)
+      StateManager.instance().get(channel, user).out_state = State.UNKNOWN
+
+    if state.out_state in [
       State.OK, 
       State.PENDING, State.REJECTED]:
-      logging.debug('NOT sending outbound subscribe request for user %s for channel %s',
+      logging.info('NOT sending outbound subscribe request for user %s for channel %s',
                  user, channel)
       return
 
-
-    state = StateManager.instance().get(channel, user).out_state = State.PENDING
+    state.update_outrequest_timestamp()
+    state.out_state = State.PENDING
     logging.info('SUBSCRIBE                %s->%s', channel, user)
     self._dispatch_presence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                            pto=strip_resource(user), 
@@ -449,7 +461,8 @@ class SimpleComponent:
       # TODO: execute this in the background somehow. This can take a long time.
       if s.in_state == State.OK and s.out_state == State.OK:
         if s._timestamp < CUTOFF:
-          self._send_presence(c,u)
+#          self._send_presence(c,u)
+          pass
 
     
     ##
