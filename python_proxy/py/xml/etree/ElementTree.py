@@ -53,6 +53,8 @@
 
 # Licensed to PSF under a Contributor Agreement.
 # See http://www.python.org/psf/license for licensing details.
+import re
+BAD_STRIPPER = re.compile('(<presence.*?iTeleport.*?/presence>)')
 
 __all__ = [
     # public symbols
@@ -1621,23 +1623,22 @@ class XMLParser(object):
         ##### HORRIBLE HACK BEGINS HERE!!! #######
         import logging
         try:
-            if data.find('iTeleport') != -1:
-                logging.error('******* skipping %s', data)
-                return
-
-            #logging.info(data)
-            self._parser.Parse(data, 0)
+            dat = BAD_STRIPPER.sub('', data)
+            if (dat != data):
+                logging.error('mapped %s to %s', data, dat)
+            
+            self._parser.Parse(dat, 0)
         except self._error, v:
            import logging
            logging.error('****************** BAD XML PACKET *************** %s', v) 
            logging.error(data)
            error_str = str(v)
-           if True or error_str.find('junk after document') != -1:
-               # this is indicative of streams getting out of sync
-               # at this point, just quit and get restarted.
-               import os
-               logging.error('trying to bail out')
-               os._exit(1)
+
+           # this is indicative of streams getting out of sync
+           # at this point, just quit and get restarted.
+           import os
+           logging.error('trying to bail out')
+           os._exit(1)
            self._raiseerror(v)
         ####### END HORRIBLE HACK ##############   
 

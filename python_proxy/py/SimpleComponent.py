@@ -327,11 +327,11 @@ class SimpleComponent:
     
     logging.debug('PRESENCE                %s->%s', channel, user)
     StateManager.instance().get(channel, user).update_timestamp()
-    self.xmpp.sendPresence(pfrom=PROXY_JID_PATTERN % channel,
-                           pto=strip_resource(user),
-                           pstatus=status,
+    self._dispatch_presence(pfrom=PROXY_JID_PATTERN % channel,
+                            pto=strip_resource(user),
+                            pstatus=status,
 #                           pshow='dnd'
-                           )
+                            )
 
   def _send_subscribed(self, channel, user,force=False):
     if force or StateManager.instance().get(channel, user).in_state not in [
