@@ -357,7 +357,7 @@ class SimpleComponent:
     if state.out_state in [
       State.OK, 
       State.PENDING, State.REJECTED]:
-      logging.info('NOT sending outbound subscribe request for user %s for channel %s',
+      logging.debug('NOT sending outbound subscribe request for user %s for channel %s',
                  user, channel)
       return
 
@@ -463,10 +463,7 @@ class SimpleComponent:
     CUTOFF= time.time() - 60*3
     for c,u,s in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
-      if s.in_state == State.OK and s.out_state == State.OK:
-        if s._timestamp < CUTOFF:
-#          self._send_presence(c,u)
-          pass
+      self._send_subscribe(c, u)
 
     
     ##
