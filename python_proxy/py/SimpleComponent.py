@@ -239,7 +239,7 @@ class SimpleComponent:
                                 outmsg,
                                 mfrom=from_jid,
                                 mtype='chat')
-          self._send_presence(from_channel, r)
+#          self._send_presence(from_channel, r)
       logging.info('MESSAGE               %s --> (%d out of %d)',
                    from_jid,
                    rmsg,
@@ -258,6 +258,10 @@ class SimpleComponent:
 
   def _inbound_message(self, message):
     if message['type'] == 'error':
+      try:
+        logging.info('error: %s' %  str(message))
+      except:
+        pass
       return
 #    try:
 #      if not str(event['to']).split('@')[1].lower().startswith(SUBDOMAIN):

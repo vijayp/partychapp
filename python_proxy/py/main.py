@@ -31,7 +31,8 @@ def main() :
 
 	component = SimpleComponent(
 		jid = SUBDOMAIN + ".partych.at", password = "secret",
-		server = "127.0.0.1", port = 5275, backend = None)
+		server = "10.220.227.98", port = 5275, backend = None)
+#		server = "127.0.0.1", port = 5275, backend = None)
 	component.start()
 	httpFrontend = HTTPFrontend(8081, None)
 	httpFrontend.start()
