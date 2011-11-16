@@ -21,6 +21,12 @@
 <center><table BORDER="1px" style="background-color: yellow;" width=800px>
 <tr><td>
 <h3>Migration update:</h3>
+<p>
+
+If your channel has been migrated, and you cannot access it from a Google 
+Apps-controlled domain (i.e. not user@gmail.com), here is <a href="http://www.vijayp.ca/blog/?p=152">a description of how to get partychat working with Google Apps domains.</a>
+</p>
+
 <p><a href="/migration.html">Migration to a new server</a> is currently under way. 
 </p><p>
 Please follow <a href="http://www.twitter.com/partychat">partychat on Twitter</a> for more up to date details.

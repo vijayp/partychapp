@@ -17,6 +17,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <url-pattern>/_ah/xmpp/message/chat/</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>controlservlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.ControlServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>controlservlet</servlet-name>
+    <url-pattern>/___control___</url-pattern>
+  </servlet-mapping>
+
   <!-- Web UI -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>

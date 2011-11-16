@@ -173,12 +173,16 @@ public class PartychappServlet extends HttpServlet {
     }
   }
 
-  private void doControlPacket(Message xmppMessage) throws JSONException {
+  protected static void doControlPacket(Message xmppMessage) throws JSONException {
+    String body = xmppMessage.getBody().trim();
+    doControlPacket(body);
+  }
+  protected static void doControlPacket(String body) throws JSONException {
     logger.info("GOT CONTROL PACKET");
     // json decode the control packet from the body
     // make the new message.
     // doxmpp
-    String body = xmppMessage.getBody().trim();
+
     JSONObject jso = new JSONObject(body);
     String state = jso.getString("state");
     //TODO(vijayp): make this a lot nicer and get rid of magic strings, etc..
@@ -227,7 +231,7 @@ public class PartychappServlet extends HttpServlet {
     return new JID(in.getId().toLowerCase());
   }
 
-  public void doXmpp(Message xmppMessage) {
+  public static void doXmpp(Message xmppMessage) {
 
 
     long startTime = System.currentTimeMillis();
