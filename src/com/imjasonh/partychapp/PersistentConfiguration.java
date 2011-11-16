@@ -35,6 +35,10 @@ public class PersistentConfiguration {
   @Persistent
   private String embedlyKey;
 
+  /** The Embedly API key */
+  @Persistent
+  private String proxyToken = "tokendata";
+
   // this controls the number of messages we have to log.
   @Persistent
   private Double fractionOfMessagesToLog;
@@ -70,7 +74,13 @@ public class PersistentConfiguration {
   public void setEmbedlyKey(String embedlyKey) {
     this.embedlyKey = embedlyKey;
   }
-
+  public void setProxyToken(String token) {
+    this.proxyToken = token;
+  }
+  public String getProxyToken() {
+    return (this.proxyToken == null) ? "tokendata" : this.proxyToken;
+  }
+  
   public void setFractionOfMessagesToLog(double frac) {
     this.fractionOfMessagesToLog = frac;
   }

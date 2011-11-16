@@ -20,8 +20,9 @@
   <b>List feed URL:</b> <%=persistentConfig.listFeedUrl()%><br>
   <b>Channel stats enabled:</b> <%=Boolean.toString(persistentConfig.areChannelStatsEnabled())%><br>
   <b>Embedly key:</b> <%=persistentConfig.embedlyKey()%> <br />
-  <b>Fraction of messages to log:</b> <%=persistentConfig.fractionOfMessagesToLog()%>
-  <b>Fraction of channels to migrate:</b> <%=persistentConfig.fractionOfChannelsToMigrate()%>
+  <b>Fraction of messages to log:</b> <%=persistentConfig.fractionOfMessagesToLog()%> <br/>
+  <b>Fraction of channels to migrate:</b> <%=persistentConfig.fractionOfChannelsToMigrate()%><br/>
+  <b>Proxy Token:</b> <%=persistentConfig.getProxyToken()%> <br/>
 </p>
 
 <p>

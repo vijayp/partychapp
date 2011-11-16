@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 
+import com.imjasonh.partychapp.Configuration;
+import com.imjasonh.partychapp.PersistentConfiguration;
+
 @SuppressWarnings("serial")
 public class ControlServlet extends HttpServlet {
   @Override
@@ -16,7 +19,8 @@ public class ControlServlet extends HttpServlet {
       throws IOException {
     String body = req.getParameter("body");
     String token = req.getParameter("token");
-    if (!token.equals("tokendata")) {
+    
+    if (!token.equals(Configuration.persistentConfig().getProxyToken())) {
       resp.sendError(400);
       return;
     }

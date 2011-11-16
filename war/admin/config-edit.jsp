@@ -41,9 +41,15 @@
     Fraction of messages to log:
     <input name="fraction-log" type="text" value="<%=persistentConfig.fractionOfMessagesToLog()%>" size="50">
   </label>
+  <br/>
   <label>
     Fraction of channels to migrate:
     <input name="fraction-migrate" type="text" value="<%=persistentConfig.fractionOfChannelsToMigrate()%>" size="50">
+  </label>
+  <br/>
+  <label>
+    Proxy Token
+    <input name="proxy-token" type="text" value="<%=persistentConfig.getProxyToken()%>" size="50">
   </label>
   <br>
 

@@ -43,6 +43,7 @@ public class ConfigEditServlet extends HttpServlet {
     config.setEmbedlyKey(getParam(req, "embedly-key"));
     config.setFractionOfMessagesToLog(Double.parseDouble(getParam(req, "fraction-log")));
     config.setFractionOfChannelsToMigrate(Double.parseDouble(getParam(req, "fraction-migrate")));
+    config.setProxyToken(getParam(req,"proxy-token"));
 
     Datastore datastore = Datastore.instance();
 
