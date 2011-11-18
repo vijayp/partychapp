@@ -161,8 +161,8 @@ def GetControlMessage(event):
       return json.loads(msg_str)
 
 class SimpleComponent:
-  def __init__(self, jid, password, server, port, post) :
-    self._post = post 
+  def __init__(self, jid, password, server, port, oh) :
+    self._oh = oh
     self.xmpp = sleekxmpp.componentxmpp.ComponentXMPP(jid, password, server, port)
     self.xmpp.auto_authorize = None
     self.xmpp.auto_subscribe = None
@@ -298,7 +298,7 @@ class SimpleComponent:
                  to_str, from_str)
     self._send_subscribe(make_channel(to_str), from_str)
 #    if to_str.find('dogfood') == 0:
-    self._post('https://partychapp.appspot.com/___control___',
+    self._oh.post('https://partychapp.appspot.com/___control___',
                {'token' : 'tokendata',
                 'body'  : json.dumps(payload)})
 #    else:
@@ -462,7 +462,8 @@ class SimpleComponent:
     CUTOFF= time.time() - 60*3
     for c,u,s in StateManager.instance().iter_channel_users():
       # TODO: execute this in the background somehow. This can take a long time.
-      self._send_presence(c,s)
+      #self._send_presence(c,u)
+      pass
 
     
     ##
