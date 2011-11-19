@@ -52,7 +52,12 @@ def main() :
             ])
 
         application.listen(80)
-        application.listen(443)
+        data_dir='/etc/certs'
+        server = tornado.httpserver.HTTPServer(application,
+           ssl_options={"certfile": os.path.join(data_dir, "server.crt"),
+           "keyfile": os.path.join(data_dir, "server.key"),
+       })
+        server.listen(443)
         logging.info('dropping permissions')
         os.setuid(getpwnam('nobody').pw_uid)
         tornado.ioloop.IOLoop.instance().start()

@@ -18,9 +18,17 @@ import com.imjasonh.partychapp.server.PartychappServlet;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.live.ChannelUtil;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -505,11 +513,6 @@ public class Channel implements Serializable {
     
     
     
-    final int TOP = 600;
-    if (rec.size() > TOP) {
-      sendProxiedMessage(message, rec.subList(TOP, rec.size()));
-      rec = rec.subList(0, TOP);
-    } 
     JSONObject jso = new JSONObject();
     try {
       jso.put("outmsg", message);
@@ -521,43 +524,38 @@ public class Channel implements Serializable {
       jso.put("from_channel", this.name);
 
       String out = jso.toString();
-      //  compress is broken
-      final int COMPRESS_THRESHOLD_BYTES = 1<<30;//30000;
-      try{
-        if (out.length() > (COMPRESS_THRESHOLD_BYTES)) {
-          // compress this packet
-          ByteArrayOutputStream bos = new ByteArrayOutputStream();
-          
-          //bos.write("gzip:".toString().getBytes());
-          Base64OutputStream b64os = new Base64OutputStream(bos);
-          GZIPOutputStream gzip = new GZIPOutputStream(b64os);
-          gzip.write(out.getBytes());
-          gzip.flush();
-          gzip.close();
-          b64os.flush();
-          b64os.close();
-          
-          //bos.close();
-          bos.flush();
-          logger.info(bos.toString());
-          out = bos.toString();
-          
-        }
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        logger.warning("couldn't compress data");
-      } 
+      URL url = new URL(PartychappServlet.PROXY_CONTROL_URL);
+      Configuration.persistentConfig().getProxyToken();      
+      String data = URLEncoder.encode("token", "UTF-8") + "=" 
+          + URLEncoder.encode(Configuration.persistentConfig().getProxyToken(), "UTF-8");
+      data += "&" + URLEncoder.encode("body", "UTF-8") + "=" + URLEncoder.encode(out, "UTF-8");
+      URLConnection conn = url.openConnection();
+      conn.setDoOutput(true);
+      OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+      wr.write(data);
+      wr.flush();
+      BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+      String line;
+      while ((line = rd.readLine()) != null) {
+          logger.info("HTTPS response " + line);
+      }
+      wr.close();
+      rd.close();
 
-//      logger.info("Sending raw message" + out + "to " 
-//          + PartychappServlet.PROXY_CONTROL);
-      boolean succ = ChannelUtil.sendMessage(out, 
-          PartychappServlet.PROXY_CONTROL,
-          PartychappServlet.PARTYCHAPP_CONTROL);
-      logger.info("Sent message to proxy control " + succ);
+      logger.info("Sent message via HTTPS");
+      
     } catch (JSONException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
+    } catch (MalformedURLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (UnsupportedEncodingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
 
     }

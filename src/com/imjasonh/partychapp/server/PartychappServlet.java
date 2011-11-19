@@ -43,6 +43,7 @@ public class PartychappServlet extends HttpServlet {
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
   public final static String PROXY_DOMAIN = "@"+PROXY_SUBDOMAIN + ".partych.at";
   public final static String PROXY_CONTROL = "_control@"+ PROXY_SUBDOMAIN +".partych.at";
+  public final static String PROXY_CONTROL_URL = "https://im.partych.at/___control___";
   public final static String MIGRATED_MESSAGE = 
       "Your channel has been migrated. Please see " +
           "http://partych.at/migration.html. New channel name: ";
@@ -61,6 +62,7 @@ public class PartychappServlet extends HttpServlet {
     Pattern.compile("webtoim@gmail\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
     Pattern.compile(".*@bot.talk.google\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
     Pattern.compile("service@gtalk2voip\\.com(/.*)?", Pattern.CASE_INSENSITIVE),
+    Pattern.compile("en@clisearch.net(/.*)?", Pattern.CASE_INSENSITIVE),
 
     // Various other bots that we've encountered
     Pattern.compile(".*(?:g2twit[.]appspotchat[.]com|twitalker\\d+@appspot[.]com|chitterim@appspot[.]com|tweetjid@appspot[.]com|twiyia@gmail[.]com|roomchinese[.]appspotchat[.]com|353606@gmail[.]com).*", Pattern.CASE_INSENSITIVE),
@@ -114,11 +116,11 @@ public class PartychappServlet extends HttpServlet {
       datastore.startRequest();
       Channel c = datastore.getChannelByName(channelName);
       datastore.endRequest();
-      if (c!= null && c.getMembers().size() > 100) {
+      if (c!= null && c.getMembers().size() > 170) {
         logger.info("rejected inbound message for " + c.getName() 
             + " because it is too large");
         boolean succ = ChannelUtil.sendMessage(
-            "channels with more than 100 users are temporarily not supported",
+            "channels with more than 170 users are temporarily not supported",
             fromAddr,
             toAddr);
         return;
@@ -151,7 +153,7 @@ public class PartychappServlet extends HttpServlet {
             PartychappServlet.MIGRATED_MESSAGE + c.getName() + PartychappServlet.PROXY_DOMAIN,
             fromAddr,
             toAddr);
-        logger.info(c.getName() + " channel is already migrated");
+        logger.info(c.getName() + " channel is already migrated bad user: " + fromAddr);
         return;
       } else {
         
