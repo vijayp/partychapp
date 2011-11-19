@@ -3,6 +3,8 @@ import tornado.httpclient
 import tornado.ioloop
 import tornado.web
 import simplejson as json
+import urllib
+import logging
 
 TOKEN = 'tokendata'
 class MainHandler(tornado.web.RequestHandler):
@@ -35,13 +37,13 @@ class OutboundHandler:
     logging.info('POST         RESPONSE: %s', str(r))
     self.outstanding_requests -= 1
 
-  def post(url, params):
+  def post(self, url, params):
     body = urllib.urlencode(params)
 
     logging.info('POST          Sending data to %s', url)
     req_obj     = tornado.httpclient.HTTPRequest(url,
                                                method='POST',
                                                body=body)
-    self._http_client(req_obj, self.handle_resp)
+    self._http_client.fetch(req_obj, self.handle_resp)
     self.outstanding_requests += 1
 

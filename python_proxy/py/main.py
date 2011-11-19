@@ -44,9 +44,8 @@ def main() :
 		jid = SUBDOMAIN + ".partych.at", password = "secret",
 		server = "10.220.227.98", port = 5275, oh = oh)
 #		server = "127.0.0.1", port = 5275, oh = oh)
-        component = None
 
-#	component.start()
+	component.start()
         application = tornado.web.Application([
             (r"/", MainHandler),
             (r'/___control___', InboundControlHandler, dict(component=component)),

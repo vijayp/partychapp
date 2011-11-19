@@ -8,6 +8,7 @@ import sleekxmpp.componentxmpp
 import logging
 import signal
 import os
+import urllib
 try:
   import simplejson as json
 except:
@@ -130,7 +131,7 @@ class StateManager:
           s._last_out_request = 0
 
         cls.instance().set(c,u, s)
-        logging.info('%s,%s = (in=%s, out=%s)',
+        logging.debug('%s,%s = (in=%s, out=%s)',
                      c,u,s.in_state, s.out_state)
       logging.error('loaded %s data records', len(in_dat))
              
