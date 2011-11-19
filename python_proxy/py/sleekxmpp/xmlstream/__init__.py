@@ -12,8 +12,8 @@ from sleekxmpp.xmlstream.stanzabase import StanzaBase, ElementBase, ET
 from sleekxmpp.xmlstream.stanzabase import register_stanza_plugin
 from sleekxmpp.xmlstream.tostring import tostring
 from sleekxmpp.xmlstream.xmlstream import XMLStream, RESPONSE_TIMEOUT
-from sleekxmpp.xmlstream.xmlstream import RestartStream
+from sleekxmpp.xmlstream.xmlstream import RestartStream, PROFILERS
 
 __all__ = ['JID', 'Scheduler', 'StanzaBase', 'ElementBase',
            'ET', 'StateMachine', 'tostring', 'XMLStream',
-           'RESPONSE_TIMEOUT', 'RestartStream']
+           'RESPONSE_TIMEOUT', 'RestartStream', 'PROFILERS']

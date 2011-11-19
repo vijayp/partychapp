@@ -33,6 +33,7 @@ import urllib
 
 
 
+from sleekxmpp.xmlstream import PROFILERS
 
 def main() :
         
@@ -48,7 +49,9 @@ def main() :
 	component.start()
         application = tornado.web.Application([
             (r"/", MainHandler),
-            (r'/___control___', InboundControlHandler, dict(component=component)),
+            (r"/varz", VarzHandler),
+            (r'/___control___', InboundControlHandler, 
+             dict(component=component)),
             ])
 
         application.listen(80)
@@ -60,9 +63,23 @@ def main() :
         server.listen(443)
         logging.info('dropping permissions')
         os.setuid(getpwnam('nobody').pw_uid)
-        tornado.ioloop.IOLoop.instance().start()
+        def print_profiles():
+          for k,(p,name) in enumerate(PROFILERS):
+            logging.info('THREAD STATS dumping stats for thread %s', name)
+            p.dump_stats('%s.profile'% name)
+
+        tornado.ioloop.PeriodicCallback(print_profiles, 60000).start()
+        def runner(name, target):
+          import cProfile
+          profiler = cProfile.Profile()
+          PROFILERS.append((profiler,name))
+          logging.info('THREAD starting  %s',
+                       name)
+          profiler.runcall(target)
+            
+        runner('ioloop', tornado.ioloop.IOLoop.instance().start)
         
 
 if __name__ == '__main__' :
-  cProfile.run('main()', 'profile_data.' + str(time.time()))
+  main()
 

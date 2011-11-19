@@ -15,8 +15,9 @@ except:
   import json
 from collections import defaultdict, Counter
 
-SUBDOMAIN = 'im'
+from http import Stats
 
+SUBDOMAIN = 'im'
 MYDOMAIN = SUBDOMAIN + '.partych.at'
 
 PARTYCHAPP_CONTROL = '__control@partychapp.appspotchat.com'
@@ -62,15 +63,10 @@ class StateManager:
   _instance = None
 
   def log_message(self, channel, user):
-    self._counters['channel'][channel] += 1
-#    self._counters['user'][user] += 1
-  
-  def counters_as_tuples(self):
-    for t, keycount in self._counters.items():
-      for k,v in keycount.items():
-        yield t,k,v
-    
+    Stats['channel_%s' % channel].add(1)
+    Stats['_total_outbound'].add(1)
 
+  
   def num_channels(self):
     return len(self._channel_user_state)
 
@@ -261,7 +257,8 @@ class SimpleComponent:
   def _inbound_message(self, message):
     if message['type'] == 'error':
       try:
-        logging.info('error: %s' %  str(message))
+        Stats['_total_inbound_error'].add(1)
+        logging.debug('error: %s' %  str(message))
       except:
         pass
       return
@@ -286,7 +283,7 @@ class SimpleComponent:
       return
     # inbound message
     # echo
-
+    Stats['_total_inbound'].add(1)
     event = message
     to_str = str(event['to'])
     msg_str = str(event['body'])
@@ -442,7 +439,7 @@ class SimpleComponent:
         StateManager.instance().get(channel, user).in_state = State.UNKNOWN # TODO: rejected
 
       elif s == 'probe':
-        logging.info('PROBE                  %s<-%s', channel, user)
+        logging.debug('PROBE                  %s<-%s', channel, user)
         # if necessary
         self._send_subscribe(channel, user)
         self._send_subscribed(channel, user)

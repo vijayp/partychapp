@@ -44,6 +44,7 @@ except ImportError:
 else:
     DNSPYTHON = True
 
+PROFILERS = []
 
 # The time in seconds to wait before timing out waiting for response stanzas.
 RESPONSE_TIMEOUT = 30
@@ -1040,7 +1041,19 @@ class XMLStream(object):
         self.scheduler.process(threaded=True)
 
         def start_thread(name, target):
-            self.__thread[name] = threading.Thread(name=name, target=target)
+            def runner(name, target):
+              import cProfile
+              profiler = cProfile.Profile()
+              PROFILERS.append((profiler,name))
+              try:  
+                logging.info('THREAD starting  %s',
+                             name)
+                profiler.runcall(target)
+
+              finally:
+                logging.info('THREAD %s over', name)
+                profiler.dump_stats('profile_%s_%s.prof' % (name, time.time()))
+            self.__thread[name] = threading.Thread(name=name, target=lambda:runner(name,target))
             self.__thread[name].daemon = True
             self.__thread[name].start()
 
