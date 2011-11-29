@@ -83,7 +83,7 @@ class InboundControlHandler(tornado.web.RequestHandler):
     if token != TOKEN:
       raise tornado.web.HTTPError(403)
     body = json.loads(self.get_argument('body'))
-    self._component._handle_control_message(body)
+    self._component.xmpp.event('CONTROL', body)
     logging.info('INPOST                     message from control')
     Stats['inbound_post_requests_ok'].add()
     self.write('"OK"')

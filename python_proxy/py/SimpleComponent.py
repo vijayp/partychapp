@@ -266,7 +266,9 @@ class SimpleComponent:
                                 self.xmpp._handle_probe)
 
     self.xmpp.add_event_handler('session_start', self.start_session)
-    self.xmpp.add_event_handler('message', self.message)
+    self.xmpp.add_event_handler('message', self.message, threaded=True)
+    self.xmpp.add_event_handler('CONTROL', self._handle_control_message, 
+                                threaded=True)
 
     for s in ['presence_subscribe', 
               'presence_subscribed', 

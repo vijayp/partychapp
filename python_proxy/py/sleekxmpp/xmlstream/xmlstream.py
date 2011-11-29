@@ -56,7 +56,7 @@ WAIT_TIMEOUT = 1
 # The number of threads to use to handle XML stream events. This is not the
 # same as the number of custom event handling threads. HANDLER_THREADS must
 # be at least 1.
-HANDLER_THREADS = 1
+HANDLER_THREADS = 10
 
 # Flag indicating if the SSL library is available for use.
 SSL_SUPPORT = True
