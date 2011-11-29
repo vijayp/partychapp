@@ -32,7 +32,7 @@ MYDOMAIN = SUBDOMAIN + '.partych.at'
 PARTYCHAPP_CONTROL = '__control@partychapp.appspotchat.com'
 MY_CONTROL = '_control@' + SUBDOMAIN + '.partych.at'
 
-STATUS = 'replacing app engine since 2011'
+STATUS = ''
 
 
 PROXY_JID_PATTERN = '%s@' + SUBDOMAIN + '.partych.at/pcbot'
@@ -336,25 +336,13 @@ class SimpleComponent:
       except:
         pass
       return
-#    try:
-#      if not str(event['to']).split('@')[1].lower().startswith(SUBDOMAIN):
-#        logging.info('invalid inbound domain')
-#        return
-#    except:
-#      pass
-
-    
-    if 1==0:
-      self._handle_control_message(dict(outmsg=message['body'],
-                                        recipients=[str(message['from']).split('/')[0]],
-                                        from_channel=str(message['to']).split('@')[0]
-                                        )
-                                   )
 
     ctl = GetControlMessage(message)
     if ctl:
       self._handle_control_message(ctl)
       return
+
+
     # inbound message
     # echo
     Stats['_total_inbound'].add(1)
@@ -369,10 +357,9 @@ class SimpleComponent:
     logging.info('MESSAGE              control<--- %s <--- %s',
                  to_str, from_str)
     self._send_subscribe(make_channel(to_str), from_str)
-#    if to_str.find('dogfood') == 0:
-    self._oh.post('https://partychapp.appspot.com/___control___',
-               {'token' : 'tokendata',
-                'body'  : json.dumps(payload)})
+    self._oh.post(url='https://partychapp.appspot.com/___control___',
+                  params={'token' : 'tokendata',
+                   'body'  : json.dumps(payload)})
 #    else:
 #      self._send_message('_control',
 #                         MY_CONTROL_FULL,

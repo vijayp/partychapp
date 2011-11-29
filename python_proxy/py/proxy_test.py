@@ -88,18 +88,25 @@ class VirginStateTest(TestCase):
 
       def sendMessage(self, *args, **kwargs):
        try:
-
-         logging.info('RECEIVED %s', repr( kwargs))
-         assert self._queue.popleft() == kwargs,kwargs
-       except:
+        logging.info('(%d) RECEIVED %s', len(self._queue),
+                     repr( kwargs))
+        ok = self._queue.popleft()
+        assert ok == kwargs, (kwargs, ok)
+       except Exception, e:
          if self._log:
            logging.info('MISSING %s', repr( kwargs))
+           logging.error(e)
          else:
            raise
 
+      def post(self, *args, **kwargs):
+        self.sendMessage(*args, **kwargs)
+  
+      
     proxy = TSimpleComponent()
     
     proxy.xmpp = FakeXMPP()
+    proxy._oh = proxy.xmpp
 
     # test inbound control message
     proxy.xmpp._queue.append({'pto': 'u1@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribe'})
@@ -136,9 +143,6 @@ class VirginStateTest(TestCase):
 
 
     logging.info('=================== testing inbound subscribed, %s', len(proxy.xmpp._queue))
-    proxy.xmpp = FakeXMPP(log=True)
-
-
     proxy.xmpp._queue.append({'pto': 'u1@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
     proxy.xmpp._queue.append({'mbody': 'Welcome to test_channel', 'mtype': 'chat', 'mfrom': 'test_channel@im.partych.at/pcbot', 'mto': u'u1@gmail.com'})
     proxy._got_subscribed('test_channel', 'u1@gmail.com')
@@ -159,15 +163,23 @@ class VirginStateTest(TestCase):
 
 
 
-    logging.info('=================== testing inbound subscribe, %s', len(proxy.xmpp._queue))
-    proxy.xmpp = FakeXMPP(log=False)
-
-
     proxy.xmpp._queue.append({'pto': 'u1@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
     proxy.xmpp._queue.append({'mbody': 'Welcome to test_channel', 'mtype': 'chat', 'mfrom': 'test_channel@im.partych.at/pcbot', 'mto': u'u1@gmail.com'})
+
+    logging.info('=================== testing inbound subscribe, %s', len(proxy.xmpp._queue))
+
     proxy._got_subscribed('test_channel', 'u1@gmail.com')
 
 
+
+    proxy.xmpp._queue.append( {'url': 'https://partychapp.appspot.com/___control___', 'params': {'body': '{"from_str": "u1@gmail.com", "to_str": "test_channel@im.partych.at", "state": "old", "message_str": "test inbound message"}', 'token': 'tokendata'}})
+    logging.info('=================== testing inbound message, %s', len(proxy.xmpp._queue))
+
+    proxy._inbound_message({'to' : 'test_channel@im.partych.at',
+                            'from' : 'u1@gmail.com',
+                            'body' : 'test inbound message',
+                            'type' : 'not_error'})
+    
 
 if __name__ == '__main__':
   import logging

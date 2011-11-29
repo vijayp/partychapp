@@ -2,7 +2,7 @@
 
 import logging
 #from SimpleBackend import SimpleBackend
-from SimpleComponent import SimpleComponent, SUBDOMAIN, do_exit, SAVE
+from SimpleComponent import SimpleComponent, SUBDOMAIN, do_exit, SAVE, StateManager
 import signal
 
 import time
@@ -31,7 +31,16 @@ for L in [logging.getLogger(''), logging.getLogger()]:
 
 import urllib
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--db_host', default='10.220.227.98')
+parser.add_argument('--db_port', type=int, default=27017)
+parser.add_argument('--db_collection', default='channel_state')
+parser.add_argument('--jabber_host', default='10.220.227.98')
+parser.add_argument('--jabber_port', type=int, default=5275)
+parser.add_argument('--subdomain', default=SUBDOMAIN)
 
+FLAGS = parser.parse_args()
 
 from sleekxmpp.xmlstream import PROFILERS
 
@@ -40,10 +49,12 @@ def main() :
 	signal.signal(signal.SIGTERM, do_exit)
 	signal.signal(signal.SIGHUP, SAVE)
         oh = OutboundHandler()
-
+        StateManager.Init(FLAGS.db_host, FLAGS.db_port, FLAGS.db_collection)
+        
 	component = SimpleComponent(
-		jid = SUBDOMAIN + ".partych.at", password = "secret",
-		server = "10.220.227.98", port = 5275, oh = oh)
+		jid = FLAGS.subdomain + ".partych.at", 
+                password = "secret",
+		server = FLAGS.jabber_host, port = FLAGS.jabber_port, oh = oh)
 #		server = "127.0.0.1", port = 5275, oh = oh)
 
 	component.start()
