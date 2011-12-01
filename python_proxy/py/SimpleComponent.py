@@ -1,6 +1,5 @@
 import zlib
 import time
-import atexit
 import tempfile
 import cPickle
 import sys
@@ -581,7 +580,6 @@ class SimpleComponent:
 
   def start_session(self, *args, **kwargs):
     logging.info('started session')
-    atexit.register(SAVE)
     # if we've sent a status update in the last three minutes, don't send another
     self._send_message('_control', MY_CONTROL_FULL,
                        [PARTYCHAPP_CONTROL],

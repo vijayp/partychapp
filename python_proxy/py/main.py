@@ -49,8 +49,6 @@ from sleekxmpp.xmlstream import PROFILERS
 
 def main() :
         
-	signal.signal(signal.SIGTERM, do_exit)
-	signal.signal(signal.SIGHUP, SAVE)
         oh = OutboundHandler()
         StateManager.Init(FLAGS.db_host, FLAGS.db_port, FLAGS.db_collection)
         
