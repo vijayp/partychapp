@@ -3,6 +3,8 @@ package com.imjasonh.partychapp.server.command;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 
 /**
@@ -30,8 +32,10 @@ abstract class SlashCommand implements CommandHandler {
    * as needed.
    */
   abstract void doCommand(Message msg, String argument);
-
   public void doCommand(Message msg) {
+    doCommand(msg, null);
+  }
+  public void doCommand(Message msg, HttpServletResponse resp) {
     Matcher matcher = getMatcher(msg);
     String argument = matcher.group(1);
     if (argument != null) {

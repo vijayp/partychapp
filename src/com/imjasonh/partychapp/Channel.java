@@ -3,6 +3,9 @@ package com.imjasonh.partychapp;
 import com.google.appengine.api.datastore.AsyncDatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.xmpp.JID;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
@@ -47,6 +50,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
 
@@ -435,6 +439,10 @@ public class Channel implements Serializable {
   }    
 
   private void sendMessage(String message, List<Member> recipients) {
+    sendMessage(message, recipients, null);  
+  }
+  private void sendMessage(String message, List<Member> recipients,
+        HttpServletResponse resp) {
     
       if (this.isMigrated()) {
         logger.info("MIGRATED message");
@@ -442,7 +450,7 @@ public class Channel implements Serializable {
         for (Member recipient : recipients) {
           rec.add(recipient.getJID().toString());
         }
-        sendProxiedMessage(message, rec);
+        sendProxiedMessage(message, rec, resp);
 
 
         // REMOVE THIS FOR DUAL BROADCASTS.
@@ -502,7 +510,7 @@ public class Channel implements Serializable {
   }
 
 
-  public void sendProxiedMessage(String message, List<String> rec)
+  public void sendProxiedMessage(String message, List<String> rec, HttpServletResponse resp)
   {
     logger.info("in proxied message with " + rec.size() + " recipients");
     // SIZE LIMIT
@@ -524,26 +532,23 @@ public class Channel implements Serializable {
       jso.put("from_channel", this.name);
 
       String out = jso.toString();
+      if (null != resp) {
+        resp.setHeader("Content-Type", "application/json");
+        resp.getWriter().write(out);
+        logger.info("Sent message via HTTP response");
+      } else{
       URL url = new URL(PartychappServlet.PROXY_CONTROL_URL);
       Configuration.persistentConfig().getProxyToken();      
       String data = URLEncoder.encode("token", "UTF-8") + "=" 
           + URLEncoder.encode(Configuration.persistentConfig().getProxyToken(), "UTF-8");
       data += "&" + URLEncoder.encode("body", "UTF-8") + "=" + URLEncoder.encode(out, "UTF-8");
-      URLConnection conn = url.openConnection();
-      conn.setDoOutput(true);
-      OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-      wr.write(data);
-      wr.flush();
-      BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      String line;
-      while ((line = rd.readLine()) != null) {
-          logger.info("HTTPS response " + line);
-      }
-      wr.close();
-      rd.close();
+      
+      HTTPRequest r = new HTTPRequest(url, HTTPMethod.POST);
+      r.setPayload(data.getBytes());
+      URLFetchServiceFactory.getURLFetchService().fetchAsync(r);
 
       logger.info("Sent message via HTTPS");
-      
+      }      
     } catch (JSONException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
@@ -589,9 +594,12 @@ public class Channel implements Serializable {
   }
 
   public void broadcast(String message, Member sender) {
+    broadcast(message, sender, null);
+  }
+  public void broadcast(String message, Member sender, HttpServletResponse resp) {
     List<Member> recipients = getMembersToSendTo(sender);
     maybeLogMessage(message, sender, recipients);
-    sendMessage(message, recipients);
+    sendMessage(message, recipients, resp);
   }
 
   private void maybeLogMessage(String message, Member sender,

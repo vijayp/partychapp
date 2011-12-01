@@ -25,14 +25,14 @@ public class ControlServlet extends HttpServlet {
       return;
     }
     try {
-      PartychappServlet.doControlPacket(body);
+      PartychappServlet.doControlPacket(body, resp);
     } catch (JSONException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
       resp.sendError(500);
       return;
     }
-    resp.getWriter().write("\"ok\"");
+    resp.setStatus(200);
   }
 
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) {

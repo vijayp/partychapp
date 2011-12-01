@@ -11,6 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.servlet.http.HttpServletResponse;
+
 public class SearchReplaceHandler implements CommandHandler {
   private static Pattern pattern =
       Pattern.compile("^(" + AliasHandler.ALIAS_REGEX + ": )?s/([^/]+)/([^/]*)(/?)(g?)$");
@@ -23,6 +25,10 @@ public class SearchReplaceHandler implements CommandHandler {
   }
   
   public void doCommand(Message msg) {
+    doCommand(msg, null);
+  }
+  public void doCommand(Message msg, HttpServletResponse resp) {
+
     List<String> lastMessages = Lists.newArrayList(msg.member.getLastMessages()); 
 
     msg.member.addToLastMessages(msg.content);

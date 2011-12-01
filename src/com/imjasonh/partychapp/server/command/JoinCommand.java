@@ -2,6 +2,8 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.SendUtil;
@@ -17,6 +19,10 @@ public class JoinCommand implements CommandHandler {
   private static final Logger LOG = Logger.getLogger(JoinCommand.class.getName());
   
   public void doCommand(Message msg) {
+    doCommand(msg, null);
+  }
+  public void doCommand(Message msg, HttpServletResponse resp) {
+
     assert msg.channel != null;
     assert msg.member == null;
 

@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
@@ -13,6 +15,10 @@ import com.imjasonh.partychapp.Message.MessageType;
 public class CreateAndJoinCommand implements CommandHandler {
 
   public void doCommand(Message msg) {
+    doCommand(msg, null);
+  }
+  public void doCommand(Message msg, HttpServletResponse resp) {
+
     assert msg.channel == null;
     assert msg.member == null;
 

@@ -27,7 +27,7 @@ public class InviteUtil {
     if (channel.isMigrated()) {
       String channel_jid = channel.getName() + PartychappServlet.PROXY_DOMAIN; 
       logger.info("inviting " + inviteeEmail + " to " + channel_jid);
-      channel.sendProxiedMessage(subject, ImmutableList.of(inviteeEmail));
+      channel.sendProxiedMessage(subject, ImmutableList.of(inviteeEmail), null);
       //return succ ? new String("") : new String("could not invite");
     } else {
       SendUtil.invite(inviteeEmail, channel.serverJID());

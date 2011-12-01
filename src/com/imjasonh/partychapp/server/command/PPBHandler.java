@@ -4,6 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
 import com.imjasonh.partychapp.ppb.Reason;
@@ -64,6 +67,10 @@ public class PPBHandler implements CommandHandler {
   }
   
   public void doCommand(Message msg) {
+    doCommand(msg, null);
+  }
+  public void doCommand(Message msg, HttpServletResponse resp) {
+
     doCommandWithCustomizedReply(msg, msg.member.getAliasPrefix(), "");
   }
   

@@ -1,10 +1,16 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.Message.MessageType;
 
 public class IncomingSMSHandler implements CommandHandler {
   public void doCommand(Message msg) {
+    doCommand(msg, null);
+  }
+  public void doCommand(Message msg, HttpServletResponse resp) {
+
     String reply = "*via SMS* ";
     reply += msg.member.getAliasPrefix();
     reply += msg.content;

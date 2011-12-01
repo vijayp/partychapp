@@ -239,7 +239,7 @@ public class PartychappServletTest extends TestCase {
       TestMessage line = script[i];
       logger.info("Test message " + i + ": " + line.content);
       
-      servlet.doXmpp(line.toIncomingMessage());
+      servlet.doXmpp(line.toIncomingMessage(), null);
 
       List<Message> sentMessages = xmpp.messages;
       List<TestMessage> expectedMessages = Lists.newArrayList();
@@ -351,7 +351,7 @@ public class PartychappServletTest extends TestCase {
   }
   
   private void sendMessage(String userJid, String message) {
-    servlet.doXmpp(new TestMessage(true, userJid, message).toIncomingMessage());
+    servlet.doXmpp(new TestMessage(true, userJid, message).toIncomingMessage(), null);
   }
   
   private boolean userInChannel(String userJid, String channelName) {

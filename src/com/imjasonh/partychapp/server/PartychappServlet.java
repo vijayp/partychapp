@@ -20,6 +20,7 @@ import com.imjasonh.partychapp.PersistentConfiguration;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.Message.MessageType;
 import com.imjasonh.partychapp.server.command.Command;
+import com.imjasonh.partychapp.server.command.CommandHandler;
 import com.imjasonh.partychapp.server.live.ChannelUtil;
 import com.imjasonh.partychapp.stats.ChannelStats;
 
@@ -158,7 +159,7 @@ public class PartychappServlet extends HttpServlet {
       } else {
         
         // still unmigrated channel
-        doXmpp(xmppMessage);        
+        doXmpp(xmppMessage, null);        
 
       }
 
@@ -177,9 +178,9 @@ public class PartychappServlet extends HttpServlet {
 
   protected static void doControlPacket(Message xmppMessage) throws JSONException {
     String body = xmppMessage.getBody().trim();
-    doControlPacket(body);
+    doControlPacket(body,null);
   }
-  protected static void doControlPacket(String body) throws JSONException {
+  protected static void doControlPacket(String body, HttpServletResponse resp) throws JSONException {
     logger.info("GOT CONTROL PACKET");
     // json decode the control packet from the body
     // make the new message.
@@ -225,7 +226,7 @@ public class PartychappServlet extends HttpServlet {
           .withRecipientJids(new JID(decodedTo)).build();
       logger.info("calling doxmpp with payload :: "
           + payload.toString());
-      doXmpp(payload);
+      doXmpp(payload, resp);
     }
   }
 
@@ -233,8 +234,7 @@ public class PartychappServlet extends HttpServlet {
     return new JID(in.getId().toLowerCase());
   }
 
-  public static void doXmpp(Message xmppMessage) {
-
+  public static void doXmpp(Message xmppMessage, HttpServletResponse resp) {
 
     long startTime = System.currentTimeMillis();
     Datastore datastore = Datastore.instance();
@@ -274,7 +274,9 @@ public class PartychappServlet extends HttpServlet {
       .setMessageType(MessageType.XMPP)
       .build();
 
-      Command.getCommandHandler(message).doCommand(message);
+      CommandHandler ch = Command.getCommandHandler(message);
+          logger.info("Command handler: " + ch + " and resp: " + resp);      
+      ch.doCommand(message, resp);
 
       // {@link User#fixUp} can't be called by {@link FixingDatastore}, since
       // it can't know what channel the user is currently messaging, so we have
