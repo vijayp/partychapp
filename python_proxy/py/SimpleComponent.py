@@ -9,6 +9,7 @@ import logging
 import signal
 import os
 import urllib
+from functools import partial
 from pymongo import Connection, ASCENDING, DESCENDING
 from pymongo.objectid import ObjectId
 
@@ -167,17 +168,9 @@ class StateManager:
       return this_state
 
   def update(self, state, k):
+    # todo: make this async.
     self._state_table.update({'_id' : state['_id']},
                              {'$set': {k:state[k]}})
-
-    
-  def update_outrequest_timestamp(self, channel, user):
-    q = self._make_query(channel, user)
-    if not self._state_table.find_one(q):
-      self.get(channel, user)
-
-    self._state_table.update(q, {'$set' : {'last_out_request' : time.time()}})
-    return self.get(channel, user)
 
   def update_message_received(self, channel, user):
     q = self._make_query(channel, user)
@@ -324,6 +317,7 @@ class SimpleComponent:
       assert '@' not in from_channel # TODO better validation
       from_jid = '%s@%s/pcbot' % (from_channel, MYDOMAIN)
       states = StateManager.instance().get_all(from_channel, recipients)
+      
       self._send_message(from_channel, from_jid, recipients, outmsg, states=states)
 
   def _inbound_message(self, message):
@@ -346,6 +340,7 @@ class SimpleComponent:
     channel = make_channel(to_str)
     user = from_str
     state = StateManager.instance().get(channel, user)
+
     return self._inbound_message_with_state(message, state)
 
   def _inbound_message_with_state(self, event, state):
@@ -419,7 +414,7 @@ class SimpleComponent:
                  user, channel, state['out_state'])
       return
 
-    StateManager.instance().update_outrequest_timestamp(channel, user)
+    state['last_out_request'] = time.time()
     state['out_state'] = State.PENDING
 
     logging.info('SUBSCRIBE                %s->%s', channel, user)
@@ -432,8 +427,6 @@ class SimpleComponent:
     state['in_state'] = State.OK
     # something screwy is happening here
     
-    #StateManager.instance().get(channel, user).out_state = State.UNKNOWN
-
     self._send_subscribed(channel, user, force=True, state=state)
     self._send_subscribe(channel, user, state=state)
 
