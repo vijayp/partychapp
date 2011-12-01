@@ -32,8 +32,10 @@ class VirginStateTest(TestCase):
     assert OK == state
 
 
-    self._sm.set_instate('mychannel', 'user@gmail.com', 
-                         State.PENDING)
+    state = self._sm.get('mychannel', 'user@gmail.com')
+    state['in_state'] = State.PENDING
+
+
     state = self._sm.get('mychannel', 'user@gmail.com')
     del state['_id']
     OK['first_time'] = False
@@ -46,8 +48,8 @@ class VirginStateTest(TestCase):
     assert OK == state
 
 
-    self._sm.set_outstate('mychannel', 'user@gmail.com/node43', 
-                          State.PENDING)
+    state = self._sm.get('mychannel', 'user@gmail.com')
+    state['out_state'] =  State.PENDING
     state = self._sm.get('mychannel', 'user@gmail.com')
     del state['_id']
     OK['out_state'] = 1
@@ -145,19 +147,28 @@ class VirginStateTest(TestCase):
     logging.info('=================== testing inbound subscribed, %s', len(proxy.xmpp._queue))
     proxy.xmpp._queue.append({'pto': 'u1@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
     proxy.xmpp._queue.append({'mbody': 'Welcome to test_channel', 'mtype': 'chat', 'mfrom': 'test_channel@im.partych.at/pcbot', 'mto': u'u1@gmail.com'})
-    proxy._got_subscribed('test_channel', 'u1@gmail.com')
+
+    channel,user = 'test_channel', 'u1@gmail.com'
+    state = StateManager.instance().get(channel, user)
+
+
+    assert state
+    proxy._got_subscribed('test_channel', 'u1@gmail.com', state=state)
 
     proxy.xmpp._queue.append({'pto': 'random123@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
     proxy.xmpp._queue.append({'pto': 'random123@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribed'})
     proxy.xmpp._queue.append({'pto': 'random123@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
 
-    proxy._got_subscribed('test_channel', 'random123@gmail.com')
+    channel,user = 'test_channel', 'random123@gmail.com'
+    state = StateManager.instance().get(channel, user)
+    proxy._got_subscribed('test_channel', 'random123@gmail.com', state=state)
 
     proxy.xmpp._queue.append({'pto': 'random1234@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribed'})
     proxy.xmpp._queue.append({'pto': 'random1234@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
     proxy.xmpp._queue.append({'pto': 'random1234@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribe'})
-
-    proxy._got_subscribe('test_channel', 'random1234@gmail.com')
+    channel,user = 'test_channel', 'random1234@gmail.com'
+    state = StateManager.instance().get(channel, user)
+    proxy._got_subscribe('test_channel', 'random1234@gmail.com', state = state)
 
 
 
@@ -168,7 +179,10 @@ class VirginStateTest(TestCase):
 
     logging.info('=================== testing inbound subscribe, %s', len(proxy.xmpp._queue))
 
-    proxy._got_subscribed('test_channel', 'u1@gmail.com')
+
+    channel,user = 'test_channel', 'u1@gmail.com'
+    state = StateManager.instance().get(channel, user)
+    proxy._got_subscribed('test_channel', 'u1@gmail.com', state=state)
 
 
 

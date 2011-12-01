@@ -10,6 +10,8 @@ import signal
 import os
 import urllib
 from pymongo import Connection, ASCENDING, DESCENDING
+from pymongo.objectid import ObjectId
+
 #import argparse
 
 #parser = argparse.ArgumentParser()
@@ -53,9 +55,6 @@ class State:
     self._timestamp = time.time()
     self._last_out_request = 0
 
-  def __setattr__(self, k, v):
-    assert 0
-
   @staticmethod
   def is_ok(state):
     return (state['in_state'] == State.OK) and (state['out_state'] == State.OK)
@@ -63,6 +62,13 @@ class State:
   @staticmethod
   def can_rerequest(state):
     return (time.time() - 60*5) > state['last_out_request']
+
+
+class SavingDict(dict):
+  def __setitem__(self, k,v):
+    dict.__setitem__(self, k,v)
+    StateManager.instance().update(self, k)
+    
 
 
 strip_resource = lambda x:str(x).split('/')[0].lower()
@@ -127,7 +133,7 @@ class StateManager:
   def get_all(self, channel, users):
     q = {'channel' : channel,
          'user'    : {'$in' : map(strip_resource, users)}}
-    found = [x for x in self._state_table.find(q)]
+    found = [SavingDict(x) for x in self._state_table.find(q)]
     users_found = set([x['user'] for x in found])
     missing_users = set(users) - users_found
     if missing_users:
@@ -146,7 +152,7 @@ class StateManager:
     this_state = self._state_table.find_one(q)
 
     if this_state:
-      return this_state
+      return SavingDict(this_state)
     else:
       this_state = q
       this_state['in_state'] = State.UNKNOWN
@@ -155,27 +161,16 @@ class StateManager:
       this_state['first_time'] = True
       this_state['last_out_request'] = 0
       self._state_table.insert(this_state)
-      this_state = self._state_table.find_one(q)
+      this_state = SavingDict(self._state_table.find_one(q))
       assert this_state
       self._state_table.update(q, {'$set' : {'first_time' : False}})
       return this_state
 
-  def set_instate(self, channel, user, newstate):
-    q = self._make_query(channel, user)
-    if not self._state_table.find_one(q):
-      self.get(channel, user)
-      
-    self._state_table.update(q, {'$set' : {'in_state' : newstate}})
-    return self.get(channel, user)
+  def update(self, state, k):
+    self._state_table.update({'_id' : state['_id']},
+                             {'$set': {k:state[k]}})
 
-  def set_outstate(self, channel, user, newstate):
-    q = self._make_query(channel, user)
-    if not self._state_table.find_one(q):
-      self.get(channel, user)
-
-    self._state_table.update(q, {'$set' : {'out_state' : newstate}})
-    return self.get(channel, user)
-
+    
   def update_outrequest_timestamp(self, channel, user):
     q = self._make_query(channel, user)
     if not self._state_table.find_one(q):
@@ -295,16 +290,16 @@ class SimpleComponent:
                     from_channel, 
                     from_jid,
                     recipients,
-                    outmsg):
-
+                    outmsg,
+                    states=None):
+      states = StateManager.instance().get_all(from_channel, recipients) if not states else states
       rmsg = 0
-      states = StateManager.instance().get_all(from_channel, recipients)
       for state in states:
         if state['in_state'] != State.OK or state['out_state'] != State.OK:
           logging.debug('BAD_STATE        %s  --> %s in %s out %s', 
                        from_channel, state['user'], state['in_state'], state['out_state'])
-          self._send_subscribe(from_channel, state['user'])
-          self._send_subscribed(from_channel, state['user'])
+          self._send_subscribe(from_channel, state['user'], state=state)
+          self._send_subscribed(from_channel, state['user'], state=state)
         else:
           rmsg +=1
           StateManager.instance().log_message(from_channel, state['user'])
@@ -328,7 +323,8 @@ class SimpleComponent:
       assert from_channel and recipients
       assert '@' not in from_channel # TODO better validation
       from_jid = '%s@%s/pcbot' % (from_channel, MYDOMAIN)
-      self._send_message(from_channel, from_jid, recipients, outmsg)
+      states = StateManager.instance().get_all(from_channel, recipients)
+      self._send_message(from_channel, from_jid, recipients, outmsg, states=states)
 
   def _inbound_message(self, message):
     if message['type'] == 'error':
@@ -344,13 +340,20 @@ class SimpleComponent:
       self._handle_control_message(ctl)
       return
 
+    event = message
+    to_str = str(event['to'])
+    from_str = str(event['from'])
+    channel = make_channel(to_str)
+    user = from_str
+    state = StateManager.instance().get(channel, user)
+    return self._inbound_message_with_state(message, state)
 
+  def _inbound_message_with_state(self, event, state):
     # inbound message
     # echo
     Stats['_total_inbound'].add(1)
-    event = message
-    to_str = str(event['to'])
     msg_str = str(event['body'])
+    to_str = str(event['to'])
     from_str = str(event['from'])
     payload = dict(state='old',
                      to_str=to_str,
@@ -358,15 +361,10 @@ class SimpleComponent:
                      message_str=msg_str)
     logging.info('MESSAGE              control<--- %s <--- %s',
                  to_str, from_str)
-    self._send_subscribe(make_channel(to_str), from_str)
+    self._send_subscribe(make_channel(to_str), from_str, state=state)
     self._oh.post(url='https://partychapp.appspot.com/___control___',
                   params={'token' : 'tokendata',
                    'body'  : json.dumps(payload)})
-#    else:
-#      self._send_message('_control',
-#                         MY_CONTROL_FULL,
-#                         [PARTYCHAPP_CONTROL],
-#                         json.dumps(payload))
 
   def _dispatch_presence(self, *args, **kwargs):
         """
@@ -393,26 +391,26 @@ class SimpleComponent:
                             )
 
   def _send_subscribed(self, channel, user,force=False, state=None):
-    state = StateManager.instance().get(channel, user) if not state else state
+    assert state
     if force or state['in_state'] not in [
       State.OK, State.PENDING, State.REJECTED]:
       self._dispatch_presence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                              pto=strip_resource(user), 
                              ptype='subscribed')
-      StateManager.instance().set_instate(channel, user, State.OK)
+      state['in_state'] = State.OK
       self._send_presence(channel, user)
       logging.info('SUBSCRIBED                %s->%s', channel, user)
     else:
-      StateManager.instance().set_instate(channel, user, State.OK)
+      state['in_state'] = State.OK
       logging.debug('subscribed not sent due to state')
 
 
   def _send_subscribe(self, channel, user, state = None):
 
-    state = StateManager.instance().get(channel, user) if not state else state
+    assert state
     if (state['out_state'] == State.PENDING and State.can_rerequest(state)): 
       logging.info('SUBSCRIBE reset pending out state for %s --> %s', channel, user)
-      state = StateManager.instance().set_outstate(channel, user, State.UNKNOWN)
+      state['out_state'] = State.UNKNOWN
 
     if state['out_state'] in [
       State.OK, 
@@ -422,27 +420,28 @@ class SimpleComponent:
       return
 
     StateManager.instance().update_outrequest_timestamp(channel, user)
-    state = StateManager.instance().set_outstate(channel, user, State.PENDING)
+    state['out_state'] = State.PENDING
 
     logging.info('SUBSCRIBE                %s->%s', channel, user)
     self._dispatch_presence(pfrom=PROXY_BARE_JID_PATTERN % channel,
                            pto=strip_resource(user), 
                            ptype='subscribe')
 
-  def _got_subscribe(self, channel, user):
-    StateManager.instance().set_instate(channel, user, State.OK)
+  def _got_subscribe(self, channel, user, state=None):
+    assert state
+    state['in_state'] = State.OK
     # something screwy is happening here
     
     #StateManager.instance().get(channel, user).out_state = State.UNKNOWN
 
-    self._send_subscribed(channel, user, force=True)
-    self._send_subscribe(channel, user)
+    self._send_subscribed(channel, user, force=True, state=state)
+    self._send_subscribe(channel, user, state=state)
 
 
-  def _got_subscribed(self, channel, user):
-    StateManager.instance().set_outstate(channel, user, State.OK)
-
-    self._send_subscribe(channel, user)
+  def _got_subscribed(self, channel, user, state=None):
+    assert state
+    state['out_state'] = State.OK
+    self._send_subscribe(channel, user, state=state)
     self._send_presence(channel, user)
     from_jid = '%s@%s/pcbot' % (channel, MYDOMAIN)
     self._send_message(channel, from_jid,
@@ -478,37 +477,42 @@ class SimpleComponent:
         return
       user = event['from']
       channel = str(event['to']).split('@')[0]
+      state = StateManager.instance().get(channel, user)
+      return _generic_handler(s, event, state)
+    except Exception as e:
+      logging.error(e)
+      return
+    
+
+  def _generic_handler(self, s, event, state):
       if s == 'presence_available':
         # we silently ignore presence updates.
         return
 
       if s == 'subscribe':
         logging.info('SUBSCRIBE              %s<-%s', channel, user)
-        self._got_subscribe(channel, user)
+        self._got_subscribe(channel, user, state=state)
       elif s == 'subscribed':
         logging.info('SUBSCRIBED             %s<-%s', channel, user)
-        self._got_subscribed(channel, user)
+        self._got_subscribed(channel, user,state=state)
       elif s == 'unsubscribed':
         logging.info('UNSUBSCRIBED           %s<-%s', channel, user)
-        StateManager.instance().set_instate(channel, user, State.UNKNOWN) # TODO: rejected
-        StateManager.instance().set_outstate(channel, user, State.UNKNOWN) # TODO: rejected
+        state['in_state'] = State.UNKNOWN # TODO: rejected
+        state['out_state'] = State.UNKNOWN # TODO: rejected
       elif s == 'unsubscribe':
         logging.info('UNSUBSCRIBE            %s<-%s', channel, user)
-        StateManager.instance().set_instate(channel, user, State.UNKNOWN) # TODO: rejected
-        StateManager.instance().set_outstate(channel, user, State.UNKNOWN) # TODO: rejected
+        state['in_state'] = State.UNKNOWN # TODO: rejected
+        state['out_state'] = State.UNKNOWN # TODO: rejected
 
       elif s == 'probe':
         logging.debug('PROBE                  %s<-%s', channel, user)
         # if necessary
-        self._send_subscribe(channel, user)
-        self._send_subscribed(channel, user)
+        self._send_subscribe(channel, user, state=state)
+        self._send_subscribed(channel, user, state=state)
         #
 
-        self._send_presence(channel, user)
+        self._send_presence(channel, user, state=state)
 
-    except Exception as e:
-      logging.error(e)
-      return
 
     
 
