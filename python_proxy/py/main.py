@@ -56,7 +56,7 @@ def main() :
                 password = "secret",
 		server = FLAGS.jabber_host, port = FLAGS.jabber_port, oh = oh)
 #		server = "127.0.0.1", port = 5275, oh = oh)
-
+        oh.initialize(component)
 	component.start()
         application = tornado.web.Application([
             (r"/", MainHandler),

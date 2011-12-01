@@ -1,9 +1,29 @@
 import unittest
 from unittest import TestCase
+import SimpleComponent
 from SimpleComponent import *
 import time
 from pymongo import Connection
 from collections import deque
+
+import tornado.ioloop
+
+
+def run_in_loop(*args, **kwargs):
+  actual_callback = partial(*args, **kwargs)
+  def my_callback():
+    actual_callback()
+    tornado.ioloop.IOLoop.instance().add_timeout(time.time() + 0.5, loop_run_done, )
+
+  tornado.ioloop.IOLoop.instance().add_callback(my_callback)
+  tornado.ioloop.IOLoop.instance().start()
+
+
+
+def loop_run_done(*args, **kwargs):
+  tornado.ioloop.IOLoop.instance().stop()
+
+
 
 class VirginStateTest(TestCase):
   def setUp(self):
@@ -11,13 +31,14 @@ class VirginStateTest(TestCase):
     StateManager.Init('localhost', 27017, 
                       'test_db')
     self._sm = StateManager().instance()
+    self._sm._state_table.drop()
     print 'in setup'
-    self._oldtime = time.time
-    time.time = lambda: 1
+
+    OVERRIDE_TIME.append(1)
+
 
   def tearDown(self):
     print 'tearing down'
-    time.time = self._oldtime
     self._sm._state_table.drop()
   
   def test_sets(self):
@@ -119,7 +140,7 @@ class VirginStateTest(TestCase):
     proxy.xmpp._queue.append({'pto': 'u2@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
 
     logging.info('=================== testing first message')
-    proxy._handle_control_message(
+    run_in_loop(proxy._handle_control_message, 
       dict(outmsg='test message',
            recipients=['u1@gmail.com', 'u2@gmail.com',],
            from_channel='test_channel'))
@@ -128,21 +149,24 @@ class VirginStateTest(TestCase):
     #second message from same person
     #no time has passed, so new subscribe request should be sent.
     logging.info('=================== testing second message')
-    proxy._handle_control_message(
+    run_in_loop(proxy._handle_control_message, 
       dict(outmsg='test message',
            recipients=['u1@gmail.com', 'u2@gmail.com',],
            from_channel='test_channel'))
-    time.time = lambda:100000
+    assert not proxy.xmpp._queue
+    OVERRIDE_TIME.append(100000)
+
     #TODO: maybe we should add subscribed as well.
 
-    proxy.xmpp._queue.append({'pto': 'u2@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribe'})
+
     proxy.xmpp._queue.append({'pto': 'u1@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribe'})
+    proxy.xmpp._queue.append({'pto': 'u2@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribe'})
     logging.info('=================== testing third message, %s', len(proxy.xmpp._queue))
-    proxy._handle_control_message(
+    run_in_loop(proxy._handle_control_message,
       dict(outmsg='test message',
            recipients=['u1@gmail.com', 'u2@gmail.com',],
            from_channel='test_channel'))
-
+    assert not proxy.xmpp._queue
 
     logging.info('=================== testing inbound subscribed, %s', len(proxy.xmpp._queue))
     proxy.xmpp._queue.append({'pto': 'u1@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
@@ -153,7 +177,7 @@ class VirginStateTest(TestCase):
 
 
     assert state
-    proxy._got_subscribed('test_channel', 'u1@gmail.com', state=state)
+    run_in_loop(proxy._got_subscribed,'test_channel', 'u1@gmail.com', state=state)
 
     proxy.xmpp._queue.append({'pto': 'random123@gmail.com', 'pstatus': STATUS, 'pfrom': 'test_channel@im.partych.at/pcbot'})
     proxy.xmpp._queue.append({'pto': 'random123@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribed'})
@@ -168,7 +192,7 @@ class VirginStateTest(TestCase):
     proxy.xmpp._queue.append({'pto': 'random1234@gmail.com', 'pfrom': 'test_channel@im.partych.at/pcbot', 'ptype': 'subscribe'})
     channel,user = 'test_channel', 'random1234@gmail.com'
     state = StateManager.instance().get(channel, user)
-    proxy._got_subscribe('test_channel', 'random1234@gmail.com', state = state)
+    run_in_loop(proxy._got_subscribe,'test_channel', 'random1234@gmail.com', state = state)
 
 
 
@@ -182,19 +206,20 @@ class VirginStateTest(TestCase):
 
     channel,user = 'test_channel', 'u1@gmail.com'
     state = StateManager.instance().get(channel, user)
-    proxy._got_subscribed('test_channel', 'u1@gmail.com', state=state)
+    run_in_loop(proxy._got_subscribed,'test_channel', 'u1@gmail.com', state=state)
 
 
 
     proxy.xmpp._queue.append( {'url': 'https://partychapp.appspot.com/___control___', 'params': {'body': '{"from_str": "u1@gmail.com", "to_str": "test_channel@im.partych.at", "state": "old", "message_str": "test inbound message"}', 'token': 'tokendata'}})
     logging.info('=================== testing inbound message, %s', len(proxy.xmpp._queue))
 
-    proxy._inbound_message({'to' : 'test_channel@im.partych.at',
-                            'from' : 'u1@gmail.com',
-                            'body' : 'test inbound message',
-                            'type' : 'not_error'})
+    run_in_loop(proxy._inbound_message,
+            {'to' : 'test_channel@im.partych.at',
+             'from' : 'u1@gmail.com',
+             'body' : 'test inbound message',
+             'type' : 'not_error'})
     
-
+    assert not proxy.xmpp._queue
 if __name__ == '__main__':
   import logging
   ch = logging.StreamHandler()

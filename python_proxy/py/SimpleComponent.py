@@ -9,9 +9,12 @@ import logging
 import signal
 import os
 import urllib
+import tornado
+
 from functools import partial
 from pymongo import Connection, ASCENDING, DESCENDING
 from pymongo.objectid import ObjectId
+import asyncmongo
 
 #import argparse
 
@@ -25,7 +28,7 @@ try:
   import simplejson as json
 except:
   import json
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter, deque
 
 from http import Stats
 
@@ -42,27 +45,27 @@ PROXY_JID_PATTERN = '%s@' + SUBDOMAIN + '.partych.at/pcbot'
 PROXY_BARE_JID_PATTERN = '%s@'+ SUBDOMAIN + '.partych.at/pcbot'
 MY_CONTROL_FULL = PROXY_JID_PATTERN % '_control'
 
-
-
+OVERRIDE_TIME = [None]
 
 class State:
   UNKNOWN = 0
   PENDING = 1
   REJECTED = 2
   OK = 3
-  def __init__(self):
-    self.in_state = State.UNKNOWN
-    self.out_state = State.UNKNOWN
-    self._timestamp = time.time()
-    self._last_out_request = 0
 
+  OVERRIDE_TIME = None
+  @staticmethod
+  def time(*args, **kwargs):
+    return time.time() if OVERRIDE_TIME[-1] is None else OVERRIDE_TIME[-1]
+  
   @staticmethod
   def is_ok(state):
     return (state['in_state'] == State.OK) and (state['out_state'] == State.OK)
 
   @staticmethod
   def can_rerequest(state):
-    return (time.time() - 60*5) > state['last_out_request']
+    logging.info('*** CAN REREQUEST %s, %s', State.time(), state['last_out_request'])
+    return (State.time() - 60*5) > state['last_out_request']
 
 
 class SavingDict(dict):
@@ -75,6 +78,23 @@ class SavingDict(dict):
 strip_resource = lambda x:str(x).split('/')[0].lower()
 make_channel = lambda x:str(x).split('@')[0].lower()
 
+
+def run_and_call_in_loop(call_queue, response=None):
+  logging.info('RESPONSE:%s' % response)
+  if call_queue:
+    args, kwargs = call_queue.popleft()
+    oargs = [args[0]]
+    if call_queue:
+      oargs.append(partial(run_and_call_in_loop, call_queue))
+    if response:
+      oargs.append(response)
+    oargs += args[1:]
+    if not response:
+      logging.info('kwargs: %s', kwargs)
+      tornado.ioloop.IOLoop.instance().add_callback(partial(*oargs, **kwargs))
+    else:
+      logging.info('kwargs: %s', kwargs)
+      tornado.ioloop.IOLoop.instance().add_callback(partial(*oargs, **kwargs))
 
 class StateManager:
   _instance = None
@@ -122,6 +142,13 @@ class StateManager:
     self._state_table.create_index([('channel', ASCENDING), 
                                     ('user', DESCENDING)],
                                    unique=True)
+    self._async_db = asyncmongo.Client(pool_id='mydb', 
+                                       host=self._host, 
+                                       port=self._port, 
+                                       maxcached=10, 
+                                       maxconnections=100, 
+                                       dbname=self._coll)
+    self._async_state_table = self._async_db['state']
     
 
 
@@ -144,8 +171,35 @@ class StateManager:
     return found
                   
 
+  def get_async(self, NEXT, channel, user):
+    q = self._make_query(channel, user)
+    self._async_state_table.find(q, limit=1, callback=partial(self._get_async_response, NEXT))
+    assert NEXT
+#    out = self.get(channel, user)
+#    logging.info(out)
+#    NEXT(out)
 
-
+  def _get_async_response(self, NEXT, response, error):
+    logging.info('************')
+    assert not error
+    if response:
+      logging.info('returning response, %s', response)
+      NEXT(SavingDict(response[0]))
+      return
+    else:
+      this_state = q
+      this_state['in_state'] = State.UNKNOWN
+      this_state['out_state'] = State.UNKNOWN
+      this_state['message_received'] = False
+      this_state['first_time'] = True
+      this_state['last_out_request'] = 0
+      self._state_table.insert(this_state)
+      this_state = SavingDict(self._state_table.find_one(q))
+      assert this_state
+      self._state_table.update(q, {'$set' : {'first_time' : False}})
+      logging.info('returning response 2')
+      NEXT(this_state)
+    
   def get(self, channel, user):
     q = self._make_query(channel, user)
 
@@ -339,11 +393,12 @@ class SimpleComponent:
     from_str = str(event['from'])
     channel = make_channel(to_str)
     user = from_str
-    state = StateManager.instance().get(channel, user)
+    run_and_call_in_loop(deque([
+        ((StateManager.instance().get_async, channel, user), {}),
+        ((self._inbound_message_with_state, message), {})
+        ]))
 
-    return self._inbound_message_with_state(message, state)
-
-  def _inbound_message_with_state(self, event, state):
+  def _inbound_message_with_state(self, state, event):
     # inbound message
     # echo
     Stats['_total_inbound'].add(1)
@@ -414,7 +469,7 @@ class SimpleComponent:
                  user, channel, state['out_state'])
       return
 
-    state['last_out_request'] = time.time()
+    state['last_out_request'] = State.time()
     state['out_state'] = State.PENDING
 
     logging.info('SUBSCRIBE                %s->%s', channel, user)

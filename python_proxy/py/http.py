@@ -1,3 +1,4 @@
+import math
 import tornado.httpserver
 import tornado.httpclient
 import tornado.ioloop
@@ -83,7 +84,7 @@ class InboundControlHandler(tornado.web.RequestHandler):
     if token != TOKEN:
       raise tornado.web.HTTPError(403)
     body = json.loads(self.get_argument('body'))
-    self._component.xmpp.event('CONTROL', body)
+    self._component._handle_control_message(body)
     logging.info('INPOST                     message from control')
     Stats['inbound_post_requests_ok'].add()
     self.write('"OK"')
@@ -97,10 +98,21 @@ class OutboundHandler:
 #    tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
     self.outstanding_requests = 0
 
-  def handle_resp(self, r):
+  def initialize(self, component):
+    self._component = component
+
+  def handle_resp(self, response):
 #    logging.info('POST         RESPONSE: %s', str(r))
-    Stats['outbound_post_requests_received'].add()
     self.outstanding_requests -= 1
+    if response.error: 
+      logging.error('http fetch returned error %s', response.error)
+    else:
+      try:
+        j = json.loads(response.body)
+        logging.info('got json response')
+        self._component._handle_control_message(j)
+      except Exception, e:
+        logging.error('could not parse response: %s, %s', response.body, e)
 
   def post(self, url, params):
     Stats['outbound_post_requests_sent'].add()
