@@ -14,6 +14,7 @@ import tornado.httpserver
 import tornado.httpclient
 import tornado.ioloop
 import tornado.web
+import socket
 
 from http import *
 
@@ -35,6 +36,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--db_host', default='10.220.227.98')
 parser.add_argument('--db_port', type=int, default=27017)
+parser.add_argument('--port', type=int, default=80)
+parser.add_argument('--ssl_port', type=int, default=443)
 parser.add_argument('--db_collection', default='channel_state')
 parser.add_argument('--jabber_host', default='10.220.227.98')
 parser.add_argument('--jabber_port', type=int, default=5275)
@@ -58,21 +61,40 @@ def main() :
 #		server = "127.0.0.1", port = 5275, oh = oh)
         oh.initialize(component)
 	component.start()
+
+
+
         application = tornado.web.Application([
             (r"/", MainHandler),
             (r"/varz", VarzHandler),
             (r'/___control___', InboundControlHandler, 
              dict(component=component)),
             ])
-
-        application.listen(8081)
         data_dir='/etc/certs'
         server = tornado.httpserver.HTTPServer(application,
            ssl_options={"certfile": os.path.join(data_dir, "server.crt"),
            "keyfile": os.path.join(data_dir, "server.key"),
        })
-        server.listen(4434)
+
+        ports = range(FLAGS.port+10, FLAGS.port-1, -1)
+        ssl_ports = range(FLAGS.ssl_port+10, FLAGS.ssl_port-1, -1)
+        while ports and ssl_ports:
+          try:
+            p = ports.pop()
+            sp = ssl_ports.pop()
+            logging.info('trying port %s,%s', p,sp)
+            application.listen(p)
+            server.listen(sp)
+            break
+          except socket.error:
+            logging.info('port failed')
+            
+        else:
+          logging.error('cannot bind to http ports, quitting')
+          sys.exit(-1)
+
         logging.info('dropping permissions')
+
         os.setuid(getpwnam('nobody').pw_uid)
         def print_profiles():
           for k,(p,name) in enumerate(PROFILERS):
