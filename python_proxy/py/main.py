@@ -65,13 +65,13 @@ def main() :
              dict(component=component)),
             ])
 
-        application.listen(80)
+        application.listen(8081)
         data_dir='/etc/certs'
         server = tornado.httpserver.HTTPServer(application,
            ssl_options={"certfile": os.path.join(data_dir, "server.crt"),
            "keyfile": os.path.join(data_dir, "server.key"),
        })
-        server.listen(443)
+        server.listen(4434)
         logging.info('dropping permissions')
         os.setuid(getpwnam('nobody').pw_uid)
         def print_profiles():

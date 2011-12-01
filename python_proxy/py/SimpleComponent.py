@@ -64,7 +64,6 @@ class State:
 
   @staticmethod
   def can_rerequest(state):
-    logging.info('*** CAN REREQUEST %s, %s', State.time(), state['last_out_request'])
     return (State.time() - 60*5) > state['last_out_request']
 
 
@@ -80,7 +79,7 @@ make_channel = lambda x:str(x).split('@')[0].lower()
 
 
 def run_and_call_in_loop(call_queue, response=None):
-  logging.info('RESPONSE:%s' % response)
+  logging.debug('RESPONSE:%s' % response)
   if call_queue:
     args, kwargs = call_queue.popleft()
     oargs = [args[0]]
@@ -90,10 +89,8 @@ def run_and_call_in_loop(call_queue, response=None):
       oargs.append(response)
     oargs += args[1:]
     if not response:
-      logging.info('kwargs: %s', kwargs)
       tornado.ioloop.IOLoop.instance().add_callback(partial(*oargs, **kwargs))
     else:
-      logging.info('kwargs: %s', kwargs)
       tornado.ioloop.IOLoop.instance().add_callback(partial(*oargs, **kwargs))
 
 class StateManager:
@@ -191,18 +188,18 @@ class StateManager:
 
   def get_async(self, NEXT, channel, user):
     q = self._make_query(channel, user)
-    self._async_state_table.find(q, limit=1, callback=partial(self._get_async_response, NEXT))
+    self._async_state_table.find(q, limit=1, callback=partial(self._get_async_response, NEXT, channel, user))
 
 
-  def _get_async_response(self, NEXT, response, error):
-    logging.info('************')
+  def _get_async_response(self, NEXT, channel, user, response, error):
+    logging.debug('************')
     assert not error
     if response:
-      logging.info('returning response, %s', response)
+      logging.debug('returning response, %s', response)
       NEXT(SavingDict(response[0]))
       return
     else:
-      this_state = q
+      this_state = self._make_query(channel, user)
       this_state['in_state'] = State.UNKNOWN
       this_state['out_state'] = State.UNKNOWN
       this_state['message_received'] = False
@@ -212,7 +209,7 @@ class StateManager:
       this_state['_id'] = idno
       this_state['first_time'] = True
       this_state = SavingDict(this_state)
-      logging.info('returning response 2')
+      logging.debug('returning response 2')
       NEXT(this_state)
     
   def get(self, channel, user):
@@ -253,21 +250,7 @@ class StateManager:
   @classmethod
   def load(cls, filename):
     assert not cls._instance
-    cls.instance()
-    try:
-      logging.error('loading state from %s', filename)
-      in_dat = cPickle.load(open(filename, 'rb'))
-      for (c, u, s) in in_dat:
-        if getattr(s, '_last_out_request', None) is None:
-          s._last_out_request = 0
-
-        cls.instance().set(c,u, s)
-        logging.debug('%s,%s = (in=%s, out=%s)',
-                     c,u,s.in_state, s.out_state)
-      logging.error('loaded %s data records', len(in_dat))
-             
-    except:
-      logging.error('failed to load any data')
+    logging.error('failed to load any data')
 
 def SAVE(*args, **kwargs):
   pass
@@ -365,7 +348,7 @@ class SimpleComponent:
         else:
           rmsg +=1
           StateManager.instance().log_message(from_channel, state['user'])
-          logging.info('sending a message %s', outmsg)
+          logging.debug('sending a message %s', outmsg)
           self.xmpp.sendMessage(mto=state['user'],
                                 mbody=outmsg,
                                 mfrom=from_jid,
@@ -455,7 +438,7 @@ class SimpleComponent:
         p.send()
         del p
 
-  def _send_presence(self, channel, user, status=STATUS):
+  def _send_presence(self, channel, user, status=STATUS, state=None):
     
     logging.debug('PRESENCE                %s->%s', channel, user)
     self._dispatch_presence(pfrom=PROXY_JID_PATTERN % channel,
@@ -516,10 +499,14 @@ class SimpleComponent:
     self._send_subscribe(channel, user, state=state)
     self._send_presence(channel, user)
     from_jid = '%s@%s/pcbot' % (channel, MYDOMAIN)
-    self._send_message(channel, from_jid,
-                       [user],
-                       'Welcome to ' + channel)
-    logging.info('sent welcome message')
+    if state['first_time']:
+      self._send_message(channel, from_jid,
+                         [user],
+                         'Welcome to ' + channel)
+      logging.info('sent welcome message for %s,%s', user, channel)
+    else: 
+      logging.info('did not send welcome message for %s,%s due to not first time', 
+                   user, channel)
     
   def message(self, message):
 #    if str(message['from']).find('vijayp') == -1:
@@ -549,14 +536,18 @@ class SimpleComponent:
         return
       user = event['from']
       channel = str(event['to']).split('@')[0]
-      state = StateManager.instance().get(channel, user)
-      return _generic_handler(s, event, state)
+      run_and_call_in_loop(deque([
+        ((StateManager.instance().get_async, channel, user), {}),
+        ((self._generic_handler, s, event, channel, user), {})
+        ]))
+
     except Exception as e:
       logging.error(e)
       return
     
 
-  def _generic_handler(self, s, event, state):
+  def _generic_handler(self, state, s, event, channel, user):
+      logging.debug('state: %s, event: %s, cu:%s, %s', state, event, channel, user)
       if s == 'presence_available':
         # we silently ignore presence updates.
         return
