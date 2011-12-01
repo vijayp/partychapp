@@ -170,14 +170,29 @@ class StateManager:
         found.append(self.get(channel, u))
     return found
                   
+  def get_all_async(self, NEXT, channel, users):
+    q = {'channel' : channel,
+         'user'    : {'$in' : map(strip_resource, users)}}
+    self._async_state_table.find(q, callback=partial(self._get_all_async_response, NEXT, channel, users))    
+
+
+  def _get_all_async_response(self, NEXT, channel, users, response, error):
+    assert not error
+    found = [SavingDict(x) for x in response]
+    users_found = set([x['user'] for x in found])
+    missing_users = set(users) - users_found
+    if missing_users:
+      logging.info('could not find %d new users', len(missing_users))
+      for u in missing_users:
+        found.append(self.get(channel, u))
+    NEXT(found)
+    
+    
 
   def get_async(self, NEXT, channel, user):
     q = self._make_query(channel, user)
     self._async_state_table.find(q, limit=1, callback=partial(self._get_async_response, NEXT))
-    assert NEXT
-#    out = self.get(channel, user)
-#    logging.info(out)
-#    NEXT(out)
+
 
   def _get_async_response(self, NEXT, response, error):
     logging.info('************')
@@ -191,12 +206,12 @@ class StateManager:
       this_state['in_state'] = State.UNKNOWN
       this_state['out_state'] = State.UNKNOWN
       this_state['message_received'] = False
-      this_state['first_time'] = True
+      this_state['first_time'] = False
       this_state['last_out_request'] = 0
-      self._state_table.insert(this_state)
-      this_state = SavingDict(self._state_table.find_one(q))
-      assert this_state
-      self._state_table.update(q, {'$set' : {'first_time' : False}})
+      idno = self._state_table.insert(this_state)
+      this_state['_id'] = idno
+      this_state['first_time'] = True
+      this_state = SavingDict(this_state)
       logging.info('returning response 2')
       NEXT(this_state)
     
@@ -370,8 +385,17 @@ class SimpleComponent:
       assert from_channel and recipients
       assert '@' not in from_channel # TODO better validation
       from_jid = '%s@%s/pcbot' % (from_channel, MYDOMAIN)
-      states = StateManager.instance().get_all(from_channel, recipients)
-      
+
+
+
+      run_and_call_in_loop(deque([
+        ((StateManager.instance().get_all_async, from_channel, recipients), {}),
+        ((self._outbound_message_with_state, from_channel, from_jid, recipients, outmsg), {})
+        ]))
+
+
+
+  def _outbound_message_with_state(self, states, from_channel, from_jid, recipients, outmsg):
       self._send_message(from_channel, from_jid, recipients, outmsg, states=states)
 
   def _inbound_message(self, message):
