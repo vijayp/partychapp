@@ -1,8 +1,8 @@
-CXXFLAGS =	-O2 -g -Wall -fmessage-length=0 -static
+CXXFLAGS =	-O2 -g -Wall -fmessage-length=0 -static -I.
 
-OBJS =		partychat_proxy.o
+OBJS =		partychat_proxy.o jsoncpp.o
 
-LIBS = -lgloox -lpthread -I /usr/local/include/gloox -I /usr/local/lib
+LIBS = -lboost_system -lcurl -lboost_thread -lgloox -lpthread -I /usr/local/include/gloox -I /usr/local/boostlibs/lib
 
 TARGET =	partychat_proxy
 
@@ -13,3 +13,4 @@ all:	$(TARGET)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+						
