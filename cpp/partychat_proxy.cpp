@@ -16,6 +16,8 @@
 #include <curl/curl.h>
 #include <string>
 #include <sstream>
+#include <sys/types.h>
+#include <pwd.h>
 #include <ext/hash_map>
 #include <cstdio> // [s]print[f]
 #include <wchar.h>
@@ -32,6 +34,9 @@ using namespace std;
 #include <boost/serialization/optional.hpp>
 #include <boost/bind.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <boost/serialization/hash_map.hpp>
 #include <fstream>
@@ -48,6 +53,42 @@ template<> struct hash<std::string>
     }
 };
 }
+////
+
+template<class T> void SaveState(T obj, const string& filename) {
+    char *tmpl = strdup("tempXXXXXX");
+    try {
+    int outfile = mkstemp(tmpl);
+    printf("saving state to %s via %s\n", filename.c_str(), tmpl);
+    close(outfile);
+    ofstream ofs(tmpl);
+    //boost::archive::text_oarchive oa(ofs);
+    boost::archive::binary_oarchive oa(ofs);
+    oa << obj;
+    rename(tmpl, filename.c_str());
+    } catch(...) {
+      printf("could not save state!\n");
+    }
+    free(tmpl);
+    tmpl = NULL;
+}
+
+template<class T> bool LoadState(T* obj, const string& filename) {
+    try{
+      printf("loading state from %s\n", filename.c_str());
+      ifstream ifs(filename.c_str());
+      boost::archive::binary_iarchive ia(ifs);
+      ia >> (*obj);
+      printf("loaded %d state data records\n", obj->size());
+      return true;
+    } catch(...) {
+      printf("failed to load state data\n");
+      return false;
+    }
+}
+
+
+
 
 // TODO: flag
 static const string kUrl = "https://partychapp.appspot.com/___control___";
@@ -103,24 +144,28 @@ class OneState {
 typedef hash_map<string, OneState> UserStateMap;
 typedef hash_map<string, UserStateMap>ChannelMap;
 static const int kNumThreads=20;
-void LoopForever() {
-  for (;;) {
-    sleep(100000);
-  }
-}
+static const int kStateDumpTimeSeconds=60;
 
-static const string kHostname = "localhost";
 static const int kPort=5275;
-static const string kComponentDomain = "im.partych.at";
 static const string kDomain = "partych.at";
+static const string kComponentDomain = "im." + kDomain;
+//static const string kComponentDomain = "component.localhost";
+//static const string kDomain = "localhost";
 class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, MessageHandler, PresenceHandler, SubscriptionHandler {
   private:
   Component *component_;
   ChannelMap channel_map_;
   pool *threadpool_;
   const char* hostname_;
+  string state_filename_;
   public:
 
+  void LoopForever() {
+    for (;;) {
+      SaveState(channel_map_, state_filename_);
+      sleep(kStateDumpTimeSeconds);
+    }
+  }
   static string ChannelName(const JID& jid) {
     return jid.username();
   }
@@ -132,9 +177,11 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
 
 
   SimpleProxy(const char* hostname) : threadpool_(new pool(kNumThreads)),
-       hostname_(hostname) {
+       hostname_(hostname),
+       state_filename_("cppproxy.state"){
     assert(hostname);
-    threadpool_->schedule(&LoopForever);
+    LoadState(&channel_map_, state_filename_);
+    threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
   }
   virtual ~SimpleProxy() {
     delete threadpool_;
@@ -174,6 +221,8 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
 
     CURL *curl;
     CURLcode res;
+
+    // TODO: replace with http://pion.org/node/200
 
     // post does not work for some reason
     /* Fill in the token field
@@ -218,38 +267,42 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
     //curl_formfree(formpost);
-
-    Json::Value resp;
-    //printf("trying to parse %s\n", response.str().c_str());
-    try {
-      response >> resp;
-      const string from_channel = resp["from_channel"].asString() + "@" + kComponentDomain;
-      const JID from_jid(from_channel);
-      //printf("Message; <%s>", resp["outmsg"].asCString());
-      Json::Value recs = resp["recipients"];
-      for (int i = 0; i < recs.size(); ++i ) {
-        printf("outbound message %s <- %s\n", recs[i].asCString(), from_channel.c_str());
-        const char* user_name = recs[i].asCString();
-        OneState& state = channel_map_[resp["from_channel"].asString()][user_name];
-        //printf("states %d %d\n", state.in_state_, state.out_state_);
-
-        if (OneState::OK == state.in_state_ && OneState::OK == state.out_state_) {
-          Message nm (Message::Chat, JID(user_name),
-              resp["outmsg"].asString());
-          nm.setFrom(from_jid);
-          component_->send(nm);
-        } else {
-          SendSubscribe(from_jid, JID(user_name), from_channel, user_name);
-          SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
-        }
-      }
-    } catch (...){
-      printf("Could not parse json\n");
-    }
+    ProcessJsonStream(response);
     delete from;
     delete to;
     delete body;
   }
+
+  void ProcessJsonStream(stringstream& response) {
+    Json::Value resp;
+  try {
+    response >> resp;
+  } catch (...){
+    printf("Could not parse json: %s\n", response.str().c_str());
+  }
+    const string from_channel = resp["from_channel"].asString() + "@" + kComponentDomain;
+    const JID from_jid(from_channel);
+    //printf("Message; <%s>", resp["outmsg"].asCString());
+    Json::Value recs = resp["recipients"];
+    for (int i = 0; i < recs.size(); ++i ) {
+      printf("outbound message %s <- %s\n", recs[i].asCString(), from_channel.c_str());
+      const char* user_name = recs[i].asCString();
+      OneState& state = channel_map_[resp["from_channel"].asString()][user_name];
+      //printf("states %d %d\n", state.in_state_, state.out_state_);
+
+      Message nm (Message::Chat, JID(user_name),
+          resp["outmsg"].asString());
+      nm.setFrom(from_jid);
+      component_->send(nm);
+      if (OneState::OK == state.in_state_ && OneState::OK == state.out_state_) {
+        ;
+      } else {
+        SendSubscribe(from_jid, JID(user_name), from_channel, user_name);
+        SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
+      }
+    }
+  }
+
 
 
   virtual bool onTLSConnect( const CertInfo& info )
@@ -290,6 +343,10 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     JID* from = new JID(msg.from());
     JID* to = new JID(msg.to());
     string* body = new string(msg.body());
+    if (body->empty()) {
+      printf("empty body %s\n", msg.body().c_str());
+      return;
+    }
     threadpool_->schedule(boost::bind(&SimpleProxy::ProcessMessage, this,
         from, to, body));
   }
@@ -431,13 +488,58 @@ static void kill_locks(void)
 }
 
 /////////////////
+/// HTTP SERVER
+#include <pion/net/WebService.hpp>
+#include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/net/HTTPServer.hpp>
+#include <pion/net/HTTPTypes.hpp>
+#include <pion/net/HTTPRequest.hpp>
+using namespace pion;
+using namespace pion::net;
+SimpleProxy* global_proxy_pointer;
 
+void HandleRequest(HTTPRequestPtr& request,
+                   TCPConnectionPtr& tcp_conn) {
 
+    static const std::string HELLO = "OK";
+    HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn,
+              *request, boost::bind(&TCPConnection::finish, tcp_conn)));
+    HTTPResponse& r = writer->getResponse();
+    HTTPTypes::QueryParams& params = request->getQueryParams();
+    HTTPTypes::QueryParams::const_iterator body = params.find("body");
+    HTTPTypes::QueryParams::const_iterator token = params.find("token");
+    if (token != params.end() && body != params.end() && "tokendata" == algo::url_decode(token->second)) {
+      string in = algo::url_decode(body->second);
+      stringstream tmp(in);
+      printf("post control-> me body: %s", in.c_str());
+      global_proxy_pointer->ProcessJsonStream(tmp);
+      r.setStatusCode(HTTPTypes::RESPONSE_CODE_OK);
+      writer->writeNoCopy(HELLO);
+    } else {
+      r.setStatusCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
+    }
+    writer->send();
+}
 
+/////////////////
 int main( int argc, char** argv) {
+  if (argc < 4) {
+    printf("usage: %s https_port http_port jabber_hostname", argv[0]);
+    return -1;
+  }
   curl_global_init(CURL_GLOBAL_ALL);
   init_locks();
-  SimpleProxy *r = new SimpleProxy(argv[1]);
+  // TODO: redirect
+  HTTPServerPtr hello_server(new HTTPServer(atoi(argv[1])));
+  hello_server->setSSLKeyFile("/etc/certs/server.all");
+  hello_server->setSSLFlag(true);
+  hello_server->addResource("/___control___", &HandleRequest);
+  hello_server->start();
+  // drop permissions
+
+  //TODO: leak?
+  setuid(getpwnam("nobody")->pw_uid);
+  SimpleProxy *r = global_proxy_pointer = new SimpleProxy(argv[3]);
   r->start();
   delete r;
   kill_locks();
