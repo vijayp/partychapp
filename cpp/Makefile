@@ -7,7 +7,7 @@ LIBS = -lboost_system -lcurl -lboost_thread -lgloox -lpthread -I /usr/local/incl
 TARGET =	partychat_proxy
 
 $(TARGET):	$(OBJS)
-	$(CXX) -static -o $(TARGET) $(OBJS) $(LIBS)
+	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
 
 all:	$(TARGET)
 

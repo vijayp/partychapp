@@ -52,7 +52,6 @@ template<> struct hash<std::string>
 // TODO: flag
 static const string kUrl = "https://partychapp.appspot.com/___control___";
 //static const string kUrl = "http://localhost:8888/___control___";
-static const string JID_SUFFIX = "@component.localhost";
 ///
 using namespace boost::threadpool;
 class OneState {
@@ -113,11 +112,13 @@ void LoopForever() {
 static const string kHostname = "localhost";
 static const int kPort=5275;
 static const string kComponentDomain = "im.partych.at";
+static const string kDomain = "partych.at";
 class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, MessageHandler, PresenceHandler, SubscriptionHandler {
   private:
   Component *component_;
   ChannelMap channel_map_;
   pool *threadpool_;
+  const char* hostname_;
   public:
 
   static string ChannelName(const JID& jid) {
@@ -130,19 +131,21 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
   }
 
 
-  SimpleProxy() : threadpool_(new pool(kNumThreads)){
+  SimpleProxy(const char* hostname) : threadpool_(new pool(kNumThreads)),
+       hostname_(hostname) {
+    assert(hostname);
     threadpool_->schedule(&LoopForever);
   }
   virtual ~SimpleProxy() {
     delete threadpool_;
   }
   void start()  {
-    component_ = new Component( XMLNS_COMPONENT_ACCEPT, kHostname,
+    component_ = new Component( XMLNS_COMPONENT_ACCEPT, hostname_,
         kComponentDomain, "secret", kPort);
-    component_->disco()->setVersion("localhost", GLOOX_VERSION);
+    component_->disco()->setVersion(kDomain, GLOOX_VERSION);
 
     component_->registerConnectionListener(this);
-    component_->logInstance().registerLogHandler(LogLevelDebug, LogAreaAll, this);
+    component_->logInstance().registerLogHandler(LogLevelWarning, LogAreaAll, this);
     component_->registerMessageHandler(this);
     component_->registerSubscriptionHandler(this);
     component_->registerPresenceHandler(this);
@@ -160,6 +163,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
   }
 
   void ProcessMessage(JID* from, JID* to, string* body) {
+    printf("inbound message %s <- %s\n", to->bare().c_str(), from->bare().c_str());
     // 1. build json message
     Json::Value root;
     root["message_str"] = *body;
@@ -216,18 +220,18 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     //curl_formfree(formpost);
 
     Json::Value resp;
-    printf("trying to parse %s\n", response.str().c_str());
+    //printf("trying to parse %s\n", response.str().c_str());
     try {
       response >> resp;
-      const string from_channel = resp["from_channel"].asString() + JID_SUFFIX;
+      const string from_channel = resp["from_channel"].asString() + "@" + kComponentDomain;
       const JID from_jid(from_channel);
-      printf("Message; <%s>", resp["outmsg"].asCString());
+      //printf("Message; <%s>", resp["outmsg"].asCString());
       Json::Value recs = resp["recipients"];
       for (int i = 0; i < recs.size(); ++i ) {
-        printf("Sending data to %s from %s\n", recs[i].asCString(), from_channel.c_str());
+        printf("outbound message %s <- %s\n", recs[i].asCString(), from_channel.c_str());
         const char* user_name = recs[i].asCString();
         OneState& state = channel_map_[resp["from_channel"].asString()][user_name];
-        printf("states %d %d\n", state.in_state_, state.out_state_);
+        //printf("states %d %d\n", state.in_state_, state.out_state_);
 
         if (OneState::OK == state.in_state_ && OneState::OK == state.out_state_) {
           Message nm (Message::Chat, JID(user_name),
@@ -281,7 +285,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     if (msg.subtype() != Message::Chat) {
       return;
     }
-    printf("you said %s\n", msg.body().c_str());
+    //printf("you said %s\n", msg.body().c_str());
     //bind(&X::f, ref(x), _1)(i);		// x.f(i)
     JID* from = new JID(msg.from());
     JID* to = new JID(msg.to());
@@ -307,7 +311,8 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
         // do something;
         string from = presence.from().bare();
         string to = presence.to().username();
-        printf("presence probe from %s\n", presence.from().bare().c_str());
+
+        printf("Presence %s -> %s \n", from.c_str(), to.c_str());
         SendPresence(presence.to().bareJID(), presence.from().bareJID(), to, from);
         break;
     }
@@ -317,7 +322,8 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     Presence out(Presence::Available, to_jid);
     out.setFrom(from_jid);
     component_->send(out);
-    handleLog(gloox::LogLevelDebug, gloox::LogAreaClassComponent, "sent presence");
+    printf("Presence %s -> %s \n", from.c_str(), to.c_str());
+    //handleLog(gloox::LogLevelDebug, gloox::LogAreaClassComponent, "sent presence");
 
   }
   virtual void SendSubscribe(const JID& from_jid, const JID& to_jid,
@@ -328,6 +334,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
       Subscription out(Subscription::Subscribe, to_jid);
       out.setFrom(from_jid);
       component_->send(out);
+      printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
       channel_map_[from][to].out_state_ = OneState::PENDING;
     }
   }
@@ -336,6 +343,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
       const string& from, const string& to) {
     if ((channel_map_[from][to].in_state_ != OneState::OK)
         && (channel_map_[from][to].in_state_ != OneState::REJECTED)) {
+      printf("Subscribed %s -> %s \n", from.c_str(), to.c_str());
       channel_map_[from][to].in_state_ = OneState::OK;
       Subscription out(Subscription::Subscribed, to_jid);
       out.setFrom(from_jid);
@@ -348,16 +356,16 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     string from = subscription.from().bare();
     string to = subscription.to().username();
 
-    printf("Subscription from %s to %s (%d)\n", from.c_str(), to.c_str(),
-        subscription.subtype());
     switch(subscription.subtype()) {
       case Subscription::Invalid:
         break;
       case Subscription::Subscribed:
+        printf("Subscribed %s -> %s\n", from.c_str(), to.c_str());
         channel_map_[to][from].out_state_ = OneState::OK;
         SendSubscribed(subscription.to().bareJID(), subscription.from().bareJID(), to, from);
         break;
       case Subscription::Subscribe:
+        printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
         channel_map_[to][from].in_state_ = OneState::OK;
         SendSubscribed(subscription.to().bareJID(), subscription.from().bareJID(), to, from);
         SendSubscribe(subscription.to().bareJID(), subscription.from().bareJID(), to, from);
@@ -372,10 +380,66 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
   }
 };
 
+
+/////////////// openssl locking
+
+
+#include <pthread.h>
+#include <openssl/crypto.h>
+static pthread_mutex_t *lockarray;
+static void lock_callback(int mode, int type, const char *file, int line)
+{
+  if (mode & CRYPTO_LOCK) {
+    pthread_mutex_lock(&(lockarray[type]));
+  }
+  else {
+    pthread_mutex_unlock(&(lockarray[type]));
+  }
+}
+
+static unsigned long thread_id(void)
+{
+  unsigned long ret;
+
+  ret=(unsigned long)pthread_self();
+  return(ret);
+}
+
+static void init_locks(void)
+{
+  int i;
+
+  lockarray=(pthread_mutex_t *)OPENSSL_malloc(CRYPTO_num_locks() *
+                                            sizeof(pthread_mutex_t));
+  for (i=0; i<CRYPTO_num_locks(); i++) {
+    pthread_mutex_init(&(lockarray[i]),NULL);
+  }
+
+  CRYPTO_set_id_callback((unsigned long (*)())thread_id);
+  CRYPTO_set_locking_callback(lock_callback);
+}
+
+static void kill_locks(void)
+{
+  int i;
+
+  CRYPTO_set_locking_callback(NULL);
+  for (i=0; i<CRYPTO_num_locks(); i++)
+    pthread_mutex_destroy(&(lockarray[i]));
+
+  OPENSSL_free(lockarray);
+}
+
+/////////////////
+
+
+
 int main( int argc, char** argv) {
   curl_global_init(CURL_GLOBAL_ALL);
-  SimpleProxy *r = new SimpleProxy();
+  init_locks();
+  SimpleProxy *r = new SimpleProxy(argv[1]);
   r->start();
   delete r;
+  kill_locks();
   return 0;
 }
