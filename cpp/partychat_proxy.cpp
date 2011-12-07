@@ -279,7 +279,9 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     response >> resp;
   } catch (...){
     printf("Could not parse json: %s\n", response.str().c_str());
+    return;
   }
+  try {
     const string from_channel = resp["from_channel"].asString() + "@" + kComponentDomain;
     const JID from_jid(from_channel);
     //printf("Message; <%s>", resp["outmsg"].asCString());
@@ -301,6 +303,10 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
         SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
       }
     }
+  } catch(...) {
+    printf("unknown error\n");
+    return;
+  }
   }
 
 
