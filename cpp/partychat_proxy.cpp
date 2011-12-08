@@ -17,6 +17,9 @@
 #include <string>
 #include <sstream>
 #include <sys/types.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <unistd.h>
 #include <pwd.h>
 #include <ext/hash_map>
 #include <cstdio> // [s]print[f]
@@ -541,6 +544,16 @@ int main( int argc, char** argv) {
   if (argc < 4) {
     printf("usage: %s https_port http_port jabber_hostname", argv[0]);
     return -1;
+  }
+  printf("Setting rlimit\n");
+  struct rlimit limits;
+  // 350 MB of RAM
+  limits.rlim_cur = 350*(1<<20);
+  limits.rlim_max = 350*(1<<20);
+
+  int rval = setrlimit(RLIMIT_DATA, &limits);
+  if (rval) {
+    perror("could not set rlimit! \n");
   }
   curl_global_init(CURL_GLOBAL_ALL);
   init_locks();
