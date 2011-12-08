@@ -290,16 +290,16 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     return;
   }
   try {
+    string outbounds = "";
     const string from_channel = resp["from_channel"].asString() + "@" + kComponentDomain;
     const JID from_jid(from_channel);
     //printf("Message; <%s>", resp["outmsg"].asCString());
     Json::Value recs = resp["recipients"];
     for (uint32_t i = 0; i < recs.size(); ++i ) {
-      printf("outbound message %s <- %s\n", recs[i].asCString(), from_channel.c_str());
-      const char* user_name = recs[i].asCString();
+      const string user_name = recs[i].asString();
       OneState& state = channel_map_[resp["from_channel"].asString()][user_name];
       //printf("states %d %d\n", state.in_state_, state.out_state_);
-
+      outbounds += " " + user_name;
       Message nm (Message::Chat, JID(user_name),
           resp["outmsg"].asString());
       nm.setFrom(from_jid);
@@ -311,6 +311,8 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
         SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
       }
     }
+    printf("outbound message %s -> %s\n", from_channel.c_str(), outbounds.c_str());
+
   } catch(...) {
     printf("unknown error\n");
     return;
@@ -358,7 +360,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     JID* to = new JID(msg.to());
     string* body = new string(msg.body());
     if (body->empty()) {
-      printf("empty body %s\n", msg.body().c_str());
+      //printf("empty body %s\n", msg.body().c_str());
       delete from;
       delete to;
       delete body;
@@ -387,7 +389,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
         string from = presence.from().bare();
         string to = presence.to().username();
 
-        printf("Presence %s -> %s \n", from.c_str(), to.c_str());
+        //printf("Presence %s -> %s \n", from.c_str(), to.c_str());
         SendPresence(presence.to().bareJID(), presence.from().bareJID(), to, from);
         break;
     }
@@ -397,7 +399,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     Presence out(Presence::Available, to_jid);
     out.setFrom(from_jid);
     component_->send(out);
-    printf("Presence %s -> %s \n", from.c_str(), to.c_str());
+    //printf("Presence %s -> %s \n", from.c_str(), to.c_str());
     //handleLog(gloox::LogLevelDebug, gloox::LogAreaClassComponent, "sent presence");
 
   }
