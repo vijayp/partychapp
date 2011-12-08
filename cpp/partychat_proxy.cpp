@@ -82,7 +82,7 @@ template<class T> bool LoadState(T* obj, const string& filename) {
       ifstream ifs(filename.c_str());
       boost::archive::binary_iarchive ia(ifs);
       ia >> (*obj);
-      printf("loaded %d state data records\n", obj->size());
+      printf("loaded %d state data records\n", static_cast<int>(obj->size()));
       return true;
     } catch(...) {
       printf("failed to load state data\n");
@@ -294,7 +294,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     const JID from_jid(from_channel);
     //printf("Message; <%s>", resp["outmsg"].asCString());
     Json::Value recs = resp["recipients"];
-    for (int i = 0; i < recs.size(); ++i ) {
+    for (uint32_t i = 0; i < recs.size(); ++i ) {
       printf("outbound message %s <- %s\n", recs[i].asCString(), from_channel.c_str());
       const char* user_name = recs[i].asCString();
       OneState& state = channel_map_[resp["from_channel"].asString()][user_name];
@@ -548,13 +548,19 @@ int main( int argc, char** argv) {
   printf("Setting rlimit\n");
   struct rlimit limits;
   // 350 MB of RAM
-  limits.rlim_cur = 350*(1<<20);
-  limits.rlim_max = 350*(1<<20);
+  limits.rlim_cur = 700*(1<<20);
+  limits.rlim_max = 700*(1<<20);
 
-  int rval = setrlimit(RLIMIT_DATA, &limits);
+  int rval = setrlimit(RLIMIT_RSS, &limits);
   if (rval) {
     perror("could not set rlimit! \n");
   }
+  rval = setrlimit(RLIMIT_AS, &limits);
+  if (rval) {
+    perror("could not set rlimit! \n");
+  }
+
+
   curl_global_init(CURL_GLOBAL_ALL);
   init_locks();
   // TODO: redirect
