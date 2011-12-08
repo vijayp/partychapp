@@ -248,7 +248,10 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     // TODO: make token a command-line flag
     // TODO: filter out too-long strings
     string url = kUrl + "?token=tokendata&body="+ json_esc;
-    assert(curl);
+    curl_free(json_esc);
+    if (!curl) {
+      goto done;
+    }
     stringstream response;
 
     //      This crap is necessary because no one follows the 1.1 spec and sends a 100 on a POST
@@ -268,6 +271,7 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     curl_easy_cleanup(curl);
     //curl_formfree(formpost);
     ProcessJsonStream(response);
+    done:
     delete from;
     delete to;
     delete body;
@@ -351,10 +355,14 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     string* body = new string(msg.body());
     if (body->empty()) {
       printf("empty body %s\n", msg.body().c_str());
+      delete from;
+      delete to;
+      delete body;
       return;
+    } else {
+      threadpool_->schedule(boost::bind(&SimpleProxy::ProcessMessage, this,
+					from, to, body));
     }
-    threadpool_->schedule(boost::bind(&SimpleProxy::ProcessMessage, this,
-        from, to, body));
   }
 
   virtual void handlePresence(const Presence& presence) {
