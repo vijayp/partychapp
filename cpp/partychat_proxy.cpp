@@ -244,15 +244,16 @@ class SimpleProxy : public DiscoHandler, ConnectionListener, LogHandler, Message
     curl = curl_easy_init();
 
     // TODO: auto_ptr
-    const char* json_esc = curl_easy_escape(curl, json_out.c_str(), json_out.size());
+    char* json_esc = curl_easy_escape(curl, json_out.c_str(), json_out.size());
     // TODO: make token a command-line flag
     // TODO: filter out too-long strings
     string url = kUrl + "?token=tokendata&body="+ json_esc;
     curl_free(json_esc);
+    stringstream response;
     if (!curl) {
       goto done;
     }
-    stringstream response;
+
 
     //      This crap is necessary because no one follows the 1.1 spec and sends a 100 on a POST
     //		static const char buf[] = "Expect:";
