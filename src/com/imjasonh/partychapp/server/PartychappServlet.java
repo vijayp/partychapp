@@ -146,7 +146,7 @@ public class PartychappServlet extends HttpServlet {
           c.put();
           datastore.endRequest();
           c.broadcastIncludingSender("This is your new channel");
-
+          logger.info(" NEW MIGRATION for channel " + c.getName());
         }
         
         // send message to message sender warning of move.
