@@ -117,11 +117,11 @@ public class PartychappServlet extends HttpServlet {
       datastore.startRequest();
       Channel c = datastore.getChannelByName(channelName);
       datastore.endRequest();
-      if (c!= null && c.getMembers().size() > 250) {
+      if (c!= null && c.getMembers().size() > 300) {
         logger.info("rejected inbound message for " + c.getName() 
             + " because it is too large");
         boolean succ = ChannelUtil.sendMessage(
-            "channels with more than 250 users are temporarily not supported",
+            "channels with more than 300 users are temporarily not supported",
             fromAddr,
             toAddr);
         return;
