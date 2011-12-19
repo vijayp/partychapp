@@ -45,6 +45,7 @@ public class InviteUtil {
     } else {
       inviterName = String.format("%s (%s)", inviterAlias, inviterEmail);
     }
+    String cn = channel.getName() + "@" + PartychappServlet.getMigratedDomain(channel.getMigrated());
     String body = String.format(
         "%s invited you to a chatroom named '%s'.\n\n" +
             "To join, please accept the chat request from %s, and send it an IM. " +
@@ -58,7 +59,7 @@ public class InviteUtil {
             "For more information about Partychat, try http://%s\n",
             inviterName, 
             channel.getName(),
-            channel.serverJID().getId(),
+            cn,
             channel.webUrl(),
             Configuration.webDomain);
     return channel.sendMail(subject, body, inviteeEmail);
