@@ -533,9 +533,10 @@ public class Channel implements Serializable {
 
       String out = jso.toString();
       if (null != resp) {
-        resp.setHeader("Content-Type", "application/json");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setHeader("Content-Type", "application/json; charset=UTF-8");
         resp.getWriter().write(out);
-        logger.info("Sent message via HTTP response");
+        logger.info("Sent message via HTTP response:");
       } else{
       URL url = new URL(PartychappServlet.PROXY_CONTROL_URL);
       Configuration.persistentConfig().getProxyToken();      
