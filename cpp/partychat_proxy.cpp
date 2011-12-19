@@ -86,6 +86,7 @@ template<class T> bool LoadState(T* obj, const string& filename) {
   }
 }
 
+static string global_token;
 // TODO: flag
 static const string kUrl = "https://partychapp.appspot.com/___control___";
 //static const string kUrl = "http://localhost:8888/___control___";
@@ -197,6 +198,7 @@ class SimpleProxy: public DiscoHandler,
       } else {
         printf("COULD NOT OPEN TOKEN FILE. using default token\n");
       }
+      global_token = token_;
     }
 
     virtual ~SimpleProxy() {
@@ -543,7 +545,7 @@ void HandleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) {
   HTTPTypes::QueryParams::const_iterator body = params.find("body");
   HTTPTypes::QueryParams::const_iterator token = params.find("token");
   if (token != params.end() && body != params.end()
-      && "tokendata" == algo::url_decode(token->second)) {
+      && global_token == algo::url_decode(token->second)) {
     string in = algo::url_decode(body->second);
     stringstream tmp(in);
     printf("post control-> me body: %s", in.c_str());
