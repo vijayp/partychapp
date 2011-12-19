@@ -28,11 +28,12 @@ public abstract class SendUtil {
   public static void setXMPP(XMPPService xmpp) {
     XMPP = xmpp;
   }
-
+  @Deprecated
   public static void sendDirect(String msg, JID userJID, JID serverJID) {
     sendMessage(msg, serverJID, Lists.newArrayList(userJID));
   }
 
+  @Deprecated
   public static boolean getPresence(JID userJID, JID serverJID) {
     try {
       return XMPP.getPresence(userJID, serverJID).isAvailable();
@@ -54,7 +55,8 @@ public abstract class SendUtil {
   /**
    * Sends a message. Unsuccessful sends are logged, and the JIDs they were 
    * meant for are returned.
-   */
+   */ 
+  @Deprecated
   public static Set<JID> sendMessage(String msg, JID fromJID, List<JID> toJIDs) {
     if (!fromJID.getId().contains(Configuration.chatDomain)) {
       throw new RuntimeException(fromJID
