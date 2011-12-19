@@ -10,6 +10,7 @@ import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.server.InviteUtil;
+import com.imjasonh.partychapp.server.PartychappServlet;
 import com.imjasonh.partychapp.server.SendUtil;
 import com.imjasonh.partychapp.server.command.InviteHandler;
 
@@ -57,13 +58,14 @@ public class CreateChannelServlet extends HttpServlet {
       // datastore and end up in an inconsistent state.
       JID serverJID = new JID(name + "@" + Configuration.chatDomain);
       // The creator only gets an XMPP invite, not an email one.
-      SendUtil.invite(user.getEmail(), serverJID);
 
       com.imjasonh.partychapp.User pchapUser =
           datastore.getOrCreateUser(user.getEmail());
       
       channel = new Channel(serverJID);
       channel.addMember(pchapUser);
+      // auto-migrate new channels
+      channel.setMigrated(true);
       
       // works for "true" ignoring case
       if (Boolean.parseBoolean(req.getParameter("inviteonly"))) {
@@ -86,13 +88,17 @@ public class CreateChannelServlet extends HttpServlet {
       }
   
       channel.put();
+      
+      // this will not usually get seen
+      channel.broadcastIncludingSender("Welcome to your new channel\n"); 
+      String cn = channel.getName() + "@" + PartychappServlet.getMigratedDomain(channel.getMigrated());
       resp.getWriter().write(
           "Created! Just accept the chat request and start talking. " +
       		"To add users later, type '/invite user@whatever.com'.");
       
       resp.getWriter().write(
-      		"<P>Try messaging <a href=\"im:" + serverJID.getId() + "\">"
-      		+ serverJID.getId() + "</a> or visit <a href=\"/channel/" + name
+      		"<P>Try messaging <a href=\"im:" + cn + "\">"
+      		+ cn + "</a> or visit <a href=\"/channel/" + name
       		+ "\">the room's page</a> for more information.");
     } finally {
       datastore.endRequest();      

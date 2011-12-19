@@ -39,16 +39,26 @@ import org.json.JSONTokener;
 
 @SuppressWarnings("serial")
 public class PartychappServlet extends HttpServlet {
-  public final static String PROXY_SUBDOMAIN = "im";
-  public final static String PARTYCHAPP_CONTROL = "__control@partychapp.appspotchat.com";
+  
+  // TODO(vijayp): replace this with persistent config data 
+  public final static String PROXY_DEFAULT_SUBDOMAIN = "im";
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
-  public final static String PROXY_DOMAIN = "@"+PROXY_SUBDOMAIN + ".partych.at";
-  public final static String PROXY_CONTROL = "_control@"+ PROXY_SUBDOMAIN +".partych.at";
-  public final static String PROXY_CONTROL_URL = "https://im.partych.at/___control___";
-  public final static String MIGRATED_MESSAGE = 
-      "Your channel has been migrated. Please see " +
-          "http://partych.at/migration.html. New channel name: ";
-  public final static String OVERLOADED_MESSAGE = 
+  
+  public static String getMigratedDomain(String domain) {
+    // TODO Auto-generated method stub
+    if (domain == null || domain.isEmpty()) {
+      domain = PartychappServlet.PROXY_DEFAULT_SUBDOMAIN;
+    }
+    
+    // TODO(vijayp): pull this from persistent store:
+    return domain + ".partych.at";
+  }
+  public static String URLForDomain(String domain) {
+    // TODO: pull this from persistent:
+    return "https://" + PartychappServlet.getMigratedDomain(domain)+ "/___control___";
+  }
+  
+ public final static String OVERLOADED_MESSAGE = 
       "System is currently overloaded. Please check" +
           " http://partych.at for details";
 
@@ -71,6 +81,7 @@ public class PartychappServlet extends HttpServlet {
 
 
   @Override
+  @Deprecated
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
     long startCpu = -1;
@@ -125,11 +136,6 @@ public class PartychappServlet extends HttpServlet {
             fromAddr,
             toAddr);
         return;
-      } else if (fromAddr.startsWith(PROXY_CONTROL) &&
-          toAddr.startsWith(PARTYCHAPP_CONTROL)) {
-        // message coming in from proxy
-        // TODO: this stuff should really be over HTTP.
-        doControlPacket(xmppMessage);
       } else if (
           c != null && 
           (c.getName().equals("dogfood") 
@@ -148,13 +154,8 @@ public class PartychappServlet extends HttpServlet {
           c.broadcastIncludingSender("This is your new channel");
           logger.info(" NEW MIGRATION for channel " + c.getName());
         }
-        
-        // send message to message sender warning of move.
-        boolean succ = ChannelUtil.sendMessage(
-            PartychappServlet.MIGRATED_MESSAGE + c.getName() + PartychappServlet.PROXY_DOMAIN,
-            fromAddr,
-            toAddr);
-        logger.info(c.getName() + " channel is already migrated bad user: " + fromAddr);
+        // we don't send messages anymore via appspotchat.
+        logger.info(c.getName() + " channel is already migrated. Bad user: " + fromAddr);
         return;
       } else {
         
@@ -164,10 +165,7 @@ public class PartychappServlet extends HttpServlet {
       }
 
 
-    } catch (JSONException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }finally {
+    } finally {
       if (QS.supports(DataType.CPU_TIME_IN_MEGACYCLES) && xmppMessage != null) {
         long endCpu = QS.getCpuTimeInMegaCycles();
         JID serverJID = jidToLowerCase(xmppMessage.getRecipientJids()[0]);
@@ -306,4 +304,5 @@ public class PartychappServlet extends HttpServlet {
         xmppMessage.getRecipientJids()[0],
         Collections.singletonList(xmppMessage.getFromJid()));
   }
+
 }

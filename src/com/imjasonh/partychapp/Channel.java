@@ -146,10 +146,13 @@ public class Channel implements Serializable {
         && this.migratedDomain != null 
         && !this.migratedDomain.isEmpty(); 
   }
+  public String getMigrated() {
+    return migratedDomain;
+  }
 
   public void setMigrated(boolean m) {
     if (m) {
-      this.migratedDomain = PartychappServlet.PROXY_SUBDOMAIN;
+      this.migratedDomain = PartychappServlet.PROXY_DEFAULT_SUBDOMAIN;
     } else {
       this.migratedDomain = null;
     }
@@ -538,7 +541,7 @@ public class Channel implements Serializable {
         resp.getWriter().write(out);
         logger.info("Sent message via HTTP response:");
       } else{
-      URL url = new URL(PartychappServlet.PROXY_CONTROL_URL);
+      URL url = new URL(PartychappServlet.URLForDomain(migratedDomain));
       Configuration.persistentConfig().getProxyToken();      
       String data = URLEncoder.encode("token", "UTF-8") + "=" 
           + URLEncoder.encode(Configuration.persistentConfig().getProxyToken(), "UTF-8");
@@ -548,7 +551,7 @@ public class Channel implements Serializable {
       r.setPayload(data.getBytes());
       URLFetchServiceFactory.getURLFetchService().fetchAsync(r);
 
-      logger.info("Sent message via HTTPS");
+      logger.info("Sent message via HTTPS to " + url.toString());
       }      
     } catch (JSONException e1) {
       // TODO Auto-generated catch block
@@ -773,4 +776,5 @@ public class Channel implements Serializable {
       put();
     }
   }
+
 }

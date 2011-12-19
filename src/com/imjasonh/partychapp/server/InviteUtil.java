@@ -25,12 +25,15 @@ public class InviteUtil {
     String subject = String.format("%s invited you to '%s'",
         inviterAlias, channel.getName());
     if (channel.isMigrated()) {
-      String channel_jid = channel.getName() + PartychappServlet.PROXY_DOMAIN; 
+      String channel_jid = channel.getName() + "@" + 
+          PartychappServlet.getMigratedDomain(channel.getMigrated());
       logger.info("inviting " + inviteeEmail + " to " + channel_jid);
       channel.sendProxiedMessage(subject, ImmutableList.of(inviteeEmail), null);
       //return succ ? new String("") : new String("could not invite");
     } else {
-      SendUtil.invite(inviteeEmail, channel.serverJID());
+      // TODO(vijayp): delete this codepath
+      logger.info("unmigrated channel!" + channel.getName());
+      
     }
     // Email invitation
     String inviterName;
