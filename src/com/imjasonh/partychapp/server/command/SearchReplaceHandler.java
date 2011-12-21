@@ -5,8 +5,10 @@ import com.google.common.collect.Lists;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.PlusPlusBot;
+import com.imjasonh.partychapp.server.PartychappServlet;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -14,6 +16,9 @@ import java.util.regex.PatternSyntaxException;
 import javax.servlet.http.HttpServletResponse;
 
 public class SearchReplaceHandler implements CommandHandler {
+  private static final Logger logger =
+      Logger.getLogger(SearchReplaceHandler.class.getName());
+
   private static Pattern pattern =
       Pattern.compile("^(" + AliasHandler.ALIAS_REGEX + ": )?s/([^/]+)/([^/]*)(/?)(g?)$");
 
@@ -32,6 +37,11 @@ public class SearchReplaceHandler implements CommandHandler {
     List<String> lastMessages = Lists.newArrayList(msg.member.getLastMessages()); 
 
     msg.member.addToLastMessages(msg.content);
+    if (msg.channel.shouldDisableLogging) {
+      logger.warning("cleared shoulddisablelogging for channel " + msg.channel.getName());
+      msg.channel.shouldDisableLogging = false;
+    }
+    msg.channel.shouldDisableLogging = false;
     msg.channel.put();
     msg.channel.broadcast((msg.member.getAliasPrefix() + msg.content), msg.member);
 

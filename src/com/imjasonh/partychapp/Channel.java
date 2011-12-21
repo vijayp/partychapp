@@ -73,9 +73,15 @@ public class Channel implements Serializable {
   private String name;
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Boolean migrated=new Boolean(true);
 
   @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
+  public Boolean shouldDisableLogging = new Boolean(true);
+
+  @Persistent
+  @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private String migratedDomain = new String("");
   
   
@@ -107,7 +113,7 @@ public class Channel implements Serializable {
    */
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
-  private Boolean loggingDisabled = false;
+  private Boolean loggingDisabled = true;
 
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
