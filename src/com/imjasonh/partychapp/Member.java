@@ -120,9 +120,9 @@ public class Member implements Serializable {
     return Collections.unmodifiableList(mutableLastMessages());
   }
   
-  public void addToLastMessages(String toAdd) {
+  public boolean addToLastMessages(String toAdd) {
     if (channel != null && channel.isLoggingDisabled()) {
-      return;
+      return false;
     }
     if (toAdd.length() > MAX_PERSISTED_MESSAGE_LENGTH) {
       toAdd = toAdd.substring(0, MAX_PERSISTED_MESSAGE_LENGTH);
@@ -132,7 +132,8 @@ public class Member implements Serializable {
     messages.add(0, toAdd);
     if (messages.size() > 10) {
       messages.remove(10);
-    }    
+    }
+    return true;
   }
 
   public DebuggingOptions debugOptions() {

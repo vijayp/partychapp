@@ -12,8 +12,14 @@ public class BroadcastHandler implements CommandHandler {
   public void doCommand(Message msg, HttpServletResponse resp) {
     String reply = msg.member.getAliasPrefix() + msg.content;
     msg.channel.broadcast(reply, msg.member, resp);
-    msg.member.addToLastMessages(msg.content);
-    msg.channel.put();
+    
+    // we should only need to put the channel object if we saved the message. Otherwise
+    // there's no need.
+    if (msg.member.addToLastMessages(msg.content))  {
+      msg.channel.put();
+    } else {
+      ;
+    }
   }
 
   public String documentation() {

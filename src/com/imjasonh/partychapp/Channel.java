@@ -216,9 +216,11 @@ public class Channel implements Serializable {
 
   public void setLoggingDisabled(boolean loggingDisabled) {
     this.loggingDisabled = loggingDisabled;
+    this.shouldDisableLogging = Boolean.FALSE;
     if (loggingDisabled) {
       // Clear currently logged messages if we're disabling logging.
-      fixUp();
+      logger.warning("clearing saved messages for channel " + getName());
+      fixUp(true);
     }
   }
 
@@ -417,6 +419,11 @@ public class Channel implements Serializable {
   }
 
   public boolean isLoggingDisabled() {
+    if (!loggingDisabled && (shouldDisableLogging == null || shouldDisableLogging == Boolean.TRUE)) {
+      // we should disable logging
+      logger.warning("disabling logging for channel " + getName() + " because it's not being used");
+      this.setLoggingDisabled(true);
+    }
     return loggingDisabled;
   }
 
@@ -709,7 +716,9 @@ public class Channel implements Serializable {
   }
 
   public void fixUp() {
-    boolean shouldPut = false;
+    fixUp(false);
+  }
+  public void fixUp(boolean shouldPut) {
     if (sequenceId == null) {
       sequenceId = 0;
       shouldPut = true;

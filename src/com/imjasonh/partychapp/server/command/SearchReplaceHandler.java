@@ -37,9 +37,9 @@ public class SearchReplaceHandler implements CommandHandler {
     List<String> lastMessages = Lists.newArrayList(msg.member.getLastMessages()); 
 
     msg.member.addToLastMessages(msg.content);
-    if (msg.channel.shouldDisableLogging) {
+    if (msg.channel.shouldDisableLogging == null || msg.channel.shouldDisableLogging) {
       logger.warning("cleared shoulddisablelogging for channel " + msg.channel.getName());
-      msg.channel.shouldDisableLogging = false;
+      msg.channel.shouldDisableLogging = new Boolean(false);
     }
     msg.channel.shouldDisableLogging = false;
     msg.channel.put();
