@@ -304,7 +304,11 @@ class SimpleProxy: public DiscoHandler,
 	try {
 	  response >> resp;
 	} catch (...) {
-	  printf("Could not parse json: %s\n", response.str().c_str());
+	  string str;
+	  response >> str;
+	  if (str.size()) {
+	    printf("Could not parse json: %s\n", str.c_str());
+	  }
 	  return;
 	}
 	try {
