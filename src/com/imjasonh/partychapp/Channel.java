@@ -528,7 +528,8 @@ public class Channel implements Serializable {
 
   public void sendProxiedMessage(String message, List<String> rec, HttpServletResponse resp)
   {
-    logger.info("in proxied message with " + rec.size() + " recipients");
+    logger.info("in proxied message with " + rec.size() + " recipients and httpresponse " + resp);
+    
     // SIZE LIMIT
     if (rec.size() > 100) {
       logger.warning("rejecting message for very large channel");
@@ -600,7 +601,7 @@ public class Channel implements Serializable {
   }
 
   public void sendDirect(String message, Member recipient, HttpServletResponse resp) {
-    sendMessage(message, Collections.singletonList(recipient));
+    sendMessage(message, Collections.singletonList(recipient), resp);
     //TODO(someone): figure out if this is safe to do.
     if (false) {
       SendUtil.sendMessage(message,
