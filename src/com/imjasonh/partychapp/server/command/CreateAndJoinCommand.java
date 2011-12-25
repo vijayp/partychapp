@@ -23,6 +23,8 @@ public class CreateAndJoinCommand implements CommandHandler {
     assert msg.member == null;
 
     msg.channel = new Channel(msg.serverJID);
+    msg.channel.setMigrated(true);
+    msg.channel.setLoggingDisabled(true);
     msg.member = msg.channel.addMember(msg.user);
     msg.channel.put();
     

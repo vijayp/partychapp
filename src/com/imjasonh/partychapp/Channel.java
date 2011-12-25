@@ -148,9 +148,16 @@ public class Channel implements Serializable {
   }
   
   public boolean isMigrated() {
-    return shouldMigrate()
+    boolean rval = shouldMigrate()
         && this.migratedDomain != null 
-        && !this.migratedDomain.isEmpty(); 
+        && !this.migratedDomain.isEmpty();
+    
+    if (!rval  && shouldMigrate()) {
+      logger.info("a channel should have been migrated but isn't. migrating it: "  + getName());
+      setMigrated(true);
+      rval = true;
+    }
+    return rval;
   }
   public String getMigrated() {
     return migratedDomain;
@@ -531,7 +538,7 @@ public class Channel implements Serializable {
     logger.info("in proxied message with " + rec.size() + " recipients and httpresponse " + resp);
     
     // SIZE LIMIT
-    if (rec.size() > 100) {
+    if (rec.size() > 300) {
       logger.warning("rejecting message for very large channel");
       return;
     }
