@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 
@@ -9,9 +11,9 @@ public class StatsHandler extends SlashCommand {
   }
   
   @Override
-  public void doCommand(Message msg, String argument) {
+  public void doCommand(Message msg, String argument, HttpServletResponse resp) {
     Datastore.Stats stats = Datastore.instance().getStats(false);    
-    msg.channel.sendDirect(stats.toString(), msg.member);
+    msg.channel.sendDirect(stats.toString(), msg.member, resp);
   }
 
   public String documentation() {

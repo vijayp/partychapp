@@ -2,6 +2,8 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Member;
 import com.imjasonh.partychapp.Message;
@@ -18,7 +20,7 @@ public class SummonHandler extends SlashCommand {
   }
   
   @Override
-  public void doCommand(Message msg, String argument) {
+  public void doCommand(Message msg, String argument, HttpServletResponse resp) {
     bcast.doCommand(msg);
     
     if (argument == null) {
@@ -35,14 +37,14 @@ public class SummonHandler extends SlashCommand {
     StringBuilder didYouMean = new StringBuilder();
     Member toSummon = msg.channel.getOrSuggestMemberFromUserInput(userArg, didYouMean);
     if (toSummon == null && didYouMean.length() != 0) {
-      msg.channel.broadcastIncludingSender(didYouMean.toString());
+      msg.channel.broadcastIncludingSender(didYouMean.toString(), resp);
       return;
     }
     
     User toSummonUser = Datastore.instance().getUserByJID(toSummon.getJID());
     if (toSummonUser == null) {
       msg.channel.sendDirect(
-            "Could not find email address for user to summon", msg.member);
+            "Could not find email address for user to summon", msg.member, resp);
       return;
     }
     
@@ -62,12 +64,12 @@ public class SummonHandler extends SlashCommand {
     if (error != null) {
       reply = error;
     }
-    msg.channel.broadcastIncludingSender(reply);
+    msg.channel.broadcastIncludingSender(reply, resp);
 
     if (toSummon.getSnoozeUntil() != null) {
       toSummon.setSnoozeUntil(null);
       msg.channel.put();
-      msg.channel.broadcastIncludingSender("_" + toSummon.getAlias() + " is no longer snoozing_");
+      msg.channel.broadcastIncludingSender("_" + toSummon.getAlias() + " is no longer snoozing_", resp);
     }
   }
 

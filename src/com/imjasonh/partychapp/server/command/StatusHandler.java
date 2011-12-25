@@ -1,4 +1,6 @@
 package com.imjasonh.partychapp.server.command;
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.DebuggingOptions.Option;
@@ -10,7 +12,7 @@ public class StatusHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String argument) {
+  public void doCommand(Message msg, String argument, HttpServletResponse resp) {
     String reply = "You are currently in '" + msg.channel.getName() + "' as '" + msg.member.getAlias() + ".'";
     User u = msg.user;
     if (u.phoneNumber() != null) {
@@ -22,7 +24,7 @@ public class StatusHandler extends SlashCommand {
     if (msg.member.debugOptions().isEnabled(Option.SEQUENCE_IDS)) {
       reply += "\nCurrent sequence ID: " + msg.channel.getSequenceId();
     }
-    msg.channel.sendDirect(reply, msg.member);
+    msg.channel.sendDirect(reply, msg.member, resp);
   }
   
   public String documentation() {

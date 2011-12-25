@@ -5,6 +5,8 @@ import com.google.common.base.Strings;
 import java.text.DateFormat;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 
 public class SnoozeHandler extends SlashCommand {
@@ -32,10 +34,10 @@ public class SnoozeHandler extends SlashCommand {
   }
 
   @Override
-  void doCommand(Message msg, String argument) {
+  void doCommand(Message msg, String argument, HttpServletResponse resp) {
     if (Strings.isNullOrEmpty(argument)) {
       msg.channel.sendDirect(
-          "No snooze time period given. " + DETAILED_USAGE, msg.member);
+          "No snooze time period given. " + DETAILED_USAGE, msg.member, resp);
       return;       
     }
     
@@ -48,13 +50,13 @@ public class SnoozeHandler extends SlashCommand {
       msg.channel.sendDirect(
           "Sorry, couldn't understand the time period you asked for. " + 
               DETAILED_USAGE,
-          msg.member);
+          msg.member, resp);
       return;
     }
     if (num < 0) {
       msg.channel.sendDirect(
           "You can't snooze for a negative number of seconds! " + DETAILED_USAGE,
-          msg.member);
+          msg.member, resp);
       return;
     }
 
@@ -78,7 +80,7 @@ public class SnoozeHandler extends SlashCommand {
       seconds = num * 60L * 60L * 24L;
       break;
     default:
-      msg.channel.sendDirect(DETAILED_USAGE, msg.member);
+      msg.channel.sendDirect(DETAILED_USAGE, msg.member, resp);
       return;
     }
 
@@ -87,7 +89,7 @@ public class SnoozeHandler extends SlashCommand {
     String reply = "Okay, snoozing for " + num + " " + unitToPrint +
         " (" + seconds + " seconds), until " +
         df.format(msg.member.getSnoozeUntil());
-    msg.channel.sendDirect(reply, msg.member);
+    msg.channel.sendDirect(reply, msg.member, resp);
   }
 
   public String documentation() {

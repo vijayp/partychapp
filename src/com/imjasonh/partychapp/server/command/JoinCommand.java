@@ -42,7 +42,7 @@ public class JoinCommand implements CommandHandler {
 
     String reply = "You have joined '" + msg.channel.getName() + "' with the alias '"
         + msg.member.getAlias() + "'";
-    msg.channel.sendDirect(reply, msg.member);
+    msg.channel.sendDirect(reply, msg.member, resp);
 
     String broadcast = msg.member.getJID() + " has joined the channel with the alias '"
         + msg.member.getAlias() + "'";

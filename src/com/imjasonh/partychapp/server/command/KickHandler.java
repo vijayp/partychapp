@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.common.base.Strings;
 
 import com.imjasonh.partychapp.Message;
@@ -17,12 +19,12 @@ public class KickHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String action) {
+  public void doCommand(Message msg, String action, HttpServletResponse resp) {
     assert msg.channel != null;
     assert msg.member != null;
     
     if (Strings.isNullOrEmpty(action)) {
-      msg.channel.sendDirect("You must specify someone to kick", msg.member);
+      msg.channel.sendDirect("You must specify someone to kick", msg.member, resp);
       return;
     }
     
@@ -30,9 +32,9 @@ public class KickHandler extends SlashCommand {
       msg.channel.put();
       String broadcast = "_" + msg.member.getAlias() + " kicked " +
           action + "_";
-      msg.channel.broadcastIncludingSender(broadcast);
+      msg.channel.broadcastIncludingSender(broadcast, resp);
     } else {
-      msg.channel.sendDirect("No such member", msg.member);
+      msg.channel.sendDirect("No such member", msg.member, resp);
     }
   }
 

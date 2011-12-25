@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Action taken when the user invites other to the current channel.
@@ -32,20 +33,20 @@ public class InviteHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String jids) {
+  public void doCommand(Message msg, String jids, HttpServletResponse resp) {
     assert msg.channel != null;
     assert msg.member != null;
     
     if (Strings.isNullOrEmpty(jids)) {
       msg.channel.sendDirect(
-          "Please list some email addresses to invite", msg.member);
+          "Please list some email addresses to invite", msg.member, resp);
       return;
     }
     
     List<String> jidsToInvite = Lists.newArrayList();
     String error = parseEmailAddresses(jids, jidsToInvite);
     if (!error.isEmpty()) {
-      msg.channel.sendDirect(error, msg.member);
+      msg.channel.sendDirect(error, msg.member, resp);
     }
     
     for (String jidToInvite : jidsToInvite) {
@@ -66,7 +67,7 @@ public class InviteHandler extends SlashCommand {
         broadcast += inviteError;
       }
       
-      msg.channel.broadcastIncludingSender(broadcast);
+      msg.channel.broadcastIncludingSender(broadcast, resp);
     }
   }
 

@@ -298,44 +298,47 @@ class SimpleProxy: public DiscoHandler,
     }
 
     void ProcessJsonStream(stringstream& response) {
-      Json::Value resp;
-      try {
-        response >> resp;
-      } catch (...) {
-        printf("Could not parse json: %s\n", response.str().c_str());
-        return;
-      }
-      try {
-        string outbounds = "";
-        const string from_channel = resp["from_channel"].asString() + "@"
+      for (;;) {
+	
+	Json::Value resp;
+	try {
+	  response >> resp;
+	} catch (...) {
+	  printf("Could not parse json: %s\n", response.str().c_str());
+	  return;
+	}
+	try {
+	  string outbounds = "";
+	  const string from_channel = resp["from_channel"].asString() + "@"
             + kComponentDomain;
-        const JID from_jid(from_channel);
-        //printf("Message; <%s>", resp["outmsg"].asCString());
-        Json::Value recs = resp["recipients"];
-        for (uint32_t i = 0; i < recs.size(); ++i) {
-          const string user_name = recs[i].asString();
-          OneState& state =
+	  const JID from_jid(from_channel);
+	  //printf("Message; <%s>", resp["outmsg"].asCString());
+	  Json::Value recs = resp["recipients"];
+	  for (uint32_t i = 0; i < recs.size(); ++i) {
+	    const string user_name = recs[i].asString();
+	    OneState& state =
               channel_map_[resp["from_channel"].asString()][user_name];
-          //printf("states %d %d\n", state.in_state_, state.out_state_);
-          outbounds += " " + user_name;
-          Message nm(Message::Chat, JID(user_name), resp["outmsg"].asString());
-          nm.setFrom(from_jid);
-          component_->send(nm);
-          if (OneState::OK == state.in_state_
-              && OneState::OK == state.out_state_) {
-            ;
-          } else {
-            SendSubscribe(from_jid, JID(user_name), from_channel, user_name);
-            SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
+	    //printf("states %d %d\n", state.in_state_, state.out_state_);
+	    outbounds += " " + user_name;
+	    Message nm(Message::Chat, JID(user_name), resp["outmsg"].asString());
+	    nm.setFrom(from_jid);
+	    component_->send(nm);
+	    if (OneState::OK == state.in_state_
+		&& OneState::OK == state.out_state_) {
+	      ;
+	    } else {
+	      SendSubscribe(from_jid, JID(user_name), from_channel, user_name);
+	      SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
 
-          }
-        }
-        printf("outbound message %s -> %s\n", from_channel.c_str(),
-            outbounds.c_str());
+	    }
+	  }
+	  printf("outbound message %s -> %s\n", from_channel.c_str(),
+		 outbounds.c_str());
 
-      } catch (...) {
-        printf("unknown error\n");
-        return;
+	} catch (...) {
+	  printf("unknown error\n");
+	  return;
+	}
       }
     }
 

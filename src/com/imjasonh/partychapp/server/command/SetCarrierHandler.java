@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.User;
 
@@ -22,7 +24,7 @@ public class SetCarrierHandler extends SlashCommand {
   }
 
   @Override
-  void doCommand(Message msg, String argument) {
+  void doCommand(Message msg, String argument, HttpServletResponse resp) {
     User.Carrier carrier = null;
     if (argument != null) {
       argument = argument.trim().toLowerCase();
@@ -35,7 +37,7 @@ public class SetCarrierHandler extends SlashCommand {
       }
       msg.channel.sendDirect("Unsupported carrier " + argument +
                              ". Supported carriers are: " + supported,
-                             msg.member);
+                             msg.member, resp);
       return;
     }
     
@@ -43,7 +45,7 @@ public class SetCarrierHandler extends SlashCommand {
     msg.user.put();
     
     msg.channel.sendDirect("okay, set your carrier to " + carrier.shortName,
-                           msg.member);
+                           msg.member, resp);
   }
 
   public String documentation() {

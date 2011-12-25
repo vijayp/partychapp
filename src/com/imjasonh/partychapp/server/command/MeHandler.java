@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.common.base.Strings;
 import com.imjasonh.partychapp.Message;
 
@@ -15,12 +17,12 @@ public class MeHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String action) {
+  public void doCommand(Message msg, String action, HttpServletResponse resp) {
     assert msg.channel != null;
     assert msg.member != null;
     
     if (Strings.isNullOrEmpty(action)) {
-      msg.channel.sendDirect("You must specify an action.", msg.member);
+      msg.channel.sendDirect("You must specify an action.", msg.member, resp);
       return;
     }
     
@@ -29,7 +31,7 @@ public class MeHandler extends SlashCommand {
 
     String broadcast = "_" + msg.member.getAlias() + " " +
         action + "_";
-    msg.channel.broadcastIncludingSender(broadcast);
+    msg.channel.broadcastIncludingSender(broadcast, resp);
   }
 
   public String documentation() {

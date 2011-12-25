@@ -4,6 +4,8 @@ import com.imjasonh.partychapp.Message;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 public class UndoHandler extends SlashCommand {
   private PPBHandler ppbHandler = new PPBHandler();
   
@@ -12,12 +14,12 @@ public class UndoHandler extends SlashCommand {
   }
   
   @Override
-  void doCommand(Message msg, String argument) {
-    msg.channel.broadcast(msg.member.getAliasPrefix() + msg.content, msg.member);
+  void doCommand(Message msg, String argument, HttpServletResponse resp) {
+    msg.channel.broadcast(msg.member.getAliasPrefix() + msg.content, msg.member, resp);
     List<String> lastMessages = msg.member.getLastMessages();
     if (lastMessages.isEmpty()) {
       String reply = "no last message to undo!";
-      msg.channel.broadcastIncludingSender(reply);
+      msg.channel.broadcastIncludingSender(reply, resp);
       return;
     }
 

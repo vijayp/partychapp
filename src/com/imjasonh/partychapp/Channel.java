@@ -513,7 +513,7 @@ public class Channel implements Serializable {
       if (member.debugOptions().isEnabled(Option.ERROR_NOTIFICATIONS)) {
         sendDirect(
             "Attempted to send \"" + message + "\" to you but got an error",
-            member);
+            member, resp);
       }
     }
 
@@ -599,7 +599,7 @@ public class Channel implements Serializable {
     return errorJIDs;
   }
 
-  public void sendDirect(String message, Member recipient) {
+  public void sendDirect(String message, Member recipient, HttpServletResponse resp) {
     sendMessage(message, Collections.singletonList(recipient));
     //TODO(someone): figure out if this is safe to do.
     if (false) {
@@ -645,10 +645,13 @@ public class Channel implements Serializable {
     return logEntity;
   }
 
-  public void broadcastIncludingSender(String message) {
+  public void broadcastIncludingSender(String message, HttpServletResponse resp) {
     List<Member> dest = getMembersToSendTo();
     maybeLogMessage(message, null, dest);
-    sendMessage(message, dest);
+    sendMessage(message, dest, resp);
+  }
+  public void broadcastIncludingSender(String message) {
+    broadcastIncludingSender(message, null);
   }
 
   public String sendMail(String subject,

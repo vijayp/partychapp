@@ -31,7 +31,7 @@ abstract class SlashCommand implements CommandHandler {
    * Subclass do the actual work here, including validating argument
    * as needed.
    */
-  abstract void doCommand(Message msg, String argument);
+  abstract void doCommand(Message msg, String argument, HttpServletResponse resp);
   public void doCommand(Message msg) {
     doCommand(msg, null);
   }
@@ -41,7 +41,7 @@ abstract class SlashCommand implements CommandHandler {
     if (argument != null) {
       argument = argument.trim();
     }
-    doCommand(msg, argument);
+    doCommand(msg, argument, resp);
   }
 
   public boolean matches(Message msg) {

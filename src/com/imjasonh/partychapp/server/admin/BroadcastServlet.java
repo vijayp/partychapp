@@ -34,7 +34,7 @@ public class BroadcastServlet extends HttpServlet {
       try {
         Channel channel = cachingDatastore.getChannelByName(channelName);
         if (null != channel) {
-          channel.broadcastIncludingSender(message);
+          channel.broadcastIncludingSender(message, null);
           resp.getWriter().write("Successfully wrote message " + message + " to channel " + channelName);
         } else {
           resp.getWriter().write("Could not find channel " + channelName);

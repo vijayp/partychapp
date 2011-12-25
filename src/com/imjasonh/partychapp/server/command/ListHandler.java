@@ -12,6 +12,8 @@ import com.imjasonh.partychapp.server.SendUtil;
 import java.util.Collections;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 public class ListHandler extends SlashCommand {
   
   public ListHandler() {
@@ -19,7 +21,7 @@ public class ListHandler extends SlashCommand {
   }
 	
   @Override
-  public void doCommand(Message msg, String argument) {
+  public void doCommand(Message msg, String argument, HttpServletResponse resp) {
     boolean isFiltering = !Strings.isNullOrEmpty(argument);
     
     List<Member> members = Lists.newArrayList(msg.channel.getMembers());
@@ -78,7 +80,7 @@ public class ListHandler extends SlashCommand {
     for (String invitee : invitees) {
       sb.append("\nInvited: ").append(invitee);
     }
-    msg.channel.sendDirect(sb.toString(), msg.member);
+    msg.channel.sendDirect(sb.toString(), msg.member, resp);
   }
   
   public String documentation() {

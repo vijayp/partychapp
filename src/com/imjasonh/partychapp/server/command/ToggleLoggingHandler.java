@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 
 /**
@@ -14,7 +16,7 @@ public class ToggleLoggingHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String action) {
+  public void doCommand(Message msg, String action, HttpServletResponse resp) {
     assert msg.channel != null;
     assert msg.member != null;
     
@@ -24,7 +26,7 @@ public class ToggleLoggingHandler extends SlashCommand {
     String broadcast = "_" + msg.member.getAlias() + " has " +
         (msg.channel.isLoggingDisabled() ? "disabled" : "enabled") +
         " logging._";
-    msg.channel.broadcastIncludingSender(broadcast);
+    msg.channel.broadcastIncludingSender(broadcast, resp);
   }
 
   public String documentation() {

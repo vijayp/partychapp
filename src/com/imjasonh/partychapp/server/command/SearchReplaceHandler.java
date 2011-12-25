@@ -25,8 +25,8 @@ public class SearchReplaceHandler implements CommandHandler {
   PlusPlusBot ppb = new PlusPlusBot();
   PPBHandler ppbHandler = new PPBHandler();
 
-  private void sendNoMatchError(Message msg) {
-    msg.channel.broadcastIncludingSender("No message found that matches that pattern.");
+  private void sendNoMatchError(Message msg, HttpServletResponse resp) {
+    msg.channel.broadcastIncludingSender("No message found that matches that pattern.", resp);
   }
   
   public void doCommand(Message msg) {
@@ -49,7 +49,8 @@ public class SearchReplaceHandler implements CommandHandler {
       msg.channel.broadcastIncludingSender(
           "Search-and-replace is not supported if logging is disabled. You " +
           "can enable logging with the /togglelogging command or by visiting " +
-          "the room's page at " + msg.channel.webUrl());
+          "the room's page at " + msg.channel.webUrl(),
+            resp);
       return;
     }
     
@@ -58,7 +59,7 @@ public class SearchReplaceHandler implements CommandHandler {
     
     Matcher m = pattern.matcher(msg.content.trim());
     if (!m.matches()) {
-      sendNoMatchError(msg);
+      sendNoMatchError(msg, resp);
       return;
     }
 
@@ -77,7 +78,7 @@ public class SearchReplaceHandler implements CommandHandler {
       otherAlias = otherAlias.substring(0, otherAlias.indexOf(":"));
       Member other = msg.channel.getMemberByAlias(otherAlias);
       if (other == null) {
-        msg.channel.broadcastIncludingSender("No member named '" + otherAlias + "' found");
+        msg.channel.broadcastIncludingSender("No member named '" + otherAlias + "' found", resp);
         return;
       } else if (other != msg.member) {
         lastMessages = other.getLastMessages();
@@ -92,7 +93,7 @@ public class SearchReplaceHandler implements CommandHandler {
     try {
       p = Pattern.compile(toReplace);
     } catch (PatternSyntaxException err) {
-      msg.channel.sendDirect("malformed search pattern", msg.member);
+      msg.channel.sendDirect("malformed search pattern", msg.member, resp);
       return;
     }
     for (String curr : lastMessages) {
@@ -102,7 +103,7 @@ public class SearchReplaceHandler implements CommandHandler {
       }
     }
     if (messageToChange == null) {
-      sendNoMatchError(msg);
+      sendNoMatchError(msg, resp);
       return;
     }
     
@@ -122,14 +123,14 @@ public class SearchReplaceHandler implements CommandHandler {
       Message afterMsg =
           Message.Builder.basedOn(msg).setContent(after).build();
       if (ppbHandler.matches(afterMsg)) {
-        ppbHandler.doCommandAsCorrection(afterMsg);
+        ppbHandler.doCommandAsCorrection(afterMsg, resp);
       } else {
-        msg.channel.broadcastIncludingSender(correctionPrefix + after + "_");
+        msg.channel.broadcastIncludingSender(correctionPrefix + after + "_", resp);
       }
       msg.member.addToLastMessages(after);
       msg.channel.put();
     } else {
-      msg.channel.broadcastIncludingSender(correctionPrefix + after + "_");
+      msg.channel.broadcastIncludingSender(correctionPrefix + after + "_", resp);
     }
   }
 

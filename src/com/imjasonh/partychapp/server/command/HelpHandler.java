@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 
 public class HelpHandler extends SlashCommand {
@@ -9,7 +11,7 @@ public class HelpHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String argument) {
+  public void doCommand(Message msg, String argument, HttpServletResponse resp) {
     // TODO: Reject or act on non-null argument
 
     StringBuilder sb = new StringBuilder().append("List of commands:").append('\n');
@@ -25,7 +27,7 @@ public class HelpHandler extends SlashCommand {
         .append("* Found a bug? Let us know: http://code.google.com/p/partychapp/issues/entry\n")
         .append("* Follow us for announcements at http://twitter.com/partychat");
 
-    msg.channel.sendDirect(sb.toString(), msg.member);
+    msg.channel.sendDirect(sb.toString(), msg.member, resp);
   }
 
   public String documentation() {

@@ -11,6 +11,8 @@ import com.imjasonh.partychapp.urlinfo.UrlInfoService;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Command that makes sharing of URLs slightly friendlier (looks up titles).
  * 
@@ -25,9 +27,9 @@ public class ShareHandler extends SlashCommand {
   }
   
   @Override
-  void doCommand(Message msg, String argument) {
+  void doCommand(Message msg, String argument, HttpServletResponse resp) {
     if (Strings.isNullOrEmpty(argument)) {
-      msg.channel.sendDirect("No URL to share given.", msg.member);
+      msg.channel.sendDirect("No URL to share given.", msg.member, resp);
       return;
     }
     
@@ -37,12 +39,12 @@ public class ShareHandler extends SlashCommand {
     try {
       uri = new URI(pieces[0]);
     } catch (URISyntaxException err) {
-      msg.channel.sendDirect("Invalid URL to share given.", msg.member);
+      msg.channel.sendDirect("Invalid URL to share given.", msg.member, resp);
       return;
     }
     
     if (!uri.isAbsolute()) {
-      msg.channel.sendDirect("URLs to share must be absolute", msg.member);
+      msg.channel.sendDirect("URLs to share must be absolute", msg.member, resp);
       return;      
     }
     
@@ -58,7 +60,8 @@ public class ShareHandler extends SlashCommand {
         uri,
         annotation,
         urlInfo.getTitle(),
-        urlInfo.getDescription());
+        urlInfo.getDescription(),
+          resp);
   }
   
   public static void sendShareBroadcast(
@@ -67,7 +70,8 @@ public class ShareHandler extends SlashCommand {
       URI url,
       String annotation,
       String title,
-      String description) {
+      String description,
+      HttpServletResponse resp) {
     String shareBroadcast = "_" + member.getAlias() + " is sharing " + url;
     
     if (!title.isEmpty()) {
@@ -87,7 +91,7 @@ public class ShareHandler extends SlashCommand {
       shareBroadcast += "\n  " + description;
     }
 
-    channel.broadcastIncludingSender(shareBroadcast);
+    channel.broadcastIncludingSender(shareBroadcast, resp);
   }
     
   public String documentation() {

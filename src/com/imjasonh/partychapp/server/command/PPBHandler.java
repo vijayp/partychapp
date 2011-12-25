@@ -15,7 +15,7 @@ public class PPBHandler implements CommandHandler {
   PlusPlusBot ppb = new PlusPlusBot();
 
   private void doCommandWithCustomizedReply(
-      Message msg, String prefix, String suffix) {
+      Message msg, String prefix, String suffix, HttpServletResponse resp) {
     msg.member.addToLastMessages(msg.content);
     msg.channel.put();
     List<Reason> reasons = ppb.extractReasons(msg);
@@ -55,15 +55,15 @@ public class PPBHandler implements CommandHandler {
     String outString = Joiner.on("").join(strList);
 
     if (reasons.isEmpty()) {
-      msg.channel.broadcast(outString, msg.member);    
+      msg.channel.broadcast(outString, msg.member, resp);    
     } else {
-      msg.channel.broadcastIncludingSender(outString);
+      msg.channel.broadcastIncludingSender(outString, resp);
     }
   }
   
-  public void doCommandAsCorrection(Message msg) {
+  public void doCommandAsCorrection(Message msg, HttpServletResponse resp) {
     doCommandWithCustomizedReply(msg, msg.member.getAlias() + 
-                                 " meant _", "_");
+                                 " meant _", "_", resp);
   }
   
   public void doCommand(Message msg) {
@@ -71,7 +71,7 @@ public class PPBHandler implements CommandHandler {
   }
   public void doCommand(Message msg, HttpServletResponse resp) {
 
-    doCommandWithCustomizedReply(msg, msg.member.getAliasPrefix(), "");
+    doCommandWithCustomizedReply(msg, msg.member.getAliasPrefix(), "", resp);
   }
   
   public void undoEarlierMessage(Message msg) {

@@ -2,6 +2,8 @@ package com.imjasonh.partychapp.server.command;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Datastore;
 import com.imjasonh.partychapp.Message;
 import com.imjasonh.partychapp.ppb.Reason;
@@ -14,7 +16,7 @@ public class ReasonsHandler extends SlashCommand {
   }
 
   @Override
-  public void doCommand(Message msg, String name) {
+  public void doCommand(Message msg, String name, HttpServletResponse resp) {
     // TODO: Validate target pattern
     Target target = Datastore.instance().getTarget(msg.channel, name);
     StringBuilder sb = new StringBuilder();
@@ -34,7 +36,7 @@ public class ReasonsHandler extends SlashCommand {
         sb.append("More reasons may be visible at " + msg.channel.webUrl());
       }
     }
-    msg.channel.sendDirect(sb.toString().trim(), msg.member);    
+    msg.channel.sendDirect(sb.toString().trim(), msg.member, resp);    
   }
 
   public String documentation() {

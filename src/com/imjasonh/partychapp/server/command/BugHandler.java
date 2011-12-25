@@ -7,6 +7,8 @@ import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.Message;
 
 public class BugHandler extends SlashCommand {
@@ -17,9 +19,9 @@ public class BugHandler extends SlashCommand {
   }
   
   @Override
-  void doCommand(Message msg, String argument) {
+  void doCommand(Message msg, String argument, HttpServletResponse resp) {
     if (Strings.isNullOrEmpty(argument)) {
-      msg.channel.sendDirect("You must specify a bug summary", msg.member);
+      msg.channel.sendDirect("You must specify a bug summary", msg.member, resp);
       return;
     }    
     
@@ -28,7 +30,7 @@ public class BugHandler extends SlashCommand {
     try {
       String uri = "http://code.google.com/p/partychapp/issues/entry?summary=" + URLEncoder.encode(summary, "UTF-8")
           + "&comment=" + URLEncoder.encode(comment, "UTF-8");
-      msg.channel.sendDirect(uri, msg.member);
+      msg.channel.sendDirect(uri, msg.member, resp);
     } catch (UnsupportedEncodingException e) {
       LOG.log(Level.WARNING, "failed to encode /bug with argument " + argument, e);
     }

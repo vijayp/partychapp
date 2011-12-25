@@ -10,16 +10,18 @@ import com.imjasonh.partychapp.ppb.Target;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 public class GraphScoreHandler extends SlashCommand {
   public GraphScoreHandler() {
     super("graph-score", "graph-scores");
   }
 
   @Override
-  public void doCommand(Message msg, String argument) {
+  public void doCommand(Message msg, String argument, HttpServletResponse resp) {
     if (Strings.isNullOrEmpty(argument)) {
       msg.channel.sendDirect(
-          "You must provide at least one target to graph", msg.member);
+          "You must provide at least one target to graph", msg.member, resp);
       return;
     }
     
@@ -28,7 +30,7 @@ public class GraphScoreHandler extends SlashCommand {
     for (String targetName : targetNames) {
       Target target = Datastore.instance().getTarget(msg.channel, targetName);
       if (target == null) {
-        msg.channel.sendDirect("no target '" + targetName + "'", msg.member);
+        msg.channel.sendDirect("no target '" + targetName + "'", msg.member, resp);
         return;
       }
       targets.add(target);
@@ -36,7 +38,7 @@ public class GraphScoreHandler extends SlashCommand {
 
     msg.channel.sendDirect(
         Graphs.getScoreGraph(targets, 600, 500),
-        msg.member);
+        msg.member, resp);
   }
 
   public String documentation() {

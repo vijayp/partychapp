@@ -132,7 +132,8 @@ public class ChannelShareServlet extends AbstractChannelUserServlet {
         shareData.getUrl(),
         shareData.getAnnotation(),
         shareData.getTitle(),
-        shareData.getDescription());
+        shareData.getDescription(), 
+        resp);
     
     resp.sendRedirect(channel.webUrl());
   }

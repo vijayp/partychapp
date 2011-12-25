@@ -13,7 +13,7 @@ public class Message {
     this.userJID = Preconditions.checkNotNull(builder.userJID);
     this.serverJID = Preconditions.checkNotNull(builder.serverJID);
     this.messageType = Preconditions.checkNotNull(builder.messageType);
-    
+
     this.member = builder.member;
     this.channel = builder.channel;
     this.user = Preconditions.checkNotNull(builder.user);

@@ -1,5 +1,7 @@
 package com.imjasonh.partychapp.server.command;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Message;
 
@@ -10,7 +12,7 @@ public class DebugHandler extends SlashCommand {
   }
 
   @Override
-  void doCommand(Message msg, String argument) {
+  void doCommand(Message msg, String argument, HttpServletResponse resp) {
     String reply;
     if (argument == null) {
       argument = "";
@@ -29,7 +31,7 @@ public class DebugHandler extends SlashCommand {
     } else {
       reply = "Your current debug options are: " + msg.member.debugOptions();
     }
-    msg.channel.sendDirect(reply, msg.member);
+    msg.channel.sendDirect(reply, msg.member, resp);
   }
 
   public String documentation() {
