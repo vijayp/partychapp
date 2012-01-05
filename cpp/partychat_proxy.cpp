@@ -390,17 +390,20 @@ class SimpleProxy: public DiscoHandler,
       string* body = new string(msg.body());
       if (from->bare().find("im.partych.at") != string::npos) {
 	printf(">> MESSAGE LOOP!!!!\n");
-	return;
+	goto bad_exit;
       } else if (body->empty()) {
-        //printf("empty body %s\n", msg.body().c_str());
-        delete from;
-        delete to;
-        delete body;
-        return;
+	goto bad_exit;
       } else {
         threadpool_->schedule(
             boost::bind(&SimpleProxy::ProcessMessage, this, from, to, body));
       }
+      return;
+
+    bad_exit:
+      delete from;
+      delete to;
+      delete body;
+
     }
 
     virtual void handlePresence(const Presence& presence) {
