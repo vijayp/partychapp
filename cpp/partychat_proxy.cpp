@@ -231,6 +231,8 @@ class SimpleProxy: public DiscoHandler,
     void ProcessMessage(JID* from, JID* to, string* body) {
       printf("inbound message %s <- %s\n", to->bare().c_str(),
           from->bare().c_str());
+
+
       // 1. build json message
       Json::Value root;
       root["message_str"] = *body;
@@ -238,6 +240,7 @@ class SimpleProxy: public DiscoHandler,
       root["from_str"] = from->bare();
       root["state"] = "old";
       string json_out = root.toStyledString();
+
 
       CURL *curl;
       CURLcode res;
@@ -385,16 +388,22 @@ class SimpleProxy: public DiscoHandler,
       JID* from = new JID(msg.from());
       JID* to = new JID(msg.to());
       string* body = new string(msg.body());
-      if (body->empty()) {
-        //printf("empty body %s\n", msg.body().c_str());
-        delete from;
-        delete to;
-        delete body;
-        return;
+      if (from->bare().find("im.partych.at") != string::npos) {
+	printf(">> MESSAGE LOOP!!!!\n");
+	goto bad_exit;
+      } else if (body->empty()) {
+	goto bad_exit;
       } else {
         threadpool_->schedule(
             boost::bind(&SimpleProxy::ProcessMessage, this, from, to, body));
       }
+      return;
+
+    bad_exit:
+      delete from;
+      delete to;
+      delete body;
+
     }
 
     virtual void handlePresence(const Presence& presence) {
@@ -574,8 +583,8 @@ int main(int argc, char** argv) {
   printf("Setting rlimit\n");
   struct rlimit limits;
   // 350 MB of RAM
-  limits.rlim_cur = 700 * (1 << 20);
-  limits.rlim_max = 700 * (1 << 20);
+  limits.rlim_cur = 1500 * (1 << 20);
+  limits.rlim_max = 1500 * (1 << 20);
 
   int rval = setrlimit(RLIMIT_RSS, &limits);
   if (rval) {
