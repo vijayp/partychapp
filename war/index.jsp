@@ -172,25 +172,6 @@ to the room, or <a href="/about/faq#commands">on this page</a>. Some key ones:</
 
 <p>There are also more advanced things like <a href="/about/faq#search-and-replace">search-and-replace</a> and <a href="/about/faq#plusplusbot">the PlusPlusBot</a> that you may want to <a href="/about/faq">read about</a>.</p>
 
-<h3>Does anyone use this thing?</h3>
-
-<%
-  Datastore datastore = Datastore.instance();
-  datastore.startRequest();
-  Datastore.Stats stats = datastore.getStats(true);
-%>
-
-<p>
-  It looks like it. <b><%=stats.getFormattedNumChannels()%> rooms</b> have been
-  created, and in the past week <b><%=stats.getFormattedSevenDayActiveUsers()%>
-  people</b> have used them.
-</p>
-
-<%
-  datastore.endRequest();
-%>
-
-
 <a name="about_us"><h3>Tell me more about this "partychat"</h3></a>
 
 <p>Partychat was started by <a href=http://www.q00p.net>Akshay</a> and is

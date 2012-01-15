@@ -213,10 +213,14 @@ public class PartychappServlet extends HttpServlet {
       }
 
     } else {
-
       String decodedTo = jso.getString("to_str");
       decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
       String decodedFrom = jso.getString("from_str");
+      if (decodedFrom.contains("im.partych.at")) {
+        logger.warning("message is from another channel! rejecting:" +
+                       decodedFrom +decodedTo + jso.getString("message_str"));
+        return;
+      }
       String decodedMsg = jso.getString("message_str");
       Message payload = new MessageBuilder().withFromJid(new JID(decodedFrom))
           .withBody(decodedMsg)

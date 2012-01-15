@@ -37,7 +37,7 @@ public class AliasHandler extends SlashCommand {
     msg.channel.sendDirect(youMsg, msg.member, resp);
 
     String reply = "'" + oldAlias + "' is now known as '" + alias + "'";
-    msg.channel.broadcastIncludingSender(reply, resp);
+    msg.channel.broadcastIncludingSender(reply, null);
   }
   
   public String documentation() {
