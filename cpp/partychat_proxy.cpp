@@ -220,7 +220,7 @@ class SimpleProxy: public DiscoHandler,
         component_->connect();
 	useconds_t sec = 1e7;
 	printf("sleeping for %d seconds\n", sec);
-	usleep(sec);
+	usleep(sec); // TODO: catch EINTR and try again with remaining time
       }
     }
 
