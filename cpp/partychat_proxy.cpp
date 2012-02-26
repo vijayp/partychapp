@@ -218,6 +218,9 @@ class SimpleProxy: public DiscoHandler,
 
       for (;;) {
         component_->connect();
+	useconds_t sec = 1e7;
+	printf("sleeping for %d seconds\n", sec);
+	usleep(sec);
       }
     }
 
