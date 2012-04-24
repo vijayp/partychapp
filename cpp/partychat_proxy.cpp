@@ -135,7 +135,7 @@ class OneState {
 typedef hash_map<string, OneState> UserStateMap;
 typedef hash_map<string, UserStateMap> ChannelMap;
 static const int kNumThreads = 20;
-static const int kStateDumpTimeSeconds = 60;
+static const int kStateDumpTimeSeconds = 60 * 15;
 
 static const int kPort = 5275;
 static const string kDomain = "partych.at";
@@ -157,7 +157,14 @@ class SimpleProxy: public DiscoHandler,
     string token_;
 
     Component* random_component() {
-      return components_[rand() % components_.size()];
+      int s = rand();
+      for (int i = 0; i < components_.size(); ++i) {
+	if (components_[(s+i) % components_.size()]->authed()) {
+	  return components_[(s+i) % components_.size()];
+	}
+      }
+      printf("BAD: no valid components found..\n"); // this should not happen
+      return components_[0]; //default to the first component.
     }
   public:
 
@@ -180,7 +187,7 @@ class SimpleProxy: public DiscoHandler,
         threadpool_(new pool(kNumThreads)), state_filename_(
             "cppproxy.state"), token_("tokendata") {
       LoadState(&channel_map_, state_filename_);
-      //      threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
+      threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
       FILE * fp = fopen("/etc/certs/token", "r");
       if (fp) {
         char buffer[100];
