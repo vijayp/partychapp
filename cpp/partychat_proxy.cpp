@@ -10,7 +10,6 @@
 #include "gloox/discohandler.h"
 #include "json/json.h"
 #include "gloox/disco.h"
-#include <pthread.h>
 #include <time.h>
 #include <stdio.h>
 #include <locale.h>
@@ -31,7 +30,6 @@ using namespace gloox;
 using namespace __gnu_cxx;
 using namespace std;
 // for serializing hash_mapu
-
 
 #define BOOST_HAS_HASH
 #include <boost/serialization/hash_collections_load_imp.hpp>
@@ -55,10 +53,6 @@ template<> struct hash<std::string> {
 };
 }
 ////
-
-
-
-
 
 template<class T> void SaveState(T obj, const string& filename) {
   char *tmpl = strdup("tempXXXXXX");
@@ -148,35 +142,6 @@ static const string kDomain = "partych.at";
 static const string kComponentDomain = "im." + kDomain;
 //static const string kComponentDomain = "component.localhost";
 //static const string kDomain = "localhost";
-
-class LockReader {
-private:
-  pthread_rwlock_t* lock_;
-public:
-  LockReader(pthread_rwlock_t* lock) :
-    lock_(lock) {
-    pthread_rwlock_rdlock(lock_);
-  } 
-  ~LockReader() {
-    pthread_rwlock_unlock(lock_);
-  }
-};
-
-class LockWriter {
-private:
-  pthread_rwlock_t* lock_;
-public:
-  LockWriter(pthread_rwlock_t* lock) :
-    lock_(lock) {
-    pthread_rwlock_wrlock(lock_);
-  } 
-  ~LockWriter() {
-    pthread_rwlock_unlock(lock_);
-  }
-};
-
-
-
 class SimpleProxy: public DiscoHandler,
     ConnectionListener,
     LogHandler,
@@ -186,8 +151,6 @@ class SimpleProxy: public DiscoHandler,
   private:
     Component *component_;
     ChannelMap channel_map_;
-    pthread_rwlock_t *channel_map_lock_;
-
     pool *threadpool_;
     const char* hostname_;
     string state_filename_;
@@ -212,15 +175,8 @@ class SimpleProxy: public DiscoHandler,
     SimpleProxy(const char* hostname) :
         threadpool_(new pool(kNumThreads)), hostname_(hostname), state_filename_(
             "cppproxy.state"), token_("tokendata") {
-      channel_map_lock_ = reinterpret_cast<pthread_rwlock_t*>(malloc(sizeof(pthread_rwlock_t)));
-
-      pthread_rwlock_init(channel_map_lock_, NULL);
-
       assert(hostname);
-      { 
-	LockReader l(channel_map_lock_);
-	LoadState(&channel_map_, state_filename_);
-      }
+      LoadState(&channel_map_, state_filename_);
       threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
       FILE * fp = fopen("/etc/certs/token", "r");
       if (fp) {
@@ -370,25 +326,20 @@ class SimpleProxy: public DiscoHandler,
 	  Json::Value recs = resp["recipients"];
 	  for (uint32_t i = 0; i < recs.size(); ++i) {
 	    const string user_name = recs[i].asString();
+	    OneState& state =
+              channel_map_[resp["from_channel"].asString()][user_name];
+	    //printf("states %d %d\n", state.in_state_, state.out_state_);
+	    outbounds += " " + user_name;
+	    Message nm(Message::Chat, JID(user_name), resp["outmsg"].asString());
+	    nm.setFrom(from_jid);
+	    component_->send(nm);
+	    if (OneState::OK == state.in_state_
+		&& OneState::OK == state.out_state_) {
+	      ;
+	    } else {
+	      SendSubscribe(from_jid, JID(user_name), from_channel, user_name);
+	      SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
 
-	    {
-	      LockReader l(channel_map_lock_);
-	      OneState &state = 
-		channel_map_[resp["from_channel"].asString()][user_name];
-	    
-	      //printf("states %d %d\n", state.in_state_, state.out_state_);
-	      outbounds += " " + user_name;
-	      Message nm(Message::Chat, JID(user_name), resp["outmsg"].asString());
-	      nm.setFrom(from_jid);
-	      component_->send(nm);
-	      if (OneState::OK == state.in_state_
-		  && OneState::OK == state.out_state_) {
-		;
-	      } else {
-		SendSubscribe(from_jid, JID(user_name), from_channel, user_name);
-		SendSubscribed(from_jid, JID(user_name), from_channel, user_name);
-
-	      }
 	    }
 	  }
 	  printf("outbound message %s -> %s\n", from_channel.c_str(),
@@ -493,46 +444,23 @@ class SimpleProxy: public DiscoHandler,
     }
     virtual void SendSubscribe(const JID& from_jid, const JID& to_jid,
         const string& from, const string& to) {
-      {
-	LockWriter w(channel_map_lock_);
-	channel_map_[from][to].ResetPendingIfPossible();
-      }
-      bool condition;
-      {
-	LockReader l(channel_map_lock_);
-	condition = (channel_map_[from][to].out_state_ == OneState::UNKNOWN);
-      }
-      if (condition) {
-	{ 
-	  LockWriter w(channel_map_lock_);
-	  channel_map_[from][to].SetOutboundRequest();
-	}
+      channel_map_[from][to].ResetPendingIfPossible();
+      if (channel_map_[from][to].out_state_ == OneState::UNKNOWN) {
+        channel_map_[from][to].SetOutboundRequest();
         Subscription out(Subscription::Subscribe, to_jid);
         out.setFrom(from_jid);
         component_->send(out);
         printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
-	{
-	  LockWriter w(channel_map_lock_);
-	  channel_map_[from][to].out_state_ = OneState::PENDING;
-	}
+        channel_map_[from][to].out_state_ = OneState::PENDING;
       }
     }
-    
 
     virtual void SendSubscribed(const JID& from_jid, const JID& to_jid,
         const string& from, const string& to) {
-      bool condition;
-      {
-	LockReader l(channel_map_lock_);
-	condition = (((channel_map_[from][to].in_state_ != OneState::OK)
-		      && (channel_map_[from][to].in_state_ != OneState::REJECTED)));
-      }
-      if (condition) {
-	printf("Subscribed %s -> %s \n", from.c_str(), to.c_str());
-	{
-	  LockWriter w(channel_map_lock_);
-	  channel_map_[from][to].in_state_ = OneState::OK;
-	}
+      if (((channel_map_[from][to].in_state_ != OneState::OK)
+          && (channel_map_[from][to].in_state_ != OneState::REJECTED))) {
+        printf("Subscribed %s -> %s \n", from.c_str(), to.c_str());
+        channel_map_[from][to].in_state_ = OneState::OK;
         Subscription out(Subscription::Subscribed, to_jid);
         out.setFrom(from_jid);
         component_->send(out);
@@ -549,20 +477,13 @@ class SimpleProxy: public DiscoHandler,
           break;
         case Subscription::Subscribed:
           printf("Subscribed %s -> %s\n", from.c_str(), to.c_str());
-	  {
-	    LockWriter w(channel_map_lock_);
-	    channel_map_[to][from].out_state_ = OneState::OK;
-	  }
+          channel_map_[to][from].out_state_ = OneState::OK;
           SendSubscribed(subscription.to().bareJID(),
               subscription.from().bareJID(), to, from);
           break;
         case Subscription::Subscribe:
           printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
-
-	  { 
-	    LockWriter w(channel_map_lock_);
-	    channel_map_[to][from].in_state_ = OneState::PENDING;
-	  }
+          channel_map_[to][from].in_state_ = OneState::PENDING;
           SendSubscribed(subscription.to().bareJID(),
               subscription.from().bareJID(), to, from);
           SendSubscribe(subscription.to().bareJID(),
@@ -577,8 +498,6 @@ class SimpleProxy: public DiscoHandler,
       }
     }
 };
-
-
 
 /////////////// openssl locking
 

@@ -1,4 +1,4 @@
-CXXFLAGS =	-O2 -g -Wall -fmessage-length=0 -static -I. -D _XOPEN_SOURCE=600
+CXXFLAGS =	-O2 -g -Wall -fmessage-length=0 -static -I.
 
 OBJS =		partychat_proxy.o jsoncpp.o
 
@@ -12,3 +12,4 @@ all:	$(TARGET)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+						
