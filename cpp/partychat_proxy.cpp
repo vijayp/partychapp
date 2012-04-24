@@ -149,12 +149,16 @@ class SimpleProxy: public DiscoHandler,
     PresenceHandler,
     SubscriptionHandler {
   private:
-    Component *component_;
+    //TODO: these are leaked
+    vector<Component*> components_;
     ChannelMap channel_map_;
     pool *threadpool_;
-    const char* hostname_;
     string state_filename_;
     string token_;
+
+    Component* random_component() {
+      return components_[rand() % components_.size()];
+    }
   public:
 
     void LoopForever() {
@@ -172,12 +176,11 @@ class SimpleProxy: public DiscoHandler,
       return size * nmemb;
     }
 
-    SimpleProxy(const char* hostname) :
-        threadpool_(new pool(kNumThreads)), hostname_(hostname), state_filename_(
+    SimpleProxy() :
+        threadpool_(new pool(kNumThreads)), state_filename_(
             "cppproxy.state"), token_("tokendata") {
-      assert(hostname);
       LoadState(&channel_map_, state_filename_);
-      threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
+      //      threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
       FILE * fp = fopen("/etc/certs/token", "r");
       if (fp) {
         char buffer[100];
@@ -204,20 +207,28 @@ class SimpleProxy: public DiscoHandler,
     virtual ~SimpleProxy() {
       delete threadpool_;
     }
-    void start() {
-      component_ = new Component(XMLNS_COMPONENT_ACCEPT, hostname_,
+    void start(const char* const hostname) {
+      threadpool_->schedule(boost::bind(&SimpleProxy::blocking_start, this, hostname));
+    }
+    void blocking_start(const char* const hostname) {
+      assert(hostname);
+      printf("Starting %s\n", hostname);
+      Component* component = new Component(XMLNS_COMPONENT_ACCEPT, hostname,
           kComponentDomain, "secret", kPort);
-      component_->disco()->setVersion(kDomain, GLOOX_VERSION);
 
-      component_->registerConnectionListener(this);
-      component_->logInstance().registerLogHandler(LogLevelWarning, LogAreaAll,
+      components_.push_back(component);
+
+      component->disco()->setVersion(kDomain, GLOOX_VERSION);
+
+      component->registerConnectionListener(this);
+      component->logInstance().registerLogHandler(LogLevelWarning, LogAreaAll,
           this);
-      component_->registerMessageHandler(this);
-      component_->registerSubscriptionHandler(this);
-      component_->registerPresenceHandler(this);
+      component->registerMessageHandler(this);
+      component->registerSubscriptionHandler(this);
+      component->registerPresenceHandler(this);
 
       for (;;) {
-        component_->connect();
+        component->connect();
 	useconds_t sec = 1e7;
 	printf("sleeping for %d seconds\n", sec);
 	usleep(sec); // TODO: catch EINTR and try again with remaining time
@@ -332,7 +343,7 @@ class SimpleProxy: public DiscoHandler,
 	    outbounds += " " + user_name;
 	    Message nm(Message::Chat, JID(user_name), resp["outmsg"].asString());
 	    nm.setFrom(from_jid);
-	    component_->send(nm);
+	    random_component()->send(nm);
 	    if (OneState::OK == state.in_state_
 		&& OneState::OK == state.out_state_) {
 	      ;
@@ -437,7 +448,7 @@ class SimpleProxy: public DiscoHandler,
         const string& from = "", const string& to = "") {
       Presence out(Presence::Available, to_jid);
       out.setFrom(from_jid);
-      component_->send(out);
+      random_component()->send(out);
       //printf("Presence %s -> %s \n", from.c_str(), to.c_str());
       //handleLog(gloox::LogLevelDebug, gloox::LogAreaClassComponent, "sent presence");
 
@@ -449,7 +460,7 @@ class SimpleProxy: public DiscoHandler,
         channel_map_[from][to].SetOutboundRequest();
         Subscription out(Subscription::Subscribe, to_jid);
         out.setFrom(from_jid);
-        component_->send(out);
+        random_component()->send(out);
         printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
         channel_map_[from][to].out_state_ = OneState::PENDING;
       }
@@ -463,7 +474,7 @@ class SimpleProxy: public DiscoHandler,
         channel_map_[from][to].in_state_ = OneState::OK;
         Subscription out(Subscription::Subscribed, to_jid);
         out.setFrom(from_jid);
-        component_->send(out);
+        random_component()->send(out);
       }
       SendPresence(from_jid, to_jid, from, to);
     }
@@ -610,8 +621,12 @@ int main(int argc, char** argv) {
 
   //TODO: leak?
   setuid(getpwnam("nobody")->pw_uid);
-  SimpleProxy *r = global_proxy_pointer = new SimpleProxy(argv[3]);
-  r->start();
+  SimpleProxy *r = global_proxy_pointer = new SimpleProxy();
+
+  for (int i=3; i < argc; ++i){
+    r->start(argv[i]);
+  }
+
   delete r;
   kill_locks();
   return 0;
