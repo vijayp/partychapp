@@ -41,7 +41,7 @@ import org.json.JSONTokener;
 public class PartychappServlet extends HttpServlet {
   
   // TODO(vijayp): replace this with persistent config data 
-  public final static String PROXY_DEFAULT_SUBDOMAIN = "im";
+  public final static String PROXY_DEFAULT_SUBDOMAIN = "at";
   public final static String PARTYCHAPP_DOMAIN = "partychapp.appspotchat.com";
   
   public static String getMigratedDomain(String domain) {
