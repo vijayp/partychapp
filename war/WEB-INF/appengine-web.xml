@@ -11,6 +11,6 @@
 	  <service>xmpp_message</service>
 	  <service>mail</service>
 	</inbound-services>
-	
+	<threadsafe>false</threadsafe>
 	<precompilation-enabled>true</precompilation-enabled>
 </appengine-web-app>
