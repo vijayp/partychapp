@@ -1,8 +1,8 @@
 package com.imjasonh.partychapp.urlinfo;
 
-import com.google.appengine.repackaged.com.google.common.base.Strings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 
 public class UrlInfo {
   public static final UrlInfo EMPTY = new UrlInfo("", "");

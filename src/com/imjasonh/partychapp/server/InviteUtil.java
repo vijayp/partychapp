@@ -2,7 +2,7 @@ package com.imjasonh.partychapp.server;
 
 import java.util.logging.Logger;
 
-import com.google.appengine.repackaged.com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList;
 import com.imjasonh.partychapp.Channel;
 import com.imjasonh.partychapp.Configuration;
 import com.imjasonh.partychapp.server.live.ChannelUtil;
