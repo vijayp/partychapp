@@ -39,6 +39,8 @@ import sys
 def print_counters(c, num=20):
     for kv in c.most_common(num):
         print '\t%s:%s' % kv
+    print '\t\tsum:%d' % sum(c.values())
+    print '\t\tnumber:%d' % len(c)
 
 if __name__ == '__main__':
     for fn in sys.argv[1:]:
