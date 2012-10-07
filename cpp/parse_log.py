@@ -6,6 +6,7 @@ import re
 from collections import Counter, defaultdict
 
 day_channel_map = defaultdict(Counter)
+day_channel_map_unit = defaultdict(Counter)
 day_user_map = defaultdict(Counter)
 day_message_counter = defaultdict(Counter)
 def match(line):
@@ -27,8 +28,10 @@ def match(line):
 
     if outbound:
         day_channel_map[day_str][channel] += len(users)
+        day_channel_map_unit[day_str][channel] += 1
         day_message_counter[day_str]['fanout'] += len(users)
         day_message_counter[day_str]['unit'] += 1
+    else:
         for u in users:
            day_user_map[day_str][u] += 1
     
@@ -44,6 +47,8 @@ if __name__ == '__main__':
     for d in day_channel_map:
         print ''.join(map(str,d))
         print '='*len(' '.join(map(str,d)))
+        print_counters(day_channel_map_unit[d])
+        print
         print_counters(day_channel_map[d])
         print
         print_counters(day_user_map[d])

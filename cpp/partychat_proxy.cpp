@@ -483,7 +483,7 @@ class SimpleProxy: public DiscoHandler,
         Subscription out(Subscription::Subscribe, to_jid);
         out.setFrom(from_jid);
         random_component()->send(out);
-	LOG(INFO) << "Subscribe " << from << "  " << to;
+	//LOG(INFO) << "Subscribe " << from << "  " << to;
         channel_map_[from][to].out_state_ = OneState::PENDING;
       }
     }
@@ -492,7 +492,7 @@ class SimpleProxy: public DiscoHandler,
         const string& from, const string& to) {
       if (((channel_map_[from][to].in_state_ != OneState::OK)
           && (channel_map_[from][to].in_state_ != OneState::REJECTED))) {
-	LOG(INFO) << "Subscribed " << from << " -> " << to;
+	//LOG(INFO) << "Subscribed " << from << " -> " << to;
         channel_map_[from][to].in_state_ = OneState::OK;
         Subscription out(Subscription::Subscribed, to_jid);
         out.setFrom(from_jid);
@@ -509,13 +509,13 @@ class SimpleProxy: public DiscoHandler,
         case Subscription::Invalid:
           break;
         case Subscription::Subscribed:
-	  LOG(INFO) << "Subscribed " << from << " -> " << to;
+	  //	  LOG(INFO) << "Subscribed " << from << " -> " << to;
           channel_map_[to][from].out_state_ = OneState::OK;
           SendSubscribed(subscription.to().bareJID(),
               subscription.from().bareJID(), to, from);
           break;
         case Subscription::Subscribe:
-	  LOG(INFO) << "Subscribe " << from << " -> " << to;
+	  //	  LOG(INFO) << "Subscribe " << from << " -> " << to;
           channel_map_[to][from].in_state_ = OneState::PENDING;
           SendSubscribed(subscription.to().bareJID(),
               subscription.from().bareJID(), to, from);
