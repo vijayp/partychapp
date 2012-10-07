@@ -1,6 +1,6 @@
 package com.imjasonh.partychapp;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.imjasonh.partychapp.ppb.Reason;

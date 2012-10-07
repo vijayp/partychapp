@@ -1,7 +1,7 @@
 package com.imjasonh.partychapp.server.admin;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.imjasonh.partychapp.CachingDatastore;
