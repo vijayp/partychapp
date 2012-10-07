@@ -44,6 +44,25 @@ using namespace std;
 #include <boost/serialization/hash_map.hpp>
 #include <fstream>
 
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+
+
+DEFINE_string(domain, "partych.at", "which high-level domain should we be running on (partych.at)");
+DEFINE_string(component, "im", "which component within the high-level domain should we be running on?");
+DEFINE_int32(xmpp_port, 5275, "what port should we connect to on the xmpp server");
+DEFINE_int32(https_port, 443, "what port should we listen on for https traffic");
+DEFINE_string(xmpp_secret, "secret", "xmpp secret");
+DEFINE_string(default_token, "tokendata", "default xmpp token (if file cannot be read)");
+DEFINE_string(token_file, "/etc/certs/token", "xmpp token file");
+DEFINE_string(ssl_keyfile, "/etc/certs/server.all", "ssl key file");
+DEFINE_string(state_file, "cppproxy.state", "default xmpp token");
+
+
+
+
+
+
 // hash_map doesn't have a string hash for some reason
 namespace __gnu_cxx {
 template<> struct hash<std::string> {
@@ -137,9 +156,9 @@ typedef hash_map<string, UserStateMap> ChannelMap;
 static const int kNumThreads = 20;
 static const int kStateDumpTimeSeconds = 60 * 15;
 
-static const int kPort = 5275;
-static const string kDomain = "partych.at";
-static const string kComponentDomain = "im." + kDomain;
+
+static string kComponentDomain = "";
+
 //static const string kComponentDomain = "component.localhost";
 //static const string kDomain = "localhost";
 class SimpleProxy: public DiscoHandler,
@@ -185,10 +204,10 @@ class SimpleProxy: public DiscoHandler,
 
     SimpleProxy() :
         threadpool_(new pool(kNumThreads)), state_filename_(
-            "cppproxy.state"), token_("tokendata") {
+            FLAGS_state_file), token_(FLAGS_default_token) {
       LoadState(&channel_map_, state_filename_);
       threadpool_->schedule(boost::bind(&SimpleProxy::LoopForever, this));
-      FILE * fp = fopen("/etc/certs/token", "r");
+      FILE * fp = fopen(FLAGS_token_file.c_str(), "r");
       if (fp) {
         char buffer[100];
         bzero(buffer, 100 * sizeof(char));
@@ -221,11 +240,11 @@ class SimpleProxy: public DiscoHandler,
       assert(hostname);
       printf("Starting %s\n", hostname);
       Component* component = new Component(XMLNS_COMPONENT_ACCEPT, hostname,
-          kComponentDomain, "secret", kPort);
+          kComponentDomain, FLAGS_xmpp_secret, FLAGS_xmpp_port);
 
       components_.push_back(component);
 
-      component->disco()->setVersion(kDomain, GLOOX_VERSION);
+      component->disco()->setVersion(FLAGS_domain, GLOOX_VERSION);
 
       component->registerConnectionListener(this);
       component->logInstance().registerLogHandler(LogLevelWarning, LogAreaAll,
@@ -585,7 +604,7 @@ void HandleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) {
       && global_token == algo::url_decode(token->second)) {
     string in = algo::url_decode(body->second);
     stringstream tmp(in);
-    printf("post control-> me body: %s", in.c_str());
+    LOG(INFO) << "post control-> me body: %s" << in;
     global_proxy_pointer->ProcessJsonStream(tmp);
     r.setStatusCode(HTTPTypes::RESPONSE_CODE_OK);
     writer->writeNoCopy(HELLO);
@@ -597,8 +616,14 @@ void HandleRequest(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn) {
 
 /////////////////
 int main(int argc, char** argv) {
-  if (argc < 4) {
-    printf("usage: %s https_port http_port jabber_hostname", argv[0]);
+  google::InitGoogleLogging(argv[0]);
+  google::SetUsageMessage("Partychat Proxy");
+  google::ParseCommandLineFlags(&argc, &argv, true);
+  kComponentDomain = FLAGS_component + '.' + FLAGS_domain;
+
+  printf("domain: %s\n", FLAGS_domain.c_str());
+  if (argc < 2) {
+    printf("usage: %s jabber_hostname ....", argv[0]);
     return -1;
   }
   printf("Setting rlimit\n");
@@ -619,8 +644,8 @@ int main(int argc, char** argv) {
   curl_global_init(CURL_GLOBAL_ALL);
   init_locks();
   // TODO: redirect
-  HTTPServerPtr hello_server(new HTTPServer(atoi(argv[1])));
-  hello_server->setSSLKeyFile("/etc/certs/server.all");
+  HTTPServerPtr hello_server(new HTTPServer(FLAGS_https_port));
+  hello_server->setSSLKeyFile(FLAGS_ssl_keyfile.c_str());
   hello_server->setSSLFlag(true);
   hello_server->addResource("/___control___", &HandleRequest);
   hello_server->start();
@@ -630,7 +655,7 @@ int main(int argc, char** argv) {
   setuid(getpwnam("nobody")->pw_uid);
   SimpleProxy *r = global_proxy_pointer = new SimpleProxy();
 
-  for (int i=3; i < argc; ++i){
+  for (int i=1; i < argc; ++i){
     r->start(argv[i]);
   }
 
