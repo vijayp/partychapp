@@ -77,7 +77,7 @@ template<class T> void SaveState(T obj, const string& filename) {
   char *tmpl = strdup("tempXXXXXX");
   try {
     int outfile = mkstemp(tmpl);
-    printf("saving state to %s via %s\n", filename.c_str(), tmpl);
+    LOG(INFO) <<"saving state to " <<  filename << " via "<< tmpl;
     close(outfile);
     ofstream ofs(tmpl);
     //boost::archive::text_oarchive oa(ofs);
@@ -85,7 +85,7 @@ template<class T> void SaveState(T obj, const string& filename) {
     oa << obj;
     rename(tmpl, filename.c_str());
   } catch (...) {
-    printf("could not save state!\n");
+    LOG(ERROR)<< ("could not save state!\n");
   }
   free(tmpl);
   tmpl = NULL;
@@ -93,14 +93,14 @@ template<class T> void SaveState(T obj, const string& filename) {
 
 template<class T> bool LoadState(T* obj, const string& filename) {
   try {
-    printf("loading state from %s\n", filename.c_str());
+    LOG(INFO) << "loading state from" << filename;
     ifstream ifs(filename.c_str());
     boost::archive::binary_iarchive ia(ifs);
     ia >> (*obj);
-    printf("loaded %d state data records\n", static_cast<int>(obj->size()));
+    LOG(INFO) << "loaded state data records: " << obj->size();
     return true;
   } catch (...) {
-    printf("failed to load state data\n");
+    LOG(ERROR)<< ("failed to load state data");
     return false;
   }
 }
@@ -182,7 +182,7 @@ class SimpleProxy: public DiscoHandler,
 	  return components_[(s+i) % components_.size()];
 	}
       }
-      printf("BAD: no valid components found..\n"); // this should not happen
+      LOG(ERROR) << ("BAD: no valid components found.."); // this should not happen
       return components_[0]; //default to the first component.
     }
   public:
@@ -215,17 +215,17 @@ class SimpleProxy: public DiscoHandler,
         if (read) {
           for (int i = 0; i < strlen(buffer); ++i) {
             if (!isalnum(buffer[i])) {
-              printf("ERROR BAD TOKEN CHARACTER %d, %s\n", i, buffer);
+              LOG(ERROR) << "ERROR BAD TOKEN CHARACTER " << i << ":" << buffer;
               goto tokendone;
             }
           }
-          printf("Setting token to %s\n", buffer);
+	  LOG(INFO)<< "setting token to " << buffer;
           token_ = string(buffer);
         }
         tokendone:
         fclose(fp);
       } else {
-        printf("COULD NOT OPEN TOKEN FILE. using default token\n");
+        LOG(ERROR) << "COULD NOT OPEN TOKEN FILE. using default token";
       }
       global_token = token_;
     }
@@ -238,7 +238,7 @@ class SimpleProxy: public DiscoHandler,
     }
     void blocking_start(const char* const hostname) {
       assert(hostname);
-      printf("Starting %s\n", hostname);
+      LOG(INFO) << "Starting" << hostname;
       Component* component = new Component(XMLNS_COMPONENT_ACCEPT, hostname,
           kComponentDomain, FLAGS_xmpp_secret, FLAGS_xmpp_port);
 
@@ -256,7 +256,7 @@ class SimpleProxy: public DiscoHandler,
       for (;;) {
         component->connect();
 	useconds_t sec = 1e7;
-	printf("sleeping for %d seconds\n", sec);
+	LOG(INFO) << "sleeping for "<< sec <<" seconds";
 	usleep(sec); // TODO: catch EINTR and try again with remaining time
       }
     }
@@ -269,10 +269,7 @@ class SimpleProxy: public DiscoHandler,
     }
 
     void ProcessMessage(JID* from, JID* to, string* body) {
-      printf("inbound message %s <- %s\n", to->bare().c_str(),
-          from->bare().c_str());
-
-
+      LOG(INFO) << "inbound message "<< to->bare() << " <- " << from->bare();
       // 1. build json message
       Json::Value root;
       root["message_str"] = *body;
@@ -350,7 +347,7 @@ class SimpleProxy: public DiscoHandler,
 	  string str;
 	  response >> str;
 	  if (str.size()) {
-	    printf("Could not parse json: %s\n", str.c_str());
+	    LOG(ERROR) << "Could not parse json:"<< str;
 	  }
 	  return;
 	}
@@ -379,11 +376,10 @@ class SimpleProxy: public DiscoHandler,
 
 	    }
 	  }
-	  printf("outbound message %s -> %s\n", from_channel.c_str(),
-		 outbounds.c_str());
+	  LOG(INFO) << "outbound message "<< from_channel << " <- " << outbounds;
 
 	} catch (...) {
-	  printf("unknown error\n");
+	  LOG(ERROR) << ("unknown error");
 	  return;
 	}
       }
@@ -415,7 +411,7 @@ class SimpleProxy: public DiscoHandler,
 
     virtual void handleLog(LogLevel level, LogArea area,
         const std::string& message) {
-      printf("log: level: %d, area: %d, %s\n", level, area, message.c_str());
+      LOG(INFO) << "level: " << level << " area:" << area << " message:" << message;
     }
 
     virtual void handleMessage(const Message& msg,
@@ -429,7 +425,7 @@ class SimpleProxy: public DiscoHandler,
       JID* to = new JID(msg.to());
       string* body = new string(msg.body());
       if (from->bare().find("im.partych.at") != string::npos) {
-	printf(">> MESSAGE LOOP!!!!\n");
+	LOG(ERROR) << "message loop!" << from->bare();
 	goto bad_exit;
       } else if (body->empty()) {
 	goto bad_exit;
@@ -487,7 +483,7 @@ class SimpleProxy: public DiscoHandler,
         Subscription out(Subscription::Subscribe, to_jid);
         out.setFrom(from_jid);
         random_component()->send(out);
-        printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
+	LOG(INFO) << "Subscribe " << from << "  " << to;
         channel_map_[from][to].out_state_ = OneState::PENDING;
       }
     }
@@ -496,7 +492,7 @@ class SimpleProxy: public DiscoHandler,
         const string& from, const string& to) {
       if (((channel_map_[from][to].in_state_ != OneState::OK)
           && (channel_map_[from][to].in_state_ != OneState::REJECTED))) {
-        printf("Subscribed %s -> %s \n", from.c_str(), to.c_str());
+	LOG(INFO) << "Subscribed " << from << " -> " << to;
         channel_map_[from][to].in_state_ = OneState::OK;
         Subscription out(Subscription::Subscribed, to_jid);
         out.setFrom(from_jid);
@@ -513,13 +509,13 @@ class SimpleProxy: public DiscoHandler,
         case Subscription::Invalid:
           break;
         case Subscription::Subscribed:
-          printf("Subscribed %s -> %s\n", from.c_str(), to.c_str());
+	  LOG(INFO) << "Subscribed " << from << " -> " << to;
           channel_map_[to][from].out_state_ = OneState::OK;
           SendSubscribed(subscription.to().bareJID(),
               subscription.from().bareJID(), to, from);
           break;
         case Subscription::Subscribe:
-          printf("Subscribe %s -> %s \n", from.c_str(), to.c_str());
+	  LOG(INFO) << "Subscribe " << from << " -> " << to;
           channel_map_[to][from].in_state_ = OneState::PENDING;
           SendSubscribed(subscription.to().bareJID(),
               subscription.from().bareJID(), to, from);
@@ -620,7 +616,7 @@ int main(int argc, char** argv) {
   google::SetUsageMessage("Partychat Proxy");
   google::ParseCommandLineFlags(&argc, &argv, true);
   kComponentDomain = FLAGS_component + '.' + FLAGS_domain;
-
+  LOG(INFO)<< "Hello";
   printf("domain: %s\n", FLAGS_domain.c_str());
   if (argc < 2) {
     printf("usage: %s jabber_hostname ....", argv[0]);
