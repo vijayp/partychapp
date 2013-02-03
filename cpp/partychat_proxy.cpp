@@ -308,7 +308,8 @@ class SimpleProxy: public DiscoHandler,
           json_out.size());
       // TODO: make token a command-line flag
       // TODO: filter out too-long strings
-      string url = kUrl + "?token="+ token_ +"&body=" + json_esc;
+      string url_addition = "token="+ token_ +"&body=" + json_esc;
+      string url = kUrl + "?" + url_addition;
       curl_free(json_esc);
       stringstream response;
       if (!curl) {
@@ -322,7 +323,10 @@ class SimpleProxy: public DiscoHandler,
 
       //			  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
       //		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      
+      //      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      curl_easy_setopt(curl, CURLOPT_URL, kUrl.c_str());
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, url_addition.c_str());
       curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
       curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
