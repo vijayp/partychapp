@@ -8,6 +8,7 @@
 #include "gloox/subscriptionhandler.h"
 #include "gloox/loghandler.h"
 #include "gloox/discohandler.h"
+#include "gloox/vcard.h"
 #include "json/json.h"
 #include "gloox/disco.h"
 #include <time.h>
@@ -253,12 +254,20 @@ class SimpleProxy: public DiscoHandler,
       component->registerSubscriptionHandler(this);
       component->registerPresenceHandler(this);
 
+      VCard* vcard = new VCard();
+      (vcard)->setPhoto("http://partychapp.appspot.com/images/logo.png");
+      vcard->setName("Partych.at beta", "");
+      vcard->setNickname("partych.at");
+      component->addPresenceExtension(vcard);
+
       for (;;) {
         component->connect();
 	useconds_t sec = 1e7;
 	LOG(INFO) << "sleeping for "<< sec <<" seconds";
 	usleep(sec); // TODO: catch EINTR and try again with remaining time
       }
+
+      delete vcard;
     }
 
     virtual void onConnect() {
@@ -472,8 +481,9 @@ class SimpleProxy: public DiscoHandler,
     }
     virtual void SendPresence(const JID& from_jid, const JID& to_jid,
         const string& from = "", const string& to = "") {
-      Presence out(Presence::Available, to_jid);
+      Presence out(Presence::Available, to_jid, "http://partych.at");
       out.setFrom(from_jid);
+      
       random_component()->send(out);
       //printf("Presence %s -> %s \n", from.c_str(), to.c_str());
       //handleLog(gloox::LogLevelDebug, gloox::LogAreaClassComponent, "sent presence");
@@ -487,6 +497,9 @@ class SimpleProxy: public DiscoHandler,
         Subscription out(Subscription::Subscribe, to_jid);
         out.setFrom(from_jid);
         random_component()->send(out);
+	
+	
+
 	//LOG(INFO) << "Subscribe " << from << "  " << to;
         channel_map_[from][to].out_state_ = OneState::PENDING;
       }
