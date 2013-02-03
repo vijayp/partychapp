@@ -2,15 +2,18 @@ line = '''I1007 21:14:30.750692 13590 partychat_proxy.cpp:379] outbound message 
 
 import time
 import re
-
+import sys
 from collections import Counter, defaultdict
 
 day_channel_map = defaultdict(Counter)
 day_channel_map_unit = defaultdict(Counter)
 day_user_map = defaultdict(Counter)
+seven_day_user_map = defaultdict(Counter)
 day_message_counter = defaultdict(Counter)
+LINE_MATCHER = re.compile('I([0-9]+ +[0-9]+:[0-9]+:[0-9]+).[^[]*](.*)')
+MAIL_MATCHER = re.compile('([^ ]*@[^ ]*)')
 def match(line):
-    m = re.match('I([0-9]+ +[0-9]+:[0-9]+:[0-9]+).[^[]*](.*)', line)
+    m = re.match(LINE_MATCHER, line)
     if not m: return
     dt, message = m.groups()
     ts = time.strptime(dt, '%m%d %H:%M:%S')
@@ -21,21 +24,28 @@ def match(line):
         outbound = False
     else:
         return
-    emails = re.findall('([^ ]*@[^ ]*)', message)
+    emails = re.findall(MAIL_MATCHER, message)
+    if not emails:
+        print >> sys.stderr, line
+        return
     channel = emails[0]
     users = emails[1:]
     day_str = ts[1:3]
 
+
     if outbound:
-        day_channel_map[day_str][channel] += len(users)
-        day_channel_map_unit[day_str][channel] += 1
-        day_message_counter[day_str]['fanout'] += len(users)
-        day_message_counter[day_str]['unit'] += 1
+        for day_str in (ts[1:3], 'total'):
+            day_channel_map[day_str][channel] += len(users)
+            day_channel_map_unit[day_str][channel] += 1
+            day_message_counter[day_str]['fanout'] += len(users)
+            day_message_counter[day_str]['unit'] += 1
     else:
         for u in users:
-           day_user_map[day_str][u] += 1
+           seven_day_user_map[(ts[1], ts[2] / 7)][u] += 1 
+           for day_str in (ts[1:3], 'total'):
+               day_user_map[day_str][u] += 1
     
-import sys
+
 def print_counters(c, num=20):
     for kv in c.most_common(num):
         print '\t%s:%s' % kv
@@ -57,3 +67,9 @@ if __name__ == '__main__':
         print
         print_counters(day_message_counter[d])
 
+    print
+    print 'SEVEN DAY ACTIVES'
+    for d in seven_day_user_map:
+        print d
+        print_counters(seven_day_user_map[d])
+        
