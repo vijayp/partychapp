@@ -80,4 +80,16 @@ public class MockXMPPService implements XMPPService {
       JID fromJid) {
     throw new UnsupportedOperationException();
   }
+
+@Override
+public List<Presence> getPresence(Iterable<JID> jabberIds) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public List<Presence> getPresence(Iterable<JID> jabberIds, JID fromJid) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }
