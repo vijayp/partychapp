@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp;
 
-import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.xmpp.JID;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -53,6 +52,13 @@ public abstract class Datastore {
     throw (new NotImplementedException());
   }
 
+  
+  public List<Channel> getChannelsForGmailUsername(
+      String gmailUserName) throws NotImplementedException {
+	    throw (new NotImplementedException());
+  }
+
+  
   public User getOrCreateUser(String jid) {
     User u = getUserByJID(jid);
     if (u != null) {

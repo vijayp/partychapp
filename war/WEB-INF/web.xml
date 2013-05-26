@@ -23,6 +23,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     <servlet-name>controlservlet</servlet-name>
     <servlet-class>com.imjasonh.partychapp.server.ControlServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>addGmailAccountServlet</servlet-name>
+    <servlet-class>com.imjasonh.partychapp.server.web.AddGmailAccountServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>controlservlet</servlet-name>
@@ -52,6 +56,11 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   <servlet-mapping>
     <servlet-name>inviteToChannelServlet</servlet-name>
     <url-pattern>/channel/invite</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>addGmailAccountServlet</servlet-name>
+    <url-pattern>/channel/add_gmail_account</url-pattern>
   </servlet-mapping>
 
   <servlet>

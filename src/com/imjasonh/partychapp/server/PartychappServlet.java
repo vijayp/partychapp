@@ -26,6 +26,7 @@ import com.imjasonh.partychapp.stats.ChannelStats;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -54,9 +55,14 @@ public class PartychappServlet extends HttpServlet {
     return domain + ".partych.at";
   }
   public static String URLForDomain(String domain) {
-    // TODO: pull this from persistent:
-    return "https://" + PartychappServlet.getMigratedDomain(domain)+ "/___control___";
-  }
+	    // TODO: pull this from persistent:
+	    return "https://" + PartychappServlet.getMigratedDomain(domain)+ "/___control___";
+	  }
+
+  public static String URLForClientDomain(String domain) {
+	    // TODO: pull this from persistent:
+	    return "https://" + PartychappServlet.getMigratedDomain(domain)+ ":4443/___control___";
+	  }
   
  public final static String OVERLOADED_MESSAGE = 
       "System is currently overloaded. Please check" +
@@ -191,7 +197,6 @@ public class PartychappServlet extends HttpServlet {
     // this is to prevent the proxy from having to store state (i.e. roster).
 
     if ((null != state) && state.equals("new")) {
-      logger.warning("Looks like the proxy just came up. Refreshing his roster");
       Datastore datastore = new LiveDatastore();
       logger.warning("Looks like the proxy just came up. Refreshing his roster");
 
@@ -213,8 +218,30 @@ public class PartychappServlet extends HttpServlet {
       }
 
     } else {
-      String decodedTo = jso.getString("to_str");
-      decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
+      String decodedTo = "";
+      if (jso.has("to_str")) {
+        decodedTo = jso.getString("to_str");
+        decodedTo = decodedTo.split("@")[0] + "@" + PARTYCHAPP_DOMAIN;
+      } else {
+        String clientProxy = jso.getString("to_client_proxy");
+        Datastore datastore = new LiveDatastore();
+        try {
+          datastore.startRequest();
+          List<Channel> channels = datastore.getChannelsForGmailUsername(clientProxy);
+          if (channels.size() != 1) {
+            logger.warning("ERROR CLIENT PROXY " + clientProxy + " did not match exactly one channel");
+            return;
+          }
+          decodedTo = channels.get(0).getName() + "@" + PARTYCHAPP_DOMAIN;
+          
+        } catch (NotImplementedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } finally {
+          datastore.endRequest();
+        }
+      }
+      
       String decodedFrom = jso.getString("from_str");
       if (decodedFrom.contains("im.partych.at")) {
         logger.warning("message is from another channel! rejecting:" +

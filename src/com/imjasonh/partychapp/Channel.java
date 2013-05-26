@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import com.imjasonh.partychapp.Datastore.NotImplementedException;
 import com.imjasonh.partychapp.DebuggingOptions.Option;
 import com.imjasonh.partychapp.Member.SnoozeStatus;
 import com.imjasonh.partychapp.server.MailUtil;
@@ -53,6 +54,7 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
+import org.apache.commons.lang.StringUtils;
 
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -114,6 +116,49 @@ public class Channel implements Serializable {
   @Persistent
   @Extension(vendorName = "datanucleus", key = "gae.unindexed", value="true")
   private Boolean loggingDisabled = true;
+
+  
+  
+  @Persistent
+  private String gmailUserName=null;
+  
+  @Persistent 
+  private String gmailPassword=null;
+  
+  public String getGmailUserName() {
+    return gmailUserName;
+  }
+
+  public boolean setGmailUserName(String gmailUserName)  {
+  	if (StringUtils.countMatches(gmailUserName, "@") != 1) {
+  		return false;
+  	}
+    Datastore d = new LiveDatastore();
+    try {
+      d.startRequest();
+      List<Channel> matchingChannels = d.getChannelsForGmailUsername(gmailUserName);
+      User u = d.getUserByJID(gmailUserName);
+      if (u == null && matchingChannels.isEmpty()) {
+        this.gmailUserName = gmailUserName;
+        return true;
+      }
+    } catch (NotImplementedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } finally  {
+      d.endRequest();
+    }
+    return false;
+  }
+
+  public String getGmailPassword() {
+	return gmailPassword;
+  }
+
+  public boolean setGmailPassword(String gmailPassword) {
+	this.gmailPassword = gmailPassword;
+	return true;
+  }
 
   public Channel(JID serverJID) {
     this.name = serverJID.getId().split("@")[0];
@@ -554,41 +599,51 @@ public class Channel implements Serializable {
       // which is 32k. 
       jso.put("recipients", rec);
       jso.put("from_channel", this.name);
-
-      String out = jso.toString();
+      jso.put("gmail_password", getGmailPassword());
+      jso.put("gmail_username", getGmailUserName());
+      
+      
       if (null != resp) {
         resp.setCharacterEncoding("UTF-8");
         resp.setHeader("Content-Type", "application/json; charset=UTF-8");
+    	String out = jso.toString();
         resp.getWriter().write(out);
         logger.info("Sent message via HTTP response:");
-      } else{
-      URL url = new URL(PartychappServlet.URLForDomain(migratedDomain));
-      Configuration.persistentConfig().getProxyToken();      
-      String data = URLEncoder.encode("token", "UTF-8") + "=" 
-          + URLEncoder.encode(Configuration.persistentConfig().getProxyToken(), "UTF-8");
-      data += "&" + URLEncoder.encode("body", "UTF-8") + "=" + URLEncoder.encode(out, "UTF-8");
-      
-      HTTPRequest r = new HTTPRequest(url, HTTPMethod.POST);
-      r.setPayload(data.getBytes());
-      URLFetchServiceFactory.getURLFetchService().fetchAsync(r);
-
-      logger.info("Sent message via HTTPS to " + url.toString());
+      } else {
+	    sendJsonObjectToUrl(jso, PartychappServlet.URLForDomain(migratedDomain));
       }      
-    } catch (JSONException e1) {
+    } catch (JSONException|IOException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
-    } catch (MalformedURLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
     }
+    //
+    if (getGmailPassword() != null && !getGmailPassword().isEmpty()) {
+    	// also send this to the client proxy
+    	logger.info("Sending message via client proxy also");
+	    sendJsonObjectToUrl(jso, PartychappServlet.URLForClientDomain(migratedDomain));
+    }
+  }
 
-    }
+private void sendJsonObjectToUrl(JSONObject jso, String urlString) {
+	try {
+		String out = jso.toString();
+		Configuration.persistentConfig().getProxyToken();      
+		String data;
+		URL url = new URL(urlString);
+
+		data = URLEncoder.encode("token", "UTF-8") + "=" 
+		    + URLEncoder.encode(Configuration.persistentConfig().getProxyToken(), "UTF-8");
+		data += "&" + URLEncoder.encode("body", "UTF-8") + "=" + URLEncoder.encode(out, "UTF-8");
+	   
+		HTTPRequest r = new HTTPRequest(url, HTTPMethod.POST);
+		r.setPayload(data.getBytes());
+		URLFetchServiceFactory.getURLFetchService().fetchAsync(r);
+		logger.info("Sent message via HTTPS to " + url.toString());
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+}
 
   private Set<JID> sendMessage(
       String message, List<JID> withSequenceId, List<JID> noSequenceId) {

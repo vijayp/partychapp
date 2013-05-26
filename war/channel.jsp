@@ -125,6 +125,22 @@
     <td><iframe frameborder=0 name="inviteResults"> </iframe></td>
   </tr>
 </table>
+
+<div>
+<b>Experimental</b>
+Use this gmail account in addition to <%=channel.getName() %>@im.partych.at:
+<form action="/channel/add_gmail_account" method="post">
+<input type="hidden" name="name" value="<%=channel.getName()%>"/>
+User name: <input type="text" name="gmail_username" value="<%=channel.getGmailUserName() %>" />
+<i><b>IMPORTANT: USE A SPECIAL PURPOSE GMAIL ACCOUNT -- DO NOT USE YOUR PERSONAL ACCOUNT!!!</b></i>
+<br>
+Create an <a href="https://accounts.google.com/IssuedAuthSubTokens?hide_authsub=1">application specific password</a> and paste it here:
+<br>
+Password: <input type="text" name="gmail_password" value="<%=channel.getGmailPassword() %>" />
+<input type="submit" value="Submit">
+</form>
+</div>
+
 <script>
   new partychapp.ScoreTable('<%= channel.getName() %>',
                             <%= (String) request.getAttribute("targetInfo") %>);

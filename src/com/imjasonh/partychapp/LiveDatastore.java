@@ -11,6 +11,7 @@ import com.google.appengine.api.memcache.InvalidValueException;
 import com.google.appengine.api.memcache.jsr107cache.GCacheFactory;
 import com.google.common.collect.ImmutableMap;
 
+import com.imjasonh.partychapp.Datastore.NotImplementedException;
 import com.imjasonh.partychapp.ppb.Reason;
 import com.imjasonh.partychapp.ppb.Target;
 
@@ -202,6 +203,16 @@ public class LiveDatastore extends Datastore {
     PreparedQuery pq = ds.prepare(q);
     FetchOptions fetchOptions = FetchOptions.Builder.withOffset(0); 
     return pq.asList(fetchOptions).size(); 
+  }
+  @Override
+  public List<Channel> getChannelsForGmailUsername(
+      String gmailUserName) throws NotImplementedException {
+    Query q = manager.get().newQuery(Channel.class);
+    q.setFilter("gmailUserName == un");
+    q.declareParameters("String un");
+    List<Channel>channels = (List<Channel>) q.execute(gmailUserName);
+    q.closeAll();
+    return channels;
   }
 
   @Override
