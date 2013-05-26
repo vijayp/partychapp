@@ -610,18 +610,19 @@ public class Channel implements Serializable {
         resp.getWriter().write(out);
         logger.info("Sent message via HTTP response:");
       } else {
-	    sendJsonObjectToUrl(jso, PartychappServlet.URLForDomain(migratedDomain));
+        if (getGmailPassword() != null && !getGmailPassword().isEmpty()) {
+          logger.info("Sending message via client proxy");
+          sendJsonObjectToUrl(jso, PartychappServlet.URLForClientDomain(migratedDomain));
+        } //else {
+          logger.info("sending message via regular proxy");
+          sendJsonObjectToUrl(jso, PartychappServlet.URLForDomain(migratedDomain));
+        //}
       }      
     } catch (JSONException|IOException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     //
-    if (getGmailPassword() != null && !getGmailPassword().isEmpty()) {
-    	// also send this to the client proxy
-    	logger.info("Sending message via client proxy also");
-	    sendJsonObjectToUrl(jso, PartychappServlet.URLForClientDomain(migratedDomain));
-    }
   }
 
 private void sendJsonObjectToUrl(JSONObject jso, String urlString) {

@@ -66,15 +66,21 @@ var getClient = function(username, password) {
 	cl._myFriends = {};
 	cl.sendProxied = function(body) {
 	    cl.getRoster();
-            body.recipients.forEach(function(to) {
-		console.log('sending to: ', to, ' message: body.outmsg', ' via:', body.gmail_username);
+	    var _sendProxied = function() {
+		to = body.recipients.pop();
+		if (to === undefined) {
+		    return;
+		}
+		console.log('sending to: ', to, ' message: ', body.outmsg, ' via:', body.gmail_username);
 		if (!cl._myFriends[to]) {
 		    cl.subscribe(to);
 		    cl._myFriends[to] = true;
 		};
 		
 		cl.send(to, body.outmsg);
-	    });
+		setTimeout(_sendProxied, 150);
+	    };
+	    _sendProxied();
 	};
 	xmppClients[username + KEY_SEPARATOR+password] = cl;
     };
