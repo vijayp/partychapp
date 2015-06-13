@@ -1,6 +1,5 @@
 package com.imjasonh.partychapp.mr;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,7 +9,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -21,28 +19,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.CounterGroup;
-import org.apache.hadoop.mapreduce.Counters;
-import org.apache.hadoop.mapreduce.JobID;
-import org.datanucleus.sco.backed.Set;
-
-import com.google.appengine.api.datastore.Text;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.apphosting.api.ApiProxy.RequestTooLargeException;
+import com.google.appengine.api.datastore.Text;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
-import com.imjasonh.partychapp.Channel;
-import com.imjasonh.partychapp.Datastore;
-import com.imjasonh.partychapp.Member;
-import com.imjasonh.partychapp.User;
 import com.imjasonh.partychapp.server.PartychappServlet;
 
 import de.toolforge.googlechartwrapper.Dimension;
