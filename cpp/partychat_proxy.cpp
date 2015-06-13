@@ -58,7 +58,8 @@ DEFINE_string(default_token, "tokendata", "default xmpp token (if file cannot be
 DEFINE_string(token_file, "/etc/certs/token", "xmpp token file");
 DEFINE_string(ssl_keyfile, "/etc/certs/server.all", "ssl key file");
 DEFINE_string(state_file, "cppproxy.state", "default xmpp token");
-
+DEFINE_string(appengine_hostname, "partychapp.appspot.com", "appengine hostname");
+DEFINE_string(status_message, "", "status message for chat rooms");
 
 
 
@@ -108,7 +109,7 @@ template<class T> bool LoadState(T* obj, const string& filename) {
 
 static string global_token;
 // TODO: flag
-static const string kUrl = "https://partychapp.appspot.com/___control___";
+static string kUrl;
 //static const string kUrl = "http://localhost:8888/___control___";
 ///
 using namespace boost::threadpool;
@@ -481,7 +482,7 @@ class SimpleProxy: public DiscoHandler,
     }
     virtual void SendPresence(const JID& from_jid, const JID& to_jid,
         const string& from = "", const string& to = "") {
-      Presence out(Presence::Available, to_jid, "http://partych.at");
+      Presence out(Presence::Available, to_jid, FLAGS_status_message);
       out.setFrom(from_jid);
       
       random_component()->send(out);
@@ -644,6 +645,12 @@ int main(int argc, char** argv) {
   // 350 MB of RAM
   limits.rlim_cur = 1500 * (1 << 20);
   limits.rlim_max = 1500 * (1 << 20);
+  CHECK(FLAGS_appengine_hostname.size());
+
+  // TODO: check for bad characters in hostname
+  kUrl = "https://" + FLAGS_appengine_hostname + "/___control___";
+  LOG(INFO) << "setting hostname to " << kUrl;
+  printf("\nHOSTNAME: %s\n", kUrl.c_str());
 
   int rval = setrlimit(RLIMIT_RSS, &limits);
   if (rval) {
