@@ -36,7 +36,6 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.taskqueue.Transaction;
 import com.google.apphosting.api.ApiProxy.RequestTooLargeException;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
